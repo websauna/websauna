@@ -1,0 +1,3 @@
+recursive-include pyramid_web20 *.yaml *.py *.html
+include *.rst
+

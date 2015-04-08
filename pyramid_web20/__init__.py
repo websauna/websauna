@@ -1,8 +1,8 @@
 from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
 
-
 from . import models
+from . import views
 
 
 def configure_horus(config):
@@ -22,11 +22,18 @@ def main(global_config, **settings):
     models.DBSession.configure(bind=engine)
     models.Base.metadata.bind = engine
     config = Configurator(settings=settings)
-    config.include('pyramid_chameleon')
+
+    # Jinja 2 templates as .html files
+    config.include('pyramid_jinja2')
+    config.add_jinja2_renderer('.html')
+    config.add_jinja2_search_path('pyramid_web20:templates', name='.html')
+
     config.add_static_view('static', 'static', cache_max_age=3600)
-    config.add_route('home', '/')
-    config.scan()
 
     configure_horus(config)
+
+    config.add_route('home', '/')
+    config.scan()
+    config.scan(views)
 
     return config.make_wsgi_app()

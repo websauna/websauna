@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    {% block description %}
+        {% include "site/description.html" %}
+    {% endblock description %}
+
+    {% block meta %}
+        {% include "site/meta.html" %}
+    {% endblock meta %}
+
+    {% block css %}
+        {% include "site/css.html" %}
+    {% endblock %}
+
+    {% block extra_head %}
+        {# Pages can register their page specific CSS/JS here #}
+    {% endblock %}
+
+</head>
+
+<body
+    {% block body_classes %}
+    {% endblock body_classes %}
+    >
+
+    {% block header %}
+        <header>
+            {% include "site/nav.html" %}
+        </header>
+    {% endblock header %}
+
+    {% block main %}
+        <main>
+            {% block content %}
+            {% endblock content %}
+        </main>
+    {% endblock main %}
+
+    {% block footer %}
+        {% include "site/footer.html" %}
+    {% endblock footer %}
+
+    {% block body_end %}
+    {% endblock body_end %}
+
+    {% block script %}
+        {% include "site/javascript.html" %}
+    {% endblock script %}
+
+    {% block custom_script %}
+
+    {% endblock custom_script %}
+
+    {% block analytics %}
+        {% include "site/analytics.html" %}
+    {% endblock analytics %}
+
+</body>
+</html>

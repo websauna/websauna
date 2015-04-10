@@ -1,6 +1,9 @@
 from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
 
+from pyramid_mailer.interfaces import IMailer
+from .mail import StdoutMailer
+
 from . import models
 from . import views
 
@@ -14,6 +17,18 @@ def configure_horus(config):
     config.include('horus')
     config.scan_horus(models)
 
+    config.add_view('horus.views.AuthController', attr='login', route_name='login', renderer='templates/login/login.html')
+    config.add_view('horus.views.RegisterController', attr='register', route_name='register', renderer='templates/login/register.html')
+
+
+def configure_mailer(config):
+    mailer = StdoutMailer()
+    config.registry.registerUtility(mailer, IMailer)
+
+
+# Done by Horus already?
+# def configure_auth(config):
+#     config.add_request_method(request.augment_request_get_user, 'user', reify=True)
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
@@ -31,6 +46,7 @@ def main(global_config, **settings):
     config.add_static_view('static', 'static', cache_max_age=3600)
 
     configure_horus(config)
+    configure_mailer(config)
 
     config.add_route('home', '/')
     config.scan()

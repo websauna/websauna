@@ -1,0 +1,26 @@
+{# Horus render_flash_messages() #}
+
+<div class="container">
+
+    {% set queues = ['error', 'warning', 'info', 'success', ''] %}
+
+    {# Bootstrap 3.x alert classes mapped to error levels #}
+    {% set visuals = {'error': 'danger'} %}
+
+    {% for queue in queues %}
+         {% with messages = request.session.pop_flash(queue) %}
+            {% for msg in messages %}
+                {% if queue %}
+                    <div class="alert alert-{{ visuals.get(msg.kind, msg.kind) }}">
+                        {{ msg.plain }}
+                    </div>
+                {% else %}
+                    {# TODO: Finish this out - login page posts Invalid username or password, no class #}
+                    <div class="alert alert-danger">
+                        {{ msg.plain }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endwith %}
+    {% endfor %}
+</div>

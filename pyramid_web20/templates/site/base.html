@@ -27,15 +27,22 @@
     >
 
     {% block header %}
-        <header>
-            {% include "site/nav.html" %}
-        </header>
+        {% include "site/header.html" %}
     {% endblock header %}
 
     {% block main %}
         <main>
-            {% block content %}
-            {% endblock content %}
+
+            <div class="messages">
+                {% block messages %}
+                    {% include "site/messages.html" %}
+                {% endblock messages %}
+            </div>
+
+            <div class="container">
+                {% block content %}
+                {% endblock content %}
+            </div>
         </main>
     {% endblock main %}
 

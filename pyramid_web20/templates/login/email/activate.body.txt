@@ -1,0 +1,8 @@
+{% extends "email/base.txt" %}
+
+{% block content %}
+Your account on {{site_name}} is pending for email activation. Please click the link below to continue.
+
+{{link}}
+{% endblock content %}
+

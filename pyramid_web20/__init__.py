@@ -6,6 +6,10 @@ from .mail import StdoutMailer
 
 from . import models
 from . import views
+from . import login
+from . import schemas
+
+from horus.interfaces import IRegisterSchema
 
 
 def configure_horus(config):
@@ -17,14 +21,29 @@ def configure_horus(config):
     config.include('horus')
     config.scan_horus(models)
 
-    config.add_view('horus.views.AuthController', attr='login', route_name='login', renderer='templates/login/login.html')
-    config.add_view('horus.views.RegisterController', attr='register', route_name='register', renderer='templates/login/register.html')
+    config.add_view('horus.views.AuthController', attr='login', route_name='login', renderer='login/login.html')
+    #config.add_view('horus.views.RegisterController', attr='register', route_name='register', renderer='login/register.html')
+    config.add_route('waiting_for_activation', '/waiting-for-activation')
+    config.registry.registerUtility(schemas.RegisterSchema, IRegisterSchema)
+
+    login.activate_monkey_patch()
 
 
 def configure_mailer(config):
     mailer = StdoutMailer()
     config.registry.registerUtility(mailer, IMailer)
 
+
+def config_templates(config):
+
+    # Jinja 2 templates as .html files
+    config.include('pyramid_jinja2')
+    config.add_jinja2_renderer('.html')
+    config.add_jinja2_renderer('.txt')
+    config.add_jinja2_search_path('pyramid_web20:templates', name='.html')
+    config.add_jinja2_search_path('pyramid_web20:templates', name='.txt')
+
+    config.include("pyramid_web20.views.templatecontext")
 
 # Done by Horus already?
 # def configure_auth(config):
@@ -38,10 +57,7 @@ def main(global_config, **settings):
     models.Base.metadata.bind = engine
     config = Configurator(settings=settings)
 
-    # Jinja 2 templates as .html files
-    config.include('pyramid_jinja2')
-    config.add_jinja2_renderer('.html')
-    config.add_jinja2_search_path('pyramid_web20:templates', name='.html')
+    config_templates(config)
 
     config.add_static_view('static', 'static', cache_max_age=3600)
 

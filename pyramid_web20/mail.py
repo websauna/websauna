@@ -1,20 +1,19 @@
+from pyramid.renderers import render
+
+from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Attachment
 from pyramid_mailer.message import Message
+
+import premailer
 
 
 class StdoutMailer(object):
     """Print all outgoing email to console.
 
+    Used by the development server.
     """
     def __init__(self):
         pass
-
-    def _message_args(self, message):
-
-        message.sender = message.sender or self.default_sender
-        # convert Lamson message to Python email package msessage
-        msg = message.to_message()
-        return (message.sender, message.send_to, msg)
 
     def _send(self, message, fail_silently=False):
         """Save message to a file for debugging
@@ -28,7 +27,7 @@ class StdoutMailer(object):
     send_immediately_sendmail = _send
 
 
-def email_out(recipients, template, template_context):
+def send_templated_mail(request, recipients, template, context, sender=None):
     """Helper utility to send out HTML/plain text emails.
 
     Plain text email is generated based on HTML email.
@@ -38,12 +37,31 @@ def email_out(recipients, template, template_context):
     * Convert HTML output to plain text for fallback
 
     :param template: Template filename base for template tripled (subject, HTML body, plain text body)
+
+    :param context: Template context variables
     """
 
-    body = Attachment(data="hello, arthur",
-                      transfer_encoding="quoted-printable")
+    # TODO: move request usage out from this function and make sure we can call this asynchronously
 
-    html = Attachment(data="<p>hello, arthur</p>",
-                      transfer_encoding="quoted-printable")
+    assert recipients
+    assert len(recipients) > 0
 
-    message = Message(subject=subject, body=body, html=html)
+    subject = render(template + ".subject.txt", context, request=request)
+    subject = subject.strip()
+
+    html_body = render(template + ".body.html", context, request=request)
+    text_body = render(template + ".body.txt", context, request=request)
+
+    if not sender:
+        sender = request.registry.settings["mail.default_sender"]
+
+    # Inline CSS styles
+    html_body = premailer.transform(html_body)
+
+    text_body = Attachment(data=text_body, transfer_encoding="quoted-printable")
+    html_body = Attachment(data=html_body, transfer_encoding="quoted-printable")
+
+    message = Message(subject=subject, sender=sender, recipients=recipients, body=text_body, html=html_body)
+
+    mailer = get_mailer(request)
+    mailer.send(message)

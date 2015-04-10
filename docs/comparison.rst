@@ -29,6 +29,8 @@ Django
 
 * Email backend
 
+* Rich text email framework
+
 * Static assets
 
 * Debug toolbar

@@ -4,6 +4,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy import Column
 
+from pyramid.i18n import TranslationStringFactory
+
 from horus.models import GroupMixin
 from horus.models import UserMixin
 from horus.models import UserGroupMixin
@@ -22,6 +24,8 @@ from zope.sqlalchemy import ZopeTransactionExtension
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 
 Base = declarative_base(cls=BaseModel)
+
+_ = TranslationStringFactory('web20')
 
 
 class User(UserMixin, Base):

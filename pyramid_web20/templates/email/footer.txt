@@ -1,0 +1,5 @@
+{% block footer %}
+
+--
+Send by {{site_name}}
+{% endblock footer %}

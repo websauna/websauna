@@ -13,3 +13,4 @@ pyramid_jinja2==2.4
 
 # Email out
 pyramid-mailer==0.14
+premailer==2.8.3

@@ -1,6 +1,12 @@
 """User log in and sign up related logic."""
 
+from hem.db import get_session
+
 from horus import views as horus_views
+from horus.interfaces import IActivationClass
+
+from .mail import send_templated_mail
+
 
 def create_activation(request, user):
     db = get_session(request)
@@ -14,19 +20,18 @@ def create_activation(request, user):
 
     # TODO Create a hook for the app to give us body and subject!
     # TODO We don't need pystache just for this!
-    body = pystache.render(
-        _("Please validate your email and activate your account by visiting:\n"
-            "{{ link }}"),
-        {
-            'link': request.route_url('activate', user_id=user.id,
-                                      code=user.activation.code)
-        }
-    )
-    subject = _("Please activate your account!")
+    context = {
+        'link': request.route_url('activate', user_id=user.id,
+                                  code=user.activation.code)
+    }
 
-    message = Message(subject=subject, recipients=[user.email], body=body)
-    mailer = get_mailer(request)
-    mailer.send(message)
+    send_templated_mail(request, [user.email], "login/email/activate", context)
 
-# Monkey patch horus to do nice email outs
-horus_views.create_activation = create_activation
+
+def activate_monkey_patch():
+    # Monkey patch horus to do nice email outs
+    horus_views.create_activation = create_activation
+
+
+def includeme():
+    config.registry.registerUtility(SubmitForm, form)

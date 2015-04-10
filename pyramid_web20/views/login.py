@@ -161,5 +161,3 @@ class RegisterController(BaseController):
                 return HTTPFound(location=self.after_activate_url)
         return HTTPNotFound()
 
-
-

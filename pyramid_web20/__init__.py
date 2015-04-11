@@ -21,7 +21,7 @@ def configure_horus(config):
     config.include('horus')
     config.scan_horus(models)
 
-    config.add_view('horus.views.AuthController', attr='login', route_name='login', renderer='login/login.html')
+    #config.add_view('horus.views.AuthController', attr='login', route_name='login', renderer='login/login.html')
     #config.add_view('horus.views.RegisterController', attr='register', route_name='register', renderer='login/register.html')
     config.add_route('waiting_for_activation', '/waiting-for-activation')
     config.registry.registerUtility(schemas.RegisterSchema, IRegisterSchema)

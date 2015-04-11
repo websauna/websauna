@@ -21,6 +21,10 @@ Running a single test case with ipdb breakpoint support::
 
     py.test –s pyramid_web20/core/tests/test_conflictresolver.py
 
+Running functional tests with an alternative browser (Firefox is default)::
+
+    py.test --splinter-webdriver=phantomjs pyramid_web20/tests/test_frontpage.py
+
 Running a single test::
 
     py.test -k "BitcoindTestCase.test_send_internal" pyramid_web20

@@ -18,27 +18,21 @@ from pyramid.paster import (
 from pyramid_web20.models import DBSession
 from pyramid_web20.models import Base
 
-_cached_config = None
+#: Make sure py.test picks this up
+from pyramid_web20.tests.functional import web_server  # noqa
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope='session')
 def ini_settings(request):
 
-    global _cached_config
-
-    if not hasattr(request.config.option, "ini"):
+    if not getattr(request.config.option, "ini", None):
         raise RuntimeError("You need to give --ini test.ini command line option to py.test to find our test settings")
 
-    if not _cached_config:
-        config_uri = os.path.abspath(request.config.option.ini)
-        setup_logging(config_uri)
-        config = get_appsettings(config_uri)
-        _cached_config = config
+    config_uri = os.path.abspath(request.config.option.ini)
+    setup_logging(config_uri)
+    config = get_appsettings(config_uri)
 
-    # Export loaded config to the test case instance
-    request.instance.config = _cached_config
-
-    return _cached_config
+    return config
 
 
 @pytest.fixture(scope='session')
@@ -68,7 +62,6 @@ def dbtransaction(request, sqlengine):
     request.addfinalizer(teardown)
 
     return connection
-
 
 def pytest_addoption(parser):
     parser.addoption("--ini", action="store", metavar="INI_FILE", help="use INI_FILE to configure SQLAlchemy")

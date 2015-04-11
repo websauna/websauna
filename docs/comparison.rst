@@ -31,6 +31,10 @@ Django
 
 * Rich text email framework
 
+* Functional testing
+
+* Functional testing, JavaScript
+
 * Static assets
 
 * Debug toolbar

@@ -22,7 +22,7 @@ from sqlalchemy.orm import (
 
 from zope.sqlalchemy import ZopeTransactionExtension
 
-from .utils.jsonb import JSONBField
+from .utils.jsonb import JSONBProperty
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 
@@ -40,6 +40,7 @@ class User(UserMixin, Base):
 
     REGISTRATION_SOURCE_EMAIL = "email"
     REGISTRATION_SOURCE_FACEBOOK = "facebook"
+    REGISTRATION_SOURCE_GITHUB = "github"
 
     #: When this account was created
     created_at = Column(DateTime, default=_now)
@@ -51,7 +52,7 @@ class User(UserMixin, Base):
     user_data = Column(JSONB)
 
     #: How this user signed up to the site. May include string like "email", "facebook"
-    user_registration_source = JSONBField("user_data", "user_registration_source")
+    user_registration_source = JSONBProperty("user_data", "user_registration_source")
 
 
 class Group(GroupMixin, Base):

@@ -1,3 +1,5 @@
+import configparser
+
 from pyramid.config import Configurator
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
@@ -6,12 +8,14 @@ from pyramid.path import DottedNameResolver
 from sqlalchemy import engine_from_config
 
 from pyramid_mailer.interfaces import IMailer
-from .mail import StdoutMailer
+from pyramid.settings import aslist
 
 from . import models
 from . import views
 from . import schemas
 from . import auth
+
+from . import authomatic
 
 from horus.interfaces import IRegisterSchema
 from horus.interfaces import ILoginSchema
@@ -57,13 +61,65 @@ def configure_templates(config):
     config.include("pyramid_web20.views.templatecontext")
 
 
-def configure_authentication(config, settings):
+def configure_authentication(config, settings, secrets):
 
     # Security policies
-    authn_policy = AuthTktAuthenticationPolicy(settings['pyramid_web20.authenication_secret'], callback=auth.find_groups, hashalg='sha512')
+    authn_policy = AuthTktAuthenticationPolicy(secrets['authentication']['secret'], callback=auth.find_groups, hashalg='sha512')
     authz_policy = ACLAuthorizationPolicy()
     config.set_authentication_policy(authn_policy)
     config.set_authorization_policy(authz_policy)
+
+
+def configure_authomatic(config, settings, secrets):
+    """Configure Authomatic social logins.
+
+    Read enabled logins from the configuration file.
+
+    Read consumer secrets from a secrets.ini.
+    """
+
+    social_logins = aslist(settings.get("pyramid_web20.social_logins", ""))
+
+    if not social_logins:
+        return
+
+    authomatic_config = {}
+
+    authomatic_secret = secrets["authomatic"]["secret"]
+
+    resolver = DottedNameResolver()
+
+    for login in social_logins:
+
+        if login not in secrets.sections():
+            raise RuntimeError("Secrets configuration file missing or missing the [{}] section".format(login))
+
+        authomatic_config[login] = {}
+        authomatic_config[login]["consumer_key"] = secrets.get(login, "consumer_key")
+        authomatic_config[login]["consumer_secret"] = secrets.get(login, "consumer_secret")
+        authomatic_config[login]["consumer_secret"] = secrets.get(login, "consumer_secret")
+        authomatic_config[login]["class_"] = resolver.resolve(secrets.get(login, "class"))
+
+    config.add_route('login_social', '/login/{provider_name}')
+
+    authomatic.setup(authomatic_secret, authomatic_config)
+
+
+def read_secrets(settings):
+    """Read secrets configuration file.
+
+    Stores API keys, such.
+    """
+
+    # Secret configuration diretives
+    secrets_file = settings.get("pyramid_web20.secrets_file")
+    if not secrets_file:
+        return {}
+
+    config = configparser.ConfigParser()
+    config.read(secrets_file)
+
+    return config
 
 
 # Done by Horus already?
@@ -73,6 +129,9 @@ def configure_authentication(config, settings):
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
+
+    secrets = read_secrets(settings)
+
     engine = engine_from_config(settings, 'sqlalchemy.')
     models.DBSession.configure(bind=engine)
     models.Base.metadata.bind = engine
@@ -82,9 +141,10 @@ def main(global_config, **settings):
 
     config.add_static_view('static', 'static', cache_max_age=3600)
 
-    configure_authentication(config, settings)
+    configure_authentication(config, settings, secrets)
     configure_horus(config)
     configure_mailer(config, settings)
+    configure_authomatic(config, settings, secrets)
 
     config.add_route('home', '/')
     config.scan()

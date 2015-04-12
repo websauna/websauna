@@ -2,6 +2,7 @@
 psycopg2==2.6
 jsonpointer==1.7
 
+
 # Sessions
 pyramid-redis-sessions==1.0.1
 
@@ -15,3 +16,7 @@ pyramid_jinja2==2.4
 # Email out
 pyramid-mailer==0.14
 premailer==2.8.3
+
+# Social
+Authomatic==0.0.12
+python3-openid==3.0.5

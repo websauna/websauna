@@ -9,7 +9,9 @@ from pyramid.security import forget
 from pyramid.httpexceptions import HTTPFound
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.settings import asbool
+from pyramid.settings import aslist
 from pyramid.renderers import render_to_response
+from pyramid.response import Response
 
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
@@ -42,13 +44,14 @@ from horus.lib import FlashMessage
 from horus.models import _
 from horus.exceptions import AuthenticationFailure
 from horus.httpexceptions import HTTPBadRequest
-
 from horus import views as horus_views
-
 from horus.views import get_config_route
+
+from authomatic.adapters import WebObAdapter
 
 from ..mail import send_templated_mail
 from .. import models
+from .. import authomatic
 
 
 def create_activation(request, user):
@@ -135,10 +138,15 @@ class RegisterController(horus_views.RegisterController):
 
     @view_config(route_name='register', renderer='login/register.html')
     def register(self):
+
+        social_logins = aslist(self.settings.get("pyramid_web20.social_logins"))
+
         if self.request.method == 'GET':
             if self.request.user:
                 return HTTPFound(location=self.after_register_url)
-            return {'form': self.form.render()}
+
+            return {'form': self.form.render(), 'social_logins': social_logins}
+
         elif self.request.method != 'POST':
             return
 
@@ -257,3 +265,21 @@ class AuthController(horus_views.AuthController):
 
         self.form.action = self.request.route_url('login')
         return {"form": self.form.render()}
+
+    @view_config(route_name='login_social', renderer='login/login.html')
+    def login_social(self):
+        """After activation initial login screen."""
+
+        # We will need the response to pass it to the WebObAdapter.
+        response = Response()
+
+        # Get the internal provider name URL variable.
+        provider_name = self.request.matchdict.get('provider_name')
+
+        autho = authomatic.get()
+
+        # Start the login procedure.
+        result = autho.login(WebObAdapter(self.request, response), provider_name)
+
+        self.form.action = self.request.route_url('login')
+        return {"form": self.form.render(), "result": result}

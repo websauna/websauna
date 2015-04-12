@@ -6,3 +6,5 @@ pyramid_web20/__pycache__
 *.egg
 *.egg-info
 *.log
+secrets.ini
+

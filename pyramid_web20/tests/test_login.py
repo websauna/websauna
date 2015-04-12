@@ -82,3 +82,28 @@ def test_logout(web_server, browser, dbsession):
 
     # We should see the log in form
     assert b.is_element_visible_by_css("#login-form")
+
+
+def test_last_login_ip(web_server, browser, dbsession):
+    """Record last log in IP correctly."""
+
+    create_user()
+
+    with transaction.manager:
+        user = models.DBSession.query(models.User).get(1)
+        assert not user.last_login_ip
+
+    b = browser
+    b.visit(web_server)
+
+    b.click_link_by_text("Sign in")
+
+    assert b.is_element_visible_by_css("#login-form")
+
+    b.fill("username", EMAIL)
+    b.fill("password", PASSWORD)
+    b.find_by_name("Log_in").click()
+
+    with transaction.manager:
+        user = models.DBSession.query(models.User).get(1)
+        assert user.last_login_ip == "127.0.0.1"

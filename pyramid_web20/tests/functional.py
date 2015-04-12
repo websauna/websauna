@@ -9,10 +9,6 @@ from urllib.parse import urlparse
 import pytest
 from webtest import TestApp
 
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-
 from pyramid_web20 import main
 
 #: The URL where WSGI server is run from where Selenium browser loads the pages

@@ -40,7 +40,7 @@ class TestModel(Base):
     nested_property = JSONBProperty("data", "/nested_dict/nested_property")
 
 
-@pytest.mark.usefixtures("ini_settings")
+@pytest.mark.usefixtures("test_case_ini_settings")
 class TestJSON(unittest.TestCase):
     """JSONB fields and properties."""
 

@@ -1,0 +1,16 @@
+{% extends "site/base.html" %}
+
+{% block content %}
+    <div id="sign-up-complete">
+        <div class="alert alert-info">
+            <i class="fa fa-check-square-o"></i>
+            Your email is now verified. Thank you for signing up. Please sign in below.
+        </div>
+    </div>
+
+    <div id="login-form">
+        {{form|safe}}
+    </div>
+
+{% endblock content %}
+

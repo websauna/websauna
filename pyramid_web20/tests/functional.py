@@ -31,6 +31,7 @@ class ServerThread(threading.Thread):
         threading.Thread.__init__(self)
         self.app = app
         self.srv = None
+        self.daemon = True
 
     def run(self):
         """
@@ -49,15 +50,14 @@ class ServerThread(threading.Thread):
             self.srv = None
 
     def quit(self):
-        """
-        """
+        """Stop test webserver."""
         if self.srv:
             self.srv.shutdown()
 
 
 @pytest.fixture(scope='session')
 def web_server(request, ini_settings):
-    """Start a WSGI server for running functional tests."""
+    """Have a WSGI server for running functional tests."""
 
     app = main({}, **ini_settings)
 

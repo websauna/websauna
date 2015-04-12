@@ -5,6 +5,8 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import INET
 from sqlalchemy import DateTime
 from sqlalchemy import Column
+from sqlalchemy import String
+from sqlalchemy import Boolean
 
 from pyramid.i18n import TranslationStringFactory
 
@@ -13,8 +15,6 @@ from horus.models import UserMixin
 from horus.models import UserGroupMixin
 from horus.models import ActivationMixin
 from horus.models import BaseModel
-
-from sqlalchemy.ext.declarative import declarative_base
 
 from sqlalchemy.orm import (
     scoped_session,
@@ -41,22 +41,44 @@ def _now():
 DEFAULT_USER_DATA = {
     "full_name": None,
     "user_registration_source": None,
+
+    # Is it the first time this user is logging to our system? If it is then take the user to fill in the profile page.
+    "first_login": True,
+
     "social": {
     }
 }
 
 
 class User(UserMixin, Base):
+    """A user who signs up with email or with email from social media.
 
-    REGISTRATION_SOURCE_EMAIL = "email"
-    REGISTRATION_SOURCE_FACEBOOK = "facebook"
-    REGISTRATION_SOURCE_GITHUB = "github"
+    TODO: Make user user.id is not exposed anywhere e.g. in email activation links.
+    """
+
+    #: A test user
+    USER_MEDIA_DUMMY = "dummy"
+
+    #: Self sign up
+    USER_MEDIA_EMAIL = "email"
+
+    #: User signed up with Facebook
+    USER_MEDIA_FACEBOOK = "facebook"
+
+    #: User signed up with Github
+    USER_MEDIA_GITHUB = "github"
+
+    #: Though not displayed on the site, the concept of "username" is still preversed. If the site needs to have username (think Instragram, Twitter) the user is free to choose this username after the sign up. Username is null until the initial user activation is completed after db.flush() in create_activation().
+    username = Column(String(32), nullable=True, unique=True)
 
     #: When this account was created
     created_at = Column(DateTime, default=_now)
 
     #: When the account data was updated last time
     updated_at = Column(DateTime, onupdate=_now)
+
+    #: Is this user account enabled. The support can disable the user account in the case of suspected malicious activity.
+    enabled = Column(Boolean, default=True)
 
     #: When this user accessed the system last time. None if the user has never logged in (only activation email sent). Information stored for the security audits.
     last_login_at = Column(DateTime, nullable=True)
@@ -71,15 +93,15 @@ class User(UserMixin, Base):
     user_data = Column(JSONB, default=DEFAULT_USER_DATA)
 
     #: Full name of the user (if given)
-    full_name = JSONBProperty("user_data", "full_name")
+    full_name = JSONBProperty("user_data", "/full_name")
 
     #: How this user signed up to the site. May include string like "email", "facebook"
-    user_registration_source = JSONBProperty("user_data", "user_registration_source")
+    registration_source = JSONBProperty("user_data", "/registration_source")
 
     def get_friend_name(self):
         """How we present the user's name to the user itself.
 
-        Pick one of 1) full name 2) username 3) email.
+        Pick one of 1) full name 2) username if set 3) email.
         """
 
         full_name = self.full_name
@@ -90,6 +112,18 @@ class User(UserMixin, Base):
             return self.email
         else:
             return self.username
+
+    def generate_username(self):
+        """The default username we give for the user."""
+        assert self.id
+        return "user-{}".format(self.id)
+
+    def can_login(self):
+        return self.enabled and self.is_activated
+
+
+# We don't want these attributes from the default horus's UserMixin
+del User.last_login_date
 
 
 class Group(GroupMixin, Base):

@@ -1,11 +1,14 @@
 {% extends "site/base.html" %}
 
 {% block content %}
-    <h1>Login to {{site_name}}</h1>
-    {{form|safe}}
 
-    <p><a href="{{'forgot_password'|route_url}}">Forgot your password?</a></p>
-    <p>Don't have an account? <a href="{{'register'|route_url}}">Sign up!</a></p>
+    <div id="login-form">
+        <h1>Login to {{site_name}}</h1>
+        {{form|safe}}
+
+        <p><a href="{{'forgot_password'|route_url}}">Forgot your password?</a></p>
+        <p>Don't have an account? <a href="{{'register'|route_url}}">Sign up!</a></p>
+    </div>
 
 {% endblock content %}
 

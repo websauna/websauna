@@ -1,3 +1,5 @@
+import datetime
+
 from horus.views import BaseController
 
 from pyramid.view import view_config
@@ -41,7 +43,9 @@ from horus.models import _
 from horus.exceptions import AuthenticationFailure
 from horus.httpexceptions import HTTPBadRequest
 
-from horus.views import authenticated
+from horus import views as horus_views
+
+from horus.views import get_config_route
 
 from ..mail import send_templated_mail
 from .. import models
@@ -55,8 +59,8 @@ def create_activation(request, user):
     """
 
     assert user.id
-    user.username = "user-{}".format(user.id)
-    user.user_registration_source = models.User.REGISTRATION_SOURCE_EMAIL
+    user.username = user.generate_username()
+    user.user_registration_source = models.User.USER_MEDIA_EMAIL
 
     db = get_session(request)
     Activation = request.registry.getUtility(IActivationClass)
@@ -77,7 +81,7 @@ def create_activation(request, user):
     send_templated_mail(request, [user.email], "login/email/activate", context)
 
 
-def authenticate(request, user):
+def authenticated(request, user):
     """Sets the auth cookies and redirects to the page defined in horus.login_redirect, which defaults to a view named 'index'.
 
     Fills in user last login details.
@@ -88,6 +92,8 @@ def authenticate(request, user):
 
     settings = request.registry.settings
     headers = remember(request, user.id)
+    assert headers, "Authentication backend did not give us any session headers"
+
     autologin = asbool(settings.get('horus.autologin', False))
 
     if not autologin:
@@ -103,7 +109,7 @@ def authenticate(request, user):
     return HTTPFound(location=location, headers=headers)
 
 
-class RegisterController(BaseController):
+class RegisterController(horus_views.RegisterController):
 
     def __init__(self, request):
         super(RegisterController, self).__init__(request)
@@ -164,14 +170,6 @@ class RegisterController(BaseController):
         else:  # not autologin: user must log in just after registering.
             return self.waiting_for_activation(user)
 
-    def persist_user(self, controls):
-        '''To change how the user is stored, override this method.'''
-        # This generic method must work with any custom User class and any
-        # custom registration form:
-        user = self.User(**controls)
-        self.db.add(user)
-        return user
-
     @view_config(route_name='activate')
     def activate(self):
         code = self.request.matchdict.get('code', None)
@@ -189,18 +187,41 @@ class RegisterController(BaseController):
                 self.db.delete(activation)
                 # self.db.add(user)  # not necessary
                 self.db.flush()
-                FlashMessage(self.request, self.Str.activation_email_verified,
-                             kind='success')
+
                 self.request.registry.notify(
                     RegistrationActivatedEvent(self.request, user, activation))
                 return HTTPFound(location=self.after_activate_url)
         return HTTPNotFound()
 
 
-class AuthController(BaseController):
+class AuthController(horus_views.AuthController):
+
+    def check_credentials(self, username, password):
+        allow_email_auth = self.settings.get('horus.allow_email_auth', False)
+
+        user = self.User.get_user(self.request, username, password)
+
+        if allow_email_auth and not user:
+            user = self.User.get_by_email_password(
+                self.request, username, password)
+
+        if not user:
+            raise AuthenticationFailure(_('Invalid username or password.'))
+
+        if not self.allow_inactive_login and self.require_activation \
+                and not user.is_activated:
+            raise AuthenticationFailure(
+                _('Your account is not active, please check your e-mail.'))
+
+        if not user.can_login():
+            raise AuthenticationFailure(
+                _('Account log in disabled.'))
+
+        return user
 
     @view_config(route_name='login', renderer='login/login.html')
     def login(self):
+
         if self.request.method == 'GET':
             if self.request.user:
                 return HTTPFound(location=self.login_redirect_view)
@@ -228,7 +249,11 @@ class AuthController(BaseController):
                     'errors': [e]
                 }
 
-            self.request.user = user  # Please keep this line, my app needs it
+            return authenticated(self.request, user)
 
-            return authenticated(self.request, user.id_value)
+    @view_config(route_name='registration_complete', renderer='login/registration_complete.html')
+    def registration_complete(self):
+        """After activation initial login screen."""
 
+        self.form.action = self.request.route_url('login')
+        return {"form": self.form.render()}

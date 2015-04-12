@@ -8,41 +8,29 @@ Developing pyramid_web20.core
 Running tests
 --------------
 
-Unit tests are `PyTest based <http://pytest.org/>`_.
+Unit tests are `PyTest based <http://pytest.org/>`_. They use `Selenium browser automation framework <selenium-python.readthedocs.org/>`_ and  `Splinter simplified element interatcion <https://splinter.readthedocs.org/en/latest/>`_.
 
 Examples for running tests
 +++++++++++++++++++++++++++
 
-Running all tests::
+Running all tests silently using a headless test browser::
 
-    py.test pyramid_web20
+    py.test pyramid_web20 --splinter-webdriver=phantomjs --splinter-make-screenshot-on-failure=false --ini=test.ini
 
-Running a single test case with ipdb breakpoint support::
+Running a single test case with pdb breakpoint support::
 
-    py.test –s pyramid_web20/core/tests/test_conflictresolver.py
+    py.test -s --ini=test.ini --splinter-webdriver=phantomjs -k test_login_inactive
 
-Running functional tests with an alternative browser (Firefox is default)::
+Running functional tests with an alternative browser::
 
-    py.test --splinter-webdriver=phantomjs pyramid_web20/tests/test_frontpage.py
-
-Running a single test::
-
-    py.test -k "BitcoindTestCase.test_send_internal" pyramid_web20
-
-Running a single test with verbose Python logging output to stdout (useful for pinning down *why* the test fails)::
-
-    VERBOSE_TEST=1 py.test -k "BitcoindTestCase.test_send_internal" pyramid_web20
-
-Running tests for continuous integration service (15 minute timeout) and skipping slow tests where transactions are routed through cryptocurrency network (full BTC send/receive test, etc.)::
-
-    CI=true py.test pyramid_web20
-
-Running unittests using vanilla Python 3 unittest::
-
-    python -m unittest discover
-
-(This ignores all skipping hints)
+    py.test --splinter-webdriver=firefox pyramid_web20/tests/test_frontpage.py --ini=test.ini
 
 More info
 
 * http://pytest.org/latest/usage.html
+
+Writing tests
+----------------
+
+* `Spinter WebDriver convenience API <https://github.com/cobrateam/splinter/blob/master/splinter/driver/webdriver/__init__.py>`_
+

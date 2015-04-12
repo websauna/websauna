@@ -1,4 +1,5 @@
 import datetime
+import transaction
 
 from horus.views import BaseController
 
@@ -8,6 +9,7 @@ from pyramid.security import remember
 from pyramid.security import forget
 from pyramid.httpexceptions import HTTPFound
 from pyramid.httpexceptions import HTTPNotFound
+from pyramid.httpexceptions import HTTPMethodNotAllowed
 from pyramid.settings import asbool
 from pyramid.settings import aslist
 from pyramid.renderers import render_to_response
@@ -54,6 +56,10 @@ from .. import models
 from .. import authomatic
 
 
+class NotSatisfiedWithData(Exception):
+    """Risen when social media login cannot proceed due to incomplete provided information."""
+
+
 def create_activation(request, user):
     """Create through-the-web user sign up with his/her email.
 
@@ -93,15 +99,8 @@ def authenticated(request, user):
     assert isinstance(user, models.User)
     assert user.id, "Cannot login with invalid user object"
 
-    settings = request.registry.settings
     headers = remember(request, user.id)
     assert headers, "Authentication backend did not give us any session headers"
-
-    autologin = asbool(settings.get('horus.autologin', False))
-
-    if not autologin:
-        Str = request.registry.getUtility(IUIStrings)
-        FlashMessage(request, Str.authenticated, kind='success')
 
     # Update user security details
     user.last_login_at = datetime.datetime.utcnow()
@@ -109,7 +108,81 @@ def authenticated(request, user):
 
     location = get_config_route(request, 'horus.login_redirect')
 
+    user.first_login = False
+
     return HTTPFound(location=location, headers=headers)
+
+
+def normalize_facebook_data(data):
+    return {
+        "country": data.country,
+        "timezone": data.timezone,
+        "gender": data.gender,
+        "first_name": data.first_name,
+        "last_name": data.last_name,
+        "full_name": data.first_name + " " + data.last_name,
+        "link": data.link,
+        "birth_date": data.birth_date,
+        "city": data.city,
+        "postal_code": data.postal_code,
+        "email": data.email,
+        "id": data.id,
+        "nickname": data.nickname,
+    }
+
+
+def update_first_login_social_data(user, data):
+    """
+    :param data: Normalized data
+    """
+    if not user.full_name and data.get("full_name"):
+        user.full_name = data["full_name"]
+
+
+def get_or_create_user_by_social_medial_email(provider, email, social_data):
+    """ """
+
+    session = models.DBSession
+    User = models.User
+
+    user = session.query(User).filter_by(email=email).first()
+
+    if not user:
+        user = User(email=email)
+        session.add(user)
+        session.flush()
+        user.username = user.generate_username()
+        user.user_registration_source = provider
+
+    if provider == "facebook":
+        exported_data = normalize_facebook_data(social_data)
+    else:
+        raise AssertionError("Unsupported social provider")
+
+    # Update the social network data
+    user.social[provider] = exported_data
+    if user.first_login:
+        update_first_login_social_data(user, exported_data)
+
+    return user
+
+
+def capture_social_media_user(provider, result):
+    """Extract social media information from the login in order to associate the user account."""
+    assert not result.error
+
+    if provider == "facebook":
+        result.user.update()
+
+        assert result.user.credentials
+        assert result.user.id
+
+        if not result.user.email:
+            raise NotSatisfiedWithData("Email address is needed in order to user this service and we could not get one from your social media provider. Please try to sign up with your email instead.")
+
+        user = get_or_create_user_by_social_medial_email(provider, result.user.email, result.user)
+
+    return user
 
 
 class RegisterController(horus_views.RegisterController):
@@ -230,10 +303,12 @@ class AuthController(horus_views.AuthController):
     @view_config(route_name='login', renderer='login/login.html')
     def login(self):
 
+        social_logins = aslist(self.settings.get("pyramid_web20.social_logins"))
+
         if self.request.method == 'GET':
             if self.request.user:
                 return HTTPFound(location=self.login_redirect_view)
-            return {'form': self.form.render()}
+            return {'form': self.form.render(), "social_logins": social_logins}
 
         elif self.request.method == 'POST':
             try:
@@ -250,11 +325,13 @@ class AuthController(horus_views.AuthController):
 
             try:
                 user = self.check_credentials(username, password)
+                assert user.password
             except AuthenticationFailure as e:
                 FlashMessage(self.request, str(e), kind='error')
                 return {
                     'form': self.form.render(appstruct=captured),
-                    'errors': [e]
+                    'errors': [e],
+                    "social_logins": social_logins
                 }
 
             return authenticated(self.request, user)
@@ -266,20 +343,76 @@ class AuthController(horus_views.AuthController):
         self.form.action = self.request.route_url('login')
         return {"form": self.form.render()}
 
-    @view_config(route_name='login_social', renderer='login/login.html')
+    def grab_facebook_data(self, result):
+        """Update the user Facebook data field."""
+        # We will access the user's 5 most recent statuses.
+        url = 'https://graph.facebook.com/{0}?fields=feed.limit(5)'
+        url = url.format(result.user.id)
+
+        # Access user's protected resource.
+        access_response = result.provider.access(url)
+
+        if access_response.status == 200:
+            # Parse response.
+            statuses = access_response.data.get('feed').get('data')
+            error = access_response.data.get('error')
+
+            if error:
+                response.write(u'Damn that error: {0}!'.format(error))
+            elif statuses:
+                response.write('Your 5 most recent statuses:<br />')
+                for message in statuses:
+
+                    text = message.get('message')
+                    date = message.get('created_time')
+
+                    response.write(u'<h3>{0}</h3>'.format(text))
+                    response.write(u'Posted on: {0}'.format(date))
+
+    @view_config(route_name='login_social')
     def login_social(self):
         """After activation initial login screen."""
+
+        # Login is always state changing operation
+        if self.request.method != 'POST' and not self.request.params:
+            login_url = self.request.route_url("login")
+            return HTTPFound(location=login_url)
 
         # We will need the response to pass it to the WebObAdapter.
         response = Response()
 
+        social_logins = aslist(self.settings.get("pyramid_web20.social_logins"))
+
         # Get the internal provider name URL variable.
         provider_name = self.request.matchdict.get('provider_name')
+
+        # Allow only logins which we are configured
+        if provider_name not in social_logins:
+            raise RuntimeError("Attempt to login non-configured social media {}".format(provider_name))
 
         autho = authomatic.get()
 
         # Start the login procedure.
-        result = autho.login(WebObAdapter(self.request, response), provider_name)
+        adapter = WebObAdapter(self.request, response)
 
+        authomatic_result = autho.login(adapter, provider_name)
+
+        if not authomatic_result:
+            # Guess it wants to redirect us
+            return response
+
+        if not authomatic_result.error:
+            # Login succeeded
+            try:
+                user = capture_social_media_user(provider_name, authomatic_result)
+                return authenticated(self.request, user)
+            except NotSatisfiedWithData as e:
+                # TODO: Clean this up
+                authomatic_result.error = e
+
+        # We got some result, now let see how it goes
         self.form.action = self.request.route_url('login')
-        return {"form": self.form.render(), "result": result}
+        context = {"form": self.form.render(), "authomatic_result": authomatic_result, "social_logins": social_logins}
+        return render_to_response('login/login.html', context, request=self.request)
+
+

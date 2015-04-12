@@ -31,13 +31,14 @@
                 {% if request.user %}
                     <li>
                         <a id="nav-profile" href="#">
-                            <i class="fa fa-home"></i>
-                            {{ request.user.get_friendly_name }}
+                            <i class="fa fa-user"></i>
+                            {{ request.user.friendly_name }}
                         </a>
                     </li>
 
                     <li>
                         <a id="nav-logout" href="{{'logout'|route_url}}">
+                            <i class="fa fa-sign-out"></i>
                             Log out
                         </a>
                     </li>

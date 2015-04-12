@@ -1,12 +1,11 @@
 {% extends "social/base/login_snippet.html" %}
 
 {% block social %}
-    <a href="">
-        <i class="fa fa-facebook">
-    </a>
-
-    <a href="">
-        Login with Facebook
-    </a>
+    <form method="post" action="{{'login'|route_url}}/facebook">
+        <button class="btn btn-primary btn-block">
+            <i class="fa fa-facebook"></i>
+            Login with Facebook
+        </button>
+    </form>
 {% endblock social %}
 

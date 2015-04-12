@@ -97,7 +97,7 @@ def configure_authomatic(config, settings, secrets):
         authomatic_config[login] = {}
         authomatic_config[login]["consumer_key"] = secrets.get(login, "consumer_key")
         authomatic_config[login]["consumer_secret"] = secrets.get(login, "consumer_secret")
-        authomatic_config[login]["consumer_secret"] = secrets.get(login, "consumer_secret")
+        authomatic_config[login]["scope"] = aslist(secrets.get(login, "scope"))
         authomatic_config[login]["class_"] = resolver.resolve(secrets.get(login, "class"))
 
     config.add_route('login_social', '/login/{provider_name}')

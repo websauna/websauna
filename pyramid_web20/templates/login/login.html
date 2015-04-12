@@ -2,13 +2,46 @@
 
 {% block content %}
 
-    <div id="login-form">
-        <h1>Login to {{site_name}}</h1>
-        {{form|safe}}
 
-        <p><a href="{{'forgot_password'|route_url}}">Forgot your password?</a></p>
-        <p>Don't have an account? <a href="{{'register'|route_url}}">Sign up!</a></p>
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Login to {{site_name}}</h1>
+        </div>
     </div>
+
+    <div class="row">
+        {% if social_logins %}
+            <div class="col-md-6">
+
+                {% if authomatic_result and authomatic_result.error %}
+                    <div class="alert alert-danger">
+                        {{authomatic_result.error}}
+                    </div>
+                {% endif %}
+
+                <h2>With social media login</h2>
+
+                <div>
+                    {% for social in social_logins  %}
+                        {% set template = 'social/' + social + '/login_snippet.html' %}
+                        {% include template %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+
+        <div class="col-md-6">
+            <h2>With email</h2>
+
+            <div id="login-form">
+                {{form|safe}}
+                <p><a href="{{'forgot_password'|route_url}}">Forgot your password?</a></p>
+                <p>Don't have an account? <a href="{{'register'|route_url}}">Sign up!</a></p>
+            </div>
+        </div>
+    </div>
+
 
 {% endblock content %}
 

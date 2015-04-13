@@ -98,6 +98,8 @@ def authenticated(request, user):
 
     assert isinstance(user, models.User)
     assert user.id, "Cannot login with invalid user object"
+    if not user.can_login():
+        raise RuntimeError("Got authenticated() request for disabled user - should not happen")
 
     headers = remember(request, user.id)
     assert headers, "Authentication backend did not give us any session headers"

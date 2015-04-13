@@ -140,6 +140,7 @@ class User(UserMixin, Base):
         return "user-{}".format(self.id)
 
     def can_login(self):
+        """Is this user allowed to login."""
         return self.enabled and self.is_activated
 
 

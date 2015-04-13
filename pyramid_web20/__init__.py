@@ -21,132 +21,151 @@ from horus.interfaces import IRegisterSchema
 from horus.interfaces import ILoginSchema
 
 
-def configure_horus(config):
-    # Tell horus which SQLAlchemy scoped session to use:
-    from hem.interfaces import IDBSession
-    registry = config.registry
-    registry.registerUtility(models.DBSession, IDBSession)
+class Initializer:
+    """Initialize various subsystems and routes.
 
-    config.include('horus')
-    config.scan_horus(models)
-
-    #config.add_view('horus.views.AuthController', attr='login', route_name='login', renderer='login/login.html')
-    #config.add_view('horus.views.RegisterController', attr='register', route_name='register', renderer='login/register.html')
-    config.add_route('waiting_for_activation', '/waiting-for-activation')
-    config.add_route('registration_complete', '/registration-complete')
-    config.registry.registerUtility(schemas.RegisterSchema, IRegisterSchema)
-    config.registry.registerUtility(schemas.LoginSchema, ILoginSchema)
-
-    config.add_request_method(auth.get_user, 'user', reify=True)
-
-
-def configure_mailer(config, settings):
-    """Configure outgoing email backend based on the INI settings."""
-    resolver = DottedNameResolver()
-    mailer_cls = resolver.resolve(settings["pyramid_web20.mailer"])
-    mailer = mailer_cls()
-
-    config.registry.registerUtility(mailer, IMailer)
-
-
-def configure_templates(config):
-
-    # Jinja 2 templates as .html files
-    config.include('pyramid_jinja2')
-    config.add_jinja2_renderer('.html')
-    config.add_jinja2_renderer('.txt')
-    config.add_jinja2_search_path('pyramid_web20:templates', name='.html')
-    config.add_jinja2_search_path('pyramid_web20:templates', name='.txt')
-
-    config.include("pyramid_web20.views.templatecontext")
-
-
-def configure_authentication(config, settings, secrets):
-
-    # Security policies
-    authn_policy = AuthTktAuthenticationPolicy(secrets['authentication']['secret'], callback=auth.find_groups, hashalg='sha512')
-    authz_policy = ACLAuthorizationPolicy()
-    config.set_authentication_policy(authn_policy)
-    config.set_authorization_policy(authz_policy)
-
-
-def configure_authomatic(config, settings, secrets):
-    """Configure Authomatic social logins.
-
-    Read enabled logins from the configuration file.
-
-    Read consumer secrets from a secrets.ini.
+    Customizers can subclass this and override parts they want to change.
     """
-    config.add_route('login_social', '/login/{provider_name}')
+    def __init__(self, settings):
+        self.config = Configurator(settings=settings)
 
-    social_logins = aslist(settings.get("pyramid_web20.social_logins", ""))
+    def configure_horus(self):
+        # Tell horus which SQLAlchemy scoped session to use:
+        from hem.interfaces import IDBSession
+        registry = self.config.registry
+        registry.registerUtility(models.DBSession, IDBSession)
 
-    if not social_logins:
-        return
+        self.config.include('horus')
+        self.config.scan_horus(models)
 
-    authomatic_config = {}
+        #self.config.add_view('horus.views.AuthController', attr='login', route_name='login', renderer='login/login.html')
+        #self.config.add_view('horus.views.RegisterController', attr='register', route_name='register', renderer='login/register.html')
+        self.config.add_route('waiting_for_activation', '/waiting-for-activation')
+        self.config.add_route('registration_complete', '/registration-complete')
+        self.config.registry.registerUtility(schemas.RegisterSchema, IRegisterSchema)
+        self.config.registry.registerUtility(schemas.LoginSchema, ILoginSchema)
 
-    authomatic_secret = secrets["authomatic"]["secret"]
+        self.config.add_request_method(auth.get_user, 'user', reify=True)
 
-    resolver = DottedNameResolver()
+    def configure_mailer(self, settings):
+        """Configure outgoing email backend based on the INI settings."""
+        resolver = DottedNameResolver()
+        mailer_cls = resolver.resolve(settings["pyramid_web20.mailer"])
+        mailer = mailer_cls()
 
-    for login in social_logins:
+        self.config.registry.registerUtility(mailer, IMailer)
 
-        if login not in secrets.sections():
-            raise RuntimeError("Secrets configuration file missing or missing the [{}] section".format(login))
+    def configure_templates(self):
 
-        authomatic_config[login] = {}
-        authomatic_config[login]["consumer_key"] = secrets.get(login, "consumer_key")
-        authomatic_config[login]["consumer_secret"] = secrets.get(login, "consumer_secret")
-        authomatic_config[login]["scope"] = aslist(secrets.get(login, "scope"))
-        authomatic_config[login]["class_"] = resolver.resolve(secrets.get(login, "class"))
+        # Jinja 2 templates as .html files
+        self.config.include('pyramid_jinja2')
+        self.config.add_jinja2_renderer('.html')
+        self.config.add_jinja2_renderer('.txt')
+        self.config.add_jinja2_search_path('pyramid_web20:templates', name='.html')
+        self.config.add_jinja2_search_path('pyramid_web20:templates', name='.txt')
 
-    authomatic.setup(authomatic_secret, authomatic_config)
+        self.config.include("pyramid_web20.views.templatecontext")
 
+    def configure_authentication(self, settings, secrets):
 
-def read_secrets(settings):
-    """Read secrets configuration file.
+        # Security policies
+        authn_policy = AuthTktAuthenticationPolicy(secrets['authentication']['secret'], callback=auth.find_groups, hashalg='sha512')
+        authz_policy = ACLAuthorizationPolicy()
+        self.config.set_authentication_policy(authn_policy)
+        self.config.set_authorization_policy(authz_policy)
 
-    Stores API keys, such.
-    """
+    def configure_authomatic(self, settings, secrets):
+        """Configure Authomatic social logins.
 
-    # Secret configuration diretives
-    secrets_file = settings.get("pyramid_web20.secrets_file")
-    if not secrets_file:
-        return {}
+        Read enabled logins from the configuration file.
 
-    config = configparser.ConfigParser()
-    config.read(secrets_file)
+        Read consumer secrets from a secrets.ini.
+        """
+        self.config.add_route('login_social', '/login/{provider_name}')
 
-    return config
+        social_logins = aslist(settings.get("pyramid_web20.social_logins", ""))
 
+        if not social_logins:
+            return
 
-# Done by Horus already?
-# def configure_auth(config):
-#     config.add_request_method(request.augment_request_get_user, 'user', reify=True)
+        authomatic_config = {}
+
+        authomatic_secret = secrets["authomatic"]["secret"]
+
+        resolver = DottedNameResolver()
+
+        for login in social_logins:
+
+            if login not in secrets.sections():
+                raise RuntimeError("Secrets configuration file missing or missing the [{}] section".format(login))
+
+            authomatic_config[login] = {}
+            authomatic_config[login]["consumer_key"] = secrets.get(login, "consumer_key")
+            authomatic_config[login]["consumer_secret"] = secrets.get(login, "consumer_secret")
+            authomatic_config[login]["scope"] = aslist(secrets.get(login, "scope"))
+            authomatic_config[login]["class_"] = resolver.resolve(secrets.get(login, "class"))
+
+        authomatic.setup(authomatic_secret, authomatic_config)
+
+    def configure_database(self, settings):
+        engine = engine_from_config(settings, 'sqlalchemy.')
+        models.DBSession.configure(bind=engine)
+        models.Base.metadata.bind = engine
+
+    def configure_views(self, settings):
+        self.config.add_route('home', '/')
+        self.config.scan()
+        self.config.scan(views)
+
+    def configure_static(self, settings):
+        self.config.add_static_view('static', 'static', cache_max_age=3600)
+
+    def configure_sessions(self, settings, secrets):
+        """Configure session storage."""
+
+        session_secret = secrets["session"]["secret"]
+
+        # TODO: Make more boilerplate here so that we pass secret in more sane way
+        self.config.registry.settings["redis.sessions.secret"] = session_secret
+
+        self.config.include("pyramid_redis_sessions")
+
+    def read_secrets(self, settings):
+        """Read secrets configuration file.
+
+        Stores API keys, such.
+        """
+
+        # Secret configuration diretives
+        secrets_file = settings.get("pyramid_web20.secrets_file")
+        if not secrets_file:
+            return {}
+
+        secrets_config = configparser.ConfigParser()
+        secrets_config.read(secrets_file)
+
+        return secrets_config
+
+    def run(self, settings):
+        secrets = self.read_secrets(settings)
+
+        self.configure_database(settings)
+        self.configure_templates()
+        self.configure_static(settings)
+        self.configure_authentication(settings, secrets)
+        self.configure_horus()
+        self.configure_mailer(settings)
+        self.configure_authomatic(settings, secrets)
+        self.configure_views(settings)
+        self.configure_sessions(settings, secrets)
+
+    def make_wsgi_app(self):
+        return self.config.make_wsgi_app()
+
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
-
-    secrets = read_secrets(settings)
-
-    engine = engine_from_config(settings, 'sqlalchemy.')
-    models.DBSession.configure(bind=engine)
-    models.Base.metadata.bind = engine
-    config = Configurator(settings=settings)
-
-    configure_templates(config)
-
-    config.add_static_view('static', 'static', cache_max_age=3600)
-
-    configure_authentication(config, settings, secrets)
-    configure_horus(config)
-    configure_mailer(config, settings)
-    configure_authomatic(config, settings, secrets)
-
-    config.add_route('home', '/')
-    config.scan()
-    config.scan(views)
-
-    return config.make_wsgi_app()
+    init = Initializer(settings)
+    init.run(settings)
+    return init.make_wsgi_app()

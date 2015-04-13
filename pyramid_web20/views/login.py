@@ -212,7 +212,7 @@ class RegisterController(horus_views.RegisterController):
     @view_config(route_name='register', renderer='login/register.html')
     def register(self):
 
-        social_logins = aslist(self.settings.get("pyramid_web20.social_logins"))
+        social_logins = aslist(self.settings.get("pyramid_web20.social_logins", ""))
 
         if self.request.method == 'GET':
             if self.request.user:
@@ -303,7 +303,7 @@ class AuthController(horus_views.AuthController):
     @view_config(route_name='login', renderer='login/login.html')
     def login(self):
 
-        social_logins = aslist(self.settings.get("pyramid_web20.social_logins"))
+        social_logins = aslist(self.settings.get("pyramid_web20.social_logins", ""))
 
         if self.request.method == 'GET':
             if self.request.user:
@@ -381,7 +381,7 @@ class AuthController(horus_views.AuthController):
         # We will need the response to pass it to the WebObAdapter.
         response = Response()
 
-        social_logins = aslist(self.settings.get("pyramid_web20.social_logins"))
+        social_logins = aslist(self.settings.get("pyramid_web20.social_logins", ""))
 
         # Get the internal provider name URL variable.
         provider_name = self.request.matchdict.get('provider_name')

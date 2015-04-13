@@ -77,6 +77,7 @@ def configure_authomatic(config, settings, secrets):
 
     Read consumer secrets from a secrets.ini.
     """
+    config.add_route('login_social', '/login/{provider_name}')
 
     social_logins = aslist(settings.get("pyramid_web20.social_logins", ""))
 
@@ -99,8 +100,6 @@ def configure_authomatic(config, settings, secrets):
         authomatic_config[login]["consumer_secret"] = secrets.get(login, "consumer_secret")
         authomatic_config[login]["scope"] = aslist(secrets.get(login, "scope"))
         authomatic_config[login]["class_"] = resolver.resolve(secrets.get(login, "class"))
-
-    config.add_route('login_social', '/login/{provider_name}')
 
     authomatic.setup(authomatic_secret, authomatic_config)
 

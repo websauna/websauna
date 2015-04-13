@@ -11,3 +11,8 @@ secrets.ini
 # Created by pytest-splinter for screenshots if not disabled by default
 pyramid_web20.tests.*
 node_modules
+*.sqlite
+avenv
+galaxy
+.vagrant
+

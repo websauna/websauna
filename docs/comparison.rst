@@ -53,3 +53,5 @@ Django
 
 * Message subsystem
 
+* Colored logging
+

@@ -20,3 +20,6 @@ premailer==2.8.3
 # Social
 Authomatic==0.0.12
 python3-openid==3.0.5
+
+# Developer tools
+rainbow_logging_handler==2.2.2

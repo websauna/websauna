@@ -13,7 +13,7 @@ def get_user(request):
 
     if userid is not None:
         user = user_class.get_by_id(request, userid)
-        if not user.can_login():
+        if user and not user.can_login():
             # User account disabled while in mid-session
             return None
         return user

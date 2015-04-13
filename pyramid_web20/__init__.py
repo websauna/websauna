@@ -14,6 +14,7 @@ from . import models
 from . import views
 from . import schemas
 from . import auth
+from .utils import configinclude
 
 from . import authomatic
 
@@ -27,6 +28,8 @@ class Initializer:
     Customizers can subclass this and override parts they want to change.
     """
     def __init__(self, settings):
+
+        configinclude.augment(settings)
         self.config = Configurator(settings=settings)
 
     def configure_horus(self):
@@ -49,11 +52,19 @@ class Initializer:
 
     def configure_mailer(self, settings):
         """Configure outgoing email backend based on the INI settings."""
-        resolver = DottedNameResolver()
-        mailer_cls = resolver.resolve(settings["pyramid_web20.mailer"])
-        mailer = mailer_cls()
 
-        self.config.registry.registerUtility(mailer, IMailer)
+        mailer_class = settings["pyramid_web20.mailer"]
+        if mailer_class == "mail":
+            # Default
+            from pyramid_mailer import mailer_factory_from_settings
+            mailer_factory_from_settings(settings)
+        else:
+            # debug backend
+            resolver = DottedNameResolver()
+            mailer_cls = resolver.resolve(mailer_class)
+            mailer = mailer_cls()
+
+            self.config.registry.registerUtility(mailer, IMailer)
 
     def configure_templates(self):
 

@@ -1,5 +1,8 @@
 """JSONB data utilities."""
 from sqlalchemy import inspect
+from sqlalchemy.orm.attributes import flag_modified
+from sqlalchemy.orm.attributes import set_attribute
+
 
 import jsonpointer
 
@@ -70,5 +73,8 @@ class JSONBProperty(object):
         if type(val) not in (str, float, bool, int):
             raise BadJSONData("Cannot update field at {} as it has unsupported type {} for JSONB data".format(self.pointer, type(val)))
 
-        data = self.ensure_valid_data(obj)
+        data = self.ensure_valid_data(obj).copy()
         jsonpointer.set_pointer(data, self.pointer, val)
+
+        # Hint SQLAlchemy that data is dirty now
+        set_attribute(obj, self.data_field, data)

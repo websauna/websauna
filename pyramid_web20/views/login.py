@@ -146,11 +146,13 @@ def update_first_login_social_data(user, data):
         user.full_name = data["full_name"]
 
 
-def get_or_create_user_by_social_medial_email(provider, email, social_data):
+def get_or_create_user_by_social_medial_email(request, provider, email, social_data):
     """ """
 
+    registry = request.registry
+    User = registry.queryUtility(IUserClass)
+
     session = models.DBSession
-    User = models.User
 
     user = session.query(User).filter_by(email=email).first()
 
@@ -168,13 +170,14 @@ def get_or_create_user_by_social_medial_email(provider, email, social_data):
 
     # Update the social network data
     user.social[provider] = exported_data
+    import ipdb; ipdb.set_trace()
     if user.first_login:
         update_first_login_social_data(user, exported_data)
 
     return user
 
 
-def capture_social_media_user(provider, result):
+def capture_social_media_user(request, provider, result):
     """Extract social media information from the login in order to associate the user account."""
     assert not result.error
 
@@ -187,7 +190,7 @@ def capture_social_media_user(provider, result):
         if not result.user.email:
             raise NotSatisfiedWithData("Email address is needed in order to user this service and we could not get one from your social media provider. Please try to sign up with your email instead.")
 
-        user = get_or_create_user_by_social_medial_email(provider, result.user.email, result.user)
+        user = get_or_create_user_by_social_medial_email(request, provider, result.user.email, result.user)
 
     return user
 
@@ -411,7 +414,7 @@ class AuthController(horus_views.AuthController):
         if not authomatic_result.error:
             # Login succeeded
             try:
-                user = capture_social_media_user(provider_name, authomatic_result)
+                user = capture_social_media_user(self.request, provider_name, authomatic_result)
                 return authenticated(self.request, user)
             except NotSatisfiedWithData as e:
                 # TODO: Clean this up

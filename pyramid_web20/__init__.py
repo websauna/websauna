@@ -58,6 +58,9 @@ class Initializer:
 
         self.config.add_request_method(auth.get_user, 'user', reify=True)
 
+        # Pass the declarateive base for user models
+        return users_models.Base
+
     def configure_mailer(self, settings):
         """Configure outgoing email backend based on the INI settings."""
 
@@ -175,12 +178,12 @@ class Initializer:
 
         # This must go first, as we need to make sure all models are attached to Base
         self.configure_user_model(settings)
+        self.configure_horus(settings)
 
         self.configure_database(settings)
         self.configure_templates()
         self.configure_static(settings)
         self.configure_authentication(settings, secrets)
-        self.configure_horus(settings)
         self.configure_mailer(settings)
         self.configure_authomatic(settings, secrets)
         self.configure_views(settings)

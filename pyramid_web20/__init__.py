@@ -1,4 +1,5 @@
 import configparser
+import os
 
 from pyramid.config import Configurator
 from pyramid.authentication import AuthTktAuthenticationPolicy
@@ -10,16 +11,11 @@ from sqlalchemy import engine_from_config
 from pyramid_mailer.interfaces import IMailer
 from pyramid.settings import aslist
 
-from . import models
 from . import views
-from . import schemas
-from . import auth
 from .utils import configinclude
-
+from . import models
 from . import authomatic
-
-from horus.interfaces import IRegisterSchema
-from horus.interfaces import ILoginSchema
+from . import auth
 
 
 class Initializer:
@@ -32,17 +28,29 @@ class Initializer:
         configinclude.augment(settings)
         self.config = Configurator(settings=settings)
 
-    def configure_horus(self):
-        # Tell horus which SQLAlchemy scoped session to use:
+    def configure_user_model(self, settings):
+        return settings
+
+    def configure_horus(self, settings):
+
+        # Avoid importing horus if not needed as it will bring in its own SQLAlchemy models and dirties our SQLAlchemy initialization
         from hem.interfaces import IDBSession
+        from . import schemas
+        from . import models
+        from . import auth
+        from horus.interfaces import IRegisterSchema
+        from horus.interfaces import ILoginSchema
+
+        # Tell horus which SQLAlchemy scoped session to use:
         registry = self.config.registry
         registry.registerUtility(models.DBSession, IDBSession)
 
-        self.config.include('horus')
-        self.config.scan_horus(models)
+        resolver = DottedNameResolver()
+        users_models = resolver.resolve(settings["pyramid_web20.user_models_module"])
 
-        #self.config.add_view('horus.views.AuthController', attr='login', route_name='login', renderer='login/login.html')
-        #self.config.add_view('horus.views.RegisterController', attr='register', route_name='register', renderer='login/register.html')
+        self.config.include('horus')
+        self.config.scan_horus(users_models)
+
         self.config.add_route('waiting_for_activation', '/waiting-for-activation')
         self.config.add_route('registration_complete', '/registration-complete')
         self.config.registry.registerUtility(schemas.RegisterSchema, IRegisterSchema)
@@ -53,8 +61,9 @@ class Initializer:
     def configure_mailer(self, settings):
         """Configure outgoing email backend based on the INI settings."""
 
-        mailer_class = settings["pyramid_web20.mailer"]
-        if mailer_class == "mail":
+        mailer_class = settings.get("pyramid_web20.mailer", "")
+        if mailer_class in ("mail", ""):
+            # TODO: Make mailer_class explicit so we can dynamically load pyramid_mail.Mailer
             # Default
             from pyramid_mailer import mailer_factory_from_settings
             mailer_factory_from_settings(settings)
@@ -121,7 +130,7 @@ class Initializer:
     def configure_database(self, settings):
         engine = engine_from_config(settings, 'sqlalchemy.')
         models.DBSession.configure(bind=engine)
-        models.Base.metadata.bind = engine
+        return engine
 
     def configure_views(self, settings):
         self.config.add_route('home', '/')
@@ -152,6 +161,10 @@ class Initializer:
         if not secrets_file:
             return {}
 
+        if not os.path.exists(secrets_file):
+            p = os.path.abspath(secrets_file)
+            raise RuntimeError("Secrets file {} missing".format(p))
+
         secrets_config = configparser.ConfigParser()
         secrets_config.read(secrets_file)
 
@@ -160,11 +173,14 @@ class Initializer:
     def run(self, settings):
         secrets = self.read_secrets(settings)
 
+        # This must go first, as we need to make sure all models are attached to Base
+        self.configure_user_model(settings)
+
         self.configure_database(settings)
         self.configure_templates()
         self.configure_static(settings)
         self.configure_authentication(settings, secrets)
-        self.configure_horus()
+        self.configure_horus(settings)
         self.configure_mailer(settings)
         self.configure_authomatic(settings, secrets)
         self.configure_views(settings)

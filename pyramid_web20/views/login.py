@@ -69,7 +69,7 @@ def create_activation(request, user):
 
     assert user.id
     user.username = user.generate_username()
-    user.user_registration_source = models.User.USER_MEDIA_EMAIL
+    user.user_registration_source = models.UserMixin.USER_MEDIA_EMAIL
 
     db = get_session(request)
     Activation = request.registry.getUtility(IActivationClass)
@@ -96,7 +96,12 @@ def authenticated(request, user):
     Fills in user last login details.
     """
 
-    assert isinstance(user, models.User)
+    # See that our user model matches one we expect from the configuration
+    registry = request.registry
+    User = registry.queryUtility(IUserClass)
+    assert User
+    assert isinstance(user, User)
+
     assert user.id, "Cannot login with invalid user object"
     if not user.can_login():
         raise RuntimeError("Got authenticated() request for disabled user - should not happen")

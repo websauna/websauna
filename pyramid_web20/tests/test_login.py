@@ -1,22 +1,28 @@
 import transaction
 
-from pyramid_web20 import models
+from pyramid_web20.models import DBSession
 
 EMAIL = "example@example.com"
 PASSWORD = "ToholamppiMadCowz585"
 
 
 def create_user():
+    from pyramid_web20 import defaultmodels as models
     user = models.User(email=EMAIL, password=PASSWORD)
     user.user_registration_source = models.User.USER_MEDIA_DUMMY
-    models.DBSession.add(user)
-    models.DBSession.flush()
+    DBSession.add(user)
+    DBSession.flush()
     user.username = user.generate_username()
     assert user.can_login()
     transaction.commit()
 
 
-def test_login(web_server, browser, dbsession):
+def get_user():
+    from pyramid_web20 import defaultmodels as models
+    return DBSession.query(models.User).get(1)
+
+
+def test_login(web_server, browser, user_dbsession):
     """Login an user."""
 
     create_user()
@@ -36,12 +42,12 @@ def test_login(web_server, browser, dbsession):
     assert b.is_element_visible_by_css("#nav-logout")
 
 
-def test_login_inactive(web_server, browser, dbsession):
+def test_login_inactive(web_server, browser, user_dbsession):
     """Login disabled user account."""
 
     create_user()
 
-    user = models.DBSession.query(models.User).get(1)
+    user = get_user()
     user.enabled = False
     assert not user.can_login()
     transaction.commit()
@@ -61,7 +67,7 @@ def test_login_inactive(web_server, browser, dbsession):
     assert b.is_text_present("Account log in disabled.")
 
 
-def test_logout(web_server, browser, dbsession):
+def test_logout(web_server, browser, user_dbsession):
     """Log out."""
 
     create_user()
@@ -84,13 +90,13 @@ def test_logout(web_server, browser, dbsession):
     assert b.is_element_visible_by_css("#login-form")
 
 
-def test_last_login_ip(web_server, browser, dbsession):
+def test_last_login_ip(web_server, browser, user_dbsession):
     """Record last log in IP correctly."""
 
     create_user()
 
     with transaction.manager:
-        user = models.DBSession.query(models.User).get(1)
+        user = get_user()
         assert not user.last_login_ip
 
     b = browser
@@ -105,5 +111,5 @@ def test_last_login_ip(web_server, browser, dbsession):
     b.find_by_name("Log_in").click()
 
     with transaction.manager:
-        user = models.DBSession.query(models.User).get(1)
+        user = get_user()
         assert user.last_login_ip == "127.0.0.1"

@@ -3,11 +3,11 @@
 from . import models
 
 from pyramid.security import unauthenticated_userid
-from horus.interfaces import IUserClass
 
 
 def get_user(request):
 
+    from horus.interfaces import IUserClass
     userid = unauthenticated_userid(request)
     user_class = request.registry.queryUtility(IUserClass)
 
@@ -26,8 +26,10 @@ def find_groups(userid, request):
 
     This function is called when you do ``authenticated_userid(request)`` but currently not used.
     """
+    from horus.interfaces import IUserClass
+    user_class = request.registry.queryUtility(IUserClass)
 
-    user = models.DBSession.query(models.User).get(userid)
+    user = models.DBSession.query(user_class).get(userid)
     if user:
         if user.can_login():
             return []

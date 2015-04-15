@@ -10,15 +10,12 @@ from sqlalchemy import Boolean
 from sqlalchemy import Integer
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.mutable import MutableDict
 
 from pyramid.i18n import TranslationStringFactory
 
-from horus.models import GroupMixin
-from horus.models import UserMixin
-from horus.models import UserGroupMixin
-from horus.models import ActivationMixin
-from horus.models import BaseModel
+from hem.text import pluralize
 
 from sqlalchemy.orm import (
     scoped_session,
@@ -31,7 +28,8 @@ from .utils.jsonb import JSONBProperty
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 
-Base = declarative_base(cls=BaseModel)
+#: TODO: How to handle the fact that Horus requires custom declarative base?
+Base = declarative_base()
 
 _ = TranslationStringFactory('web20')
 
@@ -53,16 +51,16 @@ DEFAULT_USER_DATA = {
     }
 }
 
+
 # TODO: "user" is reserved name on PSQL. File an issue against Horus.
-UserMixin.__tablename__ = "users"
+# UserMixin.__tablename__ = "users"
 
 
-class User(UserMixin, Base):
+class UserMixin:
     """A user who signs up with email or with email from social media.
 
     TODO: Make user user.id is not exposed anywhere e.g. in email activation links.
     """
-
     #: A test user
     USER_MEDIA_DUMMY = "dummy"
 
@@ -105,8 +103,6 @@ class User(UserMixin, Base):
     #: Store all user related settings in this expandable field
     user_data = Column(MutableDict.as_mutable(JSONB), default=DEFAULT_USER_DATA)
 
-    activation = relationship('Activation', backref='user')
-
     #: Full name of the user (if given)
     full_name = JSONBProperty("user_data", "/full_name")
 
@@ -144,19 +140,6 @@ class User(UserMixin, Base):
         return self.enabled and self.is_activated
 
 
-# We don't want these attributes from the default horus's UserMixin
-del User.last_login_date
-
-
-class Group(GroupMixin, Base):
-    pass
+class GroupMixin:
 
     group_data = Column(JSONB)
-
-
-class UserGroup(UserGroupMixin, Base):
-    pass
-
-
-class Activation(ActivationMixin, Base):
-    pass

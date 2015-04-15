@@ -170,7 +170,7 @@ def get_or_create_user_by_social_medial_email(request, provider, email, social_d
 
     # Update the social network data
     user.social[provider] = exported_data
-    import ipdb; ipdb.set_trace()
+
     if user.first_login:
         update_first_login_social_data(user, exported_data)
 
@@ -238,7 +238,7 @@ class RegisterController(horus_views.RegisterController):
         try:
             captured = self.form.validate(controls)
         except deform.ValidationFailure as e:
-            return {'form': e.render(), 'errors': e.error.children}
+            return {'form': e.render(), 'errors': e.error.children, 'social_logins': social_logins}
 
         # With the form validated, we know email and username are unique.
         del captured['csrf_token']
@@ -286,6 +286,36 @@ class RegisterController(horus_views.RegisterController):
 
 
 class AuthController(horus_views.AuthController):
+
+    def __init__(self, request):
+        super(AuthController, self).__init__(request)
+
+        schema = request.registry.getUtility(ILoginSchema)
+        self.schema = schema().bind(request=self.request)
+
+        form = request.registry.getUtility(ILoginForm)
+
+        self.login_redirect_view = get_config_route(
+            request,
+            'horus.login_redirect'
+        )
+
+        self.logout_redirect_view = get_config_route(
+            request,
+            'horus.logout_redirect'
+        )
+
+        self.require_activation = asbool(
+            self.settings.get('horus.require_activation', True)
+        )
+        self.allow_inactive_login = asbool(
+            self.settings.get('horus.allow_inactive_login', False)
+        )
+
+        self.form = form(self.schema, buttons=(self.Str.login_button,))
+
+        # If the form is embedded on other pages force it go to right HTTP POST endpoint
+        self.form.action = request.route_url("login")
 
     def check_credentials(self, username, password):
         allow_email_auth = self.settings.get('horus.allow_email_auth', False)

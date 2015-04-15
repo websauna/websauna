@@ -28,6 +28,12 @@ class Initializer:
         configinclude.augment(settings)
         self.config = Configurator(settings=settings)
 
+        #: Declarative base for Horus models
+        self.AuthBase = None
+
+        #: SQLAlchemy engine
+        self.engine = None
+
     def configure_user_model(self, settings):
         return settings
 
@@ -131,6 +137,7 @@ class Initializer:
         authomatic.setup(authomatic_secret, authomatic_config)
 
     def configure_database(self, settings):
+
         engine = engine_from_config(settings, 'sqlalchemy.')
         models.DBSession.configure(bind=engine)
         return engine
@@ -178,9 +185,8 @@ class Initializer:
 
         # This must go first, as we need to make sure all models are attached to Base
         self.configure_user_model(settings)
-        self.configure_horus(settings)
-
-        self.configure_database(settings)
+        self.AuthBase = self.configure_horus(settings)
+        self.engine = self.configure_database(settings)
         self.configure_templates()
         self.configure_static(settings)
         self.configure_authentication(settings, secrets)

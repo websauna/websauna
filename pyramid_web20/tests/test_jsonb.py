@@ -13,7 +13,8 @@ from pyramid_web20.models import DBSession
 from pyramid_web20.utils.jsonb import BadJSONData
 from pyramid_web20.utils.jsonb import BadStoredData
 from pyramid_web20.utils.jsonb import JSONBProperty
-
+from pyramid_web20.utils.jsonb import ISO8601DatetimeConverter
+from pyramid_web20.utils.jsonb import CannotProcessISO8601
 
 from jsonpointer import JsonPointerException
 
@@ -38,6 +39,8 @@ class TestModel(Base):
 
     #: Nested JSON propety
     nested_property = JSONBProperty("data", "/nested_dict/nested_property")
+
+    date_time_property = JSONBProperty("data", "/date_time_property", converter=ISO8601DatetimeConverter)
 
 
 @pytest.mark.usefixtures("test_case_ini_settings")
@@ -145,3 +148,51 @@ class TestJSON(unittest.TestCase):
 
         with self.assertRaises(BadStoredData):
             model.nested_property = 1
+
+    def test_datetime(self):
+        """See that we serialize and deserialize datetimes correctly, including timezone info."""
+
+        val = datetime.datetime.now(datetime.timezone.utc)
+
+        model = TestModel()
+
+        model.date_time_property = val
+
+        self.session.add(model)
+        self.transaction.commit()
+
+        self.transaction = self.connection.begin()
+        model = self.session.query(TestModel).get(1)
+
+        val2 = model.date_time_property
+
+        self.assertEqual(val, val2)
+
+    def test_datetime_none(self):
+        """See that we serialize and deserialize None datetimes correctly."""
+
+        val = None
+
+        model = TestModel()
+
+        model.date_time_property = val
+
+        self.session.add(model)
+        self.transaction.commit()
+
+        self.transaction = self.connection.begin()
+        model = self.session.query(TestModel).get(1)
+
+        val2 = model.date_time_property
+
+        self.assertEqual(val, val2)
+
+    def test_datetime_no_timezone(self):
+        """Don't let naive datetimes slip through."""
+
+        val = datetime.datetime.utcnow()
+
+        model = TestModel()
+
+        with self.assertRaises(CannotProcessISO8601):
+            model.date_time_property = val

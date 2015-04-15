@@ -36,7 +36,7 @@ _ = TranslationStringFactory('web20')
 
 def _now():
     """UTC timestamp."""
-    return datetime.datetime.utcnow()
+    return datetime.datetime.now(datetime.timezone.utc)
 
 
 #: Initialze user_data JSONB structure with these fields

@@ -96,7 +96,8 @@ setup(
     entry_points={
         'console_scripts': [
             'sample=sample:main',
-            'initializedb=pyramid_web20.scripts.initializedb:main'
+            'initializedb=pyramid_web20.scripts.initializedb:main',
+            'pyramid-web20-shell=pyramid_web20.scripts.pyramid_web20_shell:main'
         ],
 
         'paste.app_factory': [

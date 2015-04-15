@@ -1,7 +1,7 @@
 # Database driver and support
 psycopg2==2.6
 jsonpointer==1.7
-
+iso8601==0.1.10
 
 # Sessions
 pyramid-redis-sessions==1.0.1

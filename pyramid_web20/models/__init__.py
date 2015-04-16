@@ -1,5 +1,6 @@
 import datetime
 
+from sqlalchemy import inspection
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import INET
@@ -73,6 +74,9 @@ class UserMixin:
     #: User signed up with Github
     USER_MEDIA_GITHUB = "github"
 
+    #: Admin group name
+    GROUP_ADMIN = "admin"
+
     #: Though not displayed on the site, the concept of "username" is still preversed. If the site needs to have username (think Instragram, Twitter) the user is free to choose this username after the sign up. Username is null until the initial user activation is completed after db.flush() in create_activation().
     username = Column(String(32), nullable=True, unique=True)
 
@@ -139,7 +143,47 @@ class UserMixin:
         """Is this user allowed to login."""
         return self.enabled and self.is_activated
 
+    def is_admin(self):
+        """Does this user the see the main admin interface link.
+
+        TODO: This is very suboptimal, wasted database cycles, etc.
+        """
+        for g in self.groups:
+            if g.name == self.GROUP_ADMIN:
+                return True
+
+        return False
+
 
 class GroupMixin:
 
     group_data = Column(JSONB)
+
+
+def init_empty_site(user):
+    """When the first user signs up build the admin groups and make the user member of it."""
+
+    # Try to reflect related group class based on User model
+    i = inspection.inspect(user.__class__)
+    Group = i.relationships["groups"].mapper.entity
+
+    # Do we already have any groups... if we do we probably don'¨t want to init again
+    if DBSession.query(Group).count() > 0:
+        return
+
+    g = Group(name=user.GROUP_ADMIN)
+    DBSession.add(g)
+    DBSession.flush()
+
+    g.users.append(user)
+
+
+def check_empty_site_init(user):
+    """Call after user creation to see if this user is the first user and should get initial admin rights."""
+
+    assert user.id, "Please flush your db"
+
+    if DBSession.query(user.__class__).count() != 1:
+        return
+
+    init_empty_site(user)

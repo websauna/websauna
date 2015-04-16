@@ -2,6 +2,8 @@ import unittest
 import pytest
 import datetime
 
+import transaction
+
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column
 from sqlalchemy import Integer
@@ -70,7 +72,6 @@ class TestJSON(unittest.TestCase):
         Base.metadata.drop_all(self.engine)
         transaction.commit()
 
-        self.connection.close()
         self.session.remove()
 
     def test_flat_property_int(self):
@@ -154,19 +155,16 @@ class TestJSON(unittest.TestCase):
 
         val = datetime.datetime.now(datetime.timezone.utc)
 
-        model = TestModel()
+        with transaction.manager:
+            model = TestModel()
+            model.date_time_property = val
+            self.session.add(model)
 
-        model.date_time_property = val
+        with transaction.manager:
+            model = self.session.query(TestModel).get(1)
+            val2 = model.date_time_property
 
-        self.session.add(model)
-        self.transaction.commit()
-
-        self.transaction = self.connection.begin()
-        model = self.session.query(TestModel).get(1)
-
-        val2 = model.date_time_property
-
-        self.assertEqual(val, val2)
+            self.assertEqual(val, val2)
 
     def test_datetime_none(self):
         """See that we serialize and deserialize None datetimes correctly."""
@@ -174,7 +172,6 @@ class TestJSON(unittest.TestCase):
         val = None
 
         model = TestModel()
-
         model.date_time_property = val
 
         self.session.add(model)

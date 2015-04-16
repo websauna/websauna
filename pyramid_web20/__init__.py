@@ -158,7 +158,6 @@ class Initializer:
 
     def configure_views(self, settings):
         self.config.add_route('home', '/')
-        self.config.scan()
         self.config.scan(views)
 
     def configure_static(self, settings):
@@ -173,6 +172,14 @@ class Initializer:
         self.config.registry.settings["redis.sessions.secret"] = session_secret
 
         self.config.include("pyramid_redis_sessions")
+
+    def configure_admin_models(self, settings):
+        """Configure CRUD for known SQLAlchemy models."""
+
+    def configure_admin(self, settings):
+        """Configure admin interface."""
+        self.config.add_route('admin', '/admin')
+
 
     def read_secrets(self, settings):
         """Read secrets configuration file.
@@ -208,6 +215,7 @@ class Initializer:
         self.configure_authomatic(settings, secrets)
         self.configure_views(settings)
         self.configure_sessions(settings, secrets)
+        self.configure_admin(settings)
 
     def make_wsgi_app(self):
         return self.config.make_wsgi_app()

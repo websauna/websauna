@@ -93,7 +93,8 @@ def dbtransaction(request, sqlengine):
     DBSession.configure(bind=connection)
 
     def teardown():
-        connection.close()
+        #connection.close()
+        transaction.abort()
         DBSession.remove()
 
     request.addfinalizer(teardown)

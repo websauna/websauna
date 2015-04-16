@@ -12,8 +12,7 @@ from pyramid import testing
 
 import pytest
 
-from . import fixture
-from .. import models
+from pyramid_web20 import models
 
 TEST_DATABASE_NAME = "pyramid_web20_test"
 

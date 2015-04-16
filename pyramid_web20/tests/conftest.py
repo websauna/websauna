@@ -109,19 +109,17 @@ def dbsession(request, init):
     Tables are purged after the run.
     """
 
-    transaction.begin()
-
     engine = init.engine
 
     # Make sure we don't have any old data left from the last run
-    Base.metadata.drop_all(engine)
-    Base.metadata.create_all(engine)
+    with transaction.manager:
+        Base.metadata.drop_all(engine)
+        Base.metadata.create_all(engine)
 
     def teardown():
         # There might be open transactions in the database. They will block DROP ALL and thus the tests would end up in a deadlock. Thus, we clean up all connections we know about.
+        # XXX: Fix this shit
         DBSession.close()
-        Base.metadata.drop_all(engine)
-        transaction.abort()
 
     request.addfinalizer(teardown)
 

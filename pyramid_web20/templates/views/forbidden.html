@@ -1,0 +1,9 @@
+{% extends "site/base.html" %}
+
+{% block content %}
+    <div id="forbidden">
+        <h1>Forbidden</h1>
+
+        <p>Whoopsie. You do not have permission to access this page. <a href="{{'login'|route_url}}">Login first?</a></p>
+    </div>
+{% endblock %}

@@ -89,6 +89,8 @@ def create_activation(request, user):
 
     send_templated_mail(request, [user.email], "login/email/activate", context)
 
+    models.check_empty_site_init(user)
+
 
 def authenticated(request, user):
     """Sets the auth cookies and redirects to the page defined in horus.login_redirect, which defaults to a view named 'index'.
@@ -197,6 +199,8 @@ def capture_social_media_user(request, provider, result):
         # Cancel any pending email activations if the user chooses the option to use social media login
         if user.activation:
             session.delete(user.activation)
+
+        models.check_empty_site_init(user)
 
     return user
 

@@ -29,6 +29,16 @@
 
             <ul class="nav navbar-nav navbar-right">
                 {% if request.user %}
+
+                    {% if request.user.is_admin() %}
+                        <li>
+                            <a id="nav-admin" href="{{'admin'|route_url}}">
+                                <i class="fa fa-wrench"></i>
+                                Admin
+                            </a>
+                        </li>
+                    {% endif %}
+
                     <li>
                         <a id="nav-profile" href="#">
                             <i class="fa fa-user"></i>

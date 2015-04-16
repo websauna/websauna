@@ -32,7 +32,7 @@ def find_groups(userid, request):
     user = models.DBSession.query(user_class).get(userid)
     if user:
         if user.can_login():
-            return []
+            return ['group:{}'.format(g.name) for g in user.groups]
 
     # User not found, user disabled
     return None

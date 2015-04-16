@@ -148,8 +148,10 @@ class UserMixin:
 
         TODO: This is very suboptimal, wasted database cycles, etc.
         """
+
         for g in self.groups:
             if g.name == self.GROUP_ADMIN:
+                print("User {} is admin".format(self))
                 return True
 
         return False

@@ -1,4 +1,4 @@
-"""INI config includer"""
+"""Support for includes hack in [app:main] INIs"""
 
 import configparser
 import pkg_resources

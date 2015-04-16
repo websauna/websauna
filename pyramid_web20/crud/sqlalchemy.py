@@ -1,4 +1,4 @@
-
+from .base import CRUD
 
 
 class SQLALchemyCRUD(CRUD):

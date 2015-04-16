@@ -62,4 +62,3 @@ def test_non_admin_user_denied(web_server, browser, dbsession):
 
     b.visit(web_server + "/admin")
     assert b.is_element_visible_by_css("#forbidden")
-    print("X")

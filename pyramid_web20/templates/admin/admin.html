@@ -4,4 +4,12 @@
 <div id="admin-main">
     <h1>{{site_name}} Admin</h1>
 </div>
+
+<div class="row">
+    <div class="col-md-12">
+        {% for panel in panels %}
+            {{panel|safe}}
+        {% endfor %}
+    </div>
+</div>
 {% endblock admin_content %}

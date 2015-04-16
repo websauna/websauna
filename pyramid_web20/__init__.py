@@ -17,7 +17,6 @@ from .utils import dictutil
 from . import models
 from . import authomatic
 from . import auth
-from . import admin
 
 
 class Initializer:
@@ -174,15 +173,19 @@ class Initializer:
 
         self.config.include("pyramid_redis_sessions")
 
-    def configure_admin_models(self, settings):
+    def configure_admin_models(self, settings, engine):
         """Configure CRUD for known SQLAlchemy models."""
-        _admin = admin.Admin()
-        self.config.registry.settings["pyramid_web20.admin"] = _admin
+        _admin = self.config.registry.settings["pyramid_web20.admin"]
+        views.admin.SQLAlchemyModelAdminPanel.discover(_admin, models.Base, self.config.registry)
 
     def configure_admin(self, settings):
         """Configure admin interface."""
-        self.config.add_route('admin', '/admin', factory=admin.Admin.admin_root_factory)
+        self.config.add_route('admin', '/admin', factory=views.admin.Admin.admin_root_factory)
         self.config.add_route('admin_model', '/admin/{model}')
+
+        # Register admin root object
+        _admin = views.admin.Admin()
+        self.config.registry.settings["pyramid_web20.admin"] = _admin
 
     def read_secrets(self, settings):
         """Read secrets configuration file.
@@ -219,7 +222,7 @@ class Initializer:
         self.configure_views(settings)
         self.configure_sessions(settings, secrets)
         self.configure_admin(settings)
-        self.configure_admin_models(settings)
+        self.configure_admin_models(settings, self.engine)
 
     def make_wsgi_app(self):
         return self.config.make_wsgi_app()

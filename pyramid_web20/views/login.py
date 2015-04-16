@@ -181,6 +181,8 @@ def capture_social_media_user(request, provider, result):
     """Extract social media information from the login in order to associate the user account."""
     assert not result.error
 
+    session = models.DBSession
+
     if provider == "facebook":
         result.user.update()
 
@@ -191,6 +193,10 @@ def capture_social_media_user(request, provider, result):
             raise NotSatisfiedWithData("Email address is needed in order to user this service and we could not get one from your social media provider. Please try to sign up with your email instead.")
 
         user = get_or_create_user_by_social_medial_email(request, provider, result.user.email, result.user)
+
+        # Cancel any pending email activations if the user chooses the option to use social media login
+        if user.activation:
+            session.delete(user.activation)
 
     return user
 

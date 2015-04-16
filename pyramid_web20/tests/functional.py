@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 import pytest
 from webtest import TestApp
 
-from pyramid_web20 import main
+from pyramid_web20 import get_init
 
 #: The URL where WSGI server is run from where Selenium browser loads the pages
 HOST_BASE = "http://localhost:8521"
@@ -55,7 +55,9 @@ class ServerThread(threading.Thread):
 def web_server(request, ini_settings):
     """Have a WSGI server for running functional tests."""
 
-    app = main({}, **ini_settings)
+    init = get_init(ini_settings)
+    init.run(ini_settings)
+    app = init.make_wsgi_app()
 
     server = ServerThread(app)
     server.start()

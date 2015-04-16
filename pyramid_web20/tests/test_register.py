@@ -3,12 +3,12 @@ PASSWORD = "ToholamppiMadCowz585"
 
 
 def get_user():
-    from pyramid_web20 import defaultmodels
+    from pyramid_web20.models.user import User
     from pyramid_web20 import models
-    return models.DBSession.query(defaultmodels.User).get(1)
+    return models.DBSession.query(User).get(1)
 
 
-def test_register_email(web_server, browser, user_dbsession):
+def test_register_email(web_server, browser, dbsession):
     """Register on the site and login after activation."""
 
     # Load user model

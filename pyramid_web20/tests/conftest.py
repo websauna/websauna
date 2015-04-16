@@ -19,11 +19,9 @@ from pyramid.paster import (
     setup_logging,
     )
 
-from pyramid_web20 import Initializer
+from pyramid_web20 import get_init
 from pyramid_web20.models import DBSession
-
-#: Make sure py.test picks this up
-from pyramid_web20.tests.functional import web_server  # noqa
+from pyramid_web20.models import Base
 
 
 @pytest.fixture(scope='session')
@@ -37,17 +35,6 @@ def ini_settings(request):
     config = get_appsettings(config_uri)
 
     return config
-
-
-@pytest.fixture(scope='session')
-def init(request, ini_settings):
-    """Initialize Pyramid web 2.0 using test settings"""
-    if not getattr(request.config.option, "ini", None):
-        raise RuntimeError("You need to give --ini test.ini command line option to py.test to find our test settings")
-
-    init = Initializer(ini_settings)
-    init.run(ini_settings)
-    return init
 
 
 @pytest.fixture(scope='function')
@@ -67,9 +54,20 @@ def test_case_ini_settings(request):
 
 
 @pytest.fixture(scope='session')
-def sqlengine(request, ini_settings):
-    engine = engine_from_config(ini_settings, 'sqlalchemy.')
-    DBSession.configure(bind=engine)
+def init(request, ini_settings):
+    """Load Pyramid web 2.0 Initializer, but do not run it."""
+    if not getattr(request.config.option, "ini", None):
+        raise RuntimeError("You need to give --ini test.ini command line option to py.test to find our test settings")
+
+    init = get_init(ini_settings)
+    init.run(ini_settings)
+    return init
+
+
+@pytest.fixture(scope='session')
+def sqlengine(request, init):
+
+    engine = init.engine
 
     # Make sure we don't have any old data left from the last run
     Base.metadata.drop_all(engine)
@@ -91,7 +89,7 @@ def dbtransaction(request, sqlengine):
     The transaction is rolled back at the end of the test.
     """
     connection = sqlengine.connect()
-    transaction = connection.begin()
+    transaction = connection.begin()  # noqa
     DBSession.configure(bind=connection)
 
     def teardown():
@@ -104,27 +102,24 @@ def dbtransaction(request, sqlengine):
 
 
 @pytest.fixture()
-def user_dbsession(request, ini_settings):
+def dbsession(request, init):
     """Get a database session where we have initialized user models.
 
     Tables are purged after the run.
     """
 
-    from pyramid_web20 import defaultmodels
-
     transaction.begin()
 
-    engine = engine_from_config(ini_settings, 'sqlalchemy.')
-    DBSession.configure(bind=engine)
+    engine = init.engine
 
     # Make sure we don't have any old data left from the last run
-    defaultmodels.Base.metadata.drop_all(engine)
-    defaultmodels.Base.metadata.create_all(engine)
+    Base.metadata.drop_all(engine)
+    Base.metadata.create_all(engine)
 
     def teardown():
         # There might be open transactions in the database. They will block DROP ALL and thus the tests would end up in a deadlock. Thus, we clean up all connections we know about.
         DBSession.close()
-        defaultmodels.Base.metadata.drop_all(engine)
+        Base.metadata.drop_all(engine)
         transaction.abort()
 
     request.addfinalizer(teardown)
@@ -140,6 +135,10 @@ def http_request(request):
     """
     request = pyramid.testing.DummyRequest()
     return request
+
+
+#: Make sure py.test picks this up
+from pyramid_web20.tests.functional import web_server  # noqa
 
 
 def pytest_addoption(parser):

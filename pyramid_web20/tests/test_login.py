@@ -7,9 +7,9 @@ PASSWORD = "ToholamppiMadCowz585"
 
 
 def create_user():
-    from pyramid_web20 import defaultmodels as models
-    user = models.User(email=EMAIL, password=PASSWORD)
-    user.user_registration_source = models.User.USER_MEDIA_DUMMY
+    from pyramid_web20.models.user import User
+    user = User(email=EMAIL, password=PASSWORD)
+    user.user_registration_source = User.USER_MEDIA_DUMMY
     DBSession.add(user)
     DBSession.flush()
     user.username = user.generate_username()
@@ -18,11 +18,12 @@ def create_user():
 
 
 def get_user():
-    from pyramid_web20 import defaultmodels as models
-    return DBSession.query(models.User).get(1)
+    from pyramid_web20.models.user import User
+    from pyramid_web20 import models
+    return models.DBSession.query(User).get(1)
 
 
-def test_login(web_server, browser, user_dbsession):
+def test_login(web_server, browser, dbsession):
     """Login an user."""
 
     create_user()
@@ -42,7 +43,7 @@ def test_login(web_server, browser, user_dbsession):
     assert b.is_element_visible_by_css("#nav-logout")
 
 
-def test_login_inactive(web_server, browser, user_dbsession):
+def test_login_inactive(web_server, browser, dbsession):
     """Login disabled user account."""
 
     create_user()
@@ -67,7 +68,7 @@ def test_login_inactive(web_server, browser, user_dbsession):
     assert b.is_text_present("Account log in disabled.")
 
 
-def test_logout(web_server, browser, user_dbsession):
+def test_logout(web_server, browser, dbsession):
     """Log out."""
 
     create_user()
@@ -90,7 +91,7 @@ def test_logout(web_server, browser, user_dbsession):
     assert b.is_element_visible_by_css("#login-form")
 
 
-def test_last_login_ip(web_server, browser, user_dbsession):
+def test_last_login_ip(web_server, browser, dbsession):
     """Record last log in IP correctly."""
 
     create_user()

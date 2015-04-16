@@ -24,7 +24,7 @@ from sqlalchemy.orm import (
 
 from zope.sqlalchemy import ZopeTransactionExtension
 
-from .utils.jsonb import JSONBProperty
+from ..utils.jsonb import JSONBProperty
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 

@@ -13,6 +13,7 @@ from pyramid.settings import aslist
 
 from . import views
 from .utils import configinclude
+from .utils import dictutil
 from . import models
 from . import authomatic
 from . import auth
@@ -25,7 +26,9 @@ class Initializer:
     """
     def __init__(self, settings):
 
+        # XXX: Side effect here for stupid config workaround -> fix with sensible API
         configinclude.augment(settings)
+
         self.config = Configurator(settings=settings)
 
         #: Declarative base for Horus models
@@ -33,6 +36,11 @@ class Initializer:
 
         #: SQLAlchemy engine
         self.engine = None
+
+        #: Python module which provides Horus models
+        self.user_models_module = None
+
+        self.settings = settings
 
     def configure_user_model(self, settings):
         return settings
@@ -52,7 +60,7 @@ class Initializer:
         registry.registerUtility(models.DBSession, IDBSession)
 
         resolver = DottedNameResolver()
-        users_models = resolver.resolve(settings["pyramid_web20.user_models_module"])
+        self.user_models_module = users_models = resolver.resolve(settings["pyramid_web20.user_models_module"])
 
         self.config.include('horus')
         self.config.scan_horus(users_models)
@@ -137,6 +145,12 @@ class Initializer:
         authomatic.setup(authomatic_secret, authomatic_config)
 
     def configure_database(self, settings):
+        """
+        :param settings: Any individual settings to override.
+
+        :return: SQLEngine instance
+        """
+        settings = dictutil.combine(self.settings, settings)
 
         engine = engine_from_config(settings, 'sqlalchemy.')
         models.DBSession.configure(bind=engine)
@@ -197,6 +211,20 @@ class Initializer:
 
     def make_wsgi_app(self):
         return self.config.make_wsgi_app()
+
+
+def get_init(settings):
+    """Return instance of Initializer for the app."""
+
+    assert "pyramid_web20.init" in settings, "You must have pyramid_web20.init setting pointing to your Initializer class"
+
+    init_cls = settings.get("pyramid_web20.init")
+    if not init_cls:
+        raise RuntimeError("INI file lacks pyramid_web20.init optoin")
+    resolver = DottedNameResolver()
+    init_cls = resolver.resolve(init_cls)
+    init = init_cls(settings)
+    return init
 
 
 def main(global_config, **settings):

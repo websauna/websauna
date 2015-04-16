@@ -7,10 +7,9 @@ from pyramid.paster import (
     )
 
 from pyramid.scripts.common import parse_vars
-from pyramid_web20 import Initializer
+from pyramid_web20 import get_init
 from pyramid_web20.models import DBSession
 from pyramid_web20.models import Base
-from pyramid.path import DottedNameResolver
 
 
 def usage(argv):
@@ -28,15 +27,8 @@ def main(argv=sys.argv):
     setup_logging(config_uri)
 
     settings = get_appsettings(config_uri, options=options)
-    resolver = DottedNameResolver()
 
-    init_cls = settings.get("pyramid_web20.init")
-    if not init_cls:
-        raise RuntimeError("INI file lacks pyramid_web20.init optoin")
-
-    init_cls = resolver.resolve(init_cls)
-
-    init = init_cls(settings)
+    init = get_init(settings)
 
     # secrets = init.read_secrets(settings)
     # This must go first, as we need to make sure all models are attached to Base
@@ -48,9 +40,10 @@ def main(argv=sys.argv):
     engine = init.configure_database(settings)
 
     DBSession.configure(bind=engine)
-    Base.metadata.create_all(engine)
     if AuthBase:
         AuthBase.metadata.create_all(engine)
+
+    Base.metadata.create_all(engine)
 
 if __name__ == "__main__":
     main()

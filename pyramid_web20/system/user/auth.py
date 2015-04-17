@@ -1,6 +1,6 @@
 """The user authentication."""
 
-from . import models
+from pyramid_web20 import models
 
 from pyramid.security import unauthenticated_userid
 
@@ -26,6 +26,7 @@ def find_groups(userid, request):
 
     This function is called when you do ``authenticated_userid(request)`` but currently not used.
     """
+
     from horus.interfaces import IUserClass
     user_class = request.registry.queryUtility(IUserClass)
 

@@ -1,9 +1,4 @@
-from pyramid.response import Response
 from pyramid.view import view_config
-
-from sqlalchemy.exc import DBAPIError
-
-from ..models import DBSession
 
 
 # @view_config(route_name='xhome', renderer='templates/site/home.html')
@@ -15,7 +10,7 @@ from ..models import DBSession
 #     return {'one': one, 'project': '{{project}}'}
 
 
-@view_config(route_name='home', renderer='views/home.html')
+@view_config(route_name='home', renderer='core/home.html')
 def home(request):
     return {'one': "one", 'project': '{{project}}'}
 
@@ -35,4 +30,5 @@ might be caused by one of the following things:
 After you fix the problem, please restart the Pyramid application to
 try it again.
 """
+
 

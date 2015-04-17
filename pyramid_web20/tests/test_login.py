@@ -7,7 +7,7 @@ PASSWORD = "ToholamppiMadCowz585"
 
 
 def create_user():
-    from pyramid_web20.models.user import User
+    from pyramid_web20.system.user.models import User
     user = User(email=EMAIL, password=PASSWORD)
     user.user_registration_source = User.USER_MEDIA_DUMMY
     DBSession.add(user)
@@ -18,7 +18,7 @@ def create_user():
 
 
 def get_user():
-    from pyramid_web20.models.user import User
+    from pyramid_web20.system.user.models import User
     from pyramid_web20 import models
     return models.DBSession.query(User).get(1)
 

@@ -1,14 +1,16 @@
 """Admin interface. """
 from pyramid.view import view_config
-from pyramid.security import Allow
+
 from pyramid.renderers import render
 
-from ..models import DBSession
+from pyramid_web20.models import DBSession
+
+from . import Admin
 
 
 @view_config(route_name='admin', renderer='admin/admin.html', permission='view')
 def admin(request):
-    admin = Admin.get_admin(request)
+    admin = Admin.get_admin(request.registry)
     panels = [p.render(request) for p in admin.panels]
     return dict(panels=panels)
 
@@ -17,33 +19,6 @@ def admin(request):
 def admin_model(self):
     """ """
     return {}
-
-
-class Admin:
-    """Admin interface main object.
-
-    We know what panels are registered on the main admin screen.
-    """
-
-    __acl__ = [
-        (Allow, 'group:admin', 'view'),
-    ]
-
-    def __init__(self):
-        self.panels = []
-
-    def register_admin_panel(self, panel):
-        self.panels.append(panel)
-
-    @classmethod
-    def admin_root_factory(cls, request):
-        """Get the admin object for the routes."""
-        return cls.get_admin(request)
-
-    @classmethod
-    def get_admin(cls, request):
-        """Get hold of admin object."""
-        return request.registry.settings["pyramid_web20.admin"]
 
 
 class AdminPanel:
@@ -67,7 +42,7 @@ class SQLAlchemyModelAdminPanel(AdminPanel):
 
     def render(self, request):
         count = DBSession.query(self.model).count()
-        return render("admin/model_panel.html", dict(self=self, panel=self, count=count), request=request)'
+        return render("admin/model_panel.html", dict(self=self, panel=self, count=count), request=request)
 
     @classmethod
     def discover(cls, admin, base, registry):

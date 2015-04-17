@@ -1,14 +1,14 @@
 import transaction
 
 from pyramid_web20.models import DBSession
-from pyramid_web20.models import init_empty_site
+from pyramid_web20.system.user.usermixin import init_empty_site
 
 EMAIL = "example@example.com"
 PASSWORD = "ToholamppiMadCowz585"
 
 
 def create_user(email=EMAIL, password=PASSWORD):
-    from pyramid_web20.models.user import User
+    from pyramid_web20.system.user.models import User
 
     user = User(email=email, password=password)
     user.user_registration_source = User.USER_MEDIA_DUMMY
@@ -19,7 +19,7 @@ def create_user(email=EMAIL, password=PASSWORD):
     return user
 
 
-def test_admin(web_server, browser, dbsession):
+def test_enter_admin(web_server, browser, dbsession):
     """The first user can open the admin page."""
 
     with transaction.manager:

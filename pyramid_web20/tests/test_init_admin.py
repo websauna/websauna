@@ -1,6 +1,6 @@
 import transaction
 
-from pyramid_web20.models import check_empty_site_init
+from pyramid_web20.system.user.usermixin import check_empty_site_init
 
 
 def test_virgin_init_admin(init, dbsession):

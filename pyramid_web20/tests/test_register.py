@@ -3,7 +3,7 @@ PASSWORD = "ToholamppiMadCowz585"
 
 
 def get_user():
-    from pyramid_web20.models.user import User
+    from pyramid_web20.system.user.models import User
     from pyramid_web20 import models
     return models.DBSession.query(User).get(1)
 

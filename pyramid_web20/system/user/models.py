@@ -8,7 +8,7 @@ Avoid importing this module directly. Instead use:
 
 from horus import models as horus_models
 
-from pyramid_web20 import models
+from . import usermixin
 from pyramid_web20.models import Base
 
 #: TODO: How to handle the fact that Horus requires custom declarative base?
@@ -19,13 +19,13 @@ from pyramid_web20.models import Base
 horus_models.UserMixin.__tablename__ = "users"
 
 
-class User(models.UserMixin, horus_models.UserMixin, horus_models.BaseModel, Base):
+class User(usermixin.UserMixin, horus_models.UserMixin, horus_models.BaseModel, Base):
 
     # In PSQL user is a reserved word
     __tablename__ = "users"
 
 
-class Group(models.GroupMixin, horus_models.GroupMixin, horus_models.BaseModel, Base):
+class Group(usermixin.GroupMixin, horus_models.GroupMixin, horus_models.BaseModel, Base):
     pass
 
 

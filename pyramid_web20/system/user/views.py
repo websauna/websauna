@@ -51,9 +51,10 @@ from horus.views import get_config_route
 
 from authomatic.adapters import WebObAdapter
 
-from ..mail import send_templated_mail
-from .. import models
-from .. import authomatic
+from pyramid_web20.system.mail import send_templated_mail
+from pyramid_web20 import models
+from . import authomatic
+from . import usermixin
 
 
 class NotSatisfiedWithData(Exception):
@@ -69,7 +70,7 @@ def create_activation(request, user):
 
     assert user.id
     user.username = user.generate_username()
-    user.user_registration_source = models.UserMixin.USER_MEDIA_EMAIL
+    user.user_registration_source = user.USER_MEDIA_EMAIL
 
     db = get_session(request)
     Activation = request.registry.getUtility(IActivationClass)
@@ -89,7 +90,7 @@ def create_activation(request, user):
 
     send_templated_mail(request, [user.email], "login/email/activate", context)
 
-    models.check_empty_site_init(user)
+    usermixin.check_empty_site_init(user)
 
 
 def authenticated(request, user):
@@ -200,7 +201,7 @@ def capture_social_media_user(request, provider, result):
         if user.activation:
             session.delete(user.activation)
 
-        models.check_empty_site_init(user)
+        usermixin.check_empty_site_init(user)
 
     return user
 
@@ -392,32 +393,6 @@ class AuthController(horus_views.AuthController):
 
         self.form.action = self.request.route_url('login')
         return {"form": self.form.render()}
-
-    def grab_facebook_data(self, result):
-        """Update the user Facebook data field."""
-        # We will access the user's 5 most recent statuses.
-        url = 'https://graph.facebook.com/{0}?fields=feed.limit(5)'
-        url = url.format(result.user.id)
-
-        # Access user's protected resource.
-        access_response = result.provider.access(url)
-
-        if access_response.status == 200:
-            # Parse response.
-            statuses = access_response.data.get('feed').get('data')
-            error = access_response.data.get('error')
-
-            if error:
-                response.write(u'Damn that error: {0}!'.format(error))
-            elif statuses:
-                response.write('Your 5 most recent statuses:<br />')
-                for message in statuses:
-
-                    text = message.get('message')
-                    date = message.get('created_time')
-
-                    response.write(u'<h3>{0}</h3>'.format(text))
-                    response.write(u'Posted on: {0}'.format(date))
 
     @view_config(route_name='login_social')
     def login_social(self):

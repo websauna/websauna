@@ -10,13 +10,14 @@ from sqlalchemy import engine_from_config
 
 from pyramid_mailer.interfaces import IMailer
 from pyramid.settings import aslist
+from pyramid.settings import asbool
 
-from . import views
 from .utils import configinclude
 from .utils import dictutil
 from . import models
-from . import authomatic
-from . import auth
+from .models import DBSession
+from .system.user import authomatic
+from .system.admin import Admin
 
 
 class Initializer:
@@ -31,9 +32,6 @@ class Initializer:
 
         self.config = Configurator(settings=settings)
 
-        #: Declarative base for Horus models
-        self.AuthBase = None
-
         #: SQLAlchemy engine
         self.engine = None
 
@@ -42,27 +40,25 @@ class Initializer:
 
         self.settings = settings
 
-    def configure_user_model(self, settings):
-        return settings
-
     def configure_horus(self, settings):
 
         # Avoid importing horus if not needed as it will bring in its own SQLAlchemy models and dirties our SQLAlchemy initialization
         from hem.interfaces import IDBSession
-        from . import schemas
-        from . import models
-        from . import auth
+        from .system.user import schemas
+        from .system.user import auth
         from horus.interfaces import IRegisterSchema
         from horus.interfaces import ILoginSchema
 
         # Tell horus which SQLAlchemy scoped session to use:
         registry = self.config.registry
-        registry.registerUtility(models.DBSession, IDBSession)
+        registry.registerUtility(DBSession, IDBSession)
 
         resolver = DottedNameResolver()
         self.user_models_module = users_models = resolver.resolve(settings["pyramid_web20.user_models_module"])
 
-        self.config.include('horus')
+        self.config.include("horus")
+        # horus_init.includeme(self.config)
+
         self.config.scan_horus(users_models)
 
         self.config.add_route('waiting_for_activation', '/waiting-for-activation')
@@ -98,12 +94,17 @@ class Initializer:
         self.config.include('pyramid_jinja2')
         self.config.add_jinja2_renderer('.html')
         self.config.add_jinja2_renderer('.txt')
-        self.config.add_jinja2_search_path('pyramid_web20:templates', name='.html')
-        self.config.add_jinja2_search_path('pyramid_web20:templates', name='.txt')
+        self.config.add_jinja2_search_path('pyramid_web20:system/core/templates', name='.html')
+        self.config.add_jinja2_search_path('pyramid_web20:system/core/templates', name='.txt')
 
-        self.config.include("pyramid_web20.views.templatecontext")
+        # Some Horus templates need still Mako in place - TODO: remove this when all templates are converted
+        self.config.include('pyramid_mako')
+
+        self.config.include("pyramid_web20.system.core.templatecontext")
 
     def configure_authentication(self, settings, secrets):
+
+        from .system.user import auth
 
         # Security policies
         authn_policy = AuthTktAuthenticationPolicy(secrets['authentication']['secret'], callback=auth.find_groups, hashalg='sha512')
@@ -157,8 +158,15 @@ class Initializer:
         return engine
 
     def configure_views(self, settings):
+        from .system.core.views import home
         self.config.add_route('home', '/')
-        self.config.scan(views)
+        self.config.scan(home)
+
+        # Forbidden view overrides helpful auth debug error messages,
+        # so pull in only when really needed
+        if not asbool(settings["pyramid.debug_authorization"]):
+            from .system.core.views import forbidden
+            self.config.scan(forbidden)
 
     def configure_static(self, settings):
         self.config.add_static_view('static', 'static', cache_max_age=3600)
@@ -173,19 +181,53 @@ class Initializer:
 
         self.config.include("pyramid_redis_sessions")
 
-    def configure_admin_models(self, settings, engine):
+    def configure_admin_models(self, settings):
         """Configure CRUD for known SQLAlchemy models."""
+
+        from .system.admin import views
+
         _admin = self.config.registry.settings["pyramid_web20.admin"]
-        views.admin.SQLAlchemyModelAdminPanel.discover(_admin, models.Base, self.config.registry)
+        views.SQLAlchemyModelAdminPanel.discover(_admin, models.Base, self.config.registry)
+
+    def preconfigure_admin(self, settings):
+        # Register admin root object
+        _admin = Admin()
+        self.config.registry.settings["pyramid_web20.admin"] = _admin
 
     def configure_admin(self, settings):
         """Configure admin interface."""
-        self.config.add_route('admin', '/admin', factory=views.admin.Admin.admin_root_factory)
+
+        from pyramid_web20.system.admin import views
+
+        self.config.add_jinja2_search_path('pyramid_web20.system.admin:templates', name='.html')
+        self.config.add_jinja2_search_path('pyramid_web20.system.admin:templates', name='.txt')
+
+        self.config.add_route('admin', '/admin', factory="pyramid_web20.system.admin.admin_root_factory")
         self.config.add_route('admin_model', '/admin/{model}')
 
-        # Register admin root object
-        _admin = views.admin.Admin()
-        self.config.registry.settings["pyramid_web20.admin"] = _admin
+        self.config.scan(views)
+
+    def preconfigure_user(self, settings):
+        # self.configure_horus(settings)
+        pass
+
+    def configure_user(self, settings, secrets):
+
+        from .system.user import views
+
+        self.configure_authentication(settings, secrets)
+        self.configure_authomatic(settings, secrets)
+
+        # XXX: Different syntax to include templates as with admin... circular import problem, etc?
+        self.config.add_jinja2_search_path('pyramid_web20:system/user/templates', name='.html')
+        self.config.add_jinja2_search_path('pyramid_web20:system/user/templates', name='.txt')
+
+        self.config.scan(views)
+
+        # TODO: Horus implicitly imports its admin views... WE DON'T WANT THOSE and we cannot avoid import for now.
+        # Thus, do Horus import as last.
+        # Long term solution: Work with the upstream to fix Horus behavior.
+        self.configure_horus(settings)
 
     def read_secrets(self, settings):
         """Read secrets configuration file.
@@ -210,19 +252,23 @@ class Initializer:
     def run(self, settings):
         secrets = self.read_secrets(settings)
 
-        # This must go first, as we need to make sure all models are attached to Base
-        self.configure_user_model(settings)
-        self.AuthBase = self.configure_horus(settings)
-        self.engine = self.configure_database(settings)
+        self.preconfigure_user(settings)
+        self.preconfigure_admin(settings)
+
         self.configure_templates()
         self.configure_static(settings)
-        self.configure_authentication(settings, secrets)
         self.configure_mailer(settings)
-        self.configure_authomatic(settings, secrets)
+
         self.configure_views(settings)
         self.configure_sessions(settings, secrets)
+
+        self.configure_user(settings, secrets)
+
         self.configure_admin(settings)
-        self.configure_admin_models(settings, self.engine)
+        self.configure_admin_models(settings)
+
+        # This must go first, as we need to make sure all models are attached to Base
+        self.engine = self.configure_database(settings)
 
     def make_wsgi_app(self):
         return self.config.make_wsgi_app()

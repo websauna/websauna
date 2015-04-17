@@ -4,7 +4,6 @@ import colander as c
 
 
 from hem.schemas import CSRFSchema
-from .models import _
 from horus.schemas import unique_email
 
 PASSWORD_MIN_LENGTH = 6
@@ -15,7 +14,7 @@ class RegisterSchema(CSRFSchema):
 
     email = c.SchemaNode(
         c.String(),
-        title=_('Email'),
+        title='Email',
         validator=c.All(c.Email(), unique_email),
         widget=w.TextInputWidget(size=40, maxlength=260, type='email'))
 
@@ -32,6 +31,6 @@ class LoginSchema(CSRFSchema):
     The user can log in both with email and his/her username, though we recommend using emails as users tend to forget their usernames.
     """
 
-    username = c.SchemaNode(c.String(), title=_('Email'), validator=c.All(c.Email()), widget=w.TextInputWidget(size=40, maxlength=260, type='email'))
+    username = c.SchemaNode(c.String(), title='Email', validator=c.All(c.Email()), widget=w.TextInputWidget(size=40, maxlength=260, type='email'))
 
     password = c.SchemaNode(c.String(), widget=deform.widget.PasswordWidget())

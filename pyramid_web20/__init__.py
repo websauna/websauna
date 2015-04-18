@@ -48,6 +48,8 @@ class Initializer:
         from .system.user import auth
         from horus.interfaces import IRegisterSchema
         from horus.interfaces import ILoginSchema
+        from horus.resources import UserFactory
+        from .system.user import horus as horus_init
 
         # Tell horus which SQLAlchemy scoped session to use:
         registry = self.config.registry
@@ -56,13 +58,17 @@ class Initializer:
         resolver = DottedNameResolver()
         self.user_models_module = users_models = resolver.resolve(settings["pyramid_web20.user_models_module"])
 
-        self.config.include("horus")
-        # horus_init.includeme(self.config)
+        # self.config.include("horus")
+        horus_init.includeme(self.config)
 
         self.config.scan_horus(users_models)
 
         self.config.add_route('waiting_for_activation', '/waiting-for-activation')
         self.config.add_route('registration_complete', '/registration-complete')
+        self.config.add_route('login', '/login')
+        self.config.add_route('logout', '/logout')
+        self.config.add_route('register', '/register')
+        self.config.add_route('activate', '/activate/{user_id}/{code}', factory=UserFactory)
         self.config.registry.registerUtility(schemas.RegisterSchema, IRegisterSchema)
         self.config.registry.registerUtility(schemas.LoginSchema, ILoginSchema)
 
@@ -185,9 +191,7 @@ class Initializer:
         """Configure CRUD for known SQLAlchemy models."""
 
         from .system.admin import views
-
         _admin = self.config.registry.settings["pyramid_web20.admin"]
-        views.SQLAlchemyModelAdminPanel.discover(_admin, models.Base, self.config.registry)
 
     def preconfigure_admin(self, settings):
         # Register admin root object
@@ -203,7 +207,10 @@ class Initializer:
         self.config.add_jinja2_search_path('pyramid_web20.system.admin:templates', name='.txt')
 
         self.config.add_route('admin', '/admin', factory="pyramid_web20.system.admin.admin_root_factory")
-        self.config.add_route('admin_model', '/admin/{model}')
+        self.config.add_route('admin_traverse', "/admin/*traverse", factory="pyramid_web20.system.admin.admin_root_factory")
+
+        # self.config.add_view('pyramid_web20.system.admin.views.listing', context='pyramid_web20.system.admin.ModelAdmin')
+        # self.config.add_view('pyramid_web20.system.admin.views.panel', context='pyramid_web20.system.admin.AdminPanel')
 
         self.config.scan(views)
 
@@ -214,6 +221,7 @@ class Initializer:
     def configure_user(self, settings, secrets):
 
         from .system.user import views
+        import pyramid_web20.system.user.admin
 
         self.configure_authentication(settings, secrets)
         self.configure_authomatic(settings, secrets)
@@ -228,6 +236,9 @@ class Initializer:
         # Thus, do Horus import as last.
         # Long term solution: Work with the upstream to fix Horus behavior.
         self.configure_horus(settings)
+
+        admin = Admin.get_admin(self.config.registry)
+        admin.scan(self.config, pyramid_web20.system.user.admin)
 
     def read_secrets(self, settings):
         """Read secrets configuration file.

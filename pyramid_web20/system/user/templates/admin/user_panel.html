@@ -1,0 +1,10 @@
+{% extends "admin/model_panel.html" %}
+
+{% block panel_content %}
+<p>Total users: {{panel.get_user_count()}}</p>
+
+{% with user=panel.get_latest_user() %}
+    <p>Latest user: {{user.friendly_name}} (<small class=text-muted>{{user.activated_at}}</small>)</p>
+{% endwith %}
+
+{% endblock panel_content %}

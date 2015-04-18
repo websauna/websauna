@@ -61,6 +61,12 @@ class NotSatisfiedWithData(Exception):
     """Risen when social media login cannot proceed due to incomplete provided information."""
 
 
+def init_user(request, user):
+    """Checks to perform when the user becomes a valid user for the first tim.e"""
+    user.activated_at = models.now()
+    user.first_login = False
+    usermixin.check_empty_site_init(user)
+
 def create_activation(request, user):
     """Create through-the-web user sign up with his/her email.
 
@@ -90,7 +96,7 @@ def create_activation(request, user):
 
     send_templated_mail(request, [user.email], "login/email/activate", context)
 
-    usermixin.check_empty_site_init(user)
+    init_user(request, user)
 
 
 def authenticated(request, user):
@@ -117,8 +123,6 @@ def authenticated(request, user):
     user.last_login_ip = request.client_addr
 
     location = get_config_route(request, 'horus.login_redirect')
-
-    user.first_login = False
 
     return HTTPFound(location=location, headers=headers)
 
@@ -201,7 +205,7 @@ def capture_social_media_user(request, provider, result):
         if user.activation:
             session.delete(user.activation)
 
-        usermixin.check_empty_site_init(user)
+        init_user(request, user)
 
     return user
 

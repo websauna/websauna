@@ -1,58 +1,40 @@
 """Admin interface. """
-from pyramid.view import view_config
+import copy
+
+from pyramid.view import view_config, render_view
 
 from pyramid.renderers import render
 
-from pyramid_web20.models import DBSession
+from pyramid_web20.utils import subview
 
 from . import Admin
+from . import ModelAdmin
+from . import AdminPanel
+
 
 
 @view_config(route_name='admin', renderer='admin/admin.html', permission='view')
 def admin(request):
     admin = Admin.get_admin(request.registry)
+    panels = list(admin.get_panels())
+
+    # TODO: Handle permission errors here gracefully
+    _request = copy.copy(request)
+    _request.response = None
+    rendered_panels = [subview.render_subview(p, "admin_panel", request) for p in panels]
+    # rendered_panels = []
+    return dict(panels=rendered_panels)
+
+
+@view_config(context=AdminPanel, name="admin_panel", permission='view')
+def panel(context, request):
+    template_context = dict(panel=context)
+    template = context.template
+    return subview.render_template(template, template_context, request=request)
+
+
+@view_config(context=ModelAdmin, name="listing", renderer='admin/x.html', permission='view')
+def listing(request):
+    admin = Admin.get_admin(request.registry)
     panels = [p.render(request) for p in admin.panels]
-    return dict(panels=panels)
-
-
-@view_config(route_name='admin_model', renderer='admin/admin.html')
-def admin_model(self):
-    """ """
-    return {}
-
-
-class AdminPanel:
-    """ """
-
-    sort_id = None
-
-
-class SQLAlchemyModelAdminPanel(AdminPanel):
-
-    def __init__(self, model):
-        self.model = model
-
-    @property
-    def sort_id(self):
-        return str(self.model)
-
-    @property
-    def title(self):
-        return str(self.model.__tablename__)
-
-    def render(self, request):
-        count = DBSession.query(self.model).count()
-        return render("admin/model_panel.html", dict(self=self, panel=self, count=count), request=request)
-
-    @classmethod
-    def discover(cls, admin, base, registry):
-        reg = base._decl_class_registry
-        for cls in reg.values():
-
-            if not hasattr(cls, "__tablename__"):
-                continue
-
-            if issubclass(cls, base):
-                panel = SQLAlchemyModelAdminPanel(cls)
-                admin.register_admin_panel(panel)
 

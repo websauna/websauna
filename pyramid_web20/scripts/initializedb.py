@@ -33,17 +33,9 @@ def main(argv=sys.argv):
     # secrets = init.read_secrets(settings)
     # This must go first, as we need to make sure all models are attached to Base
 
-    init.configure_user_model(settings)
+    init.run(settings)
 
-    # Horus models are optional
-    AuthBase = init.configure_horus(settings)
-    engine = init.configure_database(settings)
-
-    DBSession.configure(bind=engine)
-    if AuthBase:
-        AuthBase.metadata.create_all(engine)
-
-    Base.metadata.create_all(engine)
+    Base.metadata.create_all(init.engine)
 
 if __name__ == "__main__":
     main()

@@ -69,6 +69,9 @@ class UserMixin:
     #: When the account data was updated last time
     updated_at = Column(DateTime, onupdate=now)
 
+    #: When this user was activated: email confirmed or first social login
+    activated_at = Column(DateTime, nullable=True)
+
     #: Is this user account enabled. The support can disable the user account in the case of suspected malicious activity.
     enabled = Column(Boolean, default=True)
 

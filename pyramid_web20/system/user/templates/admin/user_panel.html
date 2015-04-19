@@ -4,7 +4,7 @@
 <p>Total users: {{panel.get_user_count()}}</p>
 
 {% with user=panel.get_latest_user() %}
-    <p>Latest user: {{user.friendly_name}} (<small class=text-muted>{{user.activated_at}}</small>)</p>
+    <p>Latest user: <a href="{{panel.get_latest_user_url(request)}}">{{user.friendly_name}}</a> (<small class=text-muted>{{user.activated_at}}</small>)</p>
 {% endwith %}
 
 {% endblock panel_content %}

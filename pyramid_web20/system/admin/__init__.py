@@ -77,6 +77,24 @@ class Admin:
 
             self.model_admins[id] = model_admin
 
+    def get_admin_for_model(self, model):
+        for model_admin in self.model_admins.values():
+            if model_admin.model == model:
+                return model_admin
+
+        raise KeyError("No admin defined for model: {}".format(model))
+
+    def get_admin_show_resource(self, obj):
+        """Get a admin traversable item for a SQLAlchemy object.
+
+        To get admin URL of an SQLAlchemy object::
+
+
+        """
+        model = obj.__class__
+        model_admin = self.get_admin_for_model(model)
+        return model_admin.crud[obj.id]
+
     def __getitem__(self, name):
 
         # Traverse to models
@@ -99,6 +117,9 @@ class ModelAdmin:
     def __init__(self, model):
         self.model = model
         self.init_lineage()
+
+    def get_admin(self):
+        return self.__parent__
 
     def init_lineage(self):
         """Make sure that all context objects have parent pointers set."""
@@ -139,6 +160,9 @@ class AdminPanel:
 
     def __init__(self, title):
         self.title = title
+
+    def get_admin(self):
+        return self.__parent__.__parent__
 
     def get_model(self):
         model_admin = self.__parent__

@@ -41,6 +41,11 @@ class UserAdminPanel(admin.AdminPanel):
         latest = DBSession.query(model).order_by(model.activated_at.desc()).first()
         return latest
 
+    def get_latest_user_url(self, request):
+        user = self.get_latest_user()
+        admin = self.get_admin()
+        traversable = admin.get_admin_show_resource(user)
+        return request.resource_url(traversable)
 
 
 @admin.ModelAdmin.register(model='pyramid_web20.system.user.models.User')

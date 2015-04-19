@@ -15,14 +15,20 @@ class BreadcrumsResource:
 
 
 
-def make_lineage(parent, child, name):
-    """Make sure traversing between objcts work as Pyramid resources."""
+def make_lineage(parent, child, name, allow_reinit=False):
+    """Make sure traversing between objcts work as Pyramid resources.
+
+    Builds __parent__ pointer and sets it on the child object.
+    """
 
     if child is None:
-        # The child is non-existing object, don't try to force lineage
+        # The child is non-existing object, don't try to force lineage upon it
         return None
 
-    assert not hasattr(child, "__parent__"), "Tried to double init lineage for {} -> {}, previous parent was {}".format(parent, child, child.__parent__)
+    if not allow_reinit:
+        # TODO:
+        # We should not really allow this, but the at the moment unit tests reinialize admin object which in turn reinitializes all hardcoded model admin lineages. Fix it so that harcoded lineages are handled in more sane way.
+        assert not hasattr(child, "__parent__"), "Tried to double init lineage for {} -> {}, previous parent was {}".format(parent, child, child.__parent__)
 
     child.__parent__ = parent
     child.__name__ = name

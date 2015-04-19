@@ -7,14 +7,14 @@ PASSWORD = "ToholamppiMadCowz585"
 
 
 def create_user():
-    from pyramid_web20.system.user.models import User
-    user = User(email=EMAIL, password=PASSWORD)
-    user.user_registration_source = User.USER_MEDIA_DUMMY
-    DBSession.add(user)
-    DBSession.flush()
-    user.username = user.generate_username()
-    assert user.can_login()
-    transaction.commit()
+    with transaction.manager:
+        from pyramid_web20.system.user.models import User
+        user = User(email=EMAIL, password=PASSWORD)
+        user.user_registration_source = User.USER_MEDIA_DUMMY
+        DBSession.add(user)
+        DBSession.flush()
+        user.username = user.generate_username()
+        assert user.can_login()
 
 
 def get_user():
@@ -48,10 +48,10 @@ def test_login_inactive(web_server, browser, dbsession):
 
     create_user()
 
-    user = get_user()
-    user.enabled = False
-    assert not user.can_login()
-    transaction.commit()
+    with transaction.manager:
+        user = get_user()
+        user.enabled = False
+        assert not user.can_login()
 
     b = browser
     b.visit("{}/{}".format(web_server, "login"))

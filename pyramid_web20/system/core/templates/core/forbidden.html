@@ -4,6 +4,14 @@
     <div id="forbidden">
         <h1>Forbidden</h1>
 
-        <p>Whoopsie. You do not have permission to access this page. <a href="{{'login'|route_url}}">Login first?</a></p>
+        <p>
+            Whoopsie. You do not have permission to access this page. 
+        </p>
+    
+        {% if not request.user %}
+            <p>
+                <a href="{{'login'|route_url}}">Login first?</a>
+            </p>
+        {% endif %} 
     </div>
 {% endblock %}

@@ -108,18 +108,29 @@ def dbsession(request, init):
 
     Tables are purged after the run.
     """
+    DBSession.close()
+    # engine = init.engine
+    # con = init.engine.raw_connection()
+    # postgresql_purge_all_stale_transactions(con.connection)
 
-    engine = init.engine
+    # engine = init.engine
+    # engine = init.configure_database(init.settings)
 
-    # Make sure we don't have any old data left from the last run
+    # engine = init.configure_database(init.settings)
     with transaction.manager:
-        Base.metadata.drop_all(engine)
-        Base.metadata.create_all(engine)
+        Base.metadata.drop_all(init.engine)
+        Base.metadata.create_all(init.engine)
+
 
     def teardown():
         # There might be open transactions in the database. They will block DROP ALL and thus the tests would end up in a deadlock. Thus, we clean up all connections we know about.
         # XXX: Fix this shit
+
+        with transaction.manager:
+            Base.metadata.drop_all(init.engine)
+
         DBSession.close()
+        pass
 
     request.addfinalizer(teardown)
 
@@ -142,3 +153,11 @@ from pyramid_web20.tests.functional import web_server  # noqa
 
 def pytest_addoption(parser):
     parser.addoption("--ini", action="store", metavar="INI_FILE", help="use INI_FILE to configure SQLAlchemy")
+
+
+def postgresql_purge_all_stale_transactions(connection):
+    curs = connection.cursor()
+    curs.execute("SELECT pid from pg_locks WHERE NOT granted");
+    for (pid,) in curs.fetchall():
+        print("Killing PID {}".format(pid))
+        curs.execute("SELECT pg_cancel_backend({})".format(pid))

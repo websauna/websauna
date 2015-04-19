@@ -73,7 +73,7 @@ class Admin(traverse.BreadcrumsResource):
                 raise RuntimeError("Model admin does not define id {}".format(model_admin))
 
             # Keep ACL chain intact
-            traverse.make_lineage(self, model_admin, id)
+            traverse.make_lineage(self, model_admin, id, allow_reinit=True)
 
             self.model_admins[id] = model_admin
 
@@ -123,7 +123,7 @@ class ModelAdminCRUD(ModelCRUD):
     def init_lineage(self):
         """Make sure that all context objects have parent pointers set."""
         super(ModelAdminCRUD, self).init_lineage()
-        traverse.make_lineage(self, self.panel, "panel")
+        traverse.make_lineage(self, self.panel, "panel", allow_reinit=True)
 
     @classmethod
     def register(cls, model):

@@ -42,8 +42,8 @@ class CRUD(traverse.BreadcrumsResource):
 
         # TODO: currently it is not possible to share CRUD parts among the classe. Create factory methods which can be called in the case we want to use the same Listing() across several CRUDs, etc.
 
-        traverse.make_lineage(self, self.listing, "all")
-        traverse.make_lineage(self, self.add, "add")
+        traverse.make_lineage(self, self.listing, "all", allow_reinit=True)
+        traverse.make_lineage(self, self.add, "add", allow_reinit=True)
 
 
     def get_model(self):

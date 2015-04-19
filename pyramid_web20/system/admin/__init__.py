@@ -93,7 +93,7 @@ class Admin(traverse.BreadcrumsResource):
         """
         model = obj.__class__
         model_admin = self.get_admin_for_model(model)
-        return model_admin.crud[obj.id]
+        return model_admin[obj.id]
 
     def get_breadcrumbs_title(self):
         return "Admin"
@@ -105,7 +105,7 @@ class Admin(traverse.BreadcrumsResource):
         return model_admin
 
 
-class ModelAdmin(traverse.BreadcrumsResource):
+class ModelAdminCRUD(ModelCRUD):
     """Present one model in admin interface."""
 
     #: URL traversing id
@@ -114,23 +114,16 @@ class ModelAdmin(traverse.BreadcrumsResource):
     #: Admin panel instance used on the admin homepage
     panel = None
 
-    #: CRUD instance used to render model listing, view, add, edit, delete, etc.
-    crud = None
-
     #: Title used in breadcrumbs, other places
     title = None
-
-    def __init__(self, model):
-        self.model = model
-        self.init_lineage()
 
     def get_admin(self):
         return self.__parent__
 
     def init_lineage(self):
         """Make sure that all context objects have parent pointers set."""
+        super(ModelAdminCRUD, self).init_lineage()
         traverse.make_lineage(self, self.panel, "panel")
-        traverse.make_lineage(self, self.crud, "crud")
 
     @classmethod
     def register(cls, model):
@@ -155,14 +148,12 @@ class ModelAdmin(traverse.BreadcrumsResource):
             return self.title
         return self.id.capitalize()
 
-    def __getitem__(self, name):
-        if name == "panel":
+    def __getitem__(self, id):
+        if id == "panel":
             return self.panel
 
-        if name == "crud":
-            return self.crud
+        return super(ModelCRUD, self).__getitem__(id)
 
-        return None
 
 class AdminPanel:
 
@@ -180,14 +171,14 @@ class AdminPanel:
         return model_admin.model
 
 
-
 class Listing(sqlalchemy_crud.Listing):
     template = "admin/listing.html"
     base_template = "admin/base.html"
 
 
 
-class DefaultCRUD(ModelCRUD):
+class DefaultModelAdminCRUD(ModelAdminCRUD):
+
     """Simply list items by their ID, have default view, edit and delete links."""
     listing = sqlalchemy_crud.Listing(
         title="",
@@ -200,8 +191,3 @@ class DefaultCRUD(ModelCRUD):
     show = crud.Show(
         includes=["id"]
     )
-
-    @property
-    def friendly_name(self):
-        return self.__parent__.id.capitalize()
-

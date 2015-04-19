@@ -35,11 +35,16 @@ class CRUD(traverse.BreadcrumsResource):
     delete = None
 
     def __init__(self):
+        self.init_lineage()
+
+    def init_lineage(self):
+        """Set traversing path of hardcoded subresources."""
 
         # TODO: currently it is not possible to share CRUD parts among the classe. Create factory methods which can be called in the case we want to use the same Listing() across several CRUDs, etc.
 
-        traverse.make_lineage(self, self.listing, "listing")
+        traverse.make_lineage(self, self.listing, "all")
         traverse.make_lineage(self, self.add, "add")
+
 
     def get_model(self):
         pass
@@ -61,7 +66,7 @@ class CRUD(traverse.BreadcrumsResource):
 
 
     def __getitem__(self, id):
-        if id == "listing":
+        if id == "all":
             return self.listing
         elif id == "add":
             return self.add
@@ -174,8 +179,11 @@ class Listing(CRUDResourcePart):
     title = "All"
 
     def __init__(self, title=None, columns=[], template=None, base_template=None):
-        self.title = title
+
         self.columns = columns
+
+        if title:
+            self.title = title
 
         if template:
             self.template = template

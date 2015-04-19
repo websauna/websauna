@@ -8,7 +8,12 @@ from pyramid_web20.models import DBSession
 class ModelCRUDInstance(_Instance):
 
     def get_title(self):
-        return "{} #{}".format(self.__parent__.friendly_name, self.obj.id)
+        """Title on show / edit / delete pages."""
+        return "{} #{}".format(self.__parent__.title, self.obj.id)
+
+    def get_breadcrumbs_title(self):
+        """Title in breadcrumbs bar."""
+        return self.get_title()
 
     def get_id(self):
         return self.obj.id
@@ -19,9 +24,12 @@ class ModelCRUD(CRUD):
 
     instance = ModelCRUDInstance
 
+    def __init__(self, model):
+        super(ModelCRUD, self).__init__()
+        self.model = model
+
     def get_model(self):
-        model_admin = self.__parent__
-        return model_admin.model
+        return self.model
 
     def get_query(self):
         """Get SQLAlchemy Query object which we use to populate this listing.

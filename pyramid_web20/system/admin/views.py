@@ -11,7 +11,7 @@ from pyramid_web20.system import crud
 from pyramid_web20.system.crud import views as crud_views
 
 from . import Admin
-from . import ModelAdmin
+from . import ModelAdminCRUD
 from . import AdminPanel
 
 
@@ -32,7 +32,8 @@ def admin(request):
 @view_config(context=AdminPanel, name="admin_panel", permission='view')
 def panel(context, request):
     model_admin = context.__parent__
-    template_context = dict(panel=context, model_admin=model_admin, crud=model_admin.crud)
+    count = model_admin.get_query().count()
+    template_context = dict(panel=context, count=count, model_admin=model_admin, crud=context)
     template = context.template
     return subview.render_template(template, template_context, request=request)
 
@@ -50,10 +51,10 @@ class AdminCRUDViewController(crud_views.SQLAlchemyCRUDViewController):
         # We override this method just to define admin route_name traversing
         return super(AdminCRUDViewController, self).show(base_template="admin/base.html")
 
-    @view_config(context=ModelAdmin, route_name="admin", permission='view')
+    @view_config(context=ModelAdminCRUD, route_name="admin", permission='view')
     def default(self):
         """Redirect to the user listing as the default action. """
-        r = HTTPFound(self.request.resource_url(self.context.crud.listing))
+        r = HTTPFound(self.request.resource_url(self.context.listing))
         return r
 
 

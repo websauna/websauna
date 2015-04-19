@@ -9,25 +9,6 @@ from pyramid_web20.system.crud import sqlalchemy as sqlalchemy_crud
 from pyramid_web20.models import DBSession
 
 
-class UserCRUD(admin.ModelCRUD):
-
-    friendly_name = "User"
-
-    listing = sqlalchemy_crud.Listing(
-        title="Users",
-        columns = [
-            Column("id", "Id",),
-            Column("friendly_name", "Friendly name"),
-            Column("email", "Email"),
-            ControlsColumn()
-        ]
-    )
-
-    show = crud.Show(
-        includes=["id", "email", "last_login_ip"]
-    )
-
-
 class UserAdminPanel(admin.AdminPanel):
 
     template = "admin/user_panel.html"
@@ -48,20 +29,33 @@ class UserAdminPanel(admin.AdminPanel):
         return request.resource_url(traversable)
 
 
-@admin.ModelAdmin.register(model='pyramid_web20.system.user.models.User')
-class UserAdmin(admin.ModelAdmin):
+@admin.ModelAdminCRUD.register(model='pyramid_web20.system.user.models.User')
+class UserAdmin(admin.DefaultModelAdminCRUD):
 
     #: Traverse id
     id = "user"
     title = "Users"
     panel = UserAdminPanel(title="Users")
-    crud = UserCRUD()
+
+    listing = sqlalchemy_crud.Listing(
+        title = "All users",
+        columns = [
+            Column("id", "Id",),
+            Column("friendly_name", "Friendly name"),
+            Column("email", "Email"),
+            ControlsColumn()
+        ]
+    )
+
+    show = crud.Show(
+        includes=["id", "email", "last_login_ip"]
+    )
 
 
-@admin.ModelAdmin.register(model='pyramid_web20.system.user.models.Group')
-class GroupAdmin(admin.ModelAdmin):
+
+@admin.ModelAdminCRUD.register(model='pyramid_web20.system.user.models.Group')
+class GroupAdmin(admin.DefaultModelAdminCRUD):
 
     #: Traverse id
     id = "group"
     panel = admin.AdminPanel(title="Groups")
-    crud = admin.DefaultCRUD()

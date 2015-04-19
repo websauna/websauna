@@ -2,6 +2,8 @@
 
 {% block content %}
 
+    {{context|admin_breadcrumbs|safe}}
+
     {% block admin_content %}
     {% endblock admin_content %}
 

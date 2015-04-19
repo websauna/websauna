@@ -2,7 +2,7 @@
 from abc import abstractmethod
 from pyramid_web20.utils import traverse
 
-class CRUD:
+class CRUD(traverse.BreadcrumsResource):
     """Define create-read-update-delete inferface for an model.
 
     We use Pyramid traversing to get automatic ACL permission support for operations. As long given CRUD resource parts define __acl__ attribute, permissions are respected automatically.
@@ -21,7 +21,7 @@ class CRUD:
     """
 
     # How the model is referred in templates. e.g. "User"
-    friendly_name = "xx"
+    title = "xx"
 
     #: Factory for creating $base/id traversing parts. Maps to the show object.
     instance = None
@@ -74,8 +74,13 @@ class CRUD:
         """Load object from the database for CRUD path for view/edit/delete."""
         raise NotImplementedError("Please use concrete subclass like pyramid_web20.syste.crud.sqlalchemy")
 
+    def get_breadcrumbs_title(self):
+        if self.title:
+            return self.title
+        return str(self.__class__)
 
-class CRUDResourcePart:
+
+class CRUDResourcePart(traverse.BreadcrumsResource):
     """A resource part of CRUD traversing."""
 
     template = None
@@ -87,7 +92,7 @@ class CRUDResourcePart:
         return self.__parent__.get_model()
 
 
-class Instance:
+class Instance(traverse.BreadcrumsResource):
     """An object for view, edit, delete screen."""
 
     template = "crud/show.html"
@@ -166,6 +171,8 @@ class Listing(CRUDResourcePart):
     #: In which frame we embed the listing. The base template must defined {% block crud_content %}
     base_template = None
 
+    title = "All"
+
     def __init__(self, title=None, columns=[], template=None, base_template=None):
         self.title = title
         self.columns = columns
@@ -189,6 +196,8 @@ class Listing(CRUDResourcePart):
     def get_instance(self, obj):
         return self.get_crud().make_instance(obj)
 
+    def get_breadcrumbs_title(self):
+        return self.title
 
 class Show:
     """View the item."""

@@ -206,13 +206,14 @@ class Initializer:
         self.config.add_jinja2_search_path('pyramid_web20.system.admin:templates', name='.html')
         self.config.add_jinja2_search_path('pyramid_web20.system.admin:templates', name='.txt')
 
-        self.config.add_route('admin_home', '/admin', factory="pyramid_web20.system.admin.admin_root_factory")
+        self.config.add_route('admin_home', '/admin/', factory="pyramid_web20.system.admin.admin_root_factory")
         self.config.add_route('admin', "/admin/*traverse", factory="pyramid_web20.system.admin.admin_root_factory")
 
         # self.config.add_view('pyramid_web20.system.admin.views.listing', context='pyramid_web20.system.admin.ModelAdmin')
         # self.config.add_view('pyramid_web20.system.admin.views.panel', context='pyramid_web20.system.admin.AdminPanel')
 
         self.config.scan(views)
+
 
     def preconfigure_user(self, settings):
         # self.configure_horus(settings)

@@ -1,0 +1,5 @@
+<ol class="breadcrumb">
+    {% for crumb in crumbs %}
+        <li><a href={{crumb|model_url}}>{{crumb.get_breadcrumbs_title()}}</a></li>
+    {% endfor %}
+</ol>

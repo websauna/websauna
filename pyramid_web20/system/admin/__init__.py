@@ -20,7 +20,7 @@ def admin_root_factory(request):
 
 
 
-class Admin:
+class Admin(traverse.BreadcrumsResource):
     """Admin interface main object.
 
     We know what panels are registered on the main admin screen.
@@ -95,6 +95,9 @@ class Admin:
         model_admin = self.get_admin_for_model(model)
         return model_admin.crud[obj.id]
 
+    def get_breadcrumbs_title(self):
+        return "Admin"
+
     def __getitem__(self, name):
 
         # Traverse to models
@@ -102,7 +105,7 @@ class Admin:
         return model_admin
 
 
-class ModelAdmin:
+class ModelAdmin(traverse.BreadcrumsResource):
     """Present one model in admin interface."""
 
     #: URL traversing id
@@ -113,6 +116,9 @@ class ModelAdmin:
 
     #: CRUD instance used to render model listing, view, add, edit, delete, etc.
     crud = None
+
+    #: Title used in breadcrumbs, other places
+    title = None
 
     def __init__(self, model):
         self.model = model
@@ -143,6 +149,11 @@ class ModelAdmin:
             return wrapped_cls
 
         return inner
+
+    def get_breadcrumbs_title(self):
+        if self.title:
+            return self.title
+        return self.id.capitalize()
 
     def __getitem__(self, name):
         if name == "panel":

@@ -53,6 +53,7 @@ class UserAdmin(admin.ModelAdmin):
 
     #: Traverse id
     id = "user"
+    title = "Users"
     panel = UserAdminPanel(title="Users")
     crud = UserCRUD()
 

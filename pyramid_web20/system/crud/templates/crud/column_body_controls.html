@@ -1,15 +1,15 @@
 <td class-"crud-column-body-{{column.id}}">
     <div class="pull-right">
-        <button class="btn crud-column-body-view">
+        <a href="{{instance|model_url}}" class="btn btn-default crud-column-body-view">
             View
-        </button>
+        </a>
 
-        <button class="btn crud-column-body-edit">
+        <a class="btn btn-default crud-column-body-edit">
             Edit
-        </button>
+        </a>
 
-        <button class="btn crud-column-body-delete">
+        <a class="btn btn-default crud-column-body-delete">
             Delete
-        </button>
+        </a>
     </div>
 </td>

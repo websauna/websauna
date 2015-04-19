@@ -1,0 +1,12 @@
+{% extends base_template %}
+
+{% block crud_content %}
+
+    {% include "crud/crud_page_controls.html" %}
+
+    {% if title %}
+        <h1>{{title}}</h1>
+    {% endif %}
+
+    {{form|safe}}
+{% endblock crud_content %}

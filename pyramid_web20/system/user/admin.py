@@ -11,15 +11,20 @@ from pyramid_web20.models import DBSession
 
 class UserCRUD(admin.ModelCRUD):
 
+    friendly_name = "User"
+
     listing = sqlalchemy_crud.Listing(
         title="Users",
-        base_template="admin/base.html",
         columns = [
             Column("id", "Id",),
             Column("friendly_name", "Friendly name"),
             Column("email", "Email"),
             ControlsColumn()
         ]
+    )
+
+    show = crud.Show(
+        includes=["id", "email", "last_login_ip"]
     )
 
 
@@ -53,4 +58,4 @@ class GroupAdmin(admin.ModelAdmin):
     #: Traverse id
     id = "group"
     panel = admin.AdminPanel(title="Groups")
-    crud = None
+    crud = admin.DefaultCRUD()

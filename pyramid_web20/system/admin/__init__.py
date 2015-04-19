@@ -12,6 +12,14 @@ class Root:
     __name__ = ""
 
 
+
+def admin_root_factory(request):
+    """Get the admin object for the routes."""
+    admin = Admin.get_admin(request.registry)
+    return admin
+
+
+
 class Admin:
     """Admin interface main object.
 
@@ -144,10 +152,21 @@ class Listing(sqlalchemy_crud.Listing):
 
 
 
-def admin_root_factory(request):
-    """Get the admin object for the routes."""
-    admin = Admin.get_admin(request.registry)
-    return admin
+class DefaultCRUD(ModelCRUD):
+    """Simply list items by their ID, have default view, edit and delete links."""
+    listing = sqlalchemy_crud.Listing(
+        title="",
+        columns = [
+            crud.Column("id", "Id",),
+            crud.ControlsColumn()
+        ]
+    )
 
+    show = crud.Show(
+        includes=["id"]
+    )
 
+    @property
+    def friendly_name(self):
+        return self.__parent__.id.capitalize()
 

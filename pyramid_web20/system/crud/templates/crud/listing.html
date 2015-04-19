@@ -24,9 +24,11 @@
 
             <tbody>
                 {% for obj in query %}
-                    {% for column in columns  %}
-                        {% include column.body_template %}
-                    {% endfor %}
+                    {% with instance=crud.make_instance(obj) %}
+                        {% for column in columns  %}
+                            {% include column.body_template %}
+                        {% endfor %}
+                    {% endwith %}
                 {% endfor %}
             </tbody>
         </table>

@@ -1,5 +1,6 @@
 """Admin interface. """
 import copy
+from pyramid.httpexceptions import HTTPFound
 
 from pyramid.view import view_config, render_view
 from pyramid.traversal import resource_path
@@ -37,10 +38,27 @@ def panel(context, request):
 
 
 
-class AdminCRUDViewController(crud_views.CRUDViewController):
+class AdminCRUDViewController(crud_views.SQLAlchemyCRUDViewController):
 
     @view_config(context=crud.Listing, renderer="crud/listing.html", route_name="admin", permission='view')
     def listing(self):
         # We override this method just to define admin route_name traversing
-        return super(AdminCRUDViewController, self).listing()
+        return super(AdminCRUDViewController, self).listing(base_template="admin/base.html")
+
+    @view_config(context=crud.Instance, renderer="crud/show.html", route_name="admin", permission='view')
+    def show(self):
+        # We override this method just to define admin route_name traversing
+        return super(AdminCRUDViewController, self).show(base_template="admin/base.html")
+
+    @view_config(context=ModelAdmin, route_name="admin", permission='view')
+    def default(self):
+        """Redirect to the user listing as the default action. """
+        r = HTTPFound(self.request.resource_url(self.context.crud.listing))
+        return r
+
+
+
+
+
+
 

@@ -12,6 +12,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.mutable import MutableDict
 
+import colander
+
 from pyramid_web20.models import now
 from pyramid_web20.models import DBSession
 from pyramid_web20.utils.jsonb import JSONBProperty
@@ -79,13 +81,21 @@ class UserMixin:
     last_login_at = Column(DateTime, nullable=True)
 
     #: From which IP address did this user log in from. If this IP is null the user has never logged in (only activation email sent). Information stored for the security audits. It is also useful for identifying the source country of users e.g. for localized versions.
-    last_login_ip = Column(INET, nullable=True)
+    last_login_ip = Column(INET, nullable=True,
+              info={'colanderalchemy': {
+                        'typ': colander.String(),
+                    }},
+            )
 
     #: When this user changed the password for the last time. The value is null if the user comes from social networks. Information stored for the security audits.
     last_password_change_at = Column(DateTime, nullable=True)
 
     #: Store all user related settings in this expandable field
-    user_data = Column(MutableDict.as_mutable(JSONB), default=DEFAULT_USER_DATA)
+    user_data = Column(MutableDict.as_mutable(JSONB), default=DEFAULT_USER_DATA,
+                    info={'colanderalchemy': {
+                        'typ': colander.String(),
+                    }},
+            )
 
     #: Full name of the user (if given)
     full_name = JSONBProperty("user_data", "/full_name")
@@ -139,7 +149,11 @@ class UserMixin:
 
 class GroupMixin:
 
-    group_data = Column(JSONB)
+    group_data = Column(JSONB,
+                    info={'colanderalchemy': {
+                        'typ': colander.String(),
+                    }},
+            )
 
 
 def init_empty_site(user):

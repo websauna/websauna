@@ -4,12 +4,16 @@
 <p>Total: {{count}}</p>
 {% endblock panel_content %}
 
-{% block panel_buttons %}
-<button class="btn btn-default">
-    List
-</button>
 
-<button class="btn btn-default">
-    Add
-</button>
+{% block panel_buttons %}
+    xxx
+    {% if crud %}
+        <a class="btn btn-default" href="{{crud.listing|model_url}}">
+            List
+        </a>
+
+        <button class="btn btn-default">
+            Add
+        </button>
+    {% endif %}
 {% endblock %}

@@ -3,17 +3,23 @@ from pyramid.security import Allow
 from pyramid_web20.system import admin
 from pyramid_web20.system import crud
 from pyramid_web20.system.crud import Column
+from pyramid_web20.system.crud import ControlsColumn
+from pyramid_web20.system.crud import sqlalchemy as sqlalchemy_crud
 
 from pyramid_web20.models import DBSession
 
-class UserCRUD(crud.CRUD):
 
-    listing = crud.Listing(
-        columns = (
+class UserCRUD(admin.ModelCRUD):
+
+    listing = sqlalchemy_crud.Listing(
+        title="Users",
+        base_template="admin/base.html",
+        columns = [
             Column("id", "Id",),
-            Column("get_friendly_name", "Friendly name"),
+            Column("friendly_name", "Friendly name"),
             Column("email", "Email"),
-        )
+            ControlsColumn()
+        ]
     )
 
 
@@ -22,13 +28,11 @@ class UserAdminPanel(admin.AdminPanel):
     template = "admin/user_panel.html"
 
     def get_user_count(self):
-        model_admin = self.__parent__
-        model = model_admin.model
+        model = self.get_model()
         return DBSession.query(model).count()
 
     def get_latest_user(self):
-        model_admin = self.__parent__
-        model = model_admin.model
+        model = self.get_model()
         latest = DBSession.query(model).order_by(model.activated_at.desc()).first()
         return latest
 
@@ -40,13 +44,13 @@ class UserAdmin(admin.ModelAdmin):
     #: Traverse id
     id = "user"
     panel = UserAdminPanel(title="Users")
-    crud = UserCRUD
+    crud = UserCRUD()
 
 
 @admin.ModelAdmin.register(model='pyramid_web20.system.user.models.Group')
 class GroupAdmin(admin.ModelAdmin):
 
     #: Traverse id
-    id = "user"
-    panel = admin.AdminPanel(title="Users")
-    crud = UserCRUD
+    id = "group"
+    panel = admin.AdminPanel(title="Groups")
+    crud = None

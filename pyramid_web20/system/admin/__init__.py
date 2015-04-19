@@ -1,7 +1,16 @@
 import sys
-from pyramid.renderers import render
 
 from pyramid.security import Allow
+from pyramid_web20.system import crud
+from pyramid_web20.system.crud import sqlalchemy as sqlalchemy_crud
+from pyramid_web20.system.crud.sqlalchemy import ModelCRUD
+from pyramid_web20.utils import traverse
+
+
+
+class Root:
+    __name__ = ""
+
 
 class Admin:
     """Admin interface main object.
@@ -9,15 +18,16 @@ class Admin:
     We know what panels are registered on the main admin screen.
     """
 
+    # Root defines where admin interaface lies in the URL space
+    __parent__ = Root()
+    __name__ = "admin"
+
     __acl__ = [
         (Allow, 'group:admin', 'view'),
     ]
 
     def __init__(self):
         self.model_admins = {}
-
-    def register_admin_panel(self, id, panel):
-        self.panel_container[id] = panel
 
     @classmethod
     def get_admin(cls, registry):
@@ -55,8 +65,7 @@ class Admin:
                 raise RuntimeError("Model admin does not define id {}".format(model_admin))
 
             # Keep ACL chain intact
-            model_admin.__parent__ = self
-            model_admin.__name__ = id
+            traverse.make_lineage(self, model_admin, id)
 
             self.model_admins[id] = model_admin
 
@@ -64,18 +73,7 @@ class Admin:
 
         # Traverse to models
         model_admin = self.model_admins[name]
-
         return model_admin
-
-
-
-class AdminPanelContainer:
-
-    def __init__(self):
-        self.panels = {}
-
-    def __getitem__(self, item):
-        return self.panels[item]
 
 
 class ModelAdmin:
@@ -96,15 +94,8 @@ class ModelAdmin:
 
     def init_lineage(self):
         """Make sure that all context objects have parent pointers set."""
-
-        if hasattr(self.panel, "__parent__"):
-            raise RuntimeError("Tried to double initialize lineage for model admin {} panel {}".format(self, self.panel))
-
-        self.panel.__parent__ = self
-        self.panel.__name__ = "panel"
-
-    def get_model(self):
-        return
+        traverse.make_lineage(self, self.panel, "panel")
+        traverse.make_lineage(self, self.crud, "crud")
 
     @classmethod
     def register(cls, model):
@@ -127,6 +118,10 @@ class ModelAdmin:
     def __getitem__(self, name):
         if name == "panel":
             return self.panel
+
+        if name == "crud":
+            return self.crud
+
         return None
 
 class AdminPanel:
@@ -136,6 +131,17 @@ class AdminPanel:
 
     def __init__(self, title):
         self.title = title
+
+    def get_model(self):
+        model_admin = self.__parent__
+        return model_admin.model
+
+
+
+class Listing(sqlalchemy_crud.Listing):
+    template = "admin/listing.html"
+    base_template = "admin/base.html"
+
 
 
 def admin_root_factory(request):

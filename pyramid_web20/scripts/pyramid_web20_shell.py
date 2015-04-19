@@ -48,9 +48,6 @@ def main(argv=sys.argv):
     imported_objects["session"] = DBSession
     imported_objects["transaction"] = transaction
 
-    for name, cls in init.AuthBase._decl_class_registry.items():
-        imported_objects[name] = cls
-
     for name, cls in Base._decl_class_registry.items():
         imported_objects[name] = cls
 

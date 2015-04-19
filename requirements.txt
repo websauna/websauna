@@ -9,6 +9,9 @@ pyramid-redis-sessions==1.0.1
 # Forms
 deform==2.0a2
 
+# Core traversing
+pyramid_traversalwrapper==0.1
+
 # Templates
 Jinja2==2.7.3
 pyramid_jinja2==2.4

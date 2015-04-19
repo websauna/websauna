@@ -1,0 +1,34 @@
+{% extends base_template %}
+
+{% block crud_content %}
+    {% if title %}
+        <h1>{{title}}</h1>
+    {% endif %}
+
+    {% if not count %}
+        <p id="crud-listing-no-items" class="lead">
+            No items
+        </p>
+    {% else %}
+
+        <div id="crud-listing-count" class="text-muted pull-right">
+            Total {{count}} items
+        </div>
+
+        <table class="table listing">
+            <thead>
+                {% for column in columns %}
+                    {%  include column.header_template %}
+                {% endfor %}
+            </thead>
+
+            <tbody>
+                {% for obj in query %}
+                    {% for column in columns  %}
+                        {% include column.body_template %}
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock crud_content %}

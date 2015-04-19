@@ -206,8 +206,8 @@ class Initializer:
         self.config.add_jinja2_search_path('pyramid_web20.system.admin:templates', name='.html')
         self.config.add_jinja2_search_path('pyramid_web20.system.admin:templates', name='.txt')
 
-        self.config.add_route('admin', '/admin', factory="pyramid_web20.system.admin.admin_root_factory")
-        self.config.add_route('admin_traverse', "/admin/*traverse", factory="pyramid_web20.system.admin.admin_root_factory")
+        self.config.add_route('admin_home', '/admin', factory="pyramid_web20.system.admin.admin_root_factory")
+        self.config.add_route('admin', "/admin/*traverse", factory="pyramid_web20.system.admin.admin_root_factory")
 
         # self.config.add_view('pyramid_web20.system.admin.views.listing', context='pyramid_web20.system.admin.ModelAdmin')
         # self.config.add_view('pyramid_web20.system.admin.views.panel', context='pyramid_web20.system.admin.AdminPanel')
@@ -218,10 +218,20 @@ class Initializer:
         # self.configure_horus(settings)
         pass
 
+    def configure_crud(self, settings):
+        """CRUD templates and views."""
+
+        self.config.add_jinja2_search_path('pyramid_web20.system.crud:templates', name='.html')
+        self.config.add_jinja2_search_path('pyramid_web20.system.crud:templates', name='.txt')
+
+        from pyramid_web20.system.crud import views
+        self.config.scan(views)
+
     def configure_user(self, settings, secrets):
 
         from .system.user import views
         import pyramid_web20.system.user.admin
+        import pyramid_web20.system.user.adminviews
 
         self.configure_authentication(settings, secrets)
         self.configure_authomatic(settings, secrets)
@@ -231,6 +241,7 @@ class Initializer:
         self.config.add_jinja2_search_path('pyramid_web20:system/user/templates', name='.txt')
 
         self.config.scan(views)
+        self.config.scan(pyramid_web20.system.user.adminviews)
 
         # TODO: Horus implicitly imports its admin views... WE DON'T WANT THOSE and we cannot avoid import for now.
         # Thus, do Horus import as last.
@@ -274,6 +285,8 @@ class Initializer:
         self.configure_sessions(settings, secrets)
 
         self.configure_user(settings, secrets)
+
+        self.configure_crud(settings)
 
         self.configure_admin(settings)
         self.configure_admin_models(settings)

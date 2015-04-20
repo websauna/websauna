@@ -231,8 +231,6 @@ class Initializer:
     def configure_user(self, settings, secrets):
 
         from .system.user import views
-        import pyramid_web20.system.user.admin
-        import pyramid_web20.system.user.adminviews
 
         self.configure_authentication(settings, secrets)
         self.configure_authomatic(settings, secrets)
@@ -242,15 +240,19 @@ class Initializer:
         self.config.add_jinja2_search_path('pyramid_web20:system/user/templates', name='.txt')
 
         self.config.scan(views)
-        self.config.scan(pyramid_web20.system.user.adminviews)
 
         # TODO: Horus implicitly imports its admin views... WE DON'T WANT THOSE and we cannot avoid import for now.
         # Thus, do Horus import as last.
         # Long term solution: Work with the upstream to fix Horus behavior.
         self.configure_horus(settings)
 
+    def configure_user_admin(self, settings):
+        import pyramid_web20.system.user.admin
+        import pyramid_web20.system.user.adminviews
+
         admin = Admin.get_admin(self.config.registry)
         admin.scan(self.config, pyramid_web20.system.user.admin)
+        self.config.scan(pyramid_web20.system.user.adminviews)
 
     def read_secrets(self, settings):
         """Read secrets configuration file.
@@ -286,7 +288,7 @@ class Initializer:
         self.configure_sessions(settings, secrets)
 
         self.configure_user(settings, secrets)
-
+        self.configure_user_admin(settings)
         self.configure_crud(settings)
 
         self.configure_admin(settings)

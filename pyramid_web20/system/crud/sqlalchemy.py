@@ -45,7 +45,7 @@ class ModelCRUD(CRUD):
 
         assert type(id) in (int, str), "Got bad id {} ({}) for {}".format(id, type(id), model)
 
-        obj = self.get_query().get(id)
+        obj = self.get_query().filter_by(id=id).first()
         if not obj:
             raise KeyError("Object id {} was not found for model {}".format(id, model))
 

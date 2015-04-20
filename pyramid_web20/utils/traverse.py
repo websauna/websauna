@@ -32,6 +32,7 @@ def make_lineage(parent, child, name, allow_reinit=False):
 
     child.__parent__ = parent
     child.__name__ = name
+    return child
 
 
 def get_breadcrumb(context, root):

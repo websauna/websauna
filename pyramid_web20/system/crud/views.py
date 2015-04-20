@@ -98,7 +98,7 @@ class CRUDViewController:
 
         crud = self.get_crud()
 
-        buttons = dict(edit=True, delete=True)
+        buttons = dict(edit=crud.edit, delete=crud.delete)
 
         return dict(form=rendered_form, instance=instance, obj=obj, title=title, crud=crud, base_template=base_template, buttons=buttons)
 

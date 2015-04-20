@@ -125,18 +125,20 @@ class Column:
 
     body_template = "crud/column_body.html"
 
-    def __init__(self, id, name=None, renderer=None, header_template=None, body_template=None):
+    def __init__(self, id, name=None, renderer=None, header_template=None, body_template=None, getter=None, navigate_to=None):
         """
         :param id: Must match field id on the model
         :param name:
         :param renderer:
         :param header_template:
         :param body_template:
+        :param navigate_to: If set, make this column clickable and navigates to the traversed name. Options are "show", "edit", "delete"
         :return:
         """
         self.id = id
         self.name = name
         self.renderer = renderer
+        self.getter = getter
 
         if header_template:
             self.header_template = header_template
@@ -144,13 +146,31 @@ class Column:
         if body_template:
             self.body_template = body_template
 
+        if navigate_to:
+            self.navigate_to = navigate_to
+
     def get_value(self, obj):
         """Extract value from the object for this column.
 
         Called in listing body.
         """
-        return getattr(obj, self.id)
 
+        if self.getter:
+            val = self.getter(obj)
+        else:
+            val = getattr(obj, self.id)
+
+        if val is None:
+            return ""
+        else:
+            return val
+
+    def get_navigate_target(self, instance):
+        """ """
+        if self.navigate_to == "show":
+            return instance
+        else:
+            return instance[self.navigate_to]
 
 class ControlsColumn(Column):
     """Render View / Edit / Delete buttons."""

@@ -2,6 +2,7 @@
 import datetime
 
 from pyramid.events import BeforeRender
+from pyramid.renderers import render
 from pyramid.threadlocal import get_current_request
 
 from pytz import timezone
@@ -9,11 +10,11 @@ from pytz import timezone
 from pyramid_jinja2 import IJinja2Environment
 
 from jinja2 import contextfilter
-
-from jinja2 import contextfilter
+from jinja2 import Markup
 
 from arrow import Arrow
 
+from pyramid_web20.utils import html
 
 
 def includeme(config):
@@ -96,3 +97,39 @@ def friendly_time(jinja_ctx, context, **kw):
     other = Arrow.fromdatetime(datetime.datetime.now(tz=tz))
 
     return arrow.humanize(other)
+
+
+@contextfilter
+def escape_js(jinja_ctx, context, **kw):
+    """Make JSON strings to safe to be embedded inside <script> tag."""
+    markup = Markup(html.escape_js(context))
+    return markup
+
+
+@contextfilter
+def timestruct(jinja_ctx, context, **kw):
+    """Render both humanized time and accurate time.
+
+    * show_timezone
+
+    * target_timezone
+
+    * source_timezone
+
+    * format
+    """
+
+    if not context:
+        return ""
+
+    assert type(context) in (datetime.datetime, datetime.time,)
+
+    request = jinja_ctx.get('request') or get_current_request()
+    if not jinja_ctx:
+        return ""
+
+    kw = kw.copy()
+    kw["time"] = context
+    kw["format"] = kw.get("format") or "YYYY-MM-DD HH:mm"
+
+    return Markup(render("core/timestruct.html", kw, request=request))

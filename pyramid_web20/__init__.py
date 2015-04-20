@@ -122,6 +122,8 @@ class Initializer:
 
         include_filter("friendly_time", templatecontext.friendly_time)
         include_filter("datetime", templatecontext._datetime)
+        include_filter("escape_js", templatecontext.escape_js)
+        include_filter("timestruct", templatecontext.timestruct)
 
     def configure_authentication(self, settings, secrets):
 

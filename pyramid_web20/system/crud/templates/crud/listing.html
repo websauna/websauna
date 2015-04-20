@@ -15,7 +15,7 @@
             Total {{count}} items
         </div>
 
-        <table class="table listing">
+        <table class="table listing listing-{{crud.id}}">
             <thead>
                 {% for column in columns %}
                     {%  include column.header_template %}

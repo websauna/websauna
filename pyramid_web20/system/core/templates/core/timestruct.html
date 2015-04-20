@@ -1,0 +1,7 @@
+<div class="friendly-time">
+    {{ time|friendly_time() }}
+</div>
+
+<div class="unfriendly-time">
+    {{ time|datetime(format=format, target_timezone=timezone, locale="en_US", show_timezone=show_timezone) }}
+</div>

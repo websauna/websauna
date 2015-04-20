@@ -176,7 +176,8 @@ class Initializer:
         """
         settings = dictutil.combine(self.settings, settings)
 
-        engine = engine_from_config(settings, 'sqlalchemy.', connect_args={"options": "-c timezone=utc"})
+        # http://stackoverflow.com/questions/14783505/encoding-error-with-sqlalchemy-and-postgresql
+        engine = engine_from_config(settings, 'sqlalchemy.', connect_args={"options": "-c timezone=utc"},  client_encoding='utf8')
         models.DBSession.configure(bind=engine)
         return engine
 

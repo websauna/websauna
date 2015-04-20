@@ -79,6 +79,7 @@ setup(
         'peppercorn',
         'pyramid_redis_sessions',
         'pyramid-mailer',
+        "arrow"
     ],
 
     # List additional groups of dependencies here (e.g. development

@@ -172,10 +172,23 @@ ul li, ol li {
     width: 100%;
 }
 
+tr th {
+    vertical-align: top;
+    text-align: right;
+    margin-right: 10px;
+}
+
+tr td {
+    vertical-align: top;
+    text-align: left;
+    margin-bottom: 10px;
+}
 </style>
 </head>
 
 <body bgcolor="#f6f6f6">
+
+
 
 <!-- body -->
 <table class="body-wrap">
@@ -186,6 +199,7 @@ ul li, ol li {
             <!-- content -->
             <div class="content">
             <table>
+                {% include "email/header.html" %}
                 <tr>
                     <td>
                         {% block content %}
@@ -202,6 +216,7 @@ ul li, ol li {
 </table>
 <!-- /body -->
 
+{% include "email/footer.html" %}
 
 
 </body>

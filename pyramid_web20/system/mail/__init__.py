@@ -1,7 +1,6 @@
 from pyramid.renderers import render
 
 from pyramid_mailer import get_mailer
-from pyramid_mailer.message import Attachment
 from pyramid_mailer.message import Message
 
 import premailer
@@ -28,20 +27,26 @@ class StdoutMailer(object):
 
 
 def send_templated_mail(request, recipients, template, context, sender=None):
-    """Helper utility to send out HTML/plain text emails.
+    """Send out templatized HTML and plain text emails.
 
-    Plain text email is generated based on HTML email.
+    The email is assembled from three different templates:
 
-    * Read subject from a subject specific template
+    * Read subject from a subject specific template $template.subject.txt
 
-    * Convert HTML output to plain text for fallback
+    * Generate HTML email from HTML template, $template.body.html
 
-    :param template: Template filename base for template tripled (subject, HTML body, plain text body)
+    * Generate plain text email from HTML template, $template.body.txt
 
-    :param context: Template context variables
+    :param request: HTTP request, passed to the template engine. Request configuration is used to get hold of the configured mailer.
+
+    :param recipients: List of recipient emails
+
+    :param template: Template filename base string for template tripled (subject, HTML body, plain text body). For example ``email/my_message`` would map to templates ``email/my_message.subject.txt``, ``email/my_message.body.txt``, ``email/my_message.body.html``
+
+    :param context: Template context variables as a dict
+
+    :param sender: Override the sender email - if not specific use the default set in the config as ``mail.default_sender``
     """
-
-    # TODO: move request usage out from this function and make sure we can call this asynchronously
 
     assert recipients
     assert len(recipients) > 0
@@ -57,9 +62,6 @@ def send_templated_mail(request, recipients, template, context, sender=None):
 
     # Inline CSS styles
     html_body = premailer.transform(html_body)
-
-    text_body = Attachment(data=text_body, transfer_encoding="quoted-printable")
-    html_body = Attachment(data=html_body, transfer_encoding="quoted-printable")
 
     message = Message(subject=subject, sender=sender, recipients=recipients, body=text_body, html=html_body)
 

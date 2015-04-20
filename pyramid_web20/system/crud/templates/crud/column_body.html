@@ -1,10 +1,12 @@
 <td class-"crud-column-body-{{column.id}}">
 
-    {% if column.navigate_to %}
-        <a href="{{column.get_navigate_target(instance)|model_url}}">
+    {% with target=column.get_navigate_url(instance, request)  %}
+        {% if target %}
+            <a href="{{target}}">
+                {{ column.get_value(obj) }}
+            </a>
+        {% else %}
             {{ column.get_value(obj) }}
-        </a>
-    {% else %}
-        {{ column.get_value(obj) }}
-    {% endif %}
+        {% endif %}
+    {% endwith %}
 </td>

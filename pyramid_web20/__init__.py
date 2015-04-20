@@ -95,6 +95,7 @@ class Initializer:
             self.config.registry.registerUtility(mailer, IMailer)
 
     def configure_templates(self):
+        from pyramid_web20.system.core import templatecontext
 
         # Jinja 2 templates as .html files
         self.config.include('pyramid_jinja2')
@@ -107,6 +108,20 @@ class Initializer:
         self.config.include('pyramid_mako')
 
         self.config.include("pyramid_web20.system.core.templatecontext")
+
+        def include_filter(name, func):
+
+            def deferred():
+                for renderer_name in (".html", ".txt"):
+                    env = self.config.get_jinja2_environment(name=renderer_name)
+                    assert env, "Jinja 2 not configured - cannot add filters"
+                    env.filters[name] = func
+
+            # Because Jinja 2 engine is not initialized here, only included here, we need to do template filter including asynchronously
+            self.config.action('pyramid_web-include-filter-{}'.format(name), deferred, order=1)
+
+        include_filter("friendly_time", templatecontext.friendly_time)
+        include_filter("datetime", templatecontext._datetime)
 
     def configure_authentication(self, settings, secrets):
 
@@ -159,7 +174,7 @@ class Initializer:
         """
         settings = dictutil.combine(self.settings, settings)
 
-        engine = engine_from_config(settings, 'sqlalchemy.')
+        engine = engine_from_config(settings, 'sqlalchemy.', connect_args={"options": "-c timezone=utc"})
         models.DBSession.configure(bind=engine)
         return engine
 

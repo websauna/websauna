@@ -19,3 +19,10 @@ Base = declarative_base()
 def now():
     """Get timezone-aware UTC timestamp."""
     return datetime.datetime.now(datetime.timezone.utc)
+
+
+utc = datetime.timezone.utc
+
+# Make sure we store all dateimes as UTC in the database by importing this SQLAlchemy type augmentator
+from ..utils import sqlalchemyutcdatetime  # noqa
+

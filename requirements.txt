@@ -6,9 +6,10 @@ iso8601==0.1.10
 # Sessions
 pyramid-redis-sessions==1.0.1
 
-# Forms
+# Forms and CRUD
 deform==2.0a2
 ColanderAlchemy==0.3.2
+pytz==2015.2
 
 # Templates
 Jinja2==2.7.3

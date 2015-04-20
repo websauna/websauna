@@ -15,6 +15,7 @@ from sqlalchemy.ext.mutable import MutableDict
 import colander
 
 from pyramid_web20.models import now
+from pyramid_web20.models import utc
 from pyramid_web20.models import DBSession
 from pyramid_web20.utils.jsonb import JSONBProperty
 
@@ -66,19 +67,19 @@ class UserMixin:
     salt = Column(String(256), nullable=True)
 
     #: When this account was created
-    created_at = Column(DateTime, default=now)
+    created_at = Column(DateTime(timezone=utc), default=now)
 
     #: When the account data was updated last time
-    updated_at = Column(DateTime, onupdate=now)
+    updated_at = Column(DateTime(timezone=utc), onupdate=now)
 
     #: When this user was activated: email confirmed or first social login
-    activated_at = Column(DateTime, nullable=True)
+    activated_at = Column(DateTime(timezone=utc), nullable=True)
 
     #: Is this user account enabled. The support can disable the user account in the case of suspected malicious activity.
     enabled = Column(Boolean, default=True)
 
     #: When this user accessed the system last time. None if the user has never logged in (only activation email sent). Information stored for the security audits.
-    last_login_at = Column(DateTime, nullable=True)
+    last_login_at = Column(DateTime(timezone=utc), nullable=True)
 
     #: From which IP address did this user log in from. If this IP is null the user has never logged in (only activation email sent). Information stored for the security audits. It is also useful for identifying the source country of users e.g. for localized versions.
     last_login_ip = Column(INET, nullable=True,

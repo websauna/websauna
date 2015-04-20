@@ -55,3 +55,4 @@ Django
 
 * Colored logging
 
+* Humanized timestamps

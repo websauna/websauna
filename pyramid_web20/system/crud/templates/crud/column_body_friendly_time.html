@@ -1,0 +1,26 @@
+<td class-"crud-column-body-{{column.id}}">
+
+    {% with target=column.get_navigate_url(instance, request) %}
+        {% if target %}
+            <a href="{{target}}">
+
+                <div class="friendly-time">
+                    {{ column.get_value(obj)|friendly_time() }}
+                </div>
+
+                <div class="unfriendly-time">
+                    {{ column.get_value(obj)|datetime(format=column.format, target_timezone=column.timezone, locale="en_US", show_timezone=True) }}
+                </div>
+
+            </a>
+        {% else %}
+            <div class="friendly-time">
+                {{ column.get_value(obj)|friendly_time() }}
+            </div>
+
+            <div class="unfriendly-time">
+                {{ column.get_value(obj)|datetime(format=column.format, target_timezone=column.timezone, locale="en_US", show_timezone=True) }}
+            </div>
+        {% endif %}
+    {% endwith %}
+</td>

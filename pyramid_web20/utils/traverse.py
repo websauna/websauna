@@ -9,10 +9,16 @@ class BreadcrumsResource:
     TODO: Don't use class hierarchy, convert this to adapter.
     """
 
-    @abstractmethod
     def get_breadcrumbs_title(self):
+
+        title = getattr(self, "title", None)
+        if title:
+            return title
+
         raise NotImplementedError("get_breadcrumbs_title() implementation missing for {}".format(self))
 
+
+Resource = BreadcrumsResource
 
 
 def make_lineage(parent, child, name, allow_reinit=False):

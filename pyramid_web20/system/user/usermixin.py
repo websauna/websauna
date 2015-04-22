@@ -180,7 +180,11 @@ def check_empty_site_init(user):
 
     assert user.id, "Please flush your db"
 
-    if DBSession.query(user.__class__).count() != 1:
+    # Try to reflect related group class based on User model
+    i = inspection.inspect(user.__class__)
+    Group = i.relationships["groups"].mapper.entity
+
+    if DBSession.query(Group).count() > 0:
         return
 
     init_empty_site(user)

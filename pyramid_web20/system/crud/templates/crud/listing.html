@@ -24,7 +24,7 @@
 
             <tbody>
                 {% for obj in query %}
-                    <tr class="crud-row">
+                    <tr class="crud-row crud-row-{{ obj.id }}">
                         {% with instance=crud.make_instance(obj) %}
                             {% for column in columns  %}
                                 {% include column.body_template %}

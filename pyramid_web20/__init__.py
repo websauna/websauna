@@ -84,10 +84,10 @@ class Initializer:
 
         # Empty values are not handled gracefully, so remove them before passing forward to mailer
         if settings.get("mail.username", "x") == "":
-            del settings["mail.username"]
+            settings["mail.username"] = None
 
         if settings.get("mail.password", "x") == "":
-            del settings["mail.password"]
+            settings["mail.password"] = None
 
         mailer_class = settings.get("pyramid_web20.mailer", "")
         if mailer_class in ("mail", ""):

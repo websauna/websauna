@@ -8,5 +8,5 @@ Sending out test mail:
     message = Message(subject="pyramid_mailer test", sender="no-reply@redinnovation.com", recipients=["mikko@redinnovation.com"], body="yyy")
 
     mailer = get_mailer(request)
-    mailer.send_immediately_sendmail(message)
+    mailer.send_immediately(message)
 

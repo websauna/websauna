@@ -21,45 +21,57 @@
 
 </head>
 
+{# body_classes allows to insert extra CSS classes on <body> tag #}
 <body
     {% block body_classes %}
     {% endblock body_classes %}
     >
 
-    {% block header %}
-        {% include "site/header.html" %}
-    {% endblock header %}
+    {# body block contains the whole page without a navigation frame and the analytics script #}
+    {% block body %}
 
-    {% block main %}
-        <main>
+        {# Navigation #}
+        {% block header %}
+            {% include "site/header.html" %}
+        {% endblock header %}
 
-            <div class="messages">
-                {% block messages %}
-                    {% include "site/messages.html" %}
-                {% endblock messages %}
-            </div>
+        {# main is the content without margins and flash messages #}
+        {% block main %}
+            <main>
 
-            <div class="container">
-                {% block content %}
-                {% endblock content %}
-            </div>
-        </main>
-    {% endblock main %}
+                <div class="messages">
+                    {% block messages %}
+                        {% include "site/messages.html" %}
+                    {% endblock messages %}
+                </div>
 
-    {% block footer %}
-        {% include "site/footer.html" %}
-    {% endblock footer %}
+                {# content is the content with margins #}
+                <div class="container">
+                    {% block content %}
+                    {% endblock content %}
+                </div>
+            </main>
+        {% endblock main %}
 
-    {% block body_end %}
-    {% endblock body_end %}
+        {% block footer %}
+            {% include "site/footer.html" %}
+        {% endblock footer %}
 
-    {% block script %}
-        {% include "site/javascript.html" %}
-    {% endblock script %}
+        {% block body_end %}
+        {% endblock body_end %}
 
-    {% block custom_script %}
-    {% endblock custom_script %}
+        {# script is shared site JavaScript #}
+        {% block script %}
+            {% include "site/javascript.html" %}
+        {% endblock script %}
 
+        {# custom_script is page specific JavaScript #}
+        {% block custom_script %}
+        {% endblock custom_script %}
+
+    {% endblock body %}
+
+    {# analytics is tracking JavaScript #}
     {% block analytics %}
         {% include "site/analytics.html" %}
     {% endblock analytics %}

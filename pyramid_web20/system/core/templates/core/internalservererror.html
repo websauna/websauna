@@ -1,0 +1,41 @@
+{% extends "site/base.html" %}
+
+{# We will in the whole body as we do not want to have anything in templates raising further exceptions #}
+{% block body %}
+    <main>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+
+                    <div id="it-is-broken">
+                        <h1 class="text-center">It didn't work.</h1>
+
+                        {#
+
+                            Hotlinking should be cool by WikiMedia:
+
+                            http://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia#Hotlinking_or_InstantCommons
+
+                         #}
+                        <p class="text-center">
+                            <img src="http://upload.wikimedia.org/wikipedia/commons/a/a4/Volcano_q.jpg" alt="">
+                        </p>
+
+                        <p class="text-center">
+                            The page load you just made did not exactly go as planned and something became smoldering ashes.
+                            Our administrators are running to the server room to see what is all this smoke about. But don't worry.
+                            Everybody in our team is alerted. We'll get this fixed shortly.
+                        </p>
+
+                        <p class="text-center">
+                            <small>
+                                <a href="http://commons.wikimedia.org/wiki/Lava#/media/File:Volcano_q.jpg">Image by WikiMedia Commons</a>
+                            </small>
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}

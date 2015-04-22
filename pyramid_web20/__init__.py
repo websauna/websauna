@@ -191,16 +191,27 @@ class Initializer:
         models.DBSession.configure(bind=engine)
         return engine
 
-    def configure_views(self, settings):
-        from .system.core.views import home
-        self.config.add_route('home', '/')
-        self.config.scan(home)
+    def configure_error_views(self, settings):
 
         # Forbidden view overrides helpful auth debug error messages,
         # so pull in only when really needed
         if not asbool(settings["pyramid.debug_authorization"]):
             from .system.core.views import forbidden
             self.config.scan(forbidden)
+
+        from .system.core.views import notfound
+        self.config.scan(notfound)
+
+        # Internal server error must be only activated in the production mode, as it clashes with pyramid_debugtoolbar
+        if "pyramid_debugtoolbar" not in aslist(settings["pyramid.includes"]):
+            from .system.core.views import internalservererror
+            self.config.scan(internalservererror)
+            self.config.add_route('error_trigger', '/error-trigger')
+
+    def configure_views(self, settings):
+        from .system.core.views import home
+        self.config.add_route('home', '/')
+        self.config.scan(home)
 
     def configure_static(self, settings):
         self.config.add_static_view('static', 'static', cache_max_age=3600)
@@ -312,6 +323,7 @@ class Initializer:
         self.configure_static(settings)
         self.configure_mailer(settings)
 
+        self.configure_error_views(settings)
         self.configure_views(settings)
         self.configure_sessions(settings, secrets)
 

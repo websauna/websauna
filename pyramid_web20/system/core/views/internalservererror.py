@@ -16,7 +16,6 @@ def internal_server_error(context, request):
     # Here we have a hardcoded support for Sentry exception logging and pyramid_raven package
     # https://github.com/thruflo/pyramid_raven
     if hasattr(request, "raven"):
-        import ipdb ; ipdb.set_trace()
         request.raven.captureException()
 
     logger.exception(context)

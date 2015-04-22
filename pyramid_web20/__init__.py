@@ -80,6 +80,15 @@ class Initializer:
     def configure_mailer(self, settings):
         """Configure outgoing email backend based on the INI settings."""
 
+        settings = settings.copy()
+
+        # Empty values are not handled gracefully, so remove them before passing forward to mailer
+        if settings.get("mail.username", "x") == "":
+            del settings["mail.username"]
+
+        if settings.get("mail.password", "x") == "":
+            del settings["mail.password"]
+
         mailer_class = settings.get("pyramid_web20.mailer", "")
         if mailer_class in ("mail", ""):
             # TODO: Make mailer_class explicit so we can dynamically load pyramid_mail.Mailer

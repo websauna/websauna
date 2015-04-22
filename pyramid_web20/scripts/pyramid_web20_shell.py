@@ -14,7 +14,9 @@ from pyramid.scripts.common import parse_vars
 from pyramid_web20.models import DBSession
 from pyramid_web20.models import Base
 from pyramid.path import DottedNameResolver
+from pyramid.paster import bootstrap
 
+from paste.deploy import loadapp
 
 def usage(argv):
     cmd = os.path.basename(argv[0])
@@ -43,7 +45,11 @@ def main(argv=sys.argv):
 
     init.run(settings)
 
+    env = bootstrap(config_uri)
+
     imported_objects = OrderedDict()
+    imported_objects.update(env)
+    del imported_objects["closer"]
     imported_objects["init"] = init
     imported_objects["session"] = DBSession
     imported_objects["transaction"] = transaction
@@ -54,7 +60,7 @@ def main(argv=sys.argv):
     print("")
     print("Following classes and objects are available:")
     for var, val in imported_objects.items():
-        print("{}: {}".format(var, val))
+        print("{:30}: {}".format(var, str(val).replace("\n", " ").replace("\r", " ")))
     print("")
 
     embed(user_ns=imported_objects)

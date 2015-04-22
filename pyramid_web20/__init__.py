@@ -80,9 +80,7 @@ class Initializer:
     def configure_mailer(self, settings):
         """Configure outgoing email backend based on the INI settings."""
 
-        settings = settings.copy()
-
-        # Empty values are not handled gracefully, so remove them before passing forward to mailer
+        # Empty values are not handled gracefully, so mutate them here before passing forward to mailer
         if settings.get("mail.username", "x") == "":
             settings["mail.username"] = None
 

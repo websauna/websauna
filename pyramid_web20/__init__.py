@@ -80,6 +80,8 @@ class Initializer:
     def configure_mailer(self, settings):
         """Configure outgoing email backend based on the INI settings."""
 
+        settings = settings.copy()
+
         # Empty values are not handled gracefully, so mutate them here before passing forward to mailer
         if settings.get("mail.username", "x") == "":
             settings["mail.username"] = None
@@ -92,7 +94,8 @@ class Initializer:
             # TODO: Make mailer_class explicit so we can dynamically load pyramid_mail.Mailer
             # Default
             from pyramid_mailer import mailer_factory_from_settings
-            mailer_factory_from_settings(settings)
+            mailer = mailer_factory_from_settings(settings)
+            self.config.registry.registerUtility(mailer, IMailer)
         else:
             # debug backend
             resolver = DottedNameResolver()

@@ -2,12 +2,25 @@
 from pyramid.renderers import render
 from pyramid.response import Response
 import transaction
+import logging
 
 from pyramid.view import view_config
 
 
+logger = logging.getLogger(__name__)
+
+
 @view_config(context=Exception)
-def internal_server_error(request):
+def internal_server_error(context, request):
+
+    # Here we have a hardcoded support for Sentry exception logging and pyramid_raven package
+    # https://github.com/thruflo/pyramid_raven
+    if hasattr(request, "raven"):
+        import ipdb ; ipdb.set_trace()
+        request.raven.captureException()
+
+    logger.exception(context)
+
     request.response.status = 500
 
     # The template rendering opens a new transaction which is not rolled back by Pyramid transaction machinery, because we are in a very special view. This tranaction will cause the tests to hang as the open transaction blocks Base.drop_all() in PostgreSQL. Here we have careful instructions to roll back any pending transaction by hand.

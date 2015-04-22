@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{# Base template which does not use any request context information and is safe to use on error pages #}
+
+<head>
+
+    {% block meta %}
+        {% include "site/meta.html" %}
+    {% endblock meta %}
+
+    {% block css %}
+        {% include "site/css.html" %}
+    {% endblock %}
+
+
+</head>
+
+{# body_classes allows to insert extra CSS classes on <body> tag #}
+<body>
+    {# body block contains the whole page without a navigation frame and the analytics script #}
+    {% block body %}
+    {% endblock body %}
+
+    {# analytics is tracking JavaScript #}
+    {% block analytics %}
+        {% include "site/analytics.html" %}
+    {% endblock analytics %}
+
+</body>
+</html>

@@ -253,7 +253,6 @@ class Initializer:
 
         self.config.scan(views)
 
-
     def preconfigure_user(self, settings):
         # self.configure_horus(settings)
         pass

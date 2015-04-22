@@ -84,7 +84,7 @@ class Admin(traverse.BreadcrumsResource):
 
         raise KeyError("No admin defined for model: {}, got {} ".format(model, self.model_admins.values()))
 
-    def get_admin_show_resource(self, obj):
+    def get_admin_resource(self, obj):
         """Get a admin traversable item for a SQLAlchemy object.
 
         To get admin URL of an SQLAlchemy object::
@@ -100,7 +100,7 @@ class Admin(traverse.BreadcrumsResource):
 
         *obj* must be a model instance which has a registered admin interfaec.
         """
-        res = self.get_admin_show_resource(obj)
+        res = self.get_admin_resource(obj)
         return request.resource_url(res)
 
     def get_breadcrumbs_title(self):

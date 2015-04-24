@@ -1,5 +1,6 @@
 """JSONB data utilities."""
 import datetime
+from decimal import Decimal
 import copy
 import json
 
@@ -136,3 +137,20 @@ class JSONBProperty(object):
 
         set_attribute(obj, self.data_field, data)
         # flag_modified(obj, self.data_field)
+
+
+class _DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, Decimal):
+            return str(o)
+        return super(_DecimalEncoder, self).default(o)
+
+
+def complex_json_dumps(d):
+    """Dump JSON so that we handle decimal and dates.
+
+    Decimals are converted to strings.
+
+    Dates are converted to ISO8601.
+    """
+    return json.dumps(d, cls=_DecimalEncoder)

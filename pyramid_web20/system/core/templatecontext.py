@@ -15,7 +15,7 @@ from jinja2 import Markup
 from arrow import Arrow
 
 from pyramid_web20.utils import html
-
+from pyramid_web20.models import now
 
 def includeme(config):
 
@@ -30,7 +30,7 @@ def includeme(config):
         event['site_url'] = site_url
         event['site_author'] = site_author
         event['site_tag_line'] = site_tag_line
-        event['friendly_time'] = friendly_time
+        event['site_now'] = now
 
     config.add_subscriber(on_before_render, BeforeRender)
 

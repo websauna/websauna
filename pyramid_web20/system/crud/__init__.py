@@ -64,7 +64,6 @@ class CRUD(traverse.BreadcrumsResource):
         obj = self.fetch_object(id)
         return self.make_instance(obj)
 
-
     def __getitem__(self, id):
         if id == "all":
             return self.listing
@@ -72,7 +71,6 @@ class CRUD(traverse.BreadcrumsResource):
             return self.add
         else:
             return self.traverse_to_object(id)
-
 
     @abstractmethod
     def fetch_object(self, id):
@@ -83,6 +81,9 @@ class CRUD(traverse.BreadcrumsResource):
         if self.title:
             return self.title
         return str(self.__class__)
+
+    def order_listing_query(self, query):
+        return query
 
 
 class CRUDResourcePart(traverse.BreadcrumsResource):
@@ -258,6 +259,7 @@ class Listing(CRUDResourcePart):
 
     def get_breadcrumbs_title(self):
         return self.title
+
 
 class Show:
     """View the item."""

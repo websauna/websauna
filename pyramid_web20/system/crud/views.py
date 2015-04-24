@@ -74,6 +74,8 @@ class CRUDViewController:
 
         count = self.context.get_count(query)
 
+        query = crud.order_listing_query(query)
+
         # TODO: Paginate
 
         title = self.context.title

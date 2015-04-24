@@ -34,3 +34,17 @@ class LoginSchema(CSRFSchema):
     username = c.SchemaNode(c.String(), title='Email', validator=c.All(c.Email()), widget=w.TextInputWidget(size=40, maxlength=260, type='email'))
 
     password = c.SchemaNode(c.String(), widget=deform.widget.PasswordWidget())
+
+
+
+class ResetPasswordSchema(CSRFSchema):
+    user = c.SchemaNode(
+        c.String(),
+        missing=c.null,
+        widget=deform.widget.TextInputWidget(template='readonly/textinput'))
+
+    password = c.SchemaNode(
+        c.String(),
+        validator=c.Length(min=2),
+        widget=deform.widget.CheckedPasswordWidget()
+    )

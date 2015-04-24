@@ -449,3 +449,53 @@ class AuthController(horus_views.AuthController):
         return super(AuthController, self).logout()
 
 
+
+class ForgotPasswordController(horus_views.ForgotPasswordController):
+
+    @view_config(route_name='forgot_password', renderer='login/forgot_password.html')
+    def forgot_password(self):
+        return super(ForgotPasswordController, self).forgot_password()
+
+    @view_config(route_name='reset_password', renderer='login/reset_password.html')
+    def reset_password(self):
+        schema = self.request.registry.getUtility(IResetPasswordSchema)
+        schema = schema().bind(request=self.request)
+
+        form = self.request.registry.getUtility(IResetPasswordForm)
+        form = form(schema)
+
+        code = self.request.matchdict.get('code', None)
+
+        activation = self.Activation.get_by_code(self.request, code)
+
+        if activation:
+            user = self.User.get_by_activation(self.request, activation)
+
+            if user:
+                if self.request.method == 'GET':
+                    return {
+                        'form': form.render(
+                            appstruct=dict(
+                                user=user.friendly_name
+                            )
+                        )
+                    }
+
+                elif self.request.method == 'POST':
+                    try:
+                        controls = self.request.POST.items()
+                        captured = form.validate(controls)
+                    except deform.ValidationFailure as e:
+                        return {'form': e.render(), 'errors': e.error.children}
+
+                    password = captured['password']
+
+                    user.password = password
+                    self.db.add(user)
+                    self.db.delete(activation)
+
+                    FlashMessage(self.request, "The password reset complete. Please sign in with your new password.", kind='success')
+                    self.request.registry.notify(PasswordResetEvent(self.request, user, password))
+                    location = self.reset_password_redirect_view
+                    return HTTPFound(location=location)
+        raise HTTPNotFound("Activation code not found")

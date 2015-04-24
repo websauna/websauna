@@ -39,8 +39,8 @@ def include_routes(config):
     # config.add_route('register', '/register')
     # config.add_route('activate', '/activate/{user_id}/{code}',
     #                 factory=UserFactory)
-    config.add_route('forgot_password', '/forgot_password')
-    config.add_route('reset_password', '/reset_password/{code}')
+    #config.add_route('forgot_password', '/forgot_password')
+    #config.add_route('reset_password', '/reset_password/{code}')
 
     config.add_route('profile', '/profile/{user_id}',
                      factory=UserFactory,

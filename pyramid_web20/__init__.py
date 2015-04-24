@@ -1,4 +1,5 @@
 import configparser
+from horus import IResetPasswordSchema
 import os
 
 from pyramid.config import Configurator
@@ -67,10 +68,13 @@ class Initializer:
         self.config.add_route('registration_complete', '/registration-complete')
         self.config.add_route('login', '/login')
         self.config.add_route('logout', '/logout')
+        self.config.add_route('forgot_password', '/forgot-password')
+        self.config.add_route('reset_password', '/reset-password/{code}')
         self.config.add_route('register', '/register')
         self.config.add_route('activate', '/activate/{user_id}/{code}', factory=UserFactory)
         self.config.registry.registerUtility(schemas.RegisterSchema, IRegisterSchema)
         self.config.registry.registerUtility(schemas.LoginSchema, ILoginSchema)
+        self.config.registry.registerUtility(schemas.ResetPasswordSchema, IResetPasswordSchema)
 
         self.config.add_request_method(auth.get_user, 'user', reify=True)
 

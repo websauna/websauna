@@ -22,6 +22,9 @@ class BadStoredData(Exception):
     """We found something which is non-JSON like from the database."""
 
 
+class CannotLookupData(Exception):
+    """Member get failed."""
+
 class CannotProcessISO8601(Exception):
     """You passed in a naive datetime without explicit timezone information."""
 
@@ -58,6 +61,9 @@ class ISO8601DatetimeConverter(object):
         return iso8601.parse_date(val)
 
 
+_marker = object()
+
+
 class JSONBProperty(object):
     """Define a Python class property which can set/get JSONB field data.
 
@@ -80,12 +86,14 @@ class JSONBProperty(object):
     :param pointer: RFC6901 pointer to the field.
 
     :param converter: JSON serializer/deserializer. Can be a class or instance with serialize() / deserialize() methods.
+
+    :param graceful: If set, return this value when the member is not found instead of raising exception
     """
 
     #: Return this value if there is nothing at the end of RFC 6901 pointer
     UNDEFINED = jsonpointer._nothing
 
-    def __init__(self, data_field, pointer, converter=NullConverter):
+    def __init__(self, data_field, pointer, graceful=_marker, converter=NullConverter):
         self.data_field = data_field
         self.pointer = pointer
 
@@ -94,6 +102,7 @@ class JSONBProperty(object):
             converter = converter()
 
         self.converter = converter
+        self.graceful = graceful
 
     def ensure_valid_data(self, obj):
         """Handle freshly created objects and corrupted data more gracefully."""
@@ -113,9 +122,19 @@ class JSONBProperty(object):
 
         return field
 
+    def is_graceful(self):
+        return self.graceful != _marker
+
     def __get__(self, obj, objtype=None):
         data = self.ensure_valid_data(obj)
-        val = jsonpointer.resolve_pointer(data, self.pointer, default=JSONBProperty.UNDEFINED)
+        try:
+            val = jsonpointer.resolve_pointer(data, self.pointer, default=JSONBProperty.UNDEFINED)
+        except jsonpointer.JsonPointerException as e:
+            # TODO: update jsonpointer to give more specific errors, this could vbe something else besides member not found
+            if self.is_graceful():
+                val = self.graceful
+            else:
+                raise CannotLookupData("Could not find {} on data {}".format(self.pointer, obj))
         return self.converter.deserialize(val)
 
     def __set__(self, obj, val):

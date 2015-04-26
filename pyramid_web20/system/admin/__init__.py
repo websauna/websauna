@@ -89,8 +89,12 @@ class Admin(traverse.BreadcrumsResource):
 
         To get admin URL of an SQLAlchemy object::
 
-
+        :param obj: SQLAlchemy model instance
         """
+
+        assert obj.id
+        assert type(obj.id) == int, "Got bad object: {}".str(obj)
+
         model = obj.__class__
         model_admin = self.get_admin_for_model(model)
         return model_admin[obj.id]
@@ -157,6 +161,7 @@ class ModelAdminCRUD(ModelCRUD):
         return self.id.capitalize()
 
     def __getitem__(self, id):
+
         if id == "panel":
             return self.panel
 
@@ -168,8 +173,10 @@ class AdminPanel:
     #: Template hint which template to use for this panel
     template = "admin/model_panel.html"
 
-    def __init__(self, title):
+    def __init__(self, title, template=None):
         self.title = title
+        if template:
+            self.template = template
 
     def get_admin(self):
         return self.__parent__.__parent__

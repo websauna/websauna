@@ -23,6 +23,7 @@ def includeme(config):
     site_url = config.registry.settings["pyramid_web20.site_url"]
     site_author = config.registry.settings["pyramid_web20.site_author"]
     site_tag_line = config.registry.settings["pyramid_web20.site_tag_line"]
+    site_email_prefix = config.registry.settings["pyramid_web20.site_email_prefix"]
 
     def on_before_render(event):
         # Augment Pyramid template renderers with these extra variables
@@ -31,6 +32,7 @@ def includeme(config):
         event['site_author'] = site_author
         event['site_tag_line'] = site_tag_line
         event['site_now'] = now
+        event['site_email_prefix'] = site_email_prefix
 
     config.add_subscriber(on_before_render, BeforeRender)
 

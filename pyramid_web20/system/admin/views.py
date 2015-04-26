@@ -33,7 +33,8 @@ def admin(request):
 def panel(context, request):
     model_admin = context.__parent__
     count = model_admin.get_query().count()
-    template_context = dict(panel=context, count=count, model_admin=model_admin, crud=context)
+    admin = model_admin.__parent__
+    template_context = dict(panel=context, count=count, model_admin=model_admin, crud=context, admin=admin)
     template = context.template
     return subview.render_template(template, template_context, request=request)
 

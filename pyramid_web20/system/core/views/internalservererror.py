@@ -20,11 +20,10 @@ def internal_server_error(context, request):
 
     logger.exception(context)
 
-    request.response.status = 500
-
     # The template rendering opens a new transaction which is not rolled back by Pyramid transaction machinery, because we are in a very special view. This tranaction will cause the tests to hang as the open transaction blocks Base.drop_all() in PostgreSQL. Here we have careful instructions to roll back any pending transaction by hand.
     html = render('core/internalservererror.html', {}, request=request)
     resp = Response(html)
+    resp.status_code = 500
     transaction.abort()
     return resp
 

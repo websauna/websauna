@@ -130,7 +130,7 @@ def test_forget_password(web_server, browser, dbsession):
     b.fill("email", EMAIL)
     b.find_by_name("submit").click()
 
-    assert b.is_text_present("Please check your e-mail")
+    assert b.is_text_present("Please check your email")
 
     with transaction.manager:
         user = get_user()

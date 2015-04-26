@@ -454,7 +454,41 @@ class ForgotPasswordController(horus_views.ForgotPasswordController):
 
     @view_config(route_name='forgot_password', renderer='login/forgot_password.html')
     def forgot_password(self):
-        return super(ForgotPasswordController, self).forgot_password()
+        req = self.request
+        schema = req.registry.getUtility(IForgotPasswordSchema)
+        schema = schema().bind(request=req)
+
+        form = req.registry.getUtility(IForgotPasswordForm)
+        form = form(schema)
+
+        if req.method == 'GET':
+            if req.user:
+                return HTTPFound(location=self.forgot_password_redirect_view)
+            else:
+                return {'form': form.render()}
+
+        # From here on, we know it's a POST. Let's validate the form
+        controls = req.POST.items()
+        try:
+            captured = form.validate(controls)
+        except deform.ValidationFailure as e:
+            # This catches if the email does not exist, too.
+            return {'form': e.render(), 'errors': e.error.children}
+
+        user = self.User.get_by_email(req, captured['email'])
+        activation = self.Activation()
+        self.db.add(activation)
+        self.db.flush()
+        user.activation = activation
+
+        assert user.activation.code, "Could not generate the password reset code"
+        link = req.route_url('reset_password', code=user.activation.code)
+
+        context = dict(link=link, user=user)
+        send_templated_mail(req, [user.email], "login/email/forgot_password", context=context)
+
+        FlashMessage(req, "Please check your email to continue password reset.", kind='success')
+        return HTTPFound(location=self.reset_password_redirect_view)
 
     @view_config(route_name='reset_password', renderer='login/reset_password.html')
     def reset_password(self):

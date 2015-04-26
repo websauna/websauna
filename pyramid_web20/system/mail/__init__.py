@@ -50,6 +50,7 @@ def send_templated_mail(request, recipients, template, context, sender=None):
 
     assert recipients
     assert len(recipients) > 0
+    assert type(recipients) != str, "Please give a list of recipients, not a string"
 
     subject = render(template + ".subject.txt", context, request=request)
     subject = subject.strip()

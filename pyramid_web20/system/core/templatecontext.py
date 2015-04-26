@@ -5,6 +5,7 @@ from pyramid.events import BeforeRender
 from pyramid.renderers import render
 from pyramid.settings import asbool
 from pyramid.threadlocal import get_current_request
+from pyramid_web20.system.core.interfaces import IDeploymentIdProvider
 
 from pytz import timezone
 
@@ -18,6 +19,7 @@ from arrow import Arrow
 from pyramid_web20.utils import html
 from pyramid_web20.models import now
 
+
 def includeme(config):
 
     site_name = config.registry.settings["pyramid_web20.site_name"]
@@ -26,6 +28,9 @@ def includeme(config):
     site_tag_line = config.registry.settings["pyramid_web20.site_tag_line"]
     site_email_prefix = config.registry.settings["pyramid_web20.site_email_prefix"]
     site_production = asbool(config.registry.settings.get("pyramid_web20.site_production"))
+
+    deployment_id_provider = config.registry.getUtility(IDeploymentIdProvider)
+    site_deployment_id = deployment_id_provider()
 
     def on_before_render(event):
         # Augment Pyramid template renderers with these extra variables
@@ -36,6 +41,7 @@ def includeme(config):
         event['site_now'] = now
         event['site_email_prefix'] = site_email_prefix
         event['site_production'] = site_production
+        event['site_deployment_id'] = site_deployment_id
 
     config.add_subscriber(on_before_render, BeforeRender)
 

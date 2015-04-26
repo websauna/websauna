@@ -1,4 +1,5 @@
 import configparser
+import subprocess
 from horus import IResetPasswordSchema
 import os
 
@@ -6,6 +7,7 @@ from pyramid.config import Configurator
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.path import DottedNameResolver
+from pyramid_web20.system.core.interfaces import IDeploymentIdProvider
 
 from sqlalchemy import engine_from_config
 
@@ -115,6 +117,7 @@ class Initializer:
         self.config.include('pyramid_jinja2')
         self.config.add_jinja2_renderer('.html')
         self.config.add_jinja2_renderer('.txt')
+        self.config.add_jinja2_renderer('.css')
         self.config.add_jinja2_search_path('pyramid_web20:system/core/templates', name='.html')
         self.config.add_jinja2_search_path('pyramid_web20:system/core/templates', name='.txt')
 
@@ -218,7 +221,12 @@ class Initializer:
         self.config.scan(home)
 
     def configure_static(self, settings):
-        self.config.add_static_view('static', 'static', cache_max_age=3600)
+        """Configure static media serving and cache busting.
+
+        http://docs.pylonsproject.org/projects/pyramid/en/1.6-branch/narr/assets.html#static-assets-section
+        """
+        cachebust = asbool(self.settings.get("pyramid_web20.cachebust"))
+        self.config.add_static_view('static', 'static', cachebust=cachebust)
 
     def configure_sessions(self, settings, secrets):
         """Configure session storage."""
@@ -253,7 +261,7 @@ class Initializer:
         self.config.add_route('admin', "/admin/*traverse", factory="pyramid_web20.system.admin.admin_root_factory")
 
         # self.config.add_view('pyramid_web20.system.admin.views.listing', context='pyramid_web20.system.admin.ModelAdmin')
-        self.config.add_view('pyramid_web20.system.admin.views.panel', context='pyramid_web20.system.admin.AdminPanel')
+        # self.config.add_view('pyramid_web20.system.admin.views.panel', context='pyramid_web20.system.admin.AdminPanel')
 
         self.config.scan(views)
 
@@ -316,8 +324,23 @@ class Initializer:
 
         return secrets_config
 
+    def configure_deployment_id(self, settings):
+        """Get unique id string for each deployment.
+
+        This is mainly used in cache pushing in some of the trickier cases, like referring static assets from CSS.
+        """
+        # XXX: Hardcoded now for git
+
+        def git_hash():
+            hash = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf-8").strip()
+            return hash
+
+        self.config.registry.registerUtility(git_hash, IDeploymentIdProvider)
+
     def run(self, settings):
         secrets = self.read_secrets(settings)
+
+        self.configure_deployment_id(settings)
 
         self.preconfigure_user(settings)
         self.preconfigure_admin(settings)

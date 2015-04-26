@@ -23,8 +23,8 @@ def admin(request):
 
     panels = list(admin.get_panels())
 
-    # TODO: Handle permission errors here gracefully
-    rendered_panels = [subview.render_subview(p, "admin_panel", request) for p in panels]
+    # TODO: Have renderer adapters for panels, so that they can override views
+    rendered_panels = [panel(p, request) for p in panels]
     # rendered_panels = []
     return dict(panels=rendered_panels)
 

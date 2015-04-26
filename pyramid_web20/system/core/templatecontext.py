@@ -3,6 +3,7 @@ import datetime
 
 from pyramid.events import BeforeRender
 from pyramid.renderers import render
+from pyramid.settings import asbool
 from pyramid.threadlocal import get_current_request
 
 from pytz import timezone
@@ -24,6 +25,7 @@ def includeme(config):
     site_author = config.registry.settings["pyramid_web20.site_author"]
     site_tag_line = config.registry.settings["pyramid_web20.site_tag_line"]
     site_email_prefix = config.registry.settings["pyramid_web20.site_email_prefix"]
+    site_production = asbool(config.registry.settings.get("pyramid_web20.site_production"))
 
     def on_before_render(event):
         # Augment Pyramid template renderers with these extra variables
@@ -33,6 +35,7 @@ def includeme(config):
         event['site_tag_line'] = site_tag_line
         event['site_now'] = now
         event['site_email_prefix'] = site_email_prefix
+        event['site_production'] = site_production
 
     config.add_subscriber(on_before_render, BeforeRender)
 

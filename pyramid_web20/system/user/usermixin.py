@@ -92,7 +92,7 @@ class UserMixin:
     last_password_change_at = Column(DateTime, nullable=True)
 
     #: Store all user related settings in this expandable field
-    user_data = Column(MutableDict.as_mutable(JSONB), default=DEFAULT_USER_DATA,
+    user_data = Column(JSONB, default=DEFAULT_USER_DATA,
                     info={'colanderalchemy': {
                         'typ': colander.String(),
                     }},

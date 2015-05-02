@@ -206,8 +206,9 @@ class Initializer:
             from .system.core.views import forbidden
             self.config.scan(forbidden)
 
-        from .system.core.views import notfound
-        self.config.scan(notfound)
+        if not asbool(settings["pyramid.debug_notfound"]):
+            from .system.core.views import notfound
+            self.config.scan(notfound)
 
         # Internal server error must be only activated in the production mode, as it clashes with pyramid_debugtoolbar
         if "pyramid_debugtoolbar" not in aslist(settings["pyramid.includes"]):

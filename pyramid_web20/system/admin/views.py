@@ -6,9 +6,12 @@ from pyramid_layout.panel import panel_config
 
 from pyramid_web20.system import crud
 from pyramid_web20.system.crud import views as crud_views
+from pyramid_web20.system.crud import listing
 
 from . import Admin
 from . import ModelAdmin
+
+
 from pyramid_web20.utils.panel import render_panel
 
 
@@ -35,27 +38,47 @@ def default_model_admin_panel(context, request):
     return locals()
 
 
-class AdminCRUDViewController(crud_views.SQLAlchemyCRUDViewController):
+class Listing(crud_views.Listing):
+    """Base listing view for all admin models.
 
-    @view_config(context=crud.Listing, renderer="crud/listing.html", route_name="admin", permission='view')
+    """
+    base_template = "admin/base.html"
+
+    table = listing.Table(
+        columns = [
+            listing.Column("id", "Id",),
+            listing.ControlsColumn()
+        ]
+    )
+
+    @view_config(context=ModelAdmin, name="listing", renderer="crud/listing.html", route_name="admin", permission='view')
     def listing(self):
         # We override this method just to define admin route_name traversing
-        return super(AdminCRUDViewController, self).listing(base_template="admin/base.html")
+        return super(Listing, self).listing()
 
-    @view_config(context=crud.Instance, renderer="crud/show.html", route_name="admin", permission='view')
-    def show(self):
+
+
+class Show(crud_views.Show):
+    """Base listing view for all admin models.
+
+    """
+    base_template = "admin/base.html"
+
+    @view_config(context=ModelAdmin.Resource, name="show", renderer="crud/show.html", route_name="admin", permission='view')
+    def listing(self):
         # We override this method just to define admin route_name traversing
-        return super(AdminCRUDViewController, self).show(base_template="admin/base.html")
-
-    @view_config(context=ModelAdmin, route_name="admin", permission='view')
-    def default(self):
-        """Redirect to the user listing as the default action. """
-        r = HTTPFound(self.request.resource_url(self.context.listing))
-        return r
+        return super(Show, self).show()
 
 
 
 
+@view_config(context=ModelAdmin, name="", route_name="admin", permission='view')
+def model_admin_default_view(context, request):
+    """Redirect to listing if model admin URL is being accessed without a view name."""
+    return HTTPFound(request.resource_url(context, "listing"))
 
 
-
+@view_config(context=ModelAdmin.Resource, name="", route_name="admin", permission='view')
+def model_resource_default_view(context, request):
+    """Redirect to show if model instance URL is being accessed without a view name."""
+    return HTTPFound(request.resource_url(context, "show"))

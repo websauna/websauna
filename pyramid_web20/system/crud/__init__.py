@@ -1,9 +1,11 @@
 """CRUD based on SQLAlchemy and Deform."""
-from abc import abstractmethod
-from pyramid_web20.utils import traverse
+from abc import abstractmethod, abstractproperty
+from pyramid_web20.system.core import traverse
 
-class CRUD(traverse.BreadcrumsResource):
-    """Define create-read-update-delete inferface for an model.
+
+
+class CRUD(traverse.Resource):
+    """Define create-read-update-delete interface for an model.
 
     We use Pyramid traversing to get automatic ACL permission support for operations. As long given CRUD resource parts define __acl__ attribute, permissions are respected automatically.
 
@@ -23,27 +25,8 @@ class CRUD(traverse.BreadcrumsResource):
     # How the model is referred in templates. e.g. "User"
     title = "xx"
 
-    #: Factory for creating $base/id traversing parts. Maps to the show object.
-    instance = None
-
-    #: Listing object presenting $base/listing traversing part. Maps to show view
+    #: Listing description object presenting $base/listing traversing part. Maps to show view
     listing = None
-
-    show = None
-    add = None
-    edit = None
-    delete = None
-
-    def __init__(self):
-        self.init_lineage()
-
-    def init_lineage(self):
-        """Set traversing path of hardcoded subresources."""
-
-        # TODO: currently it is not possible to share CRUD parts among the classe. Create factory methods which can be called in the case we want to use the same Listing() across several CRUDs, etc.
-
-        traverse.make_lineage(self, self.listing, "all", allow_reinit=True)
-        traverse.make_lineage(self, self.add, "add", allow_reinit=True)
 
     def is_good_id(self, id):
         """Check if the given traverse id can belong to object.
@@ -52,13 +35,23 @@ class CRUD(traverse.BreadcrumsResource):
         """
         return type(id) == int
 
-    def get_model(self):
-        pass
+    def wrap_to_resource(self, obj):
+        """Take raw model instance and wrap it to Resource for traversing.
+
+        :param obj: SQLALchemy object or similar model object.
+        :return: :py:class:`pyramid_web20.core.traverse.Resource`
+        """
+
+        # Use internal Resource class to wrap the object
+        if hasattr(self, "Resource"):
+            return self.Resource(obj)
+
+        raise NotImplementedError("Does not know how to wrap to resource: {}".format(obj))
 
     def make_instance(self, obj):
         # Wrap object to a traversable part
-        instance = self.instance(obj)
-        traverse.make_lineage(self, instance, instance.get_id())
+        instance = self.wrap_to_resource(obj)
+        instance.make_lineage(self, instance, instance.get_id())
         return instance
 
     def traverse_to_object(self, id):
@@ -67,34 +60,24 @@ class CRUD(traverse.BreadcrumsResource):
         Loads raw database object with id and puts it inside ``Instance`` object,
          with ``__parent__`` and ``__name__`` pointers.
         """
+
+        # First try if we get an view for the current instance with the name
+
+
         obj = self.fetch_object(id)
         return self.make_instance(obj)
 
     def __getitem__(self, id):
-        if id == "all":
-            return self.listing
-        elif id == "add":
-            return self.add
-        else:
-            # if self.is_good_id(id):
-                return self.traverse_to_object(id)
-            #raise KeyError("Cannot handle id {}".format(id))
+        return self.traverse_to_object(id)
 
     @abstractmethod
     def fetch_object(self, id):
         """Load object from the database for CRUD path for view/edit/delete."""
         raise NotImplementedError("Please use concrete subclass like pyramid_web20.syste.crud.sqlalchemy")
 
-    def get_breadcrumbs_title(self):
-        if self.title:
-            return self.title
-        return str(self.__class__)
-
-    def order_listing_query(self, query):
-        return query
 
 
-class CRUDResourcePart(traverse.BreadcrumsResource):
+class CRUDResourcePart(traverse.Resource):
     """A resource part of CRUD traversing."""
 
     template = None
@@ -106,10 +89,11 @@ class CRUDResourcePart(traverse.BreadcrumsResource):
         return self.__parent__.get_model()
 
 
-class Instance(traverse.BreadcrumsResource):
-    """An object for view, edit, delete screen."""
+class Resource(traverse.Resource):
+    """Maps an object under CRUD view/edit/delete control to traverse path.
 
-    template = "crud/show.html"
+    Presents an underlying model instance mapped to an URL path. Parent object points to a CRUD instance.
+    """
 
     def __init__(self, obj):
         self.obj = obj
@@ -125,157 +109,4 @@ class Instance(traverse.BreadcrumsResource):
     def get_title(self):
         """Title used on view, edit, delete, pages."""
         return self.get_id()
-
-
-class Column:
-    """Define listing in a column. """
-
-    header_template = "crud/column_header.html"
-
-    body_template = "crud/column_body.html"
-
-    navigate_to = None
-
-    getter = None
-
-    #: Arrow formatting string
-    format = "MM/DD/YYYY HH:mm"
-
-    def __init__(self, id, name=None, renderer=None, header_template=None, body_template=None, getter=None, format=None, navigate_to=None):
-        """
-        :param id: Must match field id on the model
-        :param name:
-        :param renderer:
-        :param header_template:
-        :param body_template:
-        :param navigate_to: If set, make this column clickable and navigates to the traversed name. Options are "show", "edit", "delete"
-        :return:
-        """
-        self.id = id
-        self.name = name
-        self.renderer = renderer
-        self.getter = getter
-
-        if format:
-            self.format = format
-
-        if header_template:
-            self.header_template = header_template
-
-        if body_template:
-            self.body_template = body_template
-
-        if navigate_to:
-            self.navigate_to = navigate_to
-
-    def get_value(self, obj):
-        """Extract value from the object for this column.
-
-        Called in listing body.
-        """
-
-        if self.getter:
-            val = self.getter(obj)
-        else:
-            val = getattr(obj, self.id)
-
-        if val is None:
-            return ""
-        else:
-            return val
-
-    def get_navigate_target(self, instance):
-        """ """
-
-        if not self.navigate_to:
-            return None
-
-        if self.navigate_to == "show":
-            return instance
-        else:
-            return instance[self.navigate_to]
-
-    def get_navigate_url(self, instance, request):
-        """Get the link where clicking this item should take the user."""
-        target = self.get_navigate_target(instance)
-        if not target:
-            return None
-        return request.resource_url(target)
-
-class ControlsColumn(Column):
-    """Render View / Edit / Delete buttons."""
-    def __init__(self, id="controls", name="View / Edit", header_template="crud/column_header_controls.html", body_template="crud/column_body_controls.html"):
-        super(ControlsColumn, self).__init__(id=id, name=name, header_template=header_template, body_template=body_template)
-
-
-class FriendlyTimeColumn(Column):
-    """Print both accurate time and humanized relative time."""
-    def __init__(self, id, name, navigate_to=None, timezone=None, header_template=None, body_template="crud/column_body_friendly_time.html"):
-
-        if timezone:
-            self.timezone = timezone
-
-        super(FriendlyTimeColumn, self).__init__(id=id, name=name, navigate_to=navigate_to, header_template=header_template, body_template=body_template)
-
-
-
-class CRUDObjectPart:
-    """A resource part of CRUD traversing."""
-
-    template = None
-
-    def get_model(self):
-        return self.__parent__.get_model()
-
-    def __getitem__(self, item):
-        pass
-
-
-class Listing(CRUDResourcePart):
-    """Describe mappings to a CRUD listing view."""
-
-    #: In which frame we embed the listing. The base template must defined {% block crud_content %}
-    base_template = None
-
-    title = "All"
-
-    def __init__(self, title=None, columns=[], template=None, base_template=None):
-
-        self.columns = columns
-
-        if title:
-            self.title = title
-
-        if template:
-            self.template = template
-
-        if base_template:
-            self.base_template = base_template
-
-    @abstractmethod
-    def get_count(self):
-        """Get count of total items of this mode."""
-        raise NotImplementedError("Please use concrete subclass like pyramid_web20.syste.crud.sqlalchemy.Listing")
-
-    @abstractmethod
-    def get_batch(self, start, end):
-        """Get batch of items from start to end."""
-        raise NotImplementedError("Please use concrete subclass like pyramid_web20.syste.crud.sqlalchemy.Listing")
-
-    def get_instance(self, obj):
-        return self.get_crud().make_instance(obj)
-
-    def get_breadcrumbs_title(self):
-        return self.title
-
-
-class Show:
-    """View the item."""
-
-    def __init__(self, includes=None):
-        """
-        :param includes ``includes`` hint for ``colanderalchemy.SQLAlchemySchemaNode``
-        """
-        self.includes = includes
-
 

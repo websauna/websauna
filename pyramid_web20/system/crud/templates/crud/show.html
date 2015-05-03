@@ -1,4 +1,4 @@
-{% extends base_template %}
+{% extends base_template if base_template is defined else 'crud/base_crud.html' %}
 
 {% block crud_content %}
 

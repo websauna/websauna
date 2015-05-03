@@ -3,7 +3,7 @@ from pyramid.threadlocal import get_current_request
 
 from jinja2 import contextfilter
 
-from pyramid_web20.utils import traverse
+from pyramid_web20.system.core import traverse
 from . import Admin
 
 

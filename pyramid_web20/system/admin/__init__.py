@@ -4,7 +4,8 @@ from pyramid.security import Allow
 from pyramid_web20.system import crud
 from pyramid_web20.system.crud import sqlalchemy as sqlalchemy_crud
 from pyramid_web20.system.crud.sqlalchemy import ModelCRUD
-from pyramid_web20.utils import traverse
+from pyramid_web20.system.crud.sqlalchemy import Resource as AlchemyResource
+from pyramid_web20.system.core import traverse
 
 
 
@@ -20,15 +21,17 @@ def admin_root_factory(request):
 
 
 
-class Admin(traverse.BreadcrumsResource):
+class Admin(traverse.Resource):
     """Admin interface main object.
 
-    We know what panels are registered on the main admin screen.
+    Presents /admin part of the URL. Manages model admin registrations and discovery. Provides helper functions to map SQLAlchemy objects to their admin URLs.
     """
 
     # Root defines where admin interaface lies in the URL space
     __parent__ = Root()
     __name__ = "admin"
+
+    title = "Admin"
 
     __acl__ = [
         (Allow, 'group:admin', 'view'),
@@ -68,7 +71,7 @@ class Admin(traverse.BreadcrumsResource):
                 raise RuntimeError("Model admin does not define id {}".format(model_admin))
 
             # Keep ACL chain intact
-            traverse.make_lineage(self, model_admin, id, allow_reinit=True)
+            traverse.Resource.make_lineage(self, model_admin, id, allow_reinit=True)
 
             self.model_admins[id] = model_admin
 
@@ -102,9 +105,6 @@ class Admin(traverse.BreadcrumsResource):
         res = self.get_admin_resource(obj)
         return request.resource_url(res)
 
-    def get_breadcrumbs_title(self):
-        return "Admin"
-
     def __getitem__(self, name):
 
         # Traverse to models
@@ -121,12 +121,13 @@ class ModelAdmin(ModelCRUD):
     #: Title used in breadcrumbs, other places
     title = None
 
-    def get_admin(self):
-        return self.__parent__
+    #: Our resource factory
+    class Resource(AlchemyResource):
+        pass
 
-    def init_lineage(self):
-        """Make sure that all context objects have parent pointers set."""
-        super(ModelAdmin, self).init_lineage()
+    def get_admin(self):
+        """Get Admin resource object."""
+        return self.__parent__
 
     @classmethod
     def register(cls, model):
@@ -146,36 +147,7 @@ class ModelAdmin(ModelCRUD):
 
         return inner
 
-    def get_breadcrumbs_title(self):
+    def get_title(self):
         if self.title:
             return self.title
         return self.id.capitalize()
-
-    def __getitem__(self, id):
-
-        if id == "panel":
-            return self.panel
-
-        return super(ModelCRUD, self).__getitem__(id)
-
-
-class Listing(sqlalchemy_crud.Listing):
-    template = "admin/listing.html"
-    base_template = "admin/base.html"
-
-
-
-class DefaultModelAdmin(ModelAdmin):
-    """Model admin used if the model does not declare any admin."""
-
-    listing = sqlalchemy_crud.Listing(
-        title="",
-        columns = [
-            crud.Column("id", "Id",),
-            crud.ControlsColumn()
-        ]
-    )
-
-    show = crud.Show(
-        includes=["id"]
-    )

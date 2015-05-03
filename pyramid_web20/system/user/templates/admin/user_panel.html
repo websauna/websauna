@@ -1,10 +1,14 @@
 {% extends "admin/model_panel.html" %}
 
 {% block panel_content %}
-<p>Total users: {{panel.get_user_count()}}</p>
-
-{% with user=panel.get_latest_user() %}
-    <p>Latest user: <a href="{{panel.get_latest_user_url(request)}}">{{user.friendly_name}}</a> (<small class=text-muted>{{user.activated_at}}</small>)</p>
-{% endwith %}
-
-{% endblock panel_content %}
+<p>
+    {% if latest_user %}
+        Latest user: <a href="{{ latest_user_url }}">{{latest_user.friendly_name}}</a>
+        (
+            <small class=text-muted>
+                {{ latest_user.activated_at|friendly_time(source_timezone='UTC') }}
+            </small>
+        )
+    {% endif %}
+</p>
+{% endblock panel_content %}

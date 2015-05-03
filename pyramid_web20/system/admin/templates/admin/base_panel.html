@@ -1,8 +1,11 @@
 <div id="admin-panel-{{model_admin.id}}" class="panel panel-default panel-admin">
-    {% block panel_title %}
+    {% block panel_heading%}
         <div class="panel-heading">
+
             <h3 class="panel-title pull-left">
-                {{panel.title}}
+                {% block panel_title %}
+                    {{title}}
+                {% endblock %}
             </h3>
 
             <div class="panel-buttons pull-right">
@@ -12,7 +15,7 @@
 
             <div style="clear: both"></div>
         </div>
-    {% endblock panel_title %}
+    {% endblock panel_heading %}
 
   <div class="panel-body">
         {% block panel_content %}

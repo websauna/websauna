@@ -42,11 +42,6 @@ class Admin(traverse.BreadcrumsResource):
         """Get hold of admin singleton."""
         return registry.settings["pyramid_web20.admin"]
 
-    def get_panels(self):
-        for model_admin in self.model_admins.values():
-            if model_admin.panel:
-                yield model_admin.panel
-
     def scan(self, config, module):
         """Picks up admin definitions from the module."""
 
@@ -117,14 +112,11 @@ class Admin(traverse.BreadcrumsResource):
         return model_admin
 
 
-class ModelAdminCRUD(ModelCRUD):
+class ModelAdmin(ModelCRUD):
     """Present one model in admin interface."""
 
     #: URL traversing id
     id = None
-
-    #: Admin panel instance used on the admin homepage
-    panel = None
 
     #: Title used in breadcrumbs, other places
     title = None
@@ -134,8 +126,7 @@ class ModelAdminCRUD(ModelCRUD):
 
     def init_lineage(self):
         """Make sure that all context objects have parent pointers set."""
-        super(ModelAdminCRUD, self).init_lineage()
-        traverse.make_lineage(self, self.panel, "panel", allow_reinit=True)
+        super(ModelAdmin, self).init_lineage()
 
     @classmethod
     def register(cls, model):
@@ -168,33 +159,15 @@ class ModelAdminCRUD(ModelCRUD):
         return super(ModelCRUD, self).__getitem__(id)
 
 
-class AdminPanel:
-
-    #: Template hint which template to use for this panel
-    template = "admin/model_panel.html"
-
-    def __init__(self, title, template=None):
-        self.title = title
-        if template:
-            self.template = template
-
-    def get_admin(self):
-        return self.__parent__.__parent__
-
-    def get_model(self):
-        model_admin = self.__parent__
-        return model_admin.model
-
-
 class Listing(sqlalchemy_crud.Listing):
     template = "admin/listing.html"
     base_template = "admin/base.html"
 
 
 
-class DefaultModelAdminCRUD(ModelAdminCRUD):
+class DefaultModelAdmin(ModelAdmin):
+    """Model admin used if the model does not declare any admin."""
 
-    """Simply list items by their ID, have default view, edit and delete links."""
     listing = sqlalchemy_crud.Listing(
         title="",
         columns = [

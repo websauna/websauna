@@ -7,7 +7,6 @@ from pyramid.config import Configurator
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.path import DottedNameResolver
-from pyramid_web20.system.core.interfaces import IDeploymentIdProvider
 
 from sqlalchemy import engine_from_config
 
@@ -152,6 +151,9 @@ class Initializer:
         self.config.set_authentication_policy(authn_policy)
         self.config.set_authorization_policy(authz_policy)
 
+    def configure_panels(self, settings):
+        self.config.include('pyramid_layout')
+
     def configure_authomatic(self, settings, secrets):
         """Configure Authomatic social logins.
 
@@ -261,6 +263,7 @@ class Initializer:
         self.config.add_route('admin_home', '/admin/', factory="pyramid_web20.system.admin.admin_root_factory")
         self.config.add_route('admin', "/admin/*traverse", factory="pyramid_web20.system.admin.admin_root_factory")
 
+        self.config.add_panel('pyramid_web20.system.admin.views.default_model_admin_panel')
         # self.config.add_view('pyramid_web20.system.admin.views.listing', context='pyramid_web20.system.admin.ModelAdmin')
         # self.config.add_view('pyramid_web20.system.admin.views.panel', context='pyramid_web20.system.admin.AdminPanel')
 
@@ -325,39 +328,31 @@ class Initializer:
 
         return secrets_config
 
-    def configure_deployment_id(self, settings):
-        """Get unique id string for each deployment.
-
-        This is mainly used in cache pushing in some of the trickier cases, like referring static assets from CSS.
-        """
-        # XXX: Hardcoded now for git
-
-        def git_hash():
-            hash = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf-8").strip()
-            return hash
-
-        self.config.registry.registerUtility(git_hash, IDeploymentIdProvider)
-
     def run(self, settings):
         secrets = self.read_secrets(settings)
-
-        self.configure_deployment_id(settings)
 
         self.preconfigure_user(settings)
         self.preconfigure_admin(settings)
 
+        # Serving
         self.configure_templates()
         self.configure_static(settings)
+
+        # Email
         self.configure_mailer(settings)
 
+        # Core view and layout related
         self.configure_error_views(settings)
         self.configure_views(settings)
-        self.configure_sessions(settings, secrets)
+        self.configure_panels(settings)
 
+        # Sessions and users
+        self.configure_sessions(settings, secrets)
         self.configure_user(settings, secrets)
         self.configure_user_admin(settings)
         self.configure_crud(settings)
 
+        # Website administration
         self.configure_admin(settings)
         self.configure_admin_models(settings)
 

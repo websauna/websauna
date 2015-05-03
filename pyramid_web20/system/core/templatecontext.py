@@ -5,7 +5,6 @@ from pyramid.events import BeforeRender
 from pyramid.renderers import render
 from pyramid.settings import asbool
 from pyramid.threadlocal import get_current_request
-from pyramid_web20.system.core.interfaces import IDeploymentIdProvider
 
 from pytz import timezone
 
@@ -28,9 +27,7 @@ def includeme(config):
     site_tag_line = config.registry.settings["pyramid_web20.site_tag_line"]
     site_email_prefix = config.registry.settings["pyramid_web20.site_email_prefix"]
     site_production = asbool(config.registry.settings.get("pyramid_web20.site_production"))
-
-    deployment_id_provider = config.registry.getUtility(IDeploymentIdProvider)
-    site_deployment_id = deployment_id_provider()
+    site_timezone = asbool(config.registry.settings.get("pyramid_web20.site_timezone", "UTC"))
 
     def on_before_render(event):
         # Augment Pyramid template renderers with these extra variables
@@ -41,7 +38,7 @@ def includeme(config):
         event['site_now'] = now
         event['site_email_prefix'] = site_email_prefix
         event['site_production'] = site_production
-        event['site_deployment_id'] = site_deployment_id
+        event['site_timezone'] = site_timezone
 
     config.add_subscriber(on_before_render, BeforeRender)
 
@@ -104,7 +101,6 @@ def friendly_time(jinja_ctx, context, **kw):
 
     arrow = Arrow.fromdatetime(now, tzinfo=tz)
 
-    tz = kw.get("source_timezone", datetime.timezone.utc)
     other = Arrow.fromdatetime(datetime.datetime.now(tz=tz))
 
     return arrow.humanize(other)

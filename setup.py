@@ -79,6 +79,7 @@ setup(
         'peppercorn',
         'pyramid_redis_sessions',
         'pyramid-mailer',
+        'pyramid-layout',
         "arrow"
     ],
 

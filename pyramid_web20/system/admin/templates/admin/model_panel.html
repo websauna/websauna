@@ -1,7 +1,10 @@
-{% extends "admin/panel.html" %}
+{% extends "admin/base_panel.html" %}
+
+{% block panel_title %}
+{{ title }} <span class="text-muted">({{count}})</span>
+{% endblock panel_title %}
 
 {% block panel_content %}
-<p>Total: {{count}}</p>
 {% endblock panel_content %}
 
 {% block panel_buttons %}

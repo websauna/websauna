@@ -14,6 +14,7 @@ pytz==2015.2
 # Templates
 Jinja2==2.7.3
 pyramid_jinja2==2.4
+pyramid_layout==1.0
 
 # Email out
 pyramid-mailer==0.14

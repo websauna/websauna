@@ -1,0 +1,24 @@
+from markupsafe import Markup
+from pyramid_layout.interfaces import IPanel
+from zope.interface import providedBy
+
+
+# Jinja 2 adoption of render_panel
+# TODO: make this configurable in upstream
+def render_panel(context, request, name='', *args, **kw):
+    """
+    Renders the named panel, returning a `unicode` object that is the
+    rendered HTML for the panel.  The panel is looked up using the current
+    context (or the context given as keyword argument, to override the
+    context in which the panel is called) and an optional given name
+    (which defaults to an empty string).
+    The panel is called passing in the current
+    context, request and any additional parameters passed into the
+    `render_panel` call.  In case a panel isn't found, `None` is returned.
+    """
+    adapters = request.registry.adapters
+    panel = adapters.lookup((providedBy(context),), IPanel, name=name)
+    if panel is None:
+        # Mimics behavior of pyramid.view.render_view
+        return None
+    return Markup(panel(context, request, *args, **kw))

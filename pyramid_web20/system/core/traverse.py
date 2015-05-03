@@ -47,12 +47,27 @@ class Resource:
         return child
 
 
-def get_breadcrumb(context, root):
-    """Traverse context up to the root element in the reverse order."""
+def get_breadcrumb(context, request, root, current_view_name=None, current_view_url=None):
+    """Traverse context up to the root element in the reverse order.
+
+    :return: List of {url, name} dictionaries
+
+    """
 
     elems = []
+
+    # Looks like it is not possible to dig out the matched view from Pyramid request,
+    # so we need to explicitly pass it if we want it to appear in URL
+    if current_view_name:
+        assert current_view_url
+        elems.append(dict(url=current_view_url, name=current_view_name))
+
     while not isinstance(context, root):
-        elems.append(context)
+
+        if not hasattr(context, "get_title"):
+            raise RuntimeError("Breadcrumbs part missing get_title(): {}".format(context))
+
+        elems.append(dict(url=request.resource_url(context), name=context.get_title()))
 
         if not hasattr(context, "__parent__"):
             raise RuntimeError("Broken traverse lineage on {}, __parent__ missing".format(context))
@@ -62,8 +77,8 @@ def get_breadcrumb(context, root):
 
         context = context.__parent__
 
-    elems.append(context)
-
+    # Add the last element
+    elems.append(dict(url=request.resource_url(context), name=context.get_title()))
     elems.reverse()
 
     return elems

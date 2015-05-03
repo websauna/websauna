@@ -51,6 +51,10 @@ class Listing(crud_views.Listing):
         ]
     )
 
+    @property
+    def title(self):
+        return "All {}".format(self.context.title)
+
     @view_config(context=ModelAdmin, name="listing", renderer="crud/listing.html", route_name="admin", permission='view')
     def listing(self):
         # We override this method just to define admin route_name traversing
@@ -65,7 +69,7 @@ class Show(crud_views.Show):
     base_template = "admin/base.html"
 
     @view_config(context=ModelAdmin.Resource, name="show", renderer="crud/show.html", route_name="admin", permission='view')
-    def listing(self):
+    def show(self):
         # We override this method just to define admin route_name traversing
         return super(Show, self).show()
 

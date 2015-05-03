@@ -142,7 +142,6 @@ class UserMixin:
 
         for g in self.groups:
             if g.name == self.GROUP_ADMIN:
-                print("User {} is admin".format(self))
                 return True
 
         return False

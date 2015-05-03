@@ -15,7 +15,7 @@ def admin_breadcrumbs(jinja_ctx, context, **kw):
         return ""
 
     request = jinja_ctx.get('request') or get_current_request()
-    crumbs = traverse.get_breadcrumb(context, root=Admin)
+    crumbs = traverse.get_breadcrumb(context, request, root=Admin)
 
     assert crumbs, "Could not get breadcrumbs for {}".format(context)
 

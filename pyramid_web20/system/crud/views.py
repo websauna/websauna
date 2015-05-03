@@ -50,7 +50,7 @@ class Listing:
     def order_query(self, query):
         return query
 
-    @view_config(context=sqlalchemy.ModelCRUD, renderer="crud/listing.html", permission='view')
+    @view_config(context=sqlalchemy.CRUD, name="listing", renderer="crud/listing.html", permission='view')
     def listing(self):
         """View for listing all objects."""
 
@@ -73,10 +73,13 @@ class Listing:
         query = self.order_query(query)
         base_template = self.base_template
 
+        # This is to support breadcrums with titled views
+        current_view_name = self.title
+
         # TODO: Paginate
 
         title = self.context.title
-        return dict(title=title, count=count, columns=columns, base_template=base_template, query=query, crud=crud)
+        return dict(title=title, count=count, columns=columns, base_template=base_template, query=query, crud=crud, current_view_name=current_view_name)
 
 
 
@@ -103,6 +106,12 @@ class Show:
     def get_crud(self):
         return self.context.__parent__
 
+    def get_object(self):
+        return self.context.get_object()
+
+    def get_title(self):
+        return "{} #{}".format(self.get_crud(), self.get_object().id)
+
     @view_config(context=sqlalchemy.Resource, name="show", renderer="crud/show.html", permission='view')
     def show(self):
         """View for showing an individual object."""
@@ -120,5 +129,7 @@ class Show:
         crud = self.get_crud()
 
         buttons = dict(edit=False, delete=False)
+
+        current_view_name = self.get_title()
 
         return dict(form=rendered_form, instance=instance, obj=obj, title=title, crud=crud, base_template=base_template, buttons=buttons)

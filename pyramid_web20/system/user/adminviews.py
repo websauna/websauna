@@ -42,7 +42,7 @@ class UserListing(admin_views.Listing):
     )
 
     def order_query(self, query):
-        return query.order_by(self.get_model().created_at.Desc())
+        return query.order_by(self.get_model().created_at.desc())
 
 
 @view_defaults(context=GroupAdmin)
@@ -60,4 +60,4 @@ class GroupListing(admin_views.Listing):
     )
 
     def order_query(self, query):
-        return query.order_by(self.get_model().created_at.Desc())
+        return query.order_by(self.get_model().id.desc())

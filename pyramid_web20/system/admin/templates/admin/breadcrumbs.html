@@ -1,11 +1,11 @@
 <ol class="breadcrumb">
     {% for crumb in crumbs %}
         <li>
-            <a href={{crumb|model_url}}>
+            <a href={{ crumb.url }}>
                 {% if loop.first %}
                     <i class="fa fa-wrench"></i>
                 {% endif %}
-                {{crumb.get_title()}}
+                {{ crumb.name }}
             </a>
         </li>
     {% endfor %}

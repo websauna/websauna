@@ -98,6 +98,10 @@ class Resource(traverse.Resource):
     def __init__(self, obj):
         self.obj = obj
 
+    def get_object(self):
+        """Return wrapped database object."""
+        return self.obj
+
     @abstractmethod
     def get_id(self):
         """Extract id from the self.obj for traversing."""

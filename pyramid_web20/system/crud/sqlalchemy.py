@@ -1,4 +1,4 @@
-from . import CRUD
+from . import CRUD as _CRUD
 from . import Resource as _Resource
 
 from pyramid_web20.models import DBSession
@@ -18,11 +18,12 @@ class Resource(_Resource):
         return self.obj.id
 
 
-class ModelCRUD(CRUD):
+class CRUD(_CRUD):
     """CRUD controller utilizing admin interface permissions and templates."""
 
+
     def __init__(self, model):
-        super(ModelCRUD, self).__init__()
+        super(CRUD, self).__init__()
         self.model = model
 
     def get_model(self):

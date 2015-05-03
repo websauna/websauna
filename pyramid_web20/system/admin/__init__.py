@@ -3,7 +3,7 @@ import sys
 from pyramid.security import Allow
 from pyramid_web20.system import crud
 from pyramid_web20.system.crud import sqlalchemy as sqlalchemy_crud
-from pyramid_web20.system.crud.sqlalchemy import ModelCRUD
+from pyramid_web20.system.crud.sqlalchemy import CRUD as CRUD
 from pyramid_web20.system.crud.sqlalchemy import Resource as AlchemyResource
 from pyramid_web20.system.core import traverse
 
@@ -112,7 +112,7 @@ class Admin(traverse.Resource):
         return model_admin
 
 
-class ModelAdmin(ModelCRUD):
+class ModelAdmin(CRUD):
     """Present one model in admin interface."""
 
     #: URL traversing id

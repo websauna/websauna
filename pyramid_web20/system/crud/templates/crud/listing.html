@@ -5,6 +5,8 @@
         <h1>{{title}}</h1>
     {% endif %}
 
+    {% include "crud/crud_controls.html" %}
+
     {% if not count %}
         <p id="crud-listing-no-items" class="lead">
             No items
@@ -25,7 +27,7 @@
             <tbody>
                 {% for obj in query %}
                     <tr class="crud-row crud-row-{{ obj.id }}">
-                        {% with instance=crud.make_instance(obj) %}
+                        {% with instance=crud.wrap_to_resource(obj) %}
                             {% for column in columns  %}
                                 {% include column.body_template %}
                             {% endfor %}

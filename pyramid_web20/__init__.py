@@ -10,6 +10,7 @@ from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.interfaces import IDebugLogger
 from pyramid.path import DottedNameResolver
 from pyramid_deform import configure_zpt_renderer
+from pyramid_web20.system.user.interfaces import IUserClass, IGroupClass
 
 from sqlalchemy import engine_from_config
 
@@ -68,6 +69,10 @@ class Initializer:
 
         resolver = DottedNameResolver()
         self.user_models_module = users_models = resolver.resolve(settings["pyramid_web20.user_models_module"])
+
+        # Mark activate user and group class
+        registry.registerUtility(users_models.User, IUserClass)
+        registry.registerUtility(users_models.Group, IGroupClass)
 
         # self.config.include("horus")
         horus_init.includeme(self.config)

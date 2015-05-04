@@ -34,7 +34,9 @@ class Admin(traverse.Resource):
     title = "Admin"
 
     __acl__ = [
+        (Allow, 'group:admin', 'add'),
         (Allow, 'group:admin', 'view'),
+        (Allow, 'group:admin', 'edit'),
     ]
 
     def __init__(self):

@@ -1,0 +1,20 @@
+<div id="crud-page-controls">
+
+    <div id="crud-page-buttons" class="pull-right">
+
+        {% if crud_buttons.add %}
+            <a class="btn btn-default" href="{{ crud_buttons.add }}">
+                Add
+            </a>
+        {% endif %}
+
+        {% if crud_buttons.list %}
+            <a class="btn btn-default" href="{{ crud_buttons.list }}">
+                List
+            </a>
+        {% endif %}
+
+    </div>
+
+    <div style="clear: both"></div>
+</div>

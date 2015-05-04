@@ -18,6 +18,9 @@ class UserAdmin(admin.ModelAdmin):
     #: Traverse title
     title = "Users"
 
+    singular_name = "user"
+    plural_name = "users"
+
     class Resource(admin.ModelAdmin.Resource):
         pass
 
@@ -30,6 +33,9 @@ class GroupAdmin(admin.ModelAdmin):
 
     #: Traverse title
     title = "Groups"
+
+    singular_name = "group"
+    plural_name = "groups"
 
     class Resource(admin.ModelAdmin.Resource):
         pass

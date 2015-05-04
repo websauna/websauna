@@ -25,8 +25,11 @@ class CRUD(traverse.Resource):
     # How the model is referred in templates. e.g. "User"
     title = "xx"
 
-    #: Listing description object presenting $base/listing traversing part. Maps to show view
-    listing = None
+    #: Helper noun used in the default placeholder texts
+    singular_name = "item"
+
+    #: Helper noun used in the default placeholder texts
+    plural_name = "items"
 
     def is_good_id(self, id):
         """Check if the given traverse id can belong to object.
@@ -35,7 +38,7 @@ class CRUD(traverse.Resource):
         """
         return type(id) == int
 
-    def wrap_to_resource(self, obj):
+    def make_resource(self, obj):
         """Take raw model instance and wrap it to Resource for traversing.
 
         :param obj: SQLALchemy object or similar model object.
@@ -48,9 +51,9 @@ class CRUD(traverse.Resource):
 
         raise NotImplementedError("Does not know how to wrap to resource: {}".format(obj))
 
-    def make_instance(self, obj):
+    def wrap_to_resource(self, obj):
         # Wrap object to a traversable part
-        instance = self.wrap_to_resource(obj)
+        instance = self.make_resource(obj)
         instance.make_lineage(self, instance, instance.get_id())
         return instance
 
@@ -65,7 +68,7 @@ class CRUD(traverse.Resource):
 
 
         obj = self.fetch_object(id)
-        return self.make_instance(obj)
+        return self.wrap_to_resource(obj)
 
     def __getitem__(self, id):
         return self.traverse_to_object(id)

@@ -93,11 +93,7 @@ class UserMixin:
     last_password_change_at = Column(DateTime, nullable=True)
 
     #: Store all user related settings in this expandable field
-    user_data = Column(JSONB, default=DEFAULT_USER_DATA,
-                    info={'colanderalchemy': {
-                        'typ': colander.String(),
-                    }},
-            )
+    user_data = Column(JSONB, default=DEFAULT_USER_DATA)
 
     #: Full name of the user (if given)
     full_name = JSONBProperty("user_data", "/full_name")
@@ -150,11 +146,14 @@ class UserMixin:
 
 class GroupMixin:
 
-    group_data = Column(JSONB,
-                    info={'colanderalchemy': {
-                        'typ': colander.String(),
-                    }},
-            )
+    #: When this group was created.
+    created_at = Column(DateTime(timezone=utc), default=now)
+
+    #: When the group was updated last time. Please note that this does not concern group membership, only desription updates.
+    updated_at = Column(DateTime(timezone=utc), onupdate=now)
+
+    #: Extra JSON data to be stored with this group
+    group_data = Column(JSONB, default={})
 
 
 def init_empty_site(user):

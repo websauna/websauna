@@ -13,6 +13,8 @@ from pyramid_web20.system.admin import views as admin_views
 from pyramid_web20 import DBSession
 from pyramid_web20.system.form.colander import \
     PropertyAwareSQLAlchemySchemaNode
+from pyramid_web20.system.form.widget import RelationshipCheckboxWidget
+from pyramid_web20.system.user.utils import get_group_class
 
 
 @panel_config(name='admin_panel', context=UserAdmin, renderer='admin/user_panel.html')
@@ -51,24 +53,20 @@ class UserListing(admin_views.Listing):
         return super(UserListing, self).listing()
 
 
-class Group(colander.MappingSchema):
-    id = colander.SchemaNode(colander.Int())
-    name = colander.SchemaNode(
-        colander.String(),
-    )
-
-class Groups(colander.SequenceSchema):
-    groups = Group(missing=[])
 
 
-class GroupWidget(deform.widget.TextInputWidget):
-    readonly_template = 'readonly/groups'
+class GroupWidget(RelationshipCheckboxWidget):
+
+    def make_entry(self, obj):
+        return (obj.id, obj.name)
 
 
 class UserShow(admin_views.Show):
     """Show one user."""
 
     includes = ["id",
+                "created_at",
+                "updated_at",
                 "username",
                 colander.SchemaNode(colander.String(), name='full_name'),
                 "email",
@@ -83,29 +81,49 @@ class UserShow(admin_views.Show):
     def get_title(self):
         return "{} #{}".format(self.get_object().friendly_name, self.get_object().id)
 
-    def get_form(self):
-        obj = self.get_object()
-        includes = self.includes
-        schema = PropertyAwareSQLAlchemySchemaNode(obj.__class__, includes=includes)
-        form = deform.Form(schema)
-        schema["groups"].widget = GroupWidget()
-        return form
+    def customize_schema(self, schema):
+        group_model = get_group_class(self.request.registry)
+        schema["groups"].widget = GroupWidget(model=group_model)
 
     @view_config(context=UserAdmin.Resource, route_name="admin", name="show", renderer="crud/show.html", permission='view')
     def show(self):
         return super(UserShow, self).show()
 
 
+class Groups(colander.SequenceSchema):
+    pass
+
+
+class UserEdit(admin_views.Edit):
+    """Show one user."""
+
+    includes = admin_views.Edit.includes + [
+                "username",
+                colander.SchemaNode(colander.String(), name='full_name'),
+                "email",
+                "groups"
+                ]
+
+    def get_title(self):
+        return "{} #{}".format(self.get_object().friendly_name, self.get_object().id)
+
+    @view_config(context=UserAdmin.Resource, route_name="admin", name="edit", renderer="crud/edit.html", permission='edit')
+    def edit(self):
+        return super(UserEdit, self).edit()
+
+    def customize_schema(self, schema):
+        group_model = get_group_class(self.request.registry)
+        schema["groups"].widget = GroupWidget(model=group_model, dictify=schema.dictify)
+        schema["groups"].missing = []
 
 class GroupListing(admin_views.Listing):
     """Listing view for Groups."""
-
-    title = "All groups"
 
     table = listing.Table(
         columns = [
             listing.Column("id", "Id",),
             listing.Column("name", "Name"),
+            listing.Column("description", "Description"),
             listing.ControlsColumn()
         ]
     )
@@ -116,3 +134,44 @@ class GroupListing(admin_views.Listing):
     @view_config(context=GroupAdmin, route_name="admin", name="listing", renderer="crud/listing.html", permission='view')
     def listing(self):
         return super(GroupListing, self).listing()
+
+
+
+class GroupShow(admin_views.Show):
+
+    includes = [
+        "id",
+        "name",
+        "description",
+        "created_at",
+        "updated_at"
+    ]
+
+    @view_config(context=GroupAdmin.Resource, route_name="admin", name="show", renderer="crud/show.html", permission='view')
+    def show(self):
+        return super(GroupShow, self).show()
+
+
+class GroupAdd(admin_views.Add):
+
+    includes = [
+        "name",
+        "description"
+    ]
+
+    @view_config(context=GroupAdmin, route_name="admin", name="add", renderer="crud/add.html", permission='add')
+    def add(self):
+        return super(GroupAdd, self).add()
+
+
+class GroupEdit(admin_views.Edit):
+
+    includes = admin_views.Edit.includes + [
+        "name",
+        "description"
+    ]
+
+    @view_config(context=GroupAdmin.Resource, route_name="admin", name="edit", renderer="crud/edit.html", permission='edit')
+    def edit(self):
+        return super(GroupEdit, self).edit()
+

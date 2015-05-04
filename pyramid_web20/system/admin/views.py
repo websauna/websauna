@@ -63,9 +63,7 @@ class Listing(crud_views.Listing):
 
 
 class Show(crud_views.Show):
-    """Base listing view for all admin models.
-
-    """
+    """Default show view for model admin."""
     base_template = "admin/base.html"
 
     @view_config(context=ModelAdmin.Resource, name="show", renderer="crud/show.html", route_name="admin", permission='view')
@@ -74,6 +72,24 @@ class Show(crud_views.Show):
         return super(Show, self).show()
 
 
+class Edit(crud_views.Edit):
+    """Default edit vie for model admin."""
+    base_template = "admin/base.html"
+
+    @view_config(context=ModelAdmin.Resource, name="edit", renderer="crud/edit.html", route_name="admin", permission='edit')
+    def edit(self):
+        # We override this method just to define admin route_name traversing
+        return super(Edit, self).edit()
+
+
+class Add(crud_views.Add):
+    """Default add view for model admin."""
+    base_template = "admin/base.html"
+
+    @view_config(context=ModelAdmin, name="add", renderer="crud/add.html", route_name="admin", permission='add')
+    def add(self):
+        # We override this method just to define admin route_name traversing
+        return super(Add, self).add()
 
 
 @view_config(context=ModelAdmin, name="", route_name="admin", permission='view')

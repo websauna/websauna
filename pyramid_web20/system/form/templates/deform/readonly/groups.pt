@@ -1,0 +1,5 @@
+<div class="form-control-static" id="${oid|field.oid}">
+    <span class="group" tal:repeat="group cstruct">
+        ${group.name}
+    </span>
+</div>

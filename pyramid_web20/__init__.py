@@ -1,4 +1,5 @@
 import configparser
+import logging
 import subprocess
 from horus import IResetPasswordSchema
 import os
@@ -6,7 +7,9 @@ import os
 from pyramid.config import Configurator
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
+from pyramid.interfaces import IDebugLogger
 from pyramid.path import DottedNameResolver
+from pyramid_deform import configure_zpt_renderer
 
 from sqlalchemy import engine_from_config
 
@@ -41,6 +44,12 @@ class Initializer:
         self.user_models_module = None
 
         self.settings = settings
+
+    def configure_logging(self, settings):
+
+        # Make sure we can target Pyramid router debug messages in logging configuration
+        pyramid_debug_logger = logging.getLogger("pyramid_debug")
+        self.config.registry.registerUtility(pyramid_debug_logger, IDebugLogger)
 
     def configure_horus(self, settings):
 
@@ -140,6 +149,9 @@ class Initializer:
         include_filter("datetime", templatecontext._datetime)
         include_filter("escape_js", templatecontext.escape_js)
         include_filter("timestruct", templatecontext.timestruct)
+
+        # Make Deform widgets aware of our widget template paths
+        configure_zpt_renderer(["pyramid_web20:system/form/templates/deform"])
 
     def configure_authentication(self, settings, secrets):
 
@@ -330,6 +342,8 @@ class Initializer:
 
     def run(self, settings):
         secrets = self.read_secrets(settings)
+
+        self.configure_logging(settings)
 
         self.preconfigure_user(settings)
         self.preconfigure_admin(settings)

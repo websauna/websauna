@@ -1,3 +1,5 @@
+import colander
+import deform
 from pyramid.view import view_config, view_defaults
 
 from .admin import UserAdmin
@@ -9,6 +11,8 @@ from pyramid_web20.system.crud import listing
 from pyramid_web20.system.admin import views as admin_views
 
 from pyramid_web20 import DBSession
+from pyramid_web20.system.form.colander import \
+    PropertyAwareSQLAlchemySchemaNode
 
 
 @panel_config(name='admin_panel', context=UserAdmin, renderer='admin/user_panel.html')
@@ -45,6 +49,52 @@ class UserListing(admin_views.Listing):
     @view_config(context=UserAdmin, route_name="admin", name="listing", renderer="crud/listing.html", permission='view')
     def listing(self):
         return super(UserListing, self).listing()
+
+
+class Group(colander.MappingSchema):
+    id = colander.SchemaNode(colander.Int())
+    name = colander.SchemaNode(
+        colander.String(),
+    )
+
+class Groups(colander.SequenceSchema):
+    groups = Group(missing=[])
+
+
+class GroupWidget(deform.widget.TextInputWidget):
+    readonly_template = 'readonly/groups'
+
+
+class UserShow(admin_views.Show):
+    """Show one user."""
+
+    includes = ["id",
+                "username",
+                colander.SchemaNode(colander.String(), name='full_name'),
+                "email",
+                "last_login_at",
+                "last_login_ip",
+                colander.SchemaNode(colander.String(), name="registration_source"),
+                colander.SchemaNode(colander.String(), name="social"),
+                #colander.SchemaNode(Groups(), name="groups"),
+                "groups",
+                ]
+
+    def get_title(self):
+        return "{} #{}".format(self.get_object().friendly_name, self.get_object().id)
+
+    def get_form(self):
+        obj = self.get_object()
+        includes = self.includes
+        schema = PropertyAwareSQLAlchemySchemaNode(obj.__class__, includes=includes)
+        form = deform.Form(schema)
+        schema["groups"].widget = GroupWidget()
+        return form
+
+    @view_config(context=UserAdmin.Resource, route_name="admin", name="show", renderer="crud/show.html", permission='view')
+    def show(self):
+        return super(UserShow, self).show()
+
 
 
 class GroupListing(admin_views.Listing):

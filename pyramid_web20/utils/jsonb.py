@@ -3,7 +3,7 @@ import datetime
 from decimal import Decimal
 import copy
 import json
-
+import inspect as python_inspect
 import iso8601
 
 from sqlalchemy import inspect
@@ -156,6 +156,19 @@ class JSONBProperty(object):
 
         set_attribute(obj, self.data_field, data)
         # flag_modified(obj, self.data_field)
+
+    @classmethod
+    def is_json_property(cls, obj, name):
+        """Check if given attribute on an object is JSONBProperty.
+
+        :param obj: Python object
+
+        :return: True or False
+        """
+
+        attr = python_inspect.getattr_static(obj, name)
+        return isinstance(attr, JSONBProperty)
+
 
 
 class _DecimalEncoder(json.JSONEncoder):

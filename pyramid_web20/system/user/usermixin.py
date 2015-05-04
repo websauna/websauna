@@ -103,7 +103,7 @@ class UserMixin:
     full_name = JSONBProperty("user_data", "/full_name")
 
     #: How this user signed up to the site. May include string like "email", "facebook"
-    registration_source = JSONBProperty("user_data", "/registration_source")
+    registration_source = JSONBProperty("user_data", "/registration_source", graceful=None)
 
     #: Social media data of the user as a dict keyed by user media
     social = JSONBProperty("user_data", "/social")

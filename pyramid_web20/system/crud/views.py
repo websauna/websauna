@@ -12,7 +12,8 @@ from . import CRUD
 from . import Resource
 
 from . import sqlalchemy
-
+from pyramid_web20.system.form.colander import \
+    PropertyAwareSQLAlchemySchemaNode
 
 
 class Listing:
@@ -97,9 +98,10 @@ class Show:
         self.request = request
 
     def get_form(self):
-        obj = self.context.obj
+        """Automatically create a read-only collander schema + deform form based on the underlying SQLALchemy model."""
+        obj = self.get_object()
         includes = self.includes
-        schema = colanderalchemy.SQLAlchemySchemaNode(obj.__class__, includes=includes)
+        schema = PropertyAwareSQLAlchemySchemaNode(obj.__class__, includes=includes)
         form = deform.Form(schema)
         return form
 
@@ -124,12 +126,10 @@ class Show:
         appstruct = form.schema.dictify(obj)
         rendered_form = form.render(appstruct, readonly=True)
 
-        title = instance.get_title()
-
         crud = self.get_crud()
 
         buttons = dict(edit=False, delete=False)
 
-        current_view_name = self.get_title()
+        title = current_view_name = self.get_title()
 
         return dict(form=rendered_form, instance=instance, obj=obj, title=title, crud=crud, base_template=base_template, buttons=buttons)

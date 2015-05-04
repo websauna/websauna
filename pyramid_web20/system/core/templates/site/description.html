@@ -1,2 +1,7 @@
-<meta name="description" content="{{site_description}}">
-<title>{{site_title}}</title>
+{% if site_title %}
+    <title>{{site_title}}</title>
+{% endif %}
+
+{% if site_description %}
+    <meta name="description" content="{{site_description}}">
+{% endif %}

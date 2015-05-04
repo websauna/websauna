@@ -1,9 +1,12 @@
 {% extends base_template if base_template is defined else 'crud/base_crud.html' %}
 
+{% block description %}
+    <title>{{ title }}</title>
+{% endblock description %}
+
 {% block crud_content %}
 
     {% include "crud/crud_page_controls.html" %}
-
     {% if title %}
         <h1>{{title}}</h1>
     {% endif %}

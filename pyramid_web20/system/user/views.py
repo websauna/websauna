@@ -55,7 +55,7 @@ from pyramid_web20.system.mail import send_templated_mail
 from pyramid_web20 import models
 from . import authomatic
 from . import usermixin
-
+from . import events
 
 class NotSatisfiedWithData(Exception):
     """Risen when social media login cannot proceed due to incomplete provided information."""
@@ -76,7 +76,7 @@ def create_activation(request, user):
 
     assert user.id
     user.username = user.generate_username()
-    user.user_registration_source = user.USER_MEDIA_EMAIL
+    user.registration_source = user.USER_MEDIA_EMAIL
 
     db = get_session(request)
     Activation = request.registry.getUtility(IActivationClass)
@@ -117,6 +117,10 @@ def authenticated(request, user):
 
     headers = remember(request, user.id)
     assert headers, "Authentication backend did not give us any session headers"
+
+    if not user.last_login_at:
+        e = events.FirstLogin(request, user)
+        request.registry.notify(e)
 
     # Update user security details
     user.last_login_at = datetime.datetime.utcnow()
@@ -168,7 +172,7 @@ def get_or_create_user_by_social_medial_email(request, provider, email, social_d
         session.add(user)
         session.flush()
         user.username = user.generate_username()
-        user.user_registration_source = provider
+        user.registration_source = provider
 
     if provider == "facebook":
         exported_data = normalize_facebook_data(social_data)

@@ -42,6 +42,7 @@ class UserMixin:
 
     TODO: Make user user.id is not exposed anywhere e.g. in email activation links.
     """
+
     #: A test user
     USER_MEDIA_DUMMY = "dummy"
 

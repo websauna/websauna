@@ -26,8 +26,6 @@ def default_model_admin_panel(context, request):
     return locals()
 
 
-
-@view_defaults(context=UserAdmin)
 class UserListing(admin_views.Listing):
     """Listing view for Users."""
     title = "All users"
@@ -44,8 +42,11 @@ class UserListing(admin_views.Listing):
     def order_query(self, query):
         return query.order_by(self.get_model().created_at.desc())
 
+    @view_config(context=UserAdmin, route_name="admin", name="listing", renderer="crud/listing.html", permission='view')
+    def listing(self):
+        return super(UserListing, self).listing()
 
-@view_defaults(context=GroupAdmin)
+
 class GroupListing(admin_views.Listing):
     """Listing view for Groups."""
 
@@ -61,3 +62,7 @@ class GroupListing(admin_views.Listing):
 
     def order_query(self, query):
         return query.order_by(self.get_model().id.desc())
+
+    @view_config(context=GroupAdmin, route_name="admin", name="listing", renderer="crud/listing.html", permission='view')
+    def listing(self):
+        return super(GroupListing, self).listing()

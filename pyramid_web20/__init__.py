@@ -36,7 +36,7 @@ class Initializer:
         # XXX: Side effect here for stupid config workaround -> fix with sensible API
         configinclude.augment(settings)
 
-        self.config = Configurator(settings=settings)
+        self.config = self.create_configurator(settings)
 
         #: SQLAlchemy engine
         self.engine = None
@@ -46,7 +46,16 @@ class Initializer:
 
         self.settings = settings
 
+    def create_configurator(self, settings):
+        """Create configurator instance."""
+        configurator = Configurator(settings=settings)
+        return configurator
+
     def configure_logging(self, settings):
+        """Create and set Pyramid debug logger.
+
+        Please note that most o the logging is configured through the configuration file and that should be the primary way to do it.
+        """
 
         # Make sure we can target Pyramid router debug messages in logging configuration
         pyramid_debug_logger = logging.getLogger("pyramid_debug")
@@ -235,6 +244,14 @@ class Initializer:
             self.config.scan(internalservererror)
             self.config.add_route('error_trigger', '/error-trigger')
 
+    def configure_root(self):
+        """Root object defines permissions for route URLs which have not their own traversing context.
+
+        http://pyramid-tutorials.readthedocs.org/en/latest/getting_started/10-security/
+        """
+        from pyramid_web20.system.core.root import Root
+        self.config.set_root_factory(Root)
+
     def configure_views(self, settings):
         from .system.core.views import home
         self.config.add_route('home', '/')
@@ -361,6 +378,7 @@ class Initializer:
         self.configure_mailer(settings)
 
         # Core view and layout related
+        self.configure_root()
         self.configure_error_views(settings)
         self.configure_views(settings)
         self.configure_panels(settings)

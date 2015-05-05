@@ -448,7 +448,7 @@ class AuthController(horus_views.AuthController):
         context = {"form": self.form.render(), "authomatic_result": authomatic_result, "social_logins": social_logins}
         return render_to_response('login/login.html', context, request=self.request)
 
-    @view_config(permission='view', route_name='logout')
+    @view_config(permission='authenticated', route_name='logout')
     def logout(self):
         return super(AuthController, self).logout()
 

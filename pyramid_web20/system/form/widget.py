@@ -30,13 +30,11 @@ class RelationshipCheckboxWidget(deform.widget.CheckboxChoiceWidget):
         return (obj.id, str(obj.id))
 
     def make_id(self, dict_):
-        """Map ColanderAlchemy dictionary to a checkbox value."""
+        """Map ColanderAlchemy dictionary to a checkbox value.
 
-        id = getattr(dict_, "id", None)
-        if id:
-            return id
-
-        return dict_["id"]
+        Note that ids must be always str() or checkboxes loses their value on validation, as passed in tmpl_values changes.
+        """
+        return str(dict_["id"])
 
     @property
     def values(self):
@@ -53,7 +51,6 @@ class RelationshipCheckboxWidget(deform.widget.CheckboxChoiceWidget):
 
         Override this if you use custom ids.
         """
-        print("get_objecs() ", id_list)
         query = self.get_query()
         objects = query.filter(self.model.id.in_(id_list)).all()
         return objects
@@ -91,5 +88,5 @@ class RelationshipCheckboxWidget(deform.widget.CheckboxChoiceWidget):
             return (pstruct,)
 
         der = [self.fix_deserialize_type(obj) for obj in self.get_objects(pstruct)]
-        print("deserialize ", der)
+
         return der

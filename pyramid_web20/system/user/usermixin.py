@@ -117,10 +117,14 @@ class UserMixin:
         if full_name:
             return full_name
 
-        if self.username.startswith("user-"):
-            return self.email
-        else:
-            return self.username
+        # Get the username if it looks like non-automatic form
+        if self.username:
+            if self.username.startswith("user-"):
+                return self.email
+            else:
+                return self.username
+
+        return self.email
 
     def generate_username(self):
         """The default username we give for the user."""

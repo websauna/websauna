@@ -72,7 +72,7 @@ class UserShow(admin_views.Show):
                 "email",
                 "last_login_at",
                 "last_login_ip",
-                colander.SchemaNode(colander.String(), name="registration_source"),
+                colander.SchemaNode(colander.String(), name="registration_source", missing=None),
                 colander.SchemaNode(colander.String(), name="social"),
                 #colander.SchemaNode(Groups(), name="groups"),
                 "groups",
@@ -98,8 +98,8 @@ class UserEdit(admin_views.Edit):
     """Show one user."""
 
     includes = admin_views.Edit.includes + [
-                "username",
-                colander.SchemaNode(colander.String(), name='full_name'),
+                colander.SchemaNode(colander.String(), name='username'),  # Make username required field
+                colander.SchemaNode(colander.String(), name='full_name', missing=""),
                 "email",
                 "groups"
                 ]

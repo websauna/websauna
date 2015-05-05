@@ -23,17 +23,18 @@ class ServerThread(threading.Thread):
     Pass in WSGI app object and serve pages from it for Selenium browser.
     """
 
-    def __init__(self, app):
+    def __init__(self, app, hostbase=HOST_BASE):
         threading.Thread.__init__(self)
         self.app = app
         self.srv = None
         self.daemon = True
+        self.hostbase = hostbase
 
     def run(self):
         """
         Open WSGI server to listen to HOST_BASE address
         """
-        parts = urlparse(HOST_BASE)
+        parts = urlparse(self.hostbase)
         domain, port = parts.netloc.split(":")
         self.srv = make_server(domain, int(port), self.app)
         try:
@@ -77,3 +78,40 @@ def web_server(request, ini_settings):
 
     request.addfinalizer(teardown)
     return host_base
+
+
+
+@pytest.fixture(scope='session')
+def light_web_server(request, ini_settings):
+    """Creates a test web server which does not give any CSS and JS assets to load.
+
+    Because the server life-cycle is one test session and we run with different settings we need to run a in different port.
+    """
+
+    ini_settings = ini_settings.copy()
+
+    ini_settings["pyramid_web20.testing_skip_css"] = True
+    ini_settings["pyramid_web20.testing_skip_js"] = True
+
+    init = get_init(ini_settings)
+    init.run(ini_settings)
+    app = init.make_wsgi_app()
+
+    host_base = "http://localhost:8522"
+    server = ServerThread(app, host_base)
+    server.start()
+
+    # Wait randomish time to allows SocketServer to initialize itself.
+    # TODO: Replace this with proper event telling the server is up.
+    time.sleep(0.1)
+
+    assert server.srv is not None, "Could not start the test web server"
+
+    app = TestApp(app)
+
+    def teardown():
+        server.quit()
+
+    request.addfinalizer(teardown)
+    return host_base
+

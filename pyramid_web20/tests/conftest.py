@@ -11,9 +11,6 @@ import pyramid.testing
 import pytest
 import transaction
 
-
-from sqlalchemy import engine_from_config
-
 from pyramid.paster import (
     get_appsettings,
     setup_logging,
@@ -149,6 +146,7 @@ def http_request(request):
 
 #: Make sure py.test picks this up
 from pyramid_web20.tests.functional import web_server  # noqa
+from pyramid_web20.tests.functional import light_web_server  # noqa
 
 
 def pytest_addoption(parser):

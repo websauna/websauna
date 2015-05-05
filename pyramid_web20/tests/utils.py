@@ -6,6 +6,8 @@ from pyramid_web20.models import DBSession
 from pyramid_web20.system.user.usermixin import check_empty_site_init
 
 #: The default test login name
+import transaction
+
 EMAIL = "example@example.com"
 
 #: The default test password
@@ -34,3 +36,27 @@ def create_user(email=EMAIL, password=PASSWORD, admin=False):
     return user
 
 
+def get_user(email=EMAIL):
+    from pyramid_web20.system.user.models import User
+    return DBSession.query(User).filter_by(email=EMAIL).first()
+
+
+
+
+def create_logged_in_user(web_server, browser, admin=False):
+    """For a web browser test session, creates a new user and logs it in."""
+
+    with transaction.manager:
+        create_user(admin=admin)
+
+    b = browser
+    b.visit("{}/{}".format(web_server, "login"))
+
+    assert b.is_element_visible_by_css("#login-form")
+
+    b.fill("username", EMAIL)
+    b.fill("password", PASSWORD)
+    b.find_by_name("Log_in").click()
+
+    # After login we log out link to confirm login has succeeded
+    assert b.is_element_visible_by_css("#nav-logout")

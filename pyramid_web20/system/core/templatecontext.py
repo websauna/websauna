@@ -21,13 +21,32 @@ from pyramid_web20.models import now
 
 def includeme(config):
 
+    # The site name - used in <title> tag, front page, etc.
     site_name = config.registry.settings["pyramid_web20.site_name"]
+
+    # Do not use - use request.route_url("home") to get link to the site root
     site_url = config.registry.settings["pyramid_web20.site_url"]
+
+    # Shown in the footer as the site copyright owner
     site_author = config.registry.settings["pyramid_web20.site_author"]
+
+    # Shown on the front page below title
     site_tag_line = config.registry.settings["pyramid_web20.site_tag_line"]
+
+    # [label] Added beginning of every outgoing email subject
     site_email_prefix = config.registry.settings["pyramid_web20.site_email_prefix"]
+
+    # True if this is production set up - can be used in templates to change/hide texts
     site_production = asbool(config.registry.settings.get("pyramid_web20.site_production"))
+
+    #: The default site timezone - can be used in templates to translate UTC timetamps
     site_timezone = asbool(config.registry.settings.get("pyramid_web20.site_timezone", "UTC"))
+
+    #: Skip CSS in templates in functional test runs to speed them up. This flag is set by py.test fixture.
+    testing_skip_css = asbool(config.registry.settings.get("pyramid_web20.testing_skip_css", False))
+
+    #: Skip JS in templates loading in functional test runs to speed them up. This flag is set by py.test fixture.
+    testing_skip_js = asbool(config.registry.settings.get("pyramid_web20.testing_skip_js", False))
 
     def on_before_render(event):
         # Augment Pyramid template renderers with these extra variables
@@ -39,6 +58,9 @@ def includeme(config):
         event['site_email_prefix'] = site_email_prefix
         event['site_production'] = site_production
         event['site_timezone'] = site_timezone
+
+        event['testing_skip_css'] = testing_skip_css
+        event['testing_skip_js'] = testing_skip_css
 
     config.add_subscriber(on_before_render, BeforeRender)
 

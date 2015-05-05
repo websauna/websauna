@@ -8,11 +8,11 @@
 {% endblock panel_content %}
 
 {% block panel_buttons %}
-    <a class="btn btn-default btn-admin-list" href="{{ model_admin|model_url('listing') }}">
+    <a id="btn-panel-list-{{ model_admin.id }}" class="btn btn-default btn-admin-list" href="{{ model_admin|model_url('listing') }}">
         List
     </a>
 
-    <a class="btn btn-default btn-admin-list" href="{{ model_admin|model_url('add') }}">
+    <a id="btn-panel-add-{{ model_admin.id }}" class="btn btn-default btn-admin-list" href="{{ model_admin|model_url('add') }}">
         Add
     </a>
 {% endblock %}

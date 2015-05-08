@@ -1,4 +1,5 @@
 """The user authentication."""
+from pyramid.settings import aslist
 
 from pyramid_web20 import models
 
@@ -22,18 +23,24 @@ def get_user(request):
 
 
 def find_groups(userid, request):
-    """TODO: Not yet there.
-
-    This function is called when you do ``authenticated_userid(request)`` but currently not used.
-    """
+    """Get applied groups and other for the user"""
 
     from horus.interfaces import IUserClass
     user_class = request.registry.queryUtility(IUserClass)
 
+    # Read superuser names from the config
+    superusers = aslist(request.registry.settings.get("pyramid_web20.superusers"))
+
     user = models.DBSession.query(user_class).get(userid)
     if user:
         if user.can_login():
-            return ['group:{}'.format(g.name) for g in user.groups]
+            principals = ['group:{}'.format(g.name) for g in user.groups]
+
+        # Allow superuser permission
+        if user.username in superusers or user.email in superusers:
+            principals.append("superuser:superuser")
+
+        return principals
 
     # User not found, user disabled
     return None

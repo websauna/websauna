@@ -2,15 +2,12 @@ import sys
 
 from pyramid.security import Allow
 from pyramid_web20.system import crud
+from pyramid_web20.system.core.root import Root
 from pyramid_web20.system.crud import sqlalchemy as sqlalchemy_crud
 from pyramid_web20.system.crud.sqlalchemy import CRUD as CRUD
 from pyramid_web20.system.crud.sqlalchemy import Resource as AlchemyResource
 from pyramid_web20.system.core import traverse
 
-
-
-class Root:
-    __name__ = ""
 
 
 
@@ -28,7 +25,7 @@ class Admin(traverse.Resource):
     """
 
     # Root defines where admin interaface lies in the URL space
-    __parent__ = Root()
+    __parent__ = Root.get_root()
     __name__ = "admin"
 
     title = "Admin"
@@ -153,3 +150,6 @@ class ModelAdmin(CRUD):
         if self.title:
             return self.title
         return self.id.capitalize()
+
+
+

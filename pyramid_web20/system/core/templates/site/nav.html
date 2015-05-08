@@ -30,13 +30,24 @@
             <ul class="nav navbar-nav navbar-right">
                 {% if request.user %}
 
-                    {% if request.user.is_admin() %}
+                    {% if request.has_permission('shell') %}
                         <li>
-                            <a id="nav-admin" href="{{'admin_home'|route_url}}">
-                                <i class="fa fa-wrench"></i>
-                                Admin
+                            <a id="nav-superuser" href="{{'admin_shell'|route_url}}">
+                                <i class="fa fa-terminal"></i>
+                                Shell
                             </a>
                         </li>
+                    {% endif %}
+
+                    {% if admin %}
+                        {% if request.has_permission('view', context=admin) %}
+                            <li>
+                                <a id="nav-admin" href="{{'admin_home'|route_url}}">
+                                    <i class="fa fa-wrench"></i>
+                                    Admin
+                                </a>
+                            </li>
+                        {% endif %}
                     {% endif %}
 
                     <li>

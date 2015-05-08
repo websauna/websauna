@@ -3,8 +3,10 @@ import datetime
 
 from pyramid.events import BeforeRender
 from pyramid.renderers import render
+from pyramid.security import effective_principals
 from pyramid.settings import asbool
 from pyramid.threadlocal import get_current_request
+from pyramid_web20.system.admin import Admin
 
 from pytz import timezone
 
@@ -61,6 +63,8 @@ def includeme(config):
 
         event['testing_skip_css'] = testing_skip_css
         event['testing_skip_js'] = testing_skip_css
+
+
 
     config.add_subscriber(on_before_render, BeforeRender)
 

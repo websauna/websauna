@@ -250,7 +250,7 @@ class Initializer:
         http://pyramid-tutorials.readthedocs.org/en/latest/getting_started/10-security/
         """
         from pyramid_web20.system.core.root import Root
-        self.config.set_root_factory(Root)
+        self.config.set_root_factory(Root.root_factory)
 
     def configure_views(self, settings):
         from .system.core.views import home
@@ -300,8 +300,11 @@ class Initializer:
         self.config.add_panel('pyramid_web20.system.admin.views.default_model_admin_panel')
         # self.config.add_view('pyramid_web20.system.admin.views.listing', context='pyramid_web20.system.admin.ModelAdmin')
         # self.config.add_view('pyramid_web20.system.admin.views.panel', context='pyramid_web20.system.admin.AdminPanel')
-
         self.config.scan(views)
+
+        # Add templatecontext handler
+        from pyramid_web20.system.admin import templatecontext
+        templatecontext.includeme(self.config)
 
     def preconfigure_user(self, settings):
         # self.configure_horus(settings)
@@ -341,6 +344,13 @@ class Initializer:
         admin = Admin.get_admin(self.config.registry)
         admin.scan(self.config, pyramid_web20.system.user.admin)
         self.config.scan(pyramid_web20.system.user.adminviews)
+
+    def configure_notebook(self, settings):
+        import pyramid_web20.system.notebook.views
+        self.config.add_route('admin_shell', '/notebook/admin-shell')
+        self.config.add_route('shutdown_notebook', '/notebook/shutdown')
+        self.config.add_route('notebook_proxy', '/notebook/*remainder')
+        self.config.scan(pyramid_web20.system.notebook.views)
 
     def read_secrets(self, settings):
         """Read secrets configuration file.
@@ -392,6 +402,7 @@ class Initializer:
         # Website administration
         self.configure_admin(settings)
         self.configure_admin_models(settings)
+        self.configure_notebook(settings)
 
         # This must go first, as we need to make sure all models are attached to Base
         self.engine = self.configure_database(settings)

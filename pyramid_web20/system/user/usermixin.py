@@ -133,19 +133,30 @@ class UserMixin:
 
     def can_login(self):
         """Is this user allowed to login."""
+
+        # TODO: is_active defined in Horus
         return self.enabled and self.is_activated
+
+    def is_in_group(self, name):
+
+        # TODO: groups - defined in Horus
+        for g in self.groups:
+            if g.name == name:
+                return True
+        return False
 
     def is_admin(self):
         """Does this user the see the main admin interface link.
 
-        TODO: This is very suboptimal, wasted database cycles, etc.
+        TODO: This is very suboptimal, wasted database cycles, etc. Change this.
         """
+        return self.is_in_group(self.GROUP_ADMIN)
 
-        for g in self.groups:
-            if g.name == self.GROUP_ADMIN:
-                return True
+    def is_superuser(self):
+        """Shortcut: Does this user have superuser group membership
+        """
+        return self.is_in_group(self.GROUP_SUPERUSER)
 
-        return False
 
 
 class GroupMixin:
@@ -161,7 +172,10 @@ class GroupMixin:
 
 
 def init_empty_site(user):
-    """When the first user signs up build the admin groups and make the user member of it."""
+    """When the first user signs up build the admin groups and make the user member of it.
+
+    Make the first member of the site to be admin and superuser.
+    """
 
     # Try to reflect related group class based on User model
     i = inspection.inspect(user.__class__)
@@ -173,7 +187,6 @@ def init_empty_site(user):
 
     g = Group(name=user.GROUP_ADMIN)
     DBSession.add(g)
-    DBSession.flush()
 
     g.users.append(user)
 

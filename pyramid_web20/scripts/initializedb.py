@@ -28,7 +28,7 @@ def main(argv=sys.argv):
 
     settings = get_appsettings(config_uri, options=options)
 
-    init = get_init(settings)
+    init = get_init(dict(__file__=config_uri), settings)
 
     # secrets = init.read_secrets(settings)
     # This must go first, as we need to make sure all models are attached to Base

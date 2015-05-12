@@ -415,17 +415,32 @@ class Initializer:
         return self.config.make_wsgi_app()
 
 
-def get_init(settings):
-    """Return instance of Initializer for the app."""
+def get_init(global_config, settings):
+    """Get Initializer class instance for WSGI-like app.
+
+    Reads reference to the initializer from settings, resolves it and creates the initializer instance.
+
+    Example 1::
+
+        config_uri = argv[1]
+        init = get_init(dict(__file__=config_uri), settings)
+
+
+    :param global_config: Global config dictionary, having __file__ entry as given by Paster
+
+    :param settings: Settings dictionary
+    """
 
     assert "pyramid_web20.init" in settings, "You must have pyramid_web20.init setting pointing to your Initializer class"
+
+    assert "__file__" in global_config
 
     init_cls = settings.get("pyramid_web20.init")
     if not init_cls:
         raise RuntimeError("INI file lacks pyramid_web20.init option")
     resolver = DottedNameResolver()
     init_cls = resolver.resolve(init_cls)
-    init = init_cls(settings)
+    init = init_cls(global_config, settings)
     return init
 
 

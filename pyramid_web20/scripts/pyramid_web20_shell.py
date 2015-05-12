@@ -37,7 +37,7 @@ def main(argv=sys.argv):
 
     init_cls = settings.get("pyramid_web20.init")
     if not init_cls:
-        raise RuntimeError("INI file lacks pyramid_web20.init optoin")
+        raise RuntimeError("INI file lacks pyramid_web20.init option")
 
     init_cls = resolver.resolve(init_cls)
 

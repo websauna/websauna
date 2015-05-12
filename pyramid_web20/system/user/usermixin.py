@@ -152,12 +152,6 @@ class UserMixin:
         """
         return self.is_in_group(self.GROUP_ADMIN)
 
-    def is_superuser(self):
-        """Shortcut: Does this user have superuser group membership
-        """
-        return self.is_in_group(self.GROUP_SUPERUSER)
-
-
 
 class GroupMixin:
 

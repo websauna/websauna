@@ -31,7 +31,10 @@ class Initializer:
 
     Customizers can subclass this and override parts they want to change.
     """
-    def __init__(self, settings):
+    def __init__(self, global_config, settings):
+
+        #: This is the reference to the config file which started our process. We need to later pass it to Notebook.
+        settings["pyramid_web20.global_config"] = global_config
 
         # XXX: Side effect here for stupid config workaround -> fix with sensible API
         configinclude.augment(settings)
@@ -45,6 +48,7 @@ class Initializer:
         self.user_models_module = None
 
         self.settings = settings
+
 
     def create_configurator(self, settings):
         """Create configurator instance."""
@@ -418,7 +422,7 @@ def get_init(settings):
 
     init_cls = settings.get("pyramid_web20.init")
     if not init_cls:
-        raise RuntimeError("INI file lacks pyramid_web20.init optoin")
+        raise RuntimeError("INI file lacks pyramid_web20.init option")
     resolver = DottedNameResolver()
     init_cls = resolver.resolve(init_cls)
     init = init_cls(settings)
@@ -428,6 +432,6 @@ def get_init(settings):
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
-    init = Initializer(settings)
+    init = Initializer(global_config, settings)
     init.run(settings)
     return init.make_wsgi_app()

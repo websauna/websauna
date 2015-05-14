@@ -48,7 +48,7 @@ install -d $LOCAL_BACKUP_DIR
 # We need to export passphrase for GPG piping
 # http://stackoverflow.com/a/7082184/315168
 TEMP_FOLDER=$(mktemp -d)
-PASSPHRASE_FILE=$TEMP_FOLDER/passphare
+PASSPHRASE_FILE=$TEMP_FOLDER/passphrase
 trap "rm -rf $TEMP_FOLDER" EXIT
 echo $SECRET_BACKUP_ENCRYPTION_KEY > $PASSPHRASE_FILE
 
@@ -60,11 +60,11 @@ export PGPASSWORD=$MAIN_SQL_PASSWORD
 [[ "$MAIN_SQL_HOST" ]] && HARG="-h $MAIN_SQL_HOST" || HARG=""
 
 # Dump PostgreSQL database
-pg_dump $UARG $HARG -d $MAIN_SQL_DATABASE --clean | bzip2 | gpg --batch --passphrase-file $PASSPHRASE_FILE --symmetric > $LOCAL_BACKUP_DIR/dump-$(date -d "today" +"%Y%m%d").sql.bzip2.gpg
+pg_dump $UARG $HARG -d $MAIN_SQL_DATABASE --clean | bzip2 | gpg --no-use-agent --batch --passphrase-file $PASSPHRASE_FILE --symmetric > $LOCAL_BACKUP_DIR/dump-$(date -d "today" +"%Y%m%d").sql.bzip2.gpg
 
 # Dump the system Redis database, encrypt a copy of it
 redis-cli --rdb $TEMP_FOLDER/redis-dump.rdb
-cat $TEMP_FOLDER/redis-dump.rdb | bzip2 | gpg --batch --passphrase-file $PASSPHRASE_FILE  --symmetric > $LOCAL_BACKUP_DIR/dump-$(date -d "today" +"%Y%m%d").redis.bzip2.gpg
+cat $TEMP_FOLDER/redis-dump.rdb | bzip2 | gpg --no-use-agent --batch --passphrase-file $PASSPHRASE_FILE  --symmetric > $LOCAL_BACKUP_DIR/dump-$(date -d "today" +"%Y%m%d").redis.bzip2.gpg
 
 rm -rf $TEMP_FOLDER
 

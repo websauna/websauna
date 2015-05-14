@@ -18,6 +18,8 @@
 set -e
 
 # Check we have duplicity installed
+command -v duplicity >/dev/null 2>&1 || { echo >&2 "I require duplicity but it's not installed.  Aborting."; exit 1; }
+
 DUPLICITY=`which duplicity`
 
 # Read .ini settings to bash variables

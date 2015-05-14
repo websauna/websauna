@@ -15,3 +15,10 @@ def redis_test_write():
     connection = get_redis()
     connection.set("foo", "foo")
 
+
+
+# Execute every second
+@app.task(name="crash")
+def crash():
+    raise RuntimeError("Test exception")
+

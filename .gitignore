@@ -16,4 +16,4 @@ avenv
 galaxy
 .vagrant
 celerybeat-schedule.db
-
+*.gpg

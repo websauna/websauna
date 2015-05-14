@@ -1,6 +1,8 @@
 import os
 import sys
 from pyramid_web20 import get_init
+from pyramid_web20.utils.configincluder import \
+    monkey_patch_paster_config_parser
 import transaction
 from collections import OrderedDict
 
@@ -27,24 +29,22 @@ def usage(argv):
 
 
 def main(argv=sys.argv):
+
+    monkey_patch_paster_config_parser()
+
     if len(argv) < 2:
         usage(argv)
+
     config_uri = argv[1]
     options = parse_vars(argv[2:])
     setup_logging(config_uri)
 
     settings = get_appsettings(config_uri, options=options)
-    resolver = DottedNameResolver()
-
-    init = get_init(dict(__file__=config_uri), settings)
-    init.run(settings)
-
     env = bootstrap(config_uri)
 
     imported_objects = OrderedDict()
     imported_objects.update(env)
     del imported_objects["closer"]
-    imported_objects["init"] = init
     imported_objects["session"] = DBSession
     imported_objects["transaction"] = transaction
 

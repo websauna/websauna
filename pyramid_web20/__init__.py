@@ -175,7 +175,7 @@ class Initializer:
 
         from .system.user import auth
 
-        # Security policies
+        # Security policies§
         authn_policy = AuthTktAuthenticationPolicy(secrets['authentication.secret'], callback=auth.find_groups, hashalg='sha512')
         authz_policy = ACLAuthorizationPolicy()
         self.config.set_authentication_policy(authn_policy)
@@ -369,12 +369,18 @@ class Initializer:
 
 
     def configure_scheduler(self, settings):
-        """Configure Advanced Python Scheduler for running the daemon.
+        """Configure Celery.
 
-        This method should be called only inside the task-executor daemon process.
-        It will set up jobs
         """
+
+        # Patch pyramid_celery to use our config loader
+        import pyramid_web20.system.celery
+
+        # Patch various paster internals
+        from pyramid_web20.utils.configincluder import monkey_patch_paster_config_parser
+        monkey_patch_paster_config_parser()
         self.config.include("pyramid_celery")
+
         self.config.configure_celery(self.global_config["__file__"])
 
     def read_secrets(self, settings):

@@ -1,70 +1,83 @@
 #!/bin/bash
 #
-# Backup installation, PostgreSQL database, Redis databases and media files to S3 bucket
-#
-# Usage:
-#
-#   bin/incremental-backup.bash AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY BACKUP_ENCRYPTION_KEY
-#
-# Installation in Python 2.7 virtualenv
-#
-#    virtualenv -p python2.7 duplicity-venv
-#    source duplicity-venv/bin/activate
-#    apt-get install -y librsync-dev
-#    pip install https://launchpad.net/duplicity/0.7-series/0.7.01/+download/duplicity-0.7.01.tar.gz
-#    pip install boto lockfile
+# Backup code files, PostgreSQL database, Redis databases and media files to S3 bucket
 #
 # Recovering the backup:
 #
 #    gpg --batch --decrypt --passphrase xyz mysite-dump-20150213.sql.bzip2.gpg | bunzip2 > dump.sql
 #
-# Note: The user running this script must have sudo -u postgres acces to run pg_dump
-#
-# Note: This script is safe to run only on a server where you have 100% control and there are no other UNIX users who could see process command line or environment
-#
 # Note: Do **not** use AWS Frankfurt region - it uses unsupported authentication scheme - https://github.com/s3tools/s3cmd/issues/402
+#
+# This script never users passwords on a command line.
 #
 # Further reading:
 #
 #   http://www.janoszen.com/2013/10/14/backing-up-linux-servers-with-duplicity-and-amazon-aws/
 #   http://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteEndpoints.html
 
-
 set -e
 
-# Assume we are /srv/django/mysite
-PWD=`pwd`
-SITENAME=`basename $PWD`
+# Check we have duplicity installed
+DUPLICITY=`which duplicity`
 
-# Use duplicity + boto installed in specific Python 2.7 virtualenv
-source duplicity-venv/bin/activate
+# Read .ini settings to bash variables
+
+[[ "$MAIN_PYRAMID_WEB20_SITE_ID" ]] || { echo "pyramid_web20.site_id missing";  exit 1; }
+
+[[ "$MAIN_PYRAMID_WEB20_BACKUP_S3_BUCKET_URL" ]] || { echo "Backup S3 bucket missing"; exit 1; }
+
+[[ "$SECRET_BACKUP_ENCRYPTION_KEY" ]] || { echo "backup.encryption_key secrets passphare missing"; exit 1; }
+
+[[ "$SECRET_AWS_ACCESS_KEY_ID" ]] || { echo "aws.access_key_id secrets.ini entry missing"; exit 1; }
+
+[[ "$SECRET_AWS_SECRET_ACCESS_KEY" ]] || { echo "aws.secret_access_key secrets.ini entry missing"; exit 1; }
 
 # Our S3 bucket where we drop files
-DUPLICITY_TARGET=s3://s3-us-west-2.amazonaws.com/liberty-backup3/$SITENAME
+DUPLICITY_TARGET=$MAIN_PYRAMID_WEB20_BACKUP_S3_BUCKET_URL/$MAIN_PYRAMID_WEB20_SITE_ID
 
 # Tell credentials to Boto
-export AWS_ACCESS_KEY_ID=$1
-export AWS_SECRET_ACCESS_KEY=$2
-export BACKUP_ENCRYPTION_KEY=$3
+export AWS_ACCESS_KEY_ID=$SECRET_AWS_ACCESS_KEY_ID
+export AWS_SECRET_ACCESS_KEY=$SECRET_AWS_SECRET_ACCESS_KEY
 
-if [ -z "$BACKUP_ENCRYPTION_KEY" ]; then
-    echo "You must give AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and BACKUP_ENCRYPTION_KEY on the command line"
-    exit 1
-fi
+# Assume we store backups in the same folder as project
+LOCAL_BACKUP_DIR=$PWD/backups/$MAIN_PYRAMID_WEB20_SITE_ID
+install -d $LOCAL_BACKUP_DIR
+
+# We need to export passphrase for GPG piping
+# http://stackoverflow.com/a/7082184/315168
+TEMP_FOLDER=$(mktemp -d)
+PASSPHRASE_FILE=$TEMP_FOLDER/passphare
+trap "rm -rf $TEMP_FOLDER" EXIT
+echo $SECRET_BACKUP_ENCRYPTION_KEY > $PASSPHRASE_FILE
+
 
 # Create daily dump of the database, suitable for drop in restore
-sudo -u postgres pg_dumpall --clean | bzip2 | gpg --batch --symmetric --passphrase $BACKUP_ENCRYPTION_KEY > backups/$SITENAME-dump-$(date -d "today" +"%Y%m%d").sql.bzip2.gpg
+export PGPASSWORD=$MAIN_SQL_PASSWORD
+
+[[ "$MAIN_SQL_USERNAME" ]] && UARG="-U $MAIN_SQL_USERNAME" || UARG=""
+[[ "$MAIN_SQL_HOST" ]] && HARG="-h $MAIN_SQL_HOST" || HARG=""
+
+# Dump PostgreSQL database
+pg_dump $UARG $HARG -d $MAIN_SQL_DATABASE --clean | bzip2 | gpg --batch --passphrase-file $PASSPHRASE_FILE --symmetric > $LOCAL_BACKUP_DIR/dump-$(date -d "today" +"%Y%m%d").sql.bzip2.gpg
 
 # Dump the system Redis database, encrypt a copy of it
-redis-cli save
-cat /var/lib/redis/dump.rdb | bzip2 | gpg --batch --symmetric --passphrase $BACKUP_ENCRYPTION_KEY > backups/$SITENAME-dump-$(date -d "today" +"%Y%m%d").redis.bzip2.gpg
+redis-cli --rdb $TEMP_FOLDER/redis-dump.rdb
+cat $TEMP_FOLDER/redis-dump.rdb | bzip2 | gpg --batch --passphrase-file $PASSPHRASE_FILE  --symmetric > $LOCAL_BACKUP_DIR/dump-$(date -d "today" +"%Y%m%d").redis.bzip2.gpg
 
+rm -rf $TEMP_FOLDER
 
-# Use cheap RSS S3 storage, exclude some stuff we know is not important.
-# Also we do not need to encrypt media files as in our use case they are not sensitive, SQL dump is encrypted separately.
-# Use 1024 MB volumes, as we are going to backup > 10 GB
-duplicity --volsize 1024 --s3-use-rrs --exclude=`pwd`/logs --exclude=`pwd`/.git --exclude=`pwd`/venv --exclude=`pwd`/duplicity-venv --no-encryption --full-if-older-than 1M `pwd` $DUPLICITY_TARGET
+# Export passphrase to Duplicity
+export PASSPHRASE=$SECRET_BACKUP_ENCRYPTION_KEY
 
+# Incrementally copy sql dump, redis dump and everything in the project folder to S3 bucket
+duplicity --volsize 1024 \
+    --s3-use-rrs \
+    --exclude=`pwd`/logs \
+    --exclude=`pwd`/.git \
+    --exclude=`pwd`/venv \
+    --full-if-older-than 1M \
+    `pwd` \
+    $DUPLICITY_TARGET
 
 # Clean up old backups
 duplicity remove-older-than 6M $DUPLICITY_TARGET

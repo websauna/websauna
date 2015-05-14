@@ -145,8 +145,12 @@ def monkey_patch_paster_config_parser():
 
     FASDFWQ#€=IA this shit. Can't wait to BURN paster configs and start something based on YAML. Like with REAL include directives, not this half asset shit.
     """
+
     from paste.deploy import loadwsgi
     from pyramid import paster
+
+    if hasattr(loadwsgi.NicerConfigParser, "_monkey_patched"):
+        return
 
     def _read(self, fp, fpname):
         super(loadwsgi.NicerConfigParser, self)._read(fp, fpname)
@@ -159,3 +163,4 @@ def monkey_patch_paster_config_parser():
 
 
     paster.setup_logging = setup_logging
+    loadwsgi.NicerConfigParser._monkey_patched = True

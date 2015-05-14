@@ -2,6 +2,7 @@
 
 import os
 from pyramid_web20.system.core.secrets import get_secrets
+from sqlalchemy.engine.url import make_url
 
 
 def create_settings_env(registry):
@@ -14,6 +15,13 @@ def create_settings_env(registry):
         MAIN_PYRAMID_WEB20_SITE_ID=foo
         SECRETS_AWS_CONSUMER_KEY=baa
 
+    You will also have::
+
+        MAIN_SQL_HOST
+        MAIN_SQL_DATABASE
+        MAIN_SQL_USER
+        MAIN_SQL_PASSWORD
+
     Integers, booleans and objects are exported as strings:
 
         MAIN_SOME_BOOLEAN=True
@@ -24,6 +32,16 @@ def create_settings_env(registry):
 
     settings = registry.settings
     secrets = get_secrets(registry)
+
+    # Export database credentials
+    url = make_url(settings["sqlalchemy.url"])
+
+    assert url.drivername == "postgresql"
+
+    env["MAIN_SQL_HOST"] =  url.host or ""
+    env["MAIN_SQL_DATABASE"] = url.database or ""
+    env["MAIN_SQL_USERNAME"] = url.username or ""
+    env["MAIN_SQL_PASSWORD"] = url.password or ""
 
     for key, val in settings.items():
         key = "main.{}".format(key)

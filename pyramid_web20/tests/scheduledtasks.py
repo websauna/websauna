@@ -18,7 +18,7 @@ def redis_test_write():
 
 
 # Execute every second
-@app.task(name="crash")
+@app.task(name="crashaxs")
 def crash():
     raise RuntimeError("Test exception")
 

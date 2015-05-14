@@ -36,7 +36,8 @@ def create_settings_env(registry):
     # Export database credentials
     url = make_url(settings["sqlalchemy.url"])
 
-    assert url.drivername == "postgresql"
+    # Looks like both are acceptable options
+    assert url.drivername in "postgresql", "postgres"
 
     env["MAIN_SQL_HOST"] =  url.host or ""
     env["MAIN_SQL_DATABASE"] = url.database or ""

@@ -1,5 +1,6 @@
 import os
 import sys
+from pyramid_web20 import get_init
 import transaction
 from collections import OrderedDict
 
@@ -35,14 +36,7 @@ def main(argv=sys.argv):
     settings = get_appsettings(config_uri, options=options)
     resolver = DottedNameResolver()
 
-    init_cls = settings.get("pyramid_web20.init")
-    if not init_cls:
-        raise RuntimeError("INI file lacks pyramid_web20.init option")
-
-    init_cls = resolver.resolve(init_cls)
-
-    init = init_cls(settings)
-
+    init = get_init(dict(__file__=config_uri), settings)
     init.run(settings)
 
     env = bootstrap(config_uri)

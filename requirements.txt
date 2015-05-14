@@ -2,6 +2,7 @@
 psycopg2==2.6
 jsonpointer==1.7
 iso8601==0.1.10
+redis==2.10.3
 
 # Sessions
 pyramid-redis-sessions==1.0.1
@@ -26,3 +27,6 @@ python3-openid==3.0.5
 
 # Developer tools
 rainbow_logging_handler==2.2.2
+
+# Scheduled tasks
+pyramid_celery==2.0.0

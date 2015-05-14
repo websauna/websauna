@@ -99,11 +99,16 @@ setup(
         'console_scripts': [
             'sample=sample:main',
             'initializedb=pyramid_web20.scripts.initializedb:main',
-            'pyramid-web20-shell=pyramid_web20.scripts.pyramid_web20_shell:main'
+            'pyramid-web20-shell=pyramid_web20.scripts.pyramid_web20_shell:main',
+
         ],
 
         'paste.app_factory': [
-            'main=pyramid_web20:main'
+            'main=pyramid_web20:main',
+
+            #: Scheduler integration test entry point
+            'scheduler_test=pyramid_web20.tests.test_scheduler:main',
+
         ]
     },
 )

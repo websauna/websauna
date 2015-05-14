@@ -10,7 +10,9 @@ from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.interfaces import IDebugLogger
 from pyramid.path import DottedNameResolver
 from pyramid_deform import configure_zpt_renderer
+from pyramid_web20.system.core.secrets import read_init_secrets, ISecrets
 from pyramid_web20.system.user.interfaces import IUserClass, IGroupClass
+from pyramid_web20.utils.configincluder import IncludeAwareConfigParser
 
 from sqlalchemy import engine_from_config
 
@@ -18,7 +20,6 @@ from pyramid_mailer.interfaces import IMailer
 from pyramid.settings import aslist
 from pyramid.settings import asbool
 
-from .utils import configinclude
 from .utils import dictutil
 from . import models
 from .models import DBSession
@@ -35,9 +36,7 @@ class Initializer:
 
         #: This is the reference to the config file which started our process. We need to later pass it to Notebook.
         settings["pyramid_web20.global_config"] = global_config
-
-        # XXX: Side effect here for stupid config workaround -> fix with sensible API
-        configinclude.augment(settings)
+        self.global_config = global_config
 
         self.config = self.create_configurator(settings)
 
@@ -48,7 +47,6 @@ class Initializer:
         self.user_models_module = None
 
         self.settings = settings
-
 
     def create_configurator(self, settings):
         """Create configurator instance."""
@@ -144,8 +142,6 @@ class Initializer:
         self.config.add_jinja2_renderer('.html')
         self.config.add_jinja2_renderer('.txt')
         self.config.add_jinja2_renderer('.css')
-        self.config.add_jinja2_search_path('pyramid_web20:system/core/templates', name='.html')
-        self.config.add_jinja2_search_path('pyramid_web20:system/core/templates', name='.txt')
 
         # Some Horus templates need still Mako in place - TODO: remove this when all templates are converted
         self.config.include('pyramid_mako')
@@ -171,12 +167,16 @@ class Initializer:
         # Make Deform widgets aware of our widget template paths
         configure_zpt_renderer(["pyramid_web20:system/form/templates/deform"])
 
+        # Add core templates to the search path
+        self.config.add_jinja2_search_path('pyramid_web20:system/core/templates', name='.html')
+        self.config.add_jinja2_search_path('pyramid_web20:system/core/templates', name='.txt')
+
     def configure_authentication(self, settings, secrets):
 
         from .system.user import auth
 
         # Security policies
-        authn_policy = AuthTktAuthenticationPolicy(secrets['authentication']['secret'], callback=auth.find_groups, hashalg='sha512')
+        authn_policy = AuthTktAuthenticationPolicy(secrets['authentication.secret'], callback=auth.find_groups, hashalg='sha512')
         authz_policy = ACLAuthorizationPolicy()
         self.config.set_authentication_policy(authn_policy)
         self.config.set_authorization_policy(authz_policy)
@@ -200,20 +200,25 @@ class Initializer:
 
         authomatic_config = {}
 
-        authomatic_secret = secrets["authomatic"]["secret"]
+        authomatic_secret = secrets["authomatic.secret"]
 
         resolver = DottedNameResolver()
 
+        # Quick helper to access settings
+        def xget(section, key):
+            value = secrets.get(section + "." + key)
+            assert value is not None, "Missing secret settings for [{}]: {}".format(section, key)
+            return value
+
         for login in social_logins:
 
-            if login not in secrets.sections():
-                raise RuntimeError("Secrets configuration file missing or missing the [{}] section".format(login))
-
             authomatic_config[login] = {}
-            authomatic_config[login]["consumer_key"] = secrets.get(login, "consumer_key")
-            authomatic_config[login]["consumer_secret"] = secrets.get(login, "consumer_secret")
-            authomatic_config[login]["scope"] = aslist(secrets.get(login, "scope"))
-            authomatic_config[login]["class_"] = resolver.resolve(secrets.get(login, "class"))
+            authomatic_config[login]["consumer_key"] = xget(login, "consumer_key")
+            authomatic_config[login]["consumer_secret"] = xget(login, "consumer_secret")
+            authomatic_config[login]["scope"] = aslist(xget(login, "scope"))
+
+            # TODO: Class is not a real secret, think smarter way to do this
+            authomatic_config[login]["class_"] = resolver.resolve(xget(login, "class"))
 
         authomatic.setup(authomatic_secret, authomatic_config)
 
@@ -272,7 +277,7 @@ class Initializer:
     def configure_sessions(self, settings, secrets):
         """Configure session storage."""
 
-        session_secret = secrets["session"]["secret"]
+        session_secret = secrets["session.secret"]
 
         # TODO: Make more boilerplate here so that we pass secret in more sane way
         self.config.registry.settings["redis.sessions.secret"] = session_secret
@@ -356,25 +361,35 @@ class Initializer:
         self.config.add_route('notebook_proxy', '/notebook/*remainder')
         self.config.scan(pyramid_web20.system.notebook.views)
 
+    def configure_tasks(self, settings):
+        """Scan all Python modules with asynchoronou sna dperiodic tasks to be imported."""
+
+        # Importing the task is enough to add it to Celerybeat working list
+        from pyramid_web20.system.devops import tasks  # noqa
+
+
+    def configure_scheduler(self, settings):
+        """Configure Advanced Python Scheduler for running the daemon.
+
+        This method should be called only inside the task-executor daemon process.
+        It will set up jobs
+        """
+        self.config.include("pyramid_celery")
+        self.config.configure_celery(self.global_config["__file__"])
+
     def read_secrets(self, settings):
         """Read secrets configuration file.
 
         Stores API keys, such.
         """
-
         # Secret configuration diretives
         secrets_file = settings.get("pyramid_web20.secrets_file")
         if not secrets_file:
             return {}
 
-        if not os.path.exists(secrets_file):
-            p = os.path.abspath(secrets_file)
-            raise RuntimeError("Secrets file {} missing".format(p))
-
-        secrets_config = configparser.ConfigParser()
-        secrets_config.read(secrets_file)
-
-        return secrets_config
+        secrets = read_init_secrets(secrets_file)
+        self.config.registry.registerUtility(secrets, ISecrets)
+        return secrets
 
     def run(self, settings):
         secrets = self.read_secrets(settings)
@@ -390,6 +405,10 @@ class Initializer:
 
         # Email
         self.configure_mailer(settings)
+
+        # Timed tasks
+        self.configure_scheduler(settings)
+        self.configure_tasks(settings)
 
         # Core view and layout related
         self.configure_root()
@@ -415,7 +434,7 @@ class Initializer:
         return self.config.make_wsgi_app()
 
 
-def get_init(global_config, settings):
+def get_init(global_config, settings, init_cls=None):
     """Get Initializer class instance for WSGI-like app.
 
     Reads reference to the initializer from settings, resolves it and creates the initializer instance.
@@ -425,21 +444,23 @@ def get_init(global_config, settings):
         config_uri = argv[1]
         init = get_init(dict(__file__=config_uri), settings)
 
-
     :param global_config: Global config dictionary, having __file__ entry as given by Paster
 
     :param settings: Settings dictionary
+
+    :param init_cls: Explicitly give the Initializer class to use, otherwise read ``pyramid_web20.init`` settings.
     """
 
     assert "pyramid_web20.init" in settings, "You must have pyramid_web20.init setting pointing to your Initializer class"
 
     assert "__file__" in global_config
 
-    init_cls = settings.get("pyramid_web20.init")
     if not init_cls:
-        raise RuntimeError("INI file lacks pyramid_web20.init option")
-    resolver = DottedNameResolver()
-    init_cls = resolver.resolve(init_cls)
+        init_cls = settings.get("pyramid_web20.init")
+        if not init_cls:
+            raise RuntimeError("INI file lacks pyramid_web20.init option")
+        resolver = DottedNameResolver()
+        init_cls = resolver.resolve(init_cls)
     init = init_cls(global_config, settings)
     return init
 
@@ -447,6 +468,9 @@ def get_init(global_config, settings):
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
+
+    settings = IncludeAwareConfigParser.retrofit_settings(global_config)
     init = Initializer(global_config, settings)
     init.run(settings)
-    return init.make_wsgi_app()
+    wsgi_app = init.make_wsgi_app()
+    return wsgi_app

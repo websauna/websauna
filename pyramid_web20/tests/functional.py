@@ -56,7 +56,7 @@ class ServerThread(threading.Thread):
 def web_server(request, ini_settings):
     """Have a WSGI server for running functional tests."""
 
-    init = get_init(ini_settings)
+    init = get_init(dict(__file__=ini_settings["_ini_file"]), ini_settings)
     init.run(ini_settings)
     app = init.make_wsgi_app()
 
@@ -93,7 +93,7 @@ def light_web_server(request, ini_settings):
     ini_settings["pyramid_web20.testing_skip_css"] = True
     ini_settings["pyramid_web20.testing_skip_js"] = True
 
-    init = get_init(ini_settings)
+    init = get_init(dict(__file__=ini_settings["_ini_file"]), ini_settings)
     init.run(ini_settings)
     app = init.make_wsgi_app()
 

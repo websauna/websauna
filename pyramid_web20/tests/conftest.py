@@ -24,12 +24,19 @@ from pyramid_web20.models import Base
 @pytest.fixture(scope='session')
 def ini_settings(request):
     """Load INI settings from py.test command line."""
+
     if not getattr(request.config.option, "ini", None):
         raise RuntimeError("You need to give --ini test.ini command line option to py.test to find our test settings")
+
+    from pyramid_web20.utils.configincluder import monkey_patch_paster_config_parser
+    monkey_patch_paster_config_parser()
 
     config_uri = os.path.abspath(request.config.option.ini)
     setup_logging(config_uri)
     config = get_appsettings(config_uri)
+
+    # To pass forward in fixtures
+    config["_ini_file"] = config_uri
 
     return config
 
@@ -37,16 +44,8 @@ def ini_settings(request):
 @pytest.fixture(scope='function')
 def test_case_ini_settings(request):
     """Pass INI settings to a test class as self.config."""
-
-    if not getattr(request.config.option, "ini", None):
-        raise RuntimeError("You need to give --ini test.ini command line option to py.test to find our test settings")
-
-    config_uri = os.path.abspath(request.config.option.ini)
-    setup_logging(config_uri)
-    config = get_appsettings(config_uri)
-
+    config = ini_settings(request)
     request.instance.config = config
-
     return config
 
 
@@ -56,7 +55,7 @@ def init(request, ini_settings):
     if not getattr(request.config.option, "ini", None):
         raise RuntimeError("You need to give --ini test.ini command line option to py.test to find our test settings")
 
-    init = get_init(ini_settings)
+    init = get_init(dict(__file__=ini_settings["_ini_file"]), ini_settings)
     init.run(ini_settings)
     return init
 
@@ -106,14 +105,7 @@ def dbsession(request, init):
     Tables are purged after the run.
     """
     DBSession.close()
-    # engine = init.engine
-    # con = init.engine.raw_connection()
-    # postgresql_purge_all_stale_transactions(con.connection)
 
-    # engine = init.engine
-    # engine = init.configure_database(init.settings)
-
-    # engine = init.configure_database(init.settings)
     with transaction.manager:
         Base.metadata.drop_all(init.engine)
         Base.metadata.create_all(init.engine)
@@ -144,6 +136,33 @@ def http_request(request):
     return request
 
 
+
+
+@pytest.fixture()
+def pyramid_testing(request, ini_settings):
+    """py.test fixture for ramping up Pyramid testing environment.
+
+    :param request: py.test request lifecycle
+    :param ini_settings: Fixture for command line passed --ini settings
+    :return: {registry}
+    """
+
+    import pyramid.testing
+
+    init = get_init(dict(__file__=ini_settings["_ini_file"]), ini_settings)
+    init.run(ini_settings)
+
+    pyramid.testing.setUp(registry=init.config.registry)
+
+    def teardown():
+        # There might be open transactions in the database. They will block DROP ALL and thus the tests would end up in a deadlock. Thus, we clean up all connections we know about.
+        # XXX: Fix this shit
+        pyramid.testing.tearDown()
+
+    request.addfinalizer(teardown)
+
+    return {"registry": init.config.registry}
+
 #: Make sure py.test picks this up
 from pyramid_web20.tests.functional import web_server  # noqa
 from pyramid_web20.tests.functional import light_web_server  # noqa
@@ -153,9 +172,4 @@ def pytest_addoption(parser):
     parser.addoption("--ini", action="store", metavar="INI_FILE", help="use INI_FILE to configure SQLAlchemy")
 
 
-def postgresql_purge_all_stale_transactions(connection):
-    curs = connection.cursor()
-    curs.execute("SELECT pid from pg_locks WHERE NOT granted");
-    for (pid,) in curs.fetchall():
-        print("Killing PID {}".format(pid))
-        curs.execute("SELECT pg_cancel_backend({})".format(pid))
+

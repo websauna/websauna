@@ -116,9 +116,12 @@ class JSONBProperty(object):
                 raise BadStoredData("Field {} contained None (NULL) - make sure it is initialized with empty dictionary".format(self.data_field))
             else:
                 # An object of which field default value is not yet set
-                data = {}
-                setattr(obj, self.data_field, data)
-                return data
+
+                # <sqlalchemy.orm.attributes.InstrumentedAttribute>
+                column = getattr(obj.__class__, self.data_field)
+                default = column.default.arg
+                setattr(obj, self.data_field, default)
+                return default
 
         return field
 

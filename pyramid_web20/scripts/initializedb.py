@@ -1,6 +1,10 @@
 import os
 import sys
 
+from pyramid_web20.utils.configincluder import monkey_patch_paster_config_parser
+
+monkey_patch_paster_config_parser()
+
 from pyramid.paster import (
     get_appsettings,
     setup_logging,

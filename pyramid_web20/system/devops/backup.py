@@ -22,6 +22,12 @@ def backup_site():
     Runs the configured backup script ``pyramid_web20.backup_script``. The backup script can be any UNIX executable. The script gets the environment variables from *pyramid_web20* configuration, as exposed by :py:func:`pyramid_web20.utils.exportenv.create_settings_env`.
 
     In the case the backup script fails, an exception is raised and logged through normal application logging means.
+
+    Run backup from the command line::
+
+        echo "from pyramid_web20.system.devops import backup ; backup.backup_site()" | pyramid-web20-shell development.ini
+
+    Note that the output is buffered, so there might not be instant feedback.
     """
 
     registry = get_current_registry()

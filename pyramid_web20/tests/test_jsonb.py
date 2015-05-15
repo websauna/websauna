@@ -45,6 +45,22 @@ class TestModel(Base):
     date_time_property = JSONBProperty("data", "/date_time_property", converter=ISO8601DatetimeConverter)
 
 
+class DefautDataTestModel(Base):
+
+    __tablename__ = "default_data_test_model"
+
+    #: Running counter used in foreign key references
+    id = Column(Integer, primary_key=True)
+
+    #: Default value 1
+    default_value_1 = JSONBProperty("data", "/default_value_1")
+
+    #: Default value 2
+    default_value_2 = JSONBProperty("data", "/default_value_2")
+
+    data = Column(JSONB, default={"default_value_1": 1, "default_value_2": 2})
+
+
 @pytest.mark.usefixtures("test_case_ini_settings")
 class TestJSON(unittest.TestCase):
     """JSONB fields and properties."""
@@ -57,7 +73,7 @@ class TestJSON(unittest.TestCase):
         self.session = DBSession
 
         # Load Bitcoin models to play around with
-        Base.metadata.create_all(self.engine, tables=[TestModel.__table__])
+        Base.metadata.create_all(self.engine, tables=[TestModel.__table__, DefautDataTestModel.__table__])
 
         self.connection = self.engine.connect()
         self.transaction = self.connection.begin()
@@ -193,3 +209,32 @@ class TestJSON(unittest.TestCase):
 
         with self.assertRaises(CannotProcessISO8601):
             model.date_time_property = val
+
+    def test_modify_non_flushed(self):
+        """Modifying non-flushed database field correctly handles default values.
+
+        Consider the following situation.
+
+        We have a JSONB field with defaults::
+
+            class Product:
+                product_data = JSONB(default={"foo": "bar", price: None)}
+
+        Then we construct a new instance and try to modify data before flush::
+
+            p = Product()
+            p.product_data["foo"] = 123
+
+        -> this will invalidate the default value
+        """
+
+        model = DefautDataTestModel()
+        model.default_value_1 = "xxx"
+        assert model.data == {"default_value_1": "xxx", "default_value_2": 2}
+        self.session.add(model)
+        self.transaction.commit()
+
+        self.transaction = self.connection.begin()
+        model = self.session.query(DefautDataTestModel).get(1)
+        assert model
+        assert model.default_value_2 == 2

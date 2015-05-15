@@ -15,5 +15,7 @@ node_modules
 avenv
 galaxy
 .vagrant
-celerybeat-schedule.db
+celerybeat
 *.gpg
+backups
+celerybeat*

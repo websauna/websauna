@@ -175,7 +175,7 @@ class Initializer:
 
         from .system.user import auth
 
-        # Security policies§
+        # Security policies
         authn_policy = AuthTktAuthenticationPolicy(secrets['authentication.secret'], callback=auth.find_groups, hashalg='sha512')
         authz_policy = ACLAuthorizationPolicy()
         self.config.set_authentication_policy(authn_policy)

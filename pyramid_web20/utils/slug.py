@@ -9,7 +9,6 @@ def uuid_to_slug(uuid_):
     """
 
     encoded = base64.b64encode(uuid_.bytes)
-    import ipdb ; ipdb.set_trace()
 
     # URLs don't like +
     return encoded.decode("utf-8").rstrip('=\n').replace('/', '_').replace("+", "-")

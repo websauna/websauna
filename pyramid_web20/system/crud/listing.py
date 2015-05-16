@@ -16,21 +16,21 @@ class Column:
 
     body_template = "crud/column_body.html"
 
-    navigate_to = None
+    navigate_view_name = None
 
     getter = None
 
     #: Arrow formatting string
     format = "MM/DD/YYYY HH:mm"
 
-    def __init__(self, id, name=None, renderer=None, header_template=None, body_template=None, getter=None, format=None, navigate_to=None):
+    def __init__(self, id, name=None, renderer=None, header_template=None, body_template=None, getter=None, format=None, navigate_view_name=None):
         """
         :param id: Must match field id on the model
         :param name:
         :param renderer:
         :param header_template:
         :param body_template:
-        :param navigate_to: If set, make this column clickable and navigates to the traversed name. Options are "show", "edit", "delete"
+        :param navigate_view_name: If set, make this column clickable and navigates to the traversed name. Options are "show", "edit", "delete"
         :return:
         """
         self.id = id
@@ -47,8 +47,8 @@ class Column:
         if body_template:
             self.body_template = body_template
 
-        if navigate_to:
-            self.navigate_to = navigate_to
+        if navigate_view_name:
+            self.navigate_view_name = navigate_view_name
 
     def get_value(self, obj):
         """Extract value from the object for this column.
@@ -66,22 +66,28 @@ class Column:
         else:
             return val
 
-    def get_navigate_target(self, instance):
-        """ """
+    def get_navigate_target(self, resource):
+        """Get URL where clicking the link in the listing should go.
 
-        if not self.navigate_to:
-            return None
+        By default, navigate to "show" view of the resource.
+        """
+        return resource
 
-        if self.navigate_to == "show":
-            return instance
-        else:
-            return instance[self.navigate_to]
+    def get_navigate_url(self, resource, request, view_name=None):
+        """Get the link where clicking this item should take the user.
 
-    def get_navigate_url(self, instance, request):
-        """Get the link where clicking this item should take the user."""
-        target = self.get_navigate_target(instance)
+        By default, navigate to "show" view of the resource.
+
+        :parma view_name: Override class's ``navigate_view_name``.
+        """
+
+        target = self.get_navigate_target(resource)
+
         if not target:
             return None
+
+        view_name = view_name or self.navigate_view_name or "show"
+
         return request.resource_url(target)
 
 
@@ -93,12 +99,12 @@ class ControlsColumn(Column):
 
 class FriendlyTimeColumn(Column):
     """Print both accurate time and humanized relative time."""
-    def __init__(self, id, name, navigate_to=None, timezone=None, header_template=None, body_template="crud/column_body_friendly_time.html"):
+    def __init__(self, id, name, navigate_view_name=None, timezone=None, header_template=None, body_template="crud/column_body_friendly_time.html"):
 
         if timezone:
             self.timezone = timezone
 
-        super(FriendlyTimeColumn, self).__init__(id=id, name=name, navigate_to=navigate_to, header_template=header_template, body_template=body_template)
+        super(FriendlyTimeColumn, self).__init__(id=id, name=name, navigate_view_name=navigate_view_name, header_template=header_template, body_template=body_template)
 
 
 

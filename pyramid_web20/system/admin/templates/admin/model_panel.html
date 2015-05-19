@@ -8,11 +8,17 @@
 {% endblock panel_content %}
 
 {% block panel_buttons %}
-    <a id="btn-panel-list-{{ model_admin.id }}" class="btn btn-default btn-admin-list" href="{{ model_admin|model_url('listing') }}">
-        List
-    </a>
 
-    <a id="btn-panel-add-{{ model_admin.id }}" class="btn btn-default btn-admin-list" href="{{ model_admin|model_url('add') }}">
-        Add
-    </a>
+    {% if request.has_permission('view', context) %}
+        <a id="btn-panel-list-{{ model_admin.id }}" class="btn btn-default btn-admin-list" href="{{ model_admin|model_url('listing') }}">
+            List
+        </a>
+    {% endif %}
+
+
+    {% if request.has_permission('add', context) %}
+        <a id="btn-panel-add-{{ model_admin.id }}" class="btn btn-default btn-admin-list" href="{{ model_admin|model_url('add') }}">
+            Add
+        </a>
+    {% endif %} 
 {% endblock %}

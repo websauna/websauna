@@ -96,13 +96,16 @@ class Admin(traverse.Resource):
         model_admin = self.get_admin_for_model(model)
         return model_admin[obj.id]
 
-    def get_admin_object_url(self, request, obj):
+    def get_admin_object_url(self, request, obj, view_name=None):
         """Get URL for viewing the object in admin.
 
         *obj* must be a model instance which has a registered admin interfaec.
         """
         res = self.get_admin_resource(obj)
-        return request.resource_url(res)
+        if view_name:
+            return request.resource_url(res, view_name)
+        else:
+            return request.resource_url(res)
 
     def __getitem__(self, name):
 

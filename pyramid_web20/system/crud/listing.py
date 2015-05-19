@@ -18,12 +18,15 @@ class Column:
 
     navigate_view_name = None
 
+    #: Callback get_navigate_url(request, resource) to resolve the link where the item this column should point to
+    navigate_url_getter = None
+
     getter = None
 
     #: Arrow formatting string
     format = "MM/DD/YYYY HH:mm"
 
-    def __init__(self, id, name=None, renderer=None, header_template=None, body_template=None, getter=None, format=None, navigate_view_name=None):
+    def __init__(self, id, name=None, renderer=None, header_template=None, body_template=None, getter=None, format=None, navigate_view_name=None, navigate_url_getter=None):
         """
         :param id: Must match field id on the model
         :param name:
@@ -50,6 +53,9 @@ class Column:
         if navigate_view_name:
             self.navigate_view_name = navigate_view_name
 
+        if navigate_url_getter:
+            self.navigate_url_getter = navigate_url_getter
+
     def get_value(self, obj):
         """Extract value from the object for this column.
 
@@ -66,7 +72,7 @@ class Column:
         else:
             return val
 
-    def get_navigate_target(self, resource):
+    def get_navigate_target(self, resource, request):
         """Get URL where clicking the link in the listing should go.
 
         By default, navigate to "show" view of the resource.
@@ -78,10 +84,15 @@ class Column:
 
         By default, navigate to "show" view of the resource.
 
-        :parma view_name: Override class's ``navigate_view_name``.
+        TODO: Switch resource/request argument order.
+
+        :param view_name: Override class's ``navigate_view_name``.
         """
 
-        target = self.get_navigate_target(resource)
+        if self.navigate_url_getter:
+            return self.navigate_url_getter(request, resource)
+
+        target = self.get_navigate_target(resource, request)
 
         if not target:
             return None

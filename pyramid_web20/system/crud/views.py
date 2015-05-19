@@ -87,7 +87,9 @@ class Listing:
         # This is to support breadcrums with titled views
         current_view_name = title = self.get_title()
 
-        crud_buttons = dict(add=self.request.resource_url(self.context, "add"))
+        crud_buttons = {}
+        if self.request.has_permission(crud, "add"):
+            crud_buttons["add"] = self.request.resource_url(self.context, "add")
 
         # TODO: Paginate
 

@@ -163,6 +163,22 @@ def pyramid_testing(request, ini_settings):
 
     return {"registry": init.config.registry}
 
+
+@pytest.fixture()
+def pyramid_request(request, init):
+    """Get a gold of pyramid.testing.DummyRequest object."""
+    from pyramid import testing
+
+    testing.setUp(registry=init.config.registry)
+    def teardown():
+        testing.tearDown()
+
+    request.addfinalizer(teardown)
+
+    _request = testing.DummyRequest()
+    return _request
+
+
 #: Make sure py.test picks this up
 from pyramid_web20.tests.functional import web_server  # noqa
 from pyramid_web20.tests.functional import light_web_server  # noqa

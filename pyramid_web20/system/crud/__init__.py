@@ -78,6 +78,21 @@ class CRUD(traverse.Resource):
         """Load object from the database for CRUD path for view/edit/delete."""
         raise NotImplementedError("Please use concrete subclass like pyramid_web20.syste.crud.sqlalchemy")
 
+    def get_object_url(self, request, obj, view_name=None):
+        """Get URL for view for an object inside this CRUD.
+
+        ;param request: HTTP request instance
+
+        :param obj: Raw object, e.g. SQLAlchemy instance, which can be wrapped with ``wrap_to_resource``.
+
+        :param view_name: Traverse view name for the resource. E.g. ``show``, ``edit``.
+        """
+        res = self.wrap_to_resource(obj)
+        if view_name:
+            return request.resource_url(res, view_name)
+        else:
+            return request.resource_url(res)
+
 
 
 class CRUDResourcePart(traverse.Resource):

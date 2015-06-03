@@ -9,7 +9,9 @@
                 </div>
 
                 <div class="unfriendly-time">
-                    {{ column.get_value(obj)|datetime(format=column.format, target_timezone=column.timezone, locale="en_US", show_timezone=True) }}
+                    <small>
+                        {{ column.get_value(obj)|datetime(format=column.format, target_timezone=column.timezone, locale="en_US", show_timezone=True) }}
+                    </small>
                 </div>
 
             </a>
@@ -19,7 +21,9 @@
             </div>
 
             <div class="unfriendly-time">
-                {{ column.get_value(obj)|datetime(format=column.format, target_timezone=column.timezone, locale="en_US", show_timezone=True) }}
+                <small>
+                    {{ column.get_value(obj)|datetime(format=column.format, target_timezone=column.timezone, locale="en_US", show_timezone=True) }}
+                </small>
             </div>
         {% endif %}
     {% endwith %}

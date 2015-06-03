@@ -210,6 +210,25 @@ class Edit(FormView):
     def bind_schema(self, schema):
         return schema.bind(obj=self.context.get_object())
 
+    def do_success(self):
+        """Called after the save (objectify) has succeeded.
+
+        :return: HTTPResponse
+        """
+        messages.add(self.request, kind="success", msg="Changes saved.")
+
+        # Redirect back to view page after edit page has succeeded
+        return HTTPFound(self.request.resource_url(self.context, "show"))
+
+    def do_cancel(self):
+        """Called when user presses the cancel button.
+
+        :return: HTTPResponse
+        """
+
+        # Redirect back to view page after edit page has succeeded
+        return HTTPFound(self.request.resource_url(self.context, "show"))
+
     @view_config(context=sqlalchemy.Resource, name="edit", renderer="crud/edit.html", permission='edit')
     def edit(self):
         """View for showing an individual object."""
@@ -241,12 +260,7 @@ class Edit(FormView):
 
                 form.schema.objectify(appstruct, obj)
 
-                # We do not need to explicitly call save() or commit() as we are using Zope transaction manager
-
-                messages.add(self.request, kind="success", msg="Changes saved.")
-
-                # Redirect back to view page after edit page has succeeded
-                return HTTPFound(self.request.resource_url(self.context, "show"))
+                return self.do_success()
 
             except deform.ValidationFailure as e:
                 # Whoops, bad things happened, render form with validation errors
@@ -254,7 +268,7 @@ class Edit(FormView):
 
         elif "cancel" in self.request.POST:
             # User pressed cancel
-            return HTTPFound(self.request.resource_url(self.context, "show"))
+            return self.do_cancel()
         else:
             # Render initial form view with populated values
             appstruct = form.schema.dictify(obj)

@@ -5,36 +5,45 @@
         <h1>{{title}}</h1>
     {% endif %}
 
-    {% include "crud/crud_controls.html" %}
+    <div class="row">
+        <div class="col-md-12">
 
-    {% if not count %}
-        <p id="crud-listing-no-items" class="lead">
-            No items
-        </p>
-    {% else %}
+        {% include "crud/crud_controls.html" %}
 
-        <div id="crud-listing-count" class="text-muted pull-right">
-            Total {{count}} items
+        {% if not count %}
+            <p id="crud-listing-no-items" class="lead">
+                No items
+            </p>
+        {% else %}
+
+            <div id="crud-listing-count" class="text-muted pull-right">
+                Total {{count}} items
+            </div>
+        {% endif %}
         </div>
+    </div>
 
-        <table class="table listing listing-{{crud.id}}">
-            <thead>
-                {% for column in columns %}
-                    {%  include column.header_template %}
-                {% endfor %}
-            </thead>
+    {% if count %}
+        <div class="table-responsive">
+            <table class="table listing listing-{{crud.id}}">
+                <thead>
+                    {% for column in columns %}
+                        {%  include column.header_template %}
+                    {% endfor %}
+                </thead>
 
-            <tbody>
-                {% for obj in query %}
-                    <tr class="crud-row crud-row-{{ obj.id }}">
-                        {% with instance=crud.wrap_to_resource(obj) %}
-                            {% for column in columns  %}
-                                {% include column.body_template %}
-                            {% endfor %}
-                        {% endwith %}
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                <tbody>
+                    {% for obj in query %}
+                        <tr class="crud-row crud-row-{{ obj.id }}">
+                            {% with instance=crud.wrap_to_resource(obj) %}
+                                {% for column in columns  %}
+                                    {% include column.body_template %}
+                                {% endfor %}
+                            {% endwith %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     {% endif %}
 {% endblock crud_content %}

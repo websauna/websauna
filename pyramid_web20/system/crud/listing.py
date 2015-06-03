@@ -92,12 +92,15 @@ class Column:
         if self.navigate_url_getter:
             return self.navigate_url_getter(request, resource)
 
+        if not self.navigate_view_name:
+            return None
+
         target = self.get_navigate_target(resource, request)
 
         if not target:
             return None
 
-        view_name = view_name or self.navigate_view_name or "show"
+        view_name = view_name or self.navigate_view_name
 
         return request.resource_url(target)
 

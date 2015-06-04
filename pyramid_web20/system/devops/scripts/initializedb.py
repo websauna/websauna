@@ -1,5 +1,6 @@
 import os
 import sys
+from pyramid.paster import bootstrap
 
 from pyramid_web20.utils.configincluder import monkey_patch_paster_config_parser
 
@@ -24,6 +25,9 @@ def usage(argv):
 
 
 def main(argv=sys.argv):
+
+    monkey_patch_paster_config_parser()
+
     if len(argv) < 2:
         usage(argv)
     config_uri = argv[1]
@@ -31,15 +35,10 @@ def main(argv=sys.argv):
     setup_logging(config_uri)
 
     settings = get_appsettings(config_uri, options=options)
+    env = bootstrap(config_uri)
 
-    init = get_init(dict(__file__=config_uri), settings)
-
-    # secrets = init.read_secrets(settings)
-    # This must go first, as we need to make sure all models are attached to Base
-
-    init.run(settings)
-
-    Base.metadata.create_all(init.engine)
+    engine = DBSession.get_bind()
+    Base.metadata.create_all(engine)
 
 if __name__ == "__main__":
     main()

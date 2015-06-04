@@ -97,10 +97,8 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points={
         'console_scripts': [
-            'sample=sample:main',
-            'ws-sync-db=pyramid_web20.scripts.initializedb:main',
+            'ws-sync-db=pyramid_web20.system.devops.scripts.initializedb:main',
             'pyramid-web20-shell=pyramid_web20.scripts.pyramid_web20_shell:main',
-
         ],
 
         'paste.app_factory': [

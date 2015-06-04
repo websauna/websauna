@@ -229,7 +229,6 @@ class Initializer:
         :return: SQLEngine instance
         """
         settings = dictutil.combine(self.settings, settings)
-
         # http://stackoverflow.com/questions/14783505/encoding-error-with-sqlalchemy-and-postgresql
         engine = engine_from_config(settings, 'sqlalchemy.', connect_args={"options": "-c timezone=utc"},  client_encoding='utf8')
         models.DBSession.configure(bind=engine)
@@ -395,10 +394,10 @@ class Initializer:
 
         _secrets = secrets.read_ini_secrets(secrets_file)
         self.config.registry.registerUtility(_secrets, secrets.ISecrets)
-        return secrets
+        return _secrets
 
     def run(self, settings):
-        secrets = self.read_secrets(settings)
+        _secrets = self.read_secrets(settings)
 
         self.configure_logging(settings)
 
@@ -423,8 +422,8 @@ class Initializer:
         self.configure_panels(settings)
 
         # Sessions and users
-        self.configure_sessions(settings, secrets)
-        self.configure_user(settings, secrets)
+        self.configure_sessions(settings, _secrets)
+        self.configure_user(settings, _secrets)
         self.configure_user_admin(settings)
         self.configure_crud(settings)
 

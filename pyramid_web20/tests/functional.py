@@ -53,12 +53,8 @@ class ServerThread(threading.Thread):
 
 
 @pytest.fixture(scope='session')
-def web_server(request, ini_settings):
+def web_server(request, app):
     """Have a WSGI server for running functional tests."""
-
-    init = get_init(dict(__file__=ini_settings["_ini_file"]), ini_settings)
-    init.run(ini_settings)
-    app = init.make_wsgi_app()
 
     server = ServerThread(app)
     server.start()
@@ -82,22 +78,17 @@ def web_server(request, ini_settings):
 
 
 @pytest.fixture(scope='session')
-def light_web_server(request, ini_settings):
+def light_web_server(request, app):
     """Creates a test web server which does not give any CSS and JS assets to load.
 
     Because the server life-cycle is one test session and we run with different settings we need to run a in different port.
     """
 
-    ini_settings = ini_settings.copy()
-
-    ini_settings["pyramid_web20.testing_skip_css"] = True
-    ini_settings["pyramid_web20.testing_skip_js"] = True
-
-    init = get_init(dict(__file__=ini_settings["_ini_file"]), ini_settings)
-    init.run(ini_settings)
-    app = init.make_wsgi_app()
+    app.initializer.config.registry["pyramid_web20.testing_skip_css"] = True
+    app.initializer.config.registry["pyramid_web20.testing_skip_js"] = True
 
     host_base = "http://localhost:8522"
+
     server = ServerThread(app, host_base)
     server.start()
 

@@ -3,13 +3,13 @@
     <div id="crud-page-buttons" class="pull-right">
 
         {% if crud_buttons.add %}
-            <a class="btn btn-default" href="{{ crud_buttons.add }}">
+            <a id="btn-crud-add" class="btn btn-default" href="{{ crud_buttons.add }}">
                 Add
             </a>
         {% endif %}
 
         {% if crud_buttons.list %}
-            <a class="btn btn-default" href="{{ crud_buttons.list }}">
+            <a id="btn-crud-list" class="btn btn-default" href="{{ crud_buttons.list }}">
                 List
             </a>
         {% endif %}

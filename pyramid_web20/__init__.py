@@ -436,7 +436,10 @@ class Initializer:
         self.engine = self.configure_database(settings)
 
     def make_wsgi_app(self):
-        return self.config.make_wsgi_app()
+        app = self.config.make_wsgi_app()
+        # Carry the initializer around so we can access it in tests
+        app.initializer = self
+        return app
 
 
 def get_init(global_config, settings, init_cls=None):

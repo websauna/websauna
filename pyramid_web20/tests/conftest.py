@@ -14,7 +14,7 @@ import transaction
 from pyramid.paster import (
     get_appsettings,
     setup_logging,
-    )
+    bootstrap)
 
 from pyramid_web20 import get_init
 from pyramid_web20.models import DBSession
@@ -50,20 +50,32 @@ def test_case_ini_settings(request):
 
 
 @pytest.fixture(scope='session')
-def init(request, ini_settings):
-    """Load Pyramid web 2.0 Initializer, but do not run it."""
+def app(request, ini_settings):
+    """Initialize WSGI application from INI file given on the command line.
+
+    :return: WSGI application instance as created by ``Initializer.make_wsgi_app()``.
+    """
     if not getattr(request.config.option, "ini", None):
         raise RuntimeError("You need to give --ini test.ini command line option to py.test to find our test settings")
 
-    init = get_init(dict(__file__=ini_settings["_ini_file"]), ini_settings)
-    init.run(ini_settings)
-    return init
+    data = bootstrap(ini_settings["_ini_file"])
+    return data["app"]
 
 
 @pytest.fixture(scope='session')
-def sqlengine(request, init):
+def init(request, app):
+    """Backwards compatibility.
 
-    engine = init.engine
+    TODO: Remove this fixture, use app
+    """
+    return app.initializer
+
+
+
+@pytest.fixture(scope='session')
+def sqlengine(request, app):
+
+    engine = app.initializer.engine
 
     # Make sure we don't have any old data left from the last run
     Base.metadata.drop_all(engine)
@@ -99,7 +111,7 @@ def dbtransaction(request, sqlengine):
 
 
 @pytest.fixture()
-def dbsession(request, init):
+def dbsession(request, app):
     """Get a database session where we have initialized user models.
 
     Tables are purged after the run.
@@ -107,8 +119,8 @@ def dbsession(request, init):
     DBSession.close()
 
     with transaction.manager:
-        Base.metadata.drop_all(init.engine)
-        Base.metadata.create_all(init.engine)
+        Base.metadata.drop_all(app.initializer.engine)
+        Base.metadata.create_all(app.initializer.engine)
 
 
     def teardown():
@@ -116,7 +128,7 @@ def dbsession(request, init):
         # XXX: Fix this shit
 
         with transaction.manager:
-            Base.metadata.drop_all(init.engine)
+            Base.metadata.drop_all(app.initializer.engine)
 
         DBSession.close()
         pass

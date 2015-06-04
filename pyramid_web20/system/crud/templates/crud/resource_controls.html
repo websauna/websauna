@@ -2,19 +2,19 @@
 
     <div id="crud-page-buttons" class="pull-right">
         {% if resource_buttons.show %}
-            <a class="btn btn-default" href="{{ resource_buttons.show }}">
+            <a id="btn-crud-show" class="btn btn-default" href="{{ resource_buttons.show }}">
                 Show
             </a>
         {% endif %}
 
         {% if resource_buttons.edit %}
-            <a class="btn btn-default" href="{{ resource_buttons.edit }}">
+            <a id="btn-crud-edit" class="btn btn-default" href="{{ resource_buttons.edit }}">
                 Edit
             </a>
         {% endif %}
 
         {% if resource_buttons.delete %}
-            <a class="btn btn-default">
+            <a id="btn-crud-delete" class="btn btn-default">
                 Delete
             </a>
         {% endif %}

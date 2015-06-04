@@ -34,7 +34,7 @@ def main(argv=sys.argv):
     options = parse_vars(argv[2:])
     setup_logging(config_uri)
 
-    bootstrap(config_uri)
+    bootstrap(config_uri, options=dict(sanity_check=False))
 
     engine = DBSession.get_bind()
     Base.metadata.create_all(engine)

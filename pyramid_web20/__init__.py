@@ -458,10 +458,17 @@ class Initializer:
 
         app.initializer = self
 
+        if "sanity_check" in self.global_config:
+            # Command line scripts can override this when calling bootstrap()
+            sanity_check = self.global_config["sanity_check"]
+        else:
+            sanity_check = asbool(self.settings.get("pyramid_web20.sanity_check", True))
+
         if sanity_check:
             self.sanity_check()
 
         return app
+
 
 def get_init(global_config, settings, init_cls=None):
     """Get Initializer class instance for WSGI-like app.
@@ -504,8 +511,6 @@ def main(global_config, **settings):
     init = Initializer(global_config, settings)
     init.run(settings)
 
-    # Create application, skip sanity check if needed
-    sanity_check = asbool(settings.get("pyramid_web20.sanity_check", True))
-    wsgi_app = init.make_wsgi_app(sanity_check=sanity_check)
+    wsgi_app = init.make_wsgi_app()
 
     return wsgi_app

@@ -9,14 +9,11 @@ from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy import ForeignKey
 
 
-
-
-
 def setup_module(self):
     # Quiet log output for the tests
     import logging
     from pyramid_web20.system.model.sanitycheck import logger
-    #logger.setLevel(logging.FATAL)
+    logger.setLevel(logging.FATAL)
 
 
 def gen_test_model():

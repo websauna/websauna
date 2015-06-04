@@ -11,6 +11,8 @@ from pyramid.interfaces import IDebugLogger
 from pyramid.path import DottedNameResolver
 from pyramid_deform import configure_zpt_renderer
 from pyramid_web20.system.core import secrets
+from pyramid_web20.system.model import Base
+from pyramid_web20.system.model import DBSession
 from pyramid_web20.system.user.interfaces import IUserClass, IGroupClass
 from pyramid_web20.utils.configincluder import IncludeAwareConfigParser
 
@@ -22,9 +24,12 @@ from pyramid.settings import asbool
 
 from .utils import dictutil
 from . import models
-from .models import DBSession
 from .system.user import authomatic
 from .system.admin import Admin
+
+
+class SanityCheckFailed(Exception):
+    """Looks like the application has configuration which would fail to run."""
 
 
 class Initializer:
@@ -435,15 +440,33 @@ class Initializer:
         # This must go first, as we need to make sure all models are attached to Base
         self.engine = self.configure_database(settings)
 
-    def make_wsgi_app(self):
+    def sanity_check(self):
+        """Perform post-initialization sanity checks.
+        """
+        from pyramid_web20.system.model import sanitycheck
+        if not sanitycheck.is_sane_database(Base, DBSession):
+            raise SanityCheckFailed("The database sanity check failed. Check log for details.")
+
+    def make_wsgi_app(self, sanity_check=True):
+        """Create WSGI application from the current setup.
+
+        :param sanity_check: True if perform post-initialization sanity checks.
+        :return: WSGI application
+        """
         app = self.config.make_wsgi_app()
         # Carry the initializer around so we can access it in tests
-        app.initializer = self
-        return app
 
+        app.initializer = self
+
+        if sanity_check:
+            self.sanity_check()
+
+        return app
 
 def get_init(global_config, settings, init_cls=None):
     """Get Initializer class instance for WSGI-like app.
+
+    TODO: Deprecated. Use Pyramid's ``bootstrap()`` instead.
 
     Reads reference to the initializer from settings, resolves it and creates the initializer instance.
 
@@ -480,5 +503,9 @@ def main(global_config, **settings):
     settings = IncludeAwareConfigParser.retrofit_settings(global_config)
     init = Initializer(global_config, settings)
     init.run(settings)
-    wsgi_app = init.make_wsgi_app()
+
+    # Create application, skip sanity check if needed
+    sanity_check = asbool(settings.get("pyramid_web20.sanity_check", True))
+    wsgi_app = init.make_wsgi_app(sanity_check=sanity_check)
+
     return wsgi_app

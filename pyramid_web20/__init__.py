@@ -10,7 +10,7 @@ from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.interfaces import IDebugLogger
 from pyramid.path import DottedNameResolver
 from pyramid_deform import configure_zpt_renderer
-from pyramid_web20.system.core.secrets import read_init_secrets, ISecrets
+from pyramid_web20.system.core import secrets
 from pyramid_web20.system.user.interfaces import IUserClass, IGroupClass
 from pyramid_web20.utils.configincluder import IncludeAwareConfigParser
 
@@ -393,8 +393,8 @@ class Initializer:
         if not secrets_file:
             return {}
 
-        secrets = read_init_secrets(secrets_file)
-        self.config.registry.registerUtility(secrets, ISecrets)
+        _secrets = secrets.read_ini_secrets(secrets_file)
+        self.config.registry.registerUtility(_secrets, secrets.ISecrets)
         return secrets
 
     def run(self, settings):

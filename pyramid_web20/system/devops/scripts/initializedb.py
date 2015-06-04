@@ -34,7 +34,7 @@ def main(argv=sys.argv):
     options = parse_vars(argv[2:])
     setup_logging(config_uri)
 
-    settings = get_appsettings(config_uri, options=options)
+    # settings = get_appsettings(config_uri, options=options)
     env = bootstrap(config_uri)
 
     engine = DBSession.get_bind()

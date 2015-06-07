@@ -98,7 +98,8 @@ setup(
     entry_points={
         'console_scripts': [
             'ws-sync-db=pyramid_web20.system.devops.scripts.initializedb:main',
-            'pyramid-web20-shell=pyramid_web20.scripts.pyramid_web20_shell:main',
+            'ws-db-shell=pyramid_web20.system.devops.scripts.dbshell:main',
+            'ws-shell=pyramid_web20.scripts.pyramid_web20_shell:main',
         ],
 
         'paste.app_factory': [

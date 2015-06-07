@@ -239,6 +239,17 @@ class Initializer:
         models.DBSession.configure(bind=engine)
         return engine
 
+    def configure_instrumented_models(self, settings):
+        """Configure models from third party addons.
+
+        Third party addons might need references to configurable models which are not available at the import time. One of these models is user - you can supply your own user model. However third party addon models might want to build foreign key relationships to this model. Thus, ``configure_instrumented_models()`` is an initialization step which is called when database setup is half way there and you want to throw in some extra models in.
+        """
+
+        # Expose Pyramid configuration to classes
+        Base.metadata.pyramid_config = self.config
+
+
+
     def configure_error_views(self, settings):
 
         # Forbidden view overrides helpful auth debug error messages,
@@ -437,7 +448,7 @@ class Initializer:
         self.configure_admin_models(settings)
         self.configure_notebook(settings)
 
-        # This must go first, as we need to make sure all models are attached to Base
+        self.configure_instrumented_models(settings)
         self.engine = self.configure_database(settings)
 
     def sanity_check(self):

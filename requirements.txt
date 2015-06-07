@@ -3,7 +3,7 @@ psycopg2==2.6
 jsonpointer==1.7
 iso8601==0.1.10
 redis==2.10.3
-sq
+pgcli==0.17.0
 
 # Sessions
 pyramid-redis-sessions==1.0.1

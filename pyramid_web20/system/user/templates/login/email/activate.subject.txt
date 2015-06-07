@@ -1,1 +1,2 @@
-{{site_email_prefix}} Please verify your email
+{% extends "email/base_subject.txt" %}
+{% block subject %}Please verify your email{% endblock %}

@@ -17,11 +17,15 @@ from pyramid_web20.utils.panel import render_panel
 
 @view_config(route_name='admin_home', renderer='admin/admin.html', permission='view')
 def admin(request):
+    """Admin front page page."""
 
     admin = Admin.get_admin(request.registry)
     url = request.resource_url(admin)
 
-    model_admins =  admin.model_admins.values()
+    model_admins = admin.model_admins.values()
+
+    # For now, admin panels always appear in ascending order
+    model_admins = sorted(model_admins, key=lambda obj: obj.title)
 
     # TODO: Have renderer adapters for panels, so that they can override views
     rendered_panels = [render_panel(ma, request, name="admin_panel") for ma in model_admins]
@@ -31,6 +35,10 @@ def admin(request):
 
 @panel_config(name='admin_panel', context=ModelAdmin, renderer='admin/model_panel.html')
 def default_model_admin_panel(context, request):
+    """Generic panel for any model admin.
+
+    Display count of items in the database.
+    """
     model_admin = context
     count = model_admin.get_query().count()
     admin = model_admin.__parent__

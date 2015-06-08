@@ -33,6 +33,7 @@ class Column:
         :param renderer:
         :param header_template:
         :param body_template:
+        :param navigate_url_getter: callback(request, resource) to generate the target URL if the contents of this cell is clicked
         :param navigate_view_name: If set, make this column clickable and navigates to the traversed name. Options are "show", "edit", "delete"
         :return:
         """
@@ -107,7 +108,7 @@ class Column:
 
 class ControlsColumn(Column):
     """Render View / Edit / Delete buttons."""
-    def __init__(self, id="controls", name="View / Edit", header_template="crud/column_header_controls.html", body_template="crud/column_body_controls.html"):
+    def __init__(self, id="controls", name="Actions", header_template="crud/column_header_controls.html", body_template="crud/column_body_controls.html"):
         super(ControlsColumn, self).__init__(id=id, name=name, header_template=header_template, body_template=body_template)
 
 

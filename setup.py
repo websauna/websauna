@@ -100,6 +100,7 @@ setup(
             'ws-sync-db=pyramid_web20.system.devops.scripts.initializedb:main',
             'ws-db-shell=pyramid_web20.system.devops.scripts.dbshell:main',
             'ws-shell=pyramid_web20.scripts.pyramid_web20_shell:main',
+            'ws-tweens=pyramid_web20.system.devops.scripts.tweens:main',
         ],
 
         'paste.app_factory': [

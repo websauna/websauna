@@ -74,5 +74,28 @@ Example output::
     | review_data | jsonb                    |                                                     | extended  |         <null> |        <null> |
     +-------------+--------------------------+-----------------------------------------------------+-----------+----------------+---------------+
 
+ws-tweens
+---------
+
+Display Pyramid tween stack.
+
+Example::
+
+    ws-tweens development.ini
+
+Example output::
+
+    "pyramid.tweens" config value NOT set (implicitly ordered tweens used)
+
+    Implicit Tween Chain
+
+    Position    Name
+    --------    ----
+    -           INGRESS
+    0           pyramid_debugtoolbar.toolbar_tween_factory
+    1           pyramid.tweens.excview_tween_factory
+    2           pyramid_tm.tm_tween_factory
+    3           websauna.referral.tweens.ReferralCookieTweenFactory
+    -           MAIN
 
 

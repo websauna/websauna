@@ -235,6 +235,8 @@ class RegisterController(horus_views.RegisterController):
         if self.require_activation:
             self.mailer = get_mailer(request)
 
+        self.login_after_activation = asbool(self.settings.get('horus.login_after_activation', False))
+
     def waiting_for_activation(self, user):
         return render_to_response('login/waiting_for_activation.html', {"user": user}, request=self.request)
 
@@ -298,9 +300,11 @@ class RegisterController(horus_views.RegisterController):
                 # self.db.add(user)  # not necessary
                 self.db.flush()
 
-                self.request.registry.notify(
-                    RegistrationActivatedEvent(self.request, user, activation))
-                return HTTPFound(location=self.after_activate_url)
+                if self.login_after_activation:
+                    return authenticated(self.request, user)
+                else:
+                    self.request.registry.notify(RegistrationActivatedEvent(self.request, user, activation))
+                    return HTTPFound(location=self.after_activate_url)
         return HTTPNotFound()
 
 

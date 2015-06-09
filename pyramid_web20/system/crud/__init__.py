@@ -94,19 +94,6 @@ class CRUD(traverse.Resource):
             return request.resource_url(res)
 
 
-
-class CRUDResourcePart(traverse.Resource):
-    """A resource part of CRUD traversing."""
-
-    template = None
-
-    def get_crud(self):
-        return self.__parent__
-
-    def get_model(self):
-        return self.__parent__.get_model()
-
-
 class Resource(traverse.Resource):
     """Maps an object under CRUD view/edit/delete control to traverse path.
 

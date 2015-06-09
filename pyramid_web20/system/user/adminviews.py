@@ -26,7 +26,7 @@ def default_model_admin_panel(context, request):
 
     title = model_admin.title
     count = DBSession.query(model).count()
-    latest_user = DBSession.query(model).order_by(model.activated_at.desc()).first()
+    latest_user = DBSession.query(model).order_by(model.id.desc()).first()
     latest_user_url = request.resource_url(admin.get_admin_resource(latest_user))
 
     return locals()

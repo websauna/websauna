@@ -458,6 +458,21 @@ class Initializer:
         if not sanitycheck.is_sane_database(Base, DBSession):
             raise SanityCheckFailed("The database sanity check failed. Check log for details.")
 
+    def wrap_wsgi_app(self, app):
+        """Perform any necessary WSGI application wrapping.
+
+        Wrap WSGI application to another WSGI application e.g. for the monitoring support. By default support New Relic.
+        """
+
+        if "NEW_RELIC_CONFIG_FILE" in os.environ:
+            # Wrap for New Relic
+            import newrelic.agent
+            return newrelic.agent.wsgi_application()(wsgi.application)
+
+        return app
+
+
+
     def make_wsgi_app(self, sanity_check=True):
         """Create WSGI application from the current setup.
 
@@ -477,6 +492,9 @@ class Initializer:
 
         if sanity_check:
             self.sanity_check()
+
+
+        app = self.wrap_wsgi_app(app)
 
         return app
 

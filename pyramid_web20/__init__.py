@@ -466,6 +466,7 @@ class Initializer:
 
         if "NEW_RELIC_CONFIG_FILE" in os.environ:
             # Wrap for New Relic
+            # libgcc_s.so.1 must be installed for pthread_cancel to work
             import newrelic.agent
             return newrelic.agent.wsgi_application()(app)
 

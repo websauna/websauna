@@ -16,6 +16,23 @@ def internal_server_error(context, request):
     # Here we have a hardcoded support for Sentry exception logging and pyramid_raven package
     # https://github.com/thruflo/pyramid_raven
     if hasattr(request, "raven"):
+
+        user = getattr(request, "user", None)
+        user_context = {}
+        if user:
+
+            # Add additional user context to the logged exception
+            username = getattr(user, "friendly_name", None) or getattr(user, "username", None) or str(user)
+            email = getattr(user, "email", None)
+            user_context.update(dict(user=username, email=email))
+
+        # All the session data
+        session = getattr(request, "session", None)
+        if session:
+            session = dict(session.items())
+            user_context.update(dict(session=session))
+
+        request.raven.user_context(user_context)
         request.raven.captureException()
 
     logger.exception(context)

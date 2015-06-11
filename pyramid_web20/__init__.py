@@ -467,11 +467,9 @@ class Initializer:
         if "NEW_RELIC_CONFIG_FILE" in os.environ:
             # Wrap for New Relic
             import newrelic.agent
-            return newrelic.agent.wsgi_application()(wsgi.application)
+            return newrelic.agent.wsgi_application()(app)
 
         return app
-
-
 
     def make_wsgi_app(self, sanity_check=True):
         """Create WSGI application from the current setup.

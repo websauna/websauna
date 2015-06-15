@@ -20,7 +20,7 @@ def notfound(request):
     else:
         username = "<anomymous>"
 
-    logger.error("404 Not Found. URL:%s user:%s ", request.url, username)
+    logger.error("404 Not Found. user:%s URL:%s referrer:%s", request.url, username, request.referrer)
 
     # Make sure 404 page does not have any status information, as it is often overlooked special case for caching and we don't want to cache user information
     request.user = None

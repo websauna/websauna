@@ -59,7 +59,7 @@ class CRUD(traverse.Resource):
         instance.make_lineage(self, instance, path)
         return instance
 
-    def traverse_to_object(self, id):
+    def traverse_to_object(self, path):
         """Wraps object to a traversable URL.
 
         Loads raw database object with id and puts it inside ``Instance`` object,
@@ -67,6 +67,7 @@ class CRUD(traverse.Resource):
         """
 
         # First try if we get an view for the current instance with the name
+        id = self.mapper.get_id_from_path(path)
         obj = self.fetch_object(id)
         return self.wrap_to_resource(obj)
 
@@ -90,10 +91,10 @@ class CRUD(traverse.Resource):
         else:
             return request.resource_url(res)
 
-    def __getitem__(self, id):
+    def __getitem__(self, path):
 
-        if self.mapper.is_id(id):
-            return self.traverse_to_object(id)
+        if self.mapper.is_id(path):
+            return self.traverse_to_object(path)
         else:
             # Signal that this id is not part of the CRUD database and may be a view
             raise KeyError

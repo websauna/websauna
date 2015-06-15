@@ -1,14 +1,18 @@
 """Map URL traversing ids to database ids and vice versa."""
+import abc
+
 from pyramid_web20.utils import slug
 
 
-class Mapper:
+class Mapper(abc.ABC):
     """Define mapping interface used by CRUD subsystem."""
 
+    @abc.abstractmethod
     def get_path_from_object(self, obj):
         """Map database object to an travesable URL path."""
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def get_id_from_path(self, path):
         """Map traversable resource name to an database object id."""
         raise NotImplementedError()
@@ -47,7 +51,6 @@ class IdMapper(Mapper):
             self.is_id = is_id
 
     def get_path_from_object(self, obj):
-        """Map database object to an travesable URL path."""
         return self.transform_to_path(getattr(obj, self.mapping_attribute))
 
     def get_id_from_path(self, path):
@@ -61,10 +64,20 @@ class Base64UUIDMapper(IdMapper):
     mapping_attribute = "uuid"
 
     #: Use utils.slug package to produce B64 strings from UUIDs
-    transform_to_id = slug.uuid_to_slug
+    transform_to_id = staticmethod(slug.slug_to_uuid)
 
     #: Use utils.slug package to produce B64 strings from UUIDs
-    transform_to_path = slug.slug_to_uuid
+    transform_to_path = staticmethod(slug.uuid_to_slug)
 
-    #: We cannot validate beforehand if a string is valid UUID object id or not, we always resolve to a database lookup
-    is_id = lambda x: True
+    @staticmethod
+    def is_id(val):
+        """Try guess if the value is valid base64 UUID slug or not.
+
+        Note that some view names can be valid UUID slugs, thus we might hit database in any case for the view lookup.
+        """
+        try:
+            slug.slug_to_uuid(val)
+            return True
+        except ValueError:
+            # bytes is not 16-char string
+            return False

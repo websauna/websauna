@@ -89,12 +89,12 @@ class Admin(traverse.Resource):
         :param obj: SQLAlchemy model instance
         """
 
-        assert obj.id
-        assert type(obj.id) == int, "Got bad object: {}".str(obj)
 
         model = obj.__class__
         model_admin = self.get_admin_for_model(model)
-        return model_admin[obj.id]
+
+        path = model_admin.mapper.get_path_from_object(obj)
+        return model_admin[path]
 
     def get_admin_object_url(self, request, obj, view_name=None):
         """Get URL for viewing the object in admin.

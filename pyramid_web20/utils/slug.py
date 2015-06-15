@@ -26,3 +26,8 @@ def slug_to_uuid(slug):
     bytes = (slug + '==').replace('_', '/').replace("-", "+")
     bytes = base64.b64decode(bytes)
     return uuid.UUID(bytes=bytes)
+
+
+def is_b64_slug(str):
+    """Check if string looks like a base64 slug."""
+

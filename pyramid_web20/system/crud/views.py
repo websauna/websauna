@@ -56,9 +56,11 @@ class Listing:
         return query.count()
 
     def order_query(self, query):
+        """Sort the query."""
         return query
 
     def get_title(self):
+        """Get the user-readable name of the listing view (breadcrumbs, etc.)"""
         return "All {}".format(self.get_crud().plural_name)
 
     @view_config(context=sqlalchemy.CRUD, name="listing", renderer="crud/listing.html", permission='view')

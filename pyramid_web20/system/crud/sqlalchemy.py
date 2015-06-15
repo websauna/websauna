@@ -14,13 +14,9 @@ class Resource(_Resource):
         """Title on show / edit / delete pages."""
         return "{} #{}".format(self.__parent__.title, self.obj.id)
 
-    def get_id(self):
-        return self.obj.id
-
 
 class CRUD(_CRUD):
     """CRUD controller utilizing admin interface permissions and templates."""
-
 
     def __init__(self, model):
         super(CRUD, self).__init__()
@@ -38,7 +34,7 @@ class CRUD(_CRUD):
         return DBSession.query(model)
 
     def fetch_object(self, id):
-        """Pull a raw SQLAlchemy object from the database.
+        """Pull a raw object from the database.
 
         Use the ``get_query()`` to get the query base and then return the object with matching id.
 
@@ -46,15 +42,14 @@ class CRUD(_CRUD):
         """
         model = self.get_model()
 
-        try:
-            id = int(id)
-        except ValueError:
-            # For now, we assume that all object travesing ids are integer primary keys.
-            # Subclass may want to change this behavior e.g. to have UUID traversing.
-            raise KeyError("Cannot traverse {}".format(id))
+        column_name = self.mapper.mapping_attribute
 
-        obj = self.get_query().filter_by(id=id).first()
+        column_instance = getattr(model, column_name, None)
+        assert column_instance, "Model {} does not define column/attribute {} used for CRUD resource traversing".format(self.model, column_name)
+
+        obj = self.get_query().filter(column_instance==id).first()
         if not obj:
-            raise KeyError("Object id {} was not found for model {}".format(id, model))
+            raise KeyError("Object id {} was not found for CRUD {} using model {}".format(id, self, model))
 
         return obj
+

@@ -11,6 +11,7 @@ class StdoutMailer(object):
 
     Used by the development server.
     """
+
     def __init__(self):
         pass
 

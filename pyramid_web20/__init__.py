@@ -248,8 +248,6 @@ class Initializer:
         # Expose Pyramid configuration to classes
         Base.metadata.pyramid_config = self.config
 
-
-
     def configure_error_views(self, settings):
 
         # Forbidden view overrides helpful auth debug error messages,

@@ -40,7 +40,7 @@ def main(argv=sys.argv):
     setup_logging(config_uri)
 
     settings = get_appsettings(config_uri, options=options)
-    env = bootstrap(config_uri)
+    env = bootstrap(config_uri, options=dict(sanity_check=False))
 
     imported_objects = OrderedDict()
     imported_objects.update(env)

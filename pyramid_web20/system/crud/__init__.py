@@ -55,7 +55,6 @@ class CRUD(traverse.Resource):
 
         path = self.mapper.get_path_from_object(obj)
         assert type(path) == str, "Object {} did not map to URL path correctly, got path {}".format(obj, path)
-        print(instance, path)
         instance.make_lineage(self, instance, path)
         return instance
 

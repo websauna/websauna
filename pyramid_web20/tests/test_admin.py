@@ -1,6 +1,6 @@
 import transaction
 
-from pyramid_web20.models import DBSession
+from pyramid_web20.system.model import DBSession
 from pyramid_web20.system.user.usermixin import init_empty_site
 
 EMAIL = "example@example.com"

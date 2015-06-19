@@ -2,7 +2,7 @@ import transaction
 
 from pyramid_web20.tests.utils import create_logged_in_user
 from pyramid_web20.tests.utils import get_user
-from pyramid_web20.models import DBSession
+from pyramid_web20.system.model import DBSession
 
 
 GROUP_NAME = "Sample Group"

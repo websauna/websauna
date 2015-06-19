@@ -1,7 +1,7 @@
 from . import CRUD as _CRUD
 from . import Resource as _Resource
 
-from pyramid_web20.models import DBSession
+from pyramid_web20.system.model import DBSession
 
 
 class Resource(_Resource):

@@ -18,7 +18,7 @@ from jinja2 import Markup
 from arrow import Arrow
 
 from pyramid_web20.utils import html
-from pyramid_web20.models import now
+from pyramid_web20.system.model import now
 
 
 def includeme(config):

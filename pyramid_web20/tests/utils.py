@@ -1,7 +1,7 @@
 import os
 from decimal import Decimal
-from pyramid_web20.models import now
-from pyramid_web20.models import DBSession
+from pyramid_web20.system.model import now
+from pyramid_web20.system.model import DBSession
 
 from pyramid_web20.system.user.usermixin import check_empty_site_init
 

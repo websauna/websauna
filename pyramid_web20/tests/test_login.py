@@ -1,6 +1,6 @@
 import transaction
 
-from pyramid_web20.models import DBSession
+from pyramid_web20.system.model import DBSession
 
 from pyramid_web20.tests.utils import create_user
 from pyramid_web20.tests.utils import EMAIL

@@ -11,7 +11,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 
 from sqlalchemy import engine_from_config
 
-from pyramid_web20.models import DBSession
+from pyramid_web20.system.model import DBSession
 from pyramid_web20.utils.jsonb import BadJSONData
 from pyramid_web20.utils.jsonb import BadStoredData
 from pyramid_web20.utils.jsonb import JSONBProperty

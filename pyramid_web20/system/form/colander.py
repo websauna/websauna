@@ -158,6 +158,8 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
         column = prop.columns[0]
         typedecorator_overrides = getattr(column.type,
                                           self.ca_class_key, {}).copy()
+        print("colanderalchemy ", prop, typedecorator_overrides)
+
         declarative_overrides = column.info.get(self.sqla_info_key, {}).copy()
         self.declarative_overrides[name] = declarative_overrides.copy()
 

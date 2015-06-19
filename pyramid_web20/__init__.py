@@ -332,11 +332,19 @@ class Initializer:
         # self.configure_horus(settings)
         pass
 
+    def configure_forms(self, settings):
+
+        # Add custom SQLAlchemy <-> Deform type mapping
+        # Importing is enough to trigger SQLAlchemy override
+        from pyramid_web20.system.form import types
+
     def configure_crud(self, settings):
         """CRUD templates and views."""
 
+        # Add our template to search path
         self.config.add_jinja2_search_path('pyramid_web20.system.crud:templates', name='.html')
         self.config.add_jinja2_search_path('pyramid_web20.system.crud:templates', name='.txt')
+
 
         from pyramid_web20.system.crud import views
         self.config.scan(views)
@@ -417,6 +425,7 @@ class Initializer:
 
         self.preconfigure_user(settings)
         self.preconfigure_admin(settings)
+        self.configure_forms(settings)
 
         # Serving
         self.configure_templates()
@@ -434,6 +443,7 @@ class Initializer:
         self.configure_error_views(settings)
         self.configure_views(settings)
         self.configure_panels(settings)
+
 
         # Sessions and users
         self.configure_sessions(settings, _secrets)

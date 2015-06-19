@@ -9,7 +9,7 @@ Avoid importing this module directly. Instead use:
 from horus import models as horus_models
 
 from . import usermixin
-from pyramid_web20.models import Base
+from pyramid_web20.system.model import Base
 
 #: TODO: How to handle the fact that Horus requires custom declarative base?
 # Base = declarative_base(cls=horus_models.BaseModel)

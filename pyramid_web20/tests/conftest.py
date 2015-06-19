@@ -17,8 +17,8 @@ from pyramid.paster import (
     bootstrap)
 
 from pyramid_web20 import get_init
-from pyramid_web20.models import DBSession
-from pyramid_web20.models import Base
+from pyramid_web20.system.model import DBSession
+from pyramid_web20.system.model import Base
 
 
 @pytest.fixture(scope='session')

@@ -4,7 +4,7 @@ from pyramid_web20.system import admin
 from pyramid_web20.system import crud
 from pyramid_web20.system.crud import sqlalchemy as sqlalchemy_crud
 
-from pyramid_web20.models import DBSession
+from pyramid_web20.system.model import DBSession
 
 
 

@@ -14,9 +14,9 @@ from sqlalchemy.ext.mutable import MutableDict
 
 import colander
 
-from pyramid_web20.models import now
-from pyramid_web20.models import utc
-from pyramid_web20.models import DBSession
+from pyramid_web20.system.model import now
+from pyramid_web20.system.model import utc
+from pyramid_web20.system.model import DBSession
 from pyramid_web20.utils.jsonb import JSONBProperty
 
 
@@ -83,7 +83,11 @@ class UserMixin:
     last_login_at = Column(DateTime(timezone=utc), nullable=True)
 
     #: From which IP address did this user log in from. If this IP is null the user has never logged in (only activation email sent). Information stored for the security audits. It is also useful for identifying the source country of users e.g. for localized versions.
-    last_login_ip = Column(INET, nullable=True)
+    last_login_ip = Column(INET, nullable=True,
+              info={'colanderalchemy': {
+                        'typ': colander.String(),
+                    }},
+            )
 
     #: When this user changed the password for the last time. The value is null if the user comes from social networks. Information stored for the security audits.
     last_password_change_at = Column(DateTime, nullable=True)

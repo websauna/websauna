@@ -13,8 +13,8 @@ from pyramid.paster import (
 
 from pyramid.scripts.common import parse_vars
 from pyramid_web20 import get_init
-from pyramid_web20.models import DBSession
-from pyramid_web20.models import Base
+from pyramid_web20.system.model import DBSession
+from pyramid_web20.system.model import Base
 
 
 def usage(argv):

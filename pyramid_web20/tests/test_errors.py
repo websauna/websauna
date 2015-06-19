@@ -1,6 +1,6 @@
 import transaction
 
-from pyramid_web20.models import DBSession
+from pyramid_web20.system.model import DBSession
 
 
 def test_internal_server_error(web_server, browser):

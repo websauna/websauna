@@ -3,7 +3,7 @@ import os
 from pyramid.threadlocal import get_current_registry
 from pyramid_web20 import get_init
 from pyramid_web20.system.core.secrets import get_secrets
-from pyramid_web20.system.devops.backup import backup_site
+from pyramid_web20.system.devop.backup import backup_site
 from pyramid import testing
 
 from tempfile import NamedTemporaryFile

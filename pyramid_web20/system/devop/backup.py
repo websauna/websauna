@@ -25,7 +25,7 @@ def backup_site():
 
     Run backup from the command line::
 
-        echo "from pyramid_web20.system.devops import backup ; backup.backup_site()" | pyramid-web20-shell development.ini
+        echo "from pyramid_web20.system.devop import backup ; backup.backup_site()" | pyramid-web20-shell development.ini
 
     Note that the output is buffered, so there might not be instant feedback.
     """

@@ -102,4 +102,4 @@ Example output::
 Advanced
 --------
 
-Command line commands are registered in ``setup.py`` and scripts reside in :py:mod:`pyramid_web20.system.devops.scripts`.
+Command line commands are registered in ``setup.py`` and scripts reside in :py:mod:`pyramid_web20.system.devop.scripts`.

@@ -390,7 +390,7 @@ class Initializer:
         """Scan all Python modules with asynchoronou sna dperiodic tasks to be imported."""
 
         # Importing the task is enough to add it to Celerybeat working list
-        from pyramid_web20.system.devops import tasks  # noqa
+        from pyramid_web20.system.devop import tasks  # noqa
 
 
     def configure_scheduler(self, settings):

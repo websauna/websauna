@@ -1,11 +1,13 @@
+from pyramid_web20.system.model import DBSession
+
 EMAIL = "example@example.com"
 PASSWORD = "ToholamppiMadCowz585"
 
 
 def get_user():
     from pyramid_web20.system.user.models import User
-    from pyramid_web20 import models
-    return models.DBSession.query(User).get(1)
+
+    return DBSession.query(User).get(1)
 
 
 def test_register_email(web_server, browser, dbsession):

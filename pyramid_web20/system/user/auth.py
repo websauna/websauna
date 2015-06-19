@@ -1,9 +1,8 @@
 """The user authentication."""
 from pyramid.settings import aslist
 
-from pyramid_web20 import models
-
 from pyramid.security import unauthenticated_userid
+from pyramid_web20.system.model import DBSession
 
 
 def get_user(request):
@@ -31,7 +30,7 @@ def find_groups(userid, request):
     # Read superuser names from the config
     superusers = aslist(request.registry.settings.get("pyramid_web20.superusers"))
 
-    user = models.DBSession.query(user_class).get(userid)
+    user = DBSession.query(user_class).get(userid)
     if user:
         if user.can_login():
             principals = ['group:{}'.format(g.name) for g in user.groups]

@@ -23,9 +23,7 @@ from pyramid.settings import aslist
 from pyramid.settings import asbool
 
 from .utils import dictutil
-from . import models
-from .system.user import authomatic
-from .system.admin import Admin
+
 
 
 class SanityCheckFailed(Exception):
@@ -196,6 +194,8 @@ class Initializer:
 
         Read consumer secrets from a secrets.ini.
         """
+        from .system.user import authomatic
+
         self.config.add_route('login_social', '/login/{provider_name}')
 
         social_logins = aslist(settings.get("pyramid_web20.social_logins", ""))
@@ -233,10 +233,12 @@ class Initializer:
 
         :return: SQLEngine instance
         """
+        from pyramid_web20.system.model import DBSession
+
         settings = dictutil.combine(self.settings, settings)
         # http://stackoverflow.com/questions/14783505/encoding-error-with-sqlalchemy-and-postgresql
         engine = engine_from_config(settings, 'sqlalchemy.', connect_args={"options": "-c timezone=utc"},  client_encoding='utf8')
-        models.DBSession.configure(bind=engine)
+        DBSession.configure(bind=engine)
         return engine
 
     def configure_instrumented_models(self, settings):
@@ -305,6 +307,7 @@ class Initializer:
 
     def preconfigure_admin(self, settings):
         # Register admin root object
+        from .system.admin import Admin
         _admin = Admin()
         self.config.registry.settings["pyramid_web20.admin"] = _admin
 
@@ -370,6 +373,7 @@ class Initializer:
     def configure_user_admin(self, settings):
         import pyramid_web20.system.user.admin
         import pyramid_web20.system.user.adminviews
+        from pyramid_web20.system.admin import Admin
 
         admin = Admin.get_admin(self.config.registry)
         admin.scan(self.config, pyramid_web20.system.user.admin)

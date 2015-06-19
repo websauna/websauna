@@ -1,7 +1,5 @@
 import datetime
-import transaction
-
-from horus.views import BaseController
+from pyramid_web20.system.model import now, DBSession
 
 from pyramid.view import view_config
 from pyramid.url import route_url
@@ -52,7 +50,7 @@ from horus.views import get_config_route
 from authomatic.adapters import WebObAdapter
 
 from pyramid_web20.system.mail import send_templated_mail
-from pyramid_web20 import models
+
 from . import authomatic
 from . import usermixin
 from . import events
@@ -63,7 +61,7 @@ class NotSatisfiedWithData(Exception):
 
 def init_user(request, user):
     """Checks to perform when the user becomes a valid user for the first tim.e"""
-    user.activated_at = models.now()
+    user.activated_at = now()
     user.first_login = False
     usermixin.check_empty_site_init(user)
 
@@ -163,7 +161,7 @@ def get_or_create_user_by_social_medial_email(request, provider, email, social_d
     registry = request.registry
     User = registry.queryUtility(IUserClass)
 
-    session = models.DBSession
+    session = DBSession
 
     user = session.query(User).filter_by(email=email).first()
 
@@ -192,7 +190,7 @@ def capture_social_media_user(request, provider, result):
     """Extract social media information from the login in order to associate the user account."""
     assert not result.error
 
-    session = models.DBSession
+    session = DBSession
 
     if provider == "facebook":
         result.user.update()

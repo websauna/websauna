@@ -10,8 +10,7 @@ from pyramid_web20.tests.utils import PASSWORD
 
 def get_user():
     from pyramid_web20.system.user.models import User
-    from pyramid_web20 import models
-    return models.DBSession.query(User).get(1)
+    return DBSession.query(User).get(1)
 
 
 def test_login(web_server, browser, dbsession):

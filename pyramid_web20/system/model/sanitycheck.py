@@ -53,6 +53,8 @@ def is_sane_database(Base, session):
                     for column in column_prop.columns:
                         # Assume normal flat column
                         if not column.key in columns:
+
+                            # It is safe to stringify engine where as password should be blanked out by stars
                             logger.error("Model %s declares column %s which does not exist in database %s", klass, column.key, engine)
                             errors = True
         else:

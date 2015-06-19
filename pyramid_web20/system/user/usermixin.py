@@ -83,11 +83,7 @@ class UserMixin:
     last_login_at = Column(DateTime(timezone=utc), nullable=True)
 
     #: From which IP address did this user log in from. If this IP is null the user has never logged in (only activation email sent). Information stored for the security audits. It is also useful for identifying the source country of users e.g. for localized versions.
-    last_login_ip = Column(INET, nullable=True,
-              info={'colanderalchemy': {
-                        'typ': colander.String(),
-                    }},
-            )
+    last_login_ip = Column(INET, nullable=True)
 
     #: When this user changed the password for the last time. The value is null if the user comes from social networks. Information stored for the security audits.
     last_password_change_at = Column(DateTime, nullable=True)

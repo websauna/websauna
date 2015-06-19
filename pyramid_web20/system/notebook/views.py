@@ -9,12 +9,12 @@ from pyramid_web20.models import Base
 
 #: Include our database session in notebook so it is easy to query stuff right away from the prompt
 SCRIPT = """
-from pyramid_web20.models import DBSession as session
+from pyramid_web20.system.model import DBSession as DBSession
 """
 
 
 GREETING="""
-* **session** - SQLAlchemy database session
+* **DBSession** - SQLAlchemy database session
 """
 
 

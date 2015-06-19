@@ -1,3 +1,5 @@
+"""IPython shell prompt command: ws-shell"""
+
 import os
 import sys
 from pyramid_web20 import get_init

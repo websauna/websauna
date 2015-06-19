@@ -1,7 +1,7 @@
 A sample stack for Pyramid web framework aimed for building consumer and community websites.
 
 Goal
-=====
+====
 
 * Clone this repository and you get a running Pyramid website out of the box
 
@@ -10,7 +10,7 @@ Goal
 * Start extending the site in your own project step-by-step
 
 Benefits
-=========
+========
 
 * Running unit tests using PostgreSQL, optimized for speed
 
@@ -21,12 +21,12 @@ This is so-called *opionated* project where the authors have chosen best of thei
 Even if you are experienced developer this project may offer you some best practices you can copy-paste to your own projects.
 
 Stack
-=======
+=====
 
 Chosen set of components
 
 Backend
----------
+-------
 
 * Python 3.4
 
@@ -41,7 +41,7 @@ Backend
 * `Authomatic <http://peterhudec.github.io/authomatic/>`_ - Social log ins
 
 Frontend
-------------
+--------
 
 * Bootstrap (CDN distributed)
 
@@ -52,10 +52,10 @@ Frontend
 Actual tested component versions may be found in the continuous integration test suite.
 
 Installation
-==============
+============
 
 OSX set up
------------------------
+----------
 
 * Install git
 
@@ -93,15 +93,15 @@ Starting Python project
 Then navigate to `localhost:6543 <http://localhost:6543>`_ and you should see the front page.
 
 Setting up database
------------------------
+-------------------
 
 Usage
-======
+=====
 
 Starting the website.
 
-Customization and overriding defaulkts
-===========================================
+Customization and overriding defaults
+=====================================
 
 To override any parts in ``pyramid_web20`` you can do the following.
 
@@ -118,7 +118,7 @@ To override any parts in ``pyramid_web20`` you can do the following.
     python setup.py develop
 
 Chosen trade offs
-==================
+=================
 
 Pyramid web framework provides very flexible configuration, but not many defaults components to go with. Thus, the following trade offs have been made with ``pyramid_web20``. The main goal of the project is to offer something that works out of the box, not maximum flexibility. So convenience has been chosen over configurability. To override any of these trade offs you might wish to simply fork this project or suggest something clever, so that the project still runs out of the box without going through too many hoops and loops.
 
@@ -133,7 +133,7 @@ Pyramid web framework provides very flexible configuration, but not many default
 * Test runner is fixed to ``py.test``.
 
 Inspiration
-============
+===========
 
 * https://gist.github.com/inklesspen/4504383
 

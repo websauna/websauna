@@ -110,7 +110,7 @@ Example::
 
 .. note ::
 
-    Using ws-sync-db is command is not recommended outside testing and prototyping. To have repeatable changes to your databases, use ws-alembic command instead.
+    Using ws-sync-db is command is not recommended outside testing and prototyping. If you edit your models ws-sync-db doesn't know what to do and you need to drop your tables and data and start over. To have repeatable changes to your databases, use ws-alembic command instead.
 
 Advanced
 --------

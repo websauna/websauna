@@ -6,20 +6,16 @@ from websauna.utils.configincluder import monkey_patch_paster_config_parser
 
 monkey_patch_paster_config_parser()
 
-from pyramid.paster import (
-    get_appsettings,
-    setup_logging,
-    )
+from pyramid.paster import setup_logging
 
 from pyramid.scripts.common import parse_vars
-from websauna.system import get_init
 from websauna.system.model import DBSession
 from websauna.system.model import Base
 
 
 def usage(argv):
     cmd = os.path.basename(argv[0])
-    print('usage: %s <config_uri> [var=value]\n'
+    print('usage: %s <config_uri> [ARG1, ARG2...] \n'
           '(example: "%s development.ini")' % (cmd, cmd))
     sys.exit(1)
 

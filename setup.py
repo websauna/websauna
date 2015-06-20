@@ -90,6 +90,7 @@ setup(
             'ws-shell=websauna.system.devop.scripts.shell:main',
             'ws-tweens=websauna.system.devop.scripts.tweens:main',
             'ws-alembic=websauna.system.devop.scripts.alembic:main',
+            'ws-dump-db=websauna.system.devop.scripts.dumpdb:main',
         ],
 
         'paste.app_factory': [

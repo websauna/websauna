@@ -2,14 +2,14 @@ venv
 build/
 dist/
 *.pyc
-pyramid_web20/__pycache__
+websauna/__pycache__
 *.egg
 *.egg-info
 *.log
 secrets.ini
 
 # Created by pytest-splinter for screenshots if not disabled by default
-pyramid_web20.tests.*
+websauna.tests.*
 node_modules
 *.sqlite
 avenv

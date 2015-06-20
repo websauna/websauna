@@ -1,13 +1,5 @@
-"""A setuptools based setup module.
-
-See:
-https://packaging.python.org/en/latest/distributing.html
-https://github.com/pypa/sampleproject
-"""
-
-# Always prefer setuptools over distutils
 from setuptools import setup, find_packages
-# To use a consistent encoding
+
 from codecs import open
 from os import path
 
@@ -18,12 +10,12 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='pyramid_web20',
+    name='websauna',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.0.0',
+    version='0.0',
 
     description=long_description.split()[0],
     long_description=long_description,
@@ -32,8 +24,8 @@ setup(
     url='https://github.com/pypa/sampleproject',
 
     # Author details
-    author='The Python Packaging Authority',
-    author_email='pypa-dev@googlegroups.com',
+    author='Mikko Ohtamaa',
+    author_email='mikko@opensourcehacker.com',
 
     # Choose your license
     license='MIT',
@@ -93,17 +85,17 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points={
         'console_scripts': [
-            'ws-sync-db=pyramid_web20.system.devop.scripts.initializedb:main',
-            'ws-db-shell=pyramid_web20.system.devop.scripts.dbshell:main',
-            'ws-shell=pyramid_web20.system.devop.scripts.shell:main',
-            'ws-tweens=pyramid_web20.system.devop.scripts.tweens:main',
+            'ws-sync-db=websauna.system.devop.scripts.initializedb:main',
+            'ws-db-shell=websauna.system.devop.scripts.dbshell:main',
+            'ws-shell=websauna.system.devop.scripts.shell:main',
+            'ws-tweens=websauna.system.devop.scripts.tweens:main',
         ],
 
         'paste.app_factory': [
-            'main=pyramid_web20:main',
+            'main=websauna.system:main',
 
             #: Scheduler integration test entry point
-            'scheduler_test=pyramid_web20.tests.test_scheduler:main',
+            'scheduler_test=websauna.tests.test_scheduler:main',
 
         ]
     },

@@ -36,7 +36,7 @@ Example::
 
 Then you can manipulate database directly using PostgreSQL commands. Example how to list tables::
 
-    pyramid_web20> \dt
+    websauna> \dt
 
 Example results::
 
@@ -102,4 +102,4 @@ Example output::
 Advanced
 --------
 
-Command line commands are registered in ``setup.py`` and scripts reside in :py:mod:`pyramid_web20.system.devop.scripts`.
+Command line commands are registered in ``setup.py`` and scripts reside in :py:mod:`websauna.system.devop.scripts`.

@@ -2,7 +2,7 @@
 Template variables
 ==================
 
-The following variables are available in the templates, as set by :py:mod:`pyramid_web20.system.core.templatecontext`.
+The following variables are available in the templates, as set by :py:mod:`websauna.system.core.templatecontext`.
 
 Other template context
 ======================

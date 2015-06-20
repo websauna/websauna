@@ -1,5 +1,5 @@
 ================================
-Developing pyramid_web20.core
+Developing websauna.core
 ================================
 
 .. contents:: :local:
@@ -15,7 +15,7 @@ Examples for running tests
 
 Running all tests silently using a headless test browser::
 
-    py.test pyramid_web20 --splinter-webdriver=phantomjs --splinter-make-screenshot-on-failure=false --ini=test.ini
+    py.test websauna --splinter-webdriver=phantomjs --splinter-make-screenshot-on-failure=false --ini=test.ini
 
 Running a single test case with pdb breakpoint support::
 
@@ -23,7 +23,7 @@ Running a single test case with pdb breakpoint support::
 
 Running functional tests with an alternative browser::
 
-    py.test --splinter-webdriver=firefox pyramid_web20/tests/test_frontpage.py --ini=test.ini
+    py.test --splinter-webdriver=firefox websauna/tests/test_frontpage.py --ini=test.ini
 
 More info
 

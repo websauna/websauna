@@ -63,7 +63,7 @@ OSX set up
 
 * Create database::
 
-    createdb pyramid_web20
+    createdb websauna
 
 * Initialize database tables::
 
@@ -79,7 +79,7 @@ Starting Python project
 
 * Create virtualenv::
 
-    cd pyramid_web20
+    cd websauna
     virtualenv venv
 
 * Install Python packages::
@@ -103,13 +103,13 @@ Starting the website.
 Customization and overriding defaults
 =====================================
 
-To override any parts in ``pyramid_web20`` you can do the following.
+To override any parts in ``websauna`` you can do the following.
 
 * Create a new Pyramid project
 
 * Include pip ``requirements.txt`` in your project, change/upgrade versions as needed
 
-* Copy-paste ``main.py``, ``development.ini`` from ``pyramid_web20``
+* Copy-paste ``main.py``, ``development.ini`` from ``websauna``
 
 * Override necessary parts
 
@@ -120,7 +120,7 @@ To override any parts in ``pyramid_web20`` you can do the following.
 Chosen trade offs
 =================
 
-Pyramid web framework provides very flexible configuration, but not many defaults components to go with. Thus, the following trade offs have been made with ``pyramid_web20``. The main goal of the project is to offer something that works out of the box, not maximum flexibility. So convenience has been chosen over configurability. To override any of these trade offs you might wish to simply fork this project or suggest something clever, so that the project still runs out of the box without going through too many hoops and loops.
+Pyramid web framework provides very flexible configuration, but not many defaults components to go with. Thus, the following trade offs have been made with ``websauna``. The main goal of the project is to offer something that works out of the box, not maximum flexibility. So convenience has been chosen over configurability. To override any of these trade offs you might wish to simply fork this project or suggest something clever, so that the project still runs out of the box without going through too many hoops and loops.
 
 * Database is fixed to PostgreSQL
 

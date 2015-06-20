@@ -5,16 +5,6 @@ All command line commands take ``ini`` settings as their first argument.
 
 .. contents:: :local:
 
-ws-sync-db
-----------
-
-Create tables for the database configuration in the settigs file.
-
-Example::
-
-    ws-sync-db development.ini
-
-
 ws-shell
 --------
 
@@ -28,7 +18,7 @@ Example::
 ws-db-shell
 -----------
 
-Open `pgcli <\>`_ command line tool for the configured PostgreSQL database.
+*ws-db-shell* command opens `pgcli <https://github.com/dbcli/pgcli>`_ command line tool for the configured PostgreSQL database.
 
 Example::
 
@@ -74,6 +64,15 @@ Example output::
     | review_data | jsonb                    |                                                     | extended  |         <null> |        <null> |
     +-------------+--------------------------+-----------------------------------------------------+-----------+----------------+---------------+
 
+Then you can exit from pgcli::
+
+    \q
+
+ws-alembic
+----------
+
+Run Alembic SQLAlchemy database migrations.
+
 ws-tweens
 ---------
 
@@ -98,6 +97,20 @@ Example output::
     3           websauna.referral.tweens.ReferralCookieTweenFactory
     -           MAIN
 
+
+
+ws-sync-db
+----------
+
+Create initial tables for the database configuration in the settings file. This equals running :py:meth:`Base.metadata.create_all()` SQLAlchemy command.
+
+Example::
+
+    ws-sync-db development.ini
+
+.. note ::
+
+    Using ws-sync-db is command is not recommended outside testing and prototyping. To have repeatable changes to your databases, use ws-alembic command instead.
 
 Advanced
 --------

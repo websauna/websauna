@@ -85,10 +85,11 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points={
         'console_scripts': [
-            'ws-sync-db=websauna.system.devop.scripts.initializedb:main',
+            'ws-sync-db=websauna.system.devop.scripts.syncdb:main',
             'ws-db-shell=websauna.system.devop.scripts.dbshell:main',
             'ws-shell=websauna.system.devop.scripts.shell:main',
             'ws-tweens=websauna.system.devop.scripts.tweens:main',
+            'ws-alembic=websauna.system.devop.scripts.alembic:main',
         ],
 
         'paste.app_factory': [

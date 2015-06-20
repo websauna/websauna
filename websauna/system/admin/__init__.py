@@ -88,7 +88,9 @@ class Admin(traverse.Resource):
 
         :param obj: SQLAlchemy model instance
         """
-
+        if not obj:
+            import ipdb ; ipdb.set_trace()
+        assert obj is not None, "get_admin_resource() you gave me None, I give you nothing"
 
         model = obj.__class__
         model_admin = self.get_admin_for_model(model)
@@ -99,8 +101,13 @@ class Admin(traverse.Resource):
     def get_admin_object_url(self, request, obj, view_name=None):
         """Get URL for viewing the object in admin.
 
-        *obj* must be a model instance which has a registered admin interfaec.
+        *obj* must be a model instance which has a registered admin interface.
+
+        :param: URL where to manage this object in admin interface or None if we cannot do mapping for some reason or input is None.
         """
+        if not obj:
+            return None
+
         res = self.get_admin_resource(obj)
         if view_name:
             return request.resource_url(res, view_name)

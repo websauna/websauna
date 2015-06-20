@@ -12,7 +12,7 @@ from pyramid.paster import (
     )
 
 from pyramid.scripts.common import parse_vars
-from websauna import get_init
+from websauna.system import get_init
 from websauna.system.model import DBSession
 from websauna.system.model import Base
 

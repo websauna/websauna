@@ -1,4 +1,4 @@
-A sample stack for Pyramid web framework aimed for building consumer and community websites.
+Websauna is a a Python web framework aimed for building consumer and community websites.
 
 Goal
 ====

@@ -75,6 +75,8 @@ setup(
         'pyramid-layout',
         "arrow",
         "tomb-routes",
+        "sqlalchemy",
+        "alembic"
     ],
 
     # List additional groups of dependencies here (e.g. development

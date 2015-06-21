@@ -1,5 +1,27 @@
+=============
+Configuration
+=============
 
+Websauna uses `INI-based configuration files <https://en.wikipedia.org/wiki/INI_file>`_, stemming from Paste and Pyramid legacy. Each command line command or WSGI web application launch module takes one of these INI files as an input. INI file tells
 
+Configuration structure
+=======================
+
+Websauna INI configuration files are extensible. You can include base INI configuration files in your settings file from file system and other Python packages.
+
+Websauna package defines three configuration files which you should use
+
+Configuration inclusion
+=======================
+
+.. note ::
+
+    Configuraiton inclusion system will be phased out in the future versions to be replaced with more generic configuration solution.
+
+Configuration variables
+=======================
+
+The following variables are available
 
 websauna.superuser
 -----------------------
@@ -33,3 +55,16 @@ Perform database sanity check after the startup. This will check all models have
 Disabled for testing.
 
 Default: ``true``
+
+Configuration variables from other packages
+===========================================
+
+* Paste
+
+* Alembic
+
+* pyramid_redis
+
+* sqlalchemy
+
+* Python logging

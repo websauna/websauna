@@ -19,3 +19,5 @@ celerybeat
 *.gpg
 backups
 celerybeat*
+alembic.ini
+*.sql

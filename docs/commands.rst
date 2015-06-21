@@ -73,6 +73,15 @@ ws-alembic
 
 Run Alembic SQLAlchemy database migrations.
 
+ws-dump-db
+----------
+
+Print PostgreSQL SQL to stdout from the currently configured database. This is equivalent of running ``pg_dump`` command with some arguments against the SQLAlchemy database configured in given INI file.
+
+Example how to backup your development database::
+
+    ws-dump-db development.ini > dump.sql
+
 ws-tweens
 ---------
 

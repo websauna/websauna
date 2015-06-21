@@ -1,7 +1,7 @@
 #!/bin/bash
 # Run a database for PostgreSQL database
 #
-set -x
+set -e
 export PGPASSWORD=$MAIN_SQL_PASSWORD
 
 [[ "$MAIN_SQL_USERNAME" ]] && UARG="-U $MAIN_SQL_USERNAME" || UARG=""

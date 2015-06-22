@@ -167,8 +167,8 @@ class Initializer:
         configure_zpt_renderer(["websauna:system/form/templates/deform"])
 
         # Add core templates to the search path
-        self.config.add_jinja2_search_path('websauna:system/core/templates', name='.html')
-        self.config.add_jinja2_search_path('websauna:system/core/templates', name='.txt')
+        self.config.add_jinja2_search_path('websauna.system:core/templates', name='.html')
+        self.config.add_jinja2_search_path('websauna.system:core/templates', name='.txt')
 
     def configure_authentication(self, settings, secrets):
 
@@ -346,15 +346,15 @@ class Initializer:
         self.config.scan(views)
 
     def configure_user(self, settings, secrets):
-
+        """Configure user model, sign in and sign up subsystem."""
         from websauna.system.user import views
 
         self.configure_authentication(settings, secrets)
         self.configure_authomatic(settings, secrets)
 
         # XXX: Different syntax to include templates as with admin... circular import problem, etc?
-        self.config.add_jinja2_search_path('websauna:system/user/templates', name='.html')
-        self.config.add_jinja2_search_path('websauna:system/user/templates', name='.txt')
+        self.config.add_jinja2_search_path('websauna.system:user/templates', name='.html')
+        self.config.add_jinja2_search_path('websauna.system:user/templates', name='.txt')
 
         self.config.scan(views)
 

@@ -113,6 +113,13 @@ In the shell::
     table_sql = CreateTable(model_class.__table__).compile(engine)
     print(table_sql)
 
+Creating migrations for reusable library
+----------------------------------------
+
+If you are going to make a library, as opposite to developing in-house application, some extra care needs to be taken with migration script release. The current Alembic approach adds ``DROP TABLE`` statement to all tables the migration script does not know about. In the application specific context this means default Websauna tables (*users*, *group*, etc.) and the migration script would try to drop them.
+
+The solution is to hand edit migration script after ``ws-alembic --autogenerate`` so that you cut out drop table statements which are not relevant.
+
 Troubleshooting
 ===============
 

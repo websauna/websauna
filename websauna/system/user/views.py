@@ -333,7 +333,9 @@ class AuthController(horus_views.AuthController):
             self.settings.get('horus.allow_inactive_login', False)
         )
 
-        self.form = form(self.schema, buttons=(self.Str.login_button,))
+        # XXX: Bootstrap classes leak into Deform here
+        login_button = deform.Button(name="Log in", title="Login with email", css_class="btn-lg btn-block")
+        self.form = form(self.schema, buttons=(login_button,))
 
         # If the form is embedded on other pages force it go to right HTTP POST endpoint
         self.form.action = request.route_url("login")

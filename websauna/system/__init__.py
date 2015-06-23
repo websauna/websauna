@@ -32,7 +32,7 @@ class Initializer:
     """
     def __init__(self, global_config, settings):
 
-        #: This is the reference to the config file which started our process. We need to later pass it to Notebook.
+        #: This is the refer    ence to the config file which started our process. We need to later pass it to Notebook.
         settings["websauna.global_config"] = global_config
         self.global_config = global_config
 

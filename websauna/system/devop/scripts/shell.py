@@ -2,7 +2,7 @@
 
 import os
 import sys
-from websauna import get_init
+
 from websauna.utils.configincluder import \
     monkey_patch_paster_config_parser
 import transaction

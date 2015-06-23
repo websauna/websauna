@@ -219,8 +219,10 @@ class RegisterController(horus_views.RegisterController):
         schema = request.registry.getUtility(IRegisterSchema)
         self.schema = schema().bind(request=self.request)
 
+        sign_up_button = deform.Button(name="sign_up", title="Sign up with email", css_class="btn-lg btn-block")
+
         form = request.registry.getUtility(IRegisterForm)
-        self.form = form(self.schema)
+        self.form = form(self.schema, buttons=(sign_up_button,))
 
         self.after_register_url = route_url(
             self.settings.get('horus.register_redirect', 'index'), request)

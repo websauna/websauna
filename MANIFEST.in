@@ -1,3 +1,4 @@
-recursive-include websauna *.yaml *.py *.html
+recursive-include websauna *.yaml *.py *.html *.bash
 include *.rst
+
 

@@ -29,7 +29,7 @@ def test_register_email(web_server, browser, dbsession):
     b.fill("password", PASSWORD)
     b.fill("password-confirm", PASSWORD)
 
-    b.find_by_name("submit").click()
+    b.find_by_name("sign_up").click()
 
     assert b.is_element_visible_by_css("#waiting-for-activation")
 

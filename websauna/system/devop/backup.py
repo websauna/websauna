@@ -37,10 +37,10 @@ def backup_site():
         # Currently we do not have backup script defined, do not run
         return
 
-    resolver = AssetResolver(package=None)
+    resolver = AssetResolver(None)
     backup_script = resolver.resolve(backup_script_spec).abspath()
 
-    assert os.path.exists(backup_script), "Backup script does not exist: {}".format(backup_script)
+    assert os.path.exists(backup_script), "Backup script does not exist: {}, spec {}".format(backup_script, backup_script_spec)
 
     assert stat.S_IXUSR & os.stat(backup_script)[stat.ST_MODE], "Backup script is not executable: {}".format(backup_script)
 

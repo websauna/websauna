@@ -141,6 +141,7 @@ class Initializer:
         self.config.add_jinja2_renderer('.html')
         self.config.add_jinja2_renderer('.txt')
         self.config.add_jinja2_renderer('.css')
+        self.config.add_jinja2_renderer('.xml')
 
         # Some Horus templates need still Mako in place - TODO: remove this when all templates are converted
         self.config.include('pyramid_mako')
@@ -169,6 +170,7 @@ class Initializer:
         # Add core templates to the search path
         self.config.add_jinja2_search_path('websauna.system:core/templates', name='.html')
         self.config.add_jinja2_search_path('websauna.system:core/templates', name='.txt')
+        self.config.add_jinja2_search_path('websauna.system:core/templates', name='.xml')
 
     def configure_authentication(self, settings, secrets):
 
@@ -277,6 +279,12 @@ class Initializer:
         from websauna.system.core.views import home
         self.config.add_route('home', '/')
         self.config.scan(home)
+
+    def configure_sitemap(self, settings):
+        """Configure sitemap generation for your site.
+
+        By default this is not configured and nothing is done.
+        """
 
     def configure_static(self, settings):
         """Configure static media serving and cache busting.
@@ -441,6 +449,7 @@ class Initializer:
         self.configure_error_views(settings)
         self.configure_views(settings)
         self.configure_panels(settings)
+        self.configure_sitemap(settings)
 
         # Sessions and users
         self.configure_sessions(settings, _secrets)

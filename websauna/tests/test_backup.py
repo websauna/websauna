@@ -16,7 +16,7 @@ def test_backup(ini_settings):
     temp_fname = f.name
     f.close()
 
-    ini_settings["websauna.backup_script"] = "websauna:tests/backup_script.bash"
+    ini_settings["websauna.backup_script"] = "websauna.tests:backup_script.bash"
     ini_settings["backup_test.filename"] = temp_fname
 
     init = get_init(dict(__file__=ini_settings["_ini_file"]), ini_settings)

@@ -1,8 +1,74 @@
 """Rolling time window counter and rate limit using Redis.
 
-Use Redis sorted sets to do a rolling time window counters and limiters.
+Use Redis sorted sets to do a rolling time window counters and limiters. These are useful for preventing denial of service, flood and reputation attack against site elements which trigegr outgoing action (email, SMS).
+
+Example how to do a Colander validator which checks that the form has not been submitted too many times within the time period::
+
+    import colander as s
+
+    @c.deferred
+    def throttle_invites_validator(node, kw):
+        "Protect invite functionality from flood attacks."
+        request = kw["request"]
+
+        limit = int(request.registry.settings.get("trees.invite_limit", 60))
+
+        def inner(node, value):
+            # Check we don't have many invites going out
+            if rollingwindow.check(request.registry, "invite_friends", window=3600, limit=limit):
+
+                # Alert devops through Sentry
+                logger.warn("Excessive invite traffic")
+
+                # Tell users slow down
+                raise c.Invalid(node, 'Too many outgoing invites at the moment. Please try again later.')
+
+        return inner
+
+Then you construct form::
+
+    schema = schemas.InviteFriends(validator=schemas.throttle_invites_validator).bind(request=request)
+    form = deform.Form(schema)
+
+You can also exercise this code in tests::
+
+    def test_flood_invite(web_server, browser, dbsession, init):
+        "Overload invites and see we get an error message."
+
+        b = browser
+        with transaction.manager:
+            create_user()
+
+        # Set flood limit to two attempts
+        init.config.registry.settings["trees.invite_limit"] = "2"
+
+        # Clear Redis counter for outgoing invitations
+        redis = get_redis(init.config.registry)
+        redis.delete("invite_friends")
+
+        # Login
+        b.visit(web_server + "/login")
+        b.fill("username", EMAIL)
+        b.fill("password", PASSWORD)
+        b.find_by_name("Log_in").click()
+
+        def flood():
+            b.visit("{}/invite-friends".format(web_server))
+            b.find_by_css("#nav-invite-friends").click()
+            b.fill("phone_number", "555 123 1234")
+            b.find_by_name("invite").click()
+
+        flood()
+        assert b.is_text_present("Invite SMS sent")
+        flood()
+        assert b.is_text_present("Invite SMS sent")
+        flood()
+        assert b.is_text_present("Too many outgoing invites at the moment")
+
 
 More info
+
+* http://opensourcehacker.com/2014/07/09/rolling-time-window-counters-with-redis-and-mitigating-botnet-driven-login-attacks/
 
 * http://redis.io/commands/zadd
 

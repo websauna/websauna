@@ -1,3 +1,4 @@
+import time
 import os
 from decimal import Decimal
 from websauna.system.model import now
@@ -60,3 +61,21 @@ def create_logged_in_user(web_server, browser, admin=False):
 
     # After login we log out link to confirm login has succeeded
     assert b.is_element_visible_by_css("#nav-logout")
+
+
+def wait_until(callback, expected, deadline=1.0, poll_period=0.05):
+    """A helper function to wait until a variable value is set (in another thread).
+
+    :param callback: Callable which we expect to return True
+    :param deadline: Seconds how long we are going to wait max
+    :param poll_period: Sleep period between check attemps
+    :return: The final value of callback
+    """
+    expires = time.time() + deadline
+    while time.time() < expires:
+        val = callback()
+        if val == expected:
+            return val
+        time.sleep(poll_period)
+
+    raise AssertionError("Callback {} did not return in expected value {} within {} seconds".format(callback, expected, deadline))

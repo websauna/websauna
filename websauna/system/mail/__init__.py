@@ -13,12 +13,14 @@ class StdoutMailer(object):
     """
 
     def __init__(self):
-        pass
+        # For testing purposes
+        self.send_count = 0
 
     def _send(self, message, fail_silently=False):
         """Save message to a file for debugging
         """
         print(str(message.to_message()))
+        self.send_count += 1
 
     send = _send
     send_immediately = _send

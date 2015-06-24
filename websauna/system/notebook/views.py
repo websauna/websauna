@@ -9,7 +9,7 @@ from websauna.system.model import Base
 
 #: Include our database session in notebook so it is easy to query stuff right away from the prompt
 SCRIPT = """
-from websauna.system.model import DBSession as DBSession
+from websauna.system.model import DBSession
 """
 
 

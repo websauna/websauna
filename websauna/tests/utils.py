@@ -79,3 +79,18 @@ def wait_until(callback, expected, deadline=1.0, poll_period=0.05):
         time.sleep(poll_period)
 
     raise AssertionError("Callback {} did not return in expected value {} within {} seconds".format(callback, expected, deadline))
+
+
+def login(web_server, browser, email=EMAIL, password=PASSWORD):
+    """Login user to the website through the test browser.
+
+    """
+    b = browser
+    b.visit(web_server)
+    assert b.is_element_visible_by_css("#nav-sign-in"), "Could not see login button"
+    b.find_by_css("#nav-sign-in").click()
+    b.fill("username", email)
+    b.fill("password", password)
+    b.find_by_name("Log_in").click()
+    assert b.is_element_visible_by_css("#nav-logout")
+

@@ -68,8 +68,13 @@ setup(
         'pyramid-layout',
         "arrow",
         "tomb-routes",
+
+        # SQLAlchemy support
         "sqlalchemy",
-        "alembic"
+        "alembic",
+
+        # Needed by python_notebook etc. who call pyramid.paster module
+        "PasteDeploy"
     ],
 
     # List additional groups of dependencies here (e.g. development

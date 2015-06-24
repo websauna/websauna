@@ -1,0 +1,32 @@
+<!--! This adds placeholder attribute support for TextInput.
+
+    TODO: Drop this template when upstream Deform gains a native support
+
+    http://stackoverflow.com/q/31019326/315168
+
+ -->
+
+<span tal:define="name name|field.name;
+                  css_class css_class|field.widget.css_class;
+                  oid oid|field.oid;
+                  mask mask|field.widget.mask;
+                  mask_placeholder mask_placeholder|field.widget.mask_placeholder;
+                  style style|field.widget.style;
+                  placeholder field.widget.placeholder|nothing;
+                  type field.widget.type|'text';
+"
+      tal:omit-tag="">
+    <input type="${type}" name="${name}" value="${cstruct}"
+           tal:attributes="class string: form-control ${css_class};
+                           style style;
+                           placeholder placeholder;"
+           id="${oid}"/>
+    <script tal:condition="mask" type="text/javascript">
+      deform.addCallback(
+         '${oid}',
+         function (oid) {
+            $("#" + oid).mask("${mask}",
+                 {placeholder:"${mask_placeholder}"});
+         });
+    </script>
+</span>

@@ -30,6 +30,7 @@ class Initializer:
 
     Customizers can subclass this and override parts they want to change.
     """
+
     def __init__(self, global_config, settings):
 
         #: This is the refer    ence to the config file which started our process. We need to later pass it to Notebook.
@@ -47,7 +48,7 @@ class Initializer:
         self.settings = settings
 
     def create_configurator(self, settings):
-        """Create configurator instance."""
+        """Create Pyramid Configurator instance."""
         configurator = Configurator(settings=settings)
         return configurator
 
@@ -62,6 +63,7 @@ class Initializer:
         self.config.registry.registerUtility(pyramid_debug_logger, IDebugLogger)
 
     def configure_horus(self, settings):
+        """Configure user and group SQLAlchemy models, login and sign up views."""
 
         # Avoid importing horus if not needed as it will bring in its own SQLAlchemy models and dirties our SQLAlchemy initialization
         from hem.interfaces import IDBSession
@@ -310,11 +312,16 @@ class Initializer:
     def preconfigure_admin(self, settings):
         # Register admin root object
         from websauna.system.admin import Admin
+        from websauna.system.admin.interfaces import IAdmin
         _admin = Admin()
-        self.config.registry.settings["websauna.admin"] = _admin
+        self.config.registry.registerUtility(_admin, IAdmin)
+        # self.config.registry.settings["websauna.admin"] = _admin
 
     def configure_admin(self, settings):
-        """Configure admin interface."""
+        """Configure admin ux.
+
+        Register templates and views for admin interface.
+        """
 
         from websauna.system.admin import views
 
@@ -325,8 +332,6 @@ class Initializer:
         self.config.add_route('admin', "/admin/*traverse", factory="websauna.system.admin.admin_root_factory")
 
         self.config.add_panel('websauna.system.admin.views.default_model_admin_panel')
-        # self.config.add_view('websauna.system.admin.views.listing', context='websauna.system.admin.ModelAdmin')
-        # self.config.add_view('websauna.system.admin.views.panel', context='websauna.system.admin.AdminPanel')
         self.config.scan(views)
 
         # Add templatecontext handler
@@ -425,6 +430,12 @@ class Initializer:
         return _secrets
 
     def run(self, settings):
+        """Run the initialization and prepare Pyramid subsystems.
+
+        This is the main entry for ramping up a Websauna application.
+        We go through various subsystem inits.
+        """
+
         _secrets = self.read_secrets(settings)
 
         self.configure_logging(settings)
@@ -545,8 +556,7 @@ def get_init(global_config, settings, init_cls=None):
 
 
 def main(global_config, **settings):
-    """ This function returns a Pyramid WSGI application.
-    """
+    """Entry point for creating a Pyramid WSGI application."""
 
     settings = IncludeAwareConfigParser.retrofit_settings(global_config)
     init = Initializer(global_config, settings)

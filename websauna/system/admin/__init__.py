@@ -2,6 +2,7 @@ import sys
 
 from pyramid.security import Allow
 from websauna.system import crud
+from websauna.system.admin.interfaces import IAdmin
 from websauna.system.core.root import Root
 from websauna.system.crud import sqlalchemy as sqlalchemy_crud
 from websauna.system.crud.sqlalchemy import CRUD as CRUD
@@ -42,7 +43,7 @@ class Admin(traverse.Resource):
     @classmethod
     def get_admin(cls, registry):
         """Get hold of admin singleton."""
-        return registry.settings["websauna.admin"]
+        return registry.queryUtility(IAdmin)
 
     def scan(self, config, module):
         """Picks up admin definitions from the module."""
@@ -115,14 +116,16 @@ class Admin(traverse.Resource):
             return request.resource_url(res)
 
     def __getitem__(self, name):
-
-        # Traverse to models
+        """Traverse to individual model admins by the model name."""
         model_admin = self.model_admins[name]
         return model_admin
 
 
 class ModelAdmin(CRUD):
-    """Present one model in admin interface."""
+    """Present one model in admin interface.
+
+    Provide automatized list, show add, edit and delete actions for an SQLAlchemy model which declares admin interface.
+    """
 
     #: URL traversing id
     id = None

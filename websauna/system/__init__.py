@@ -289,7 +289,7 @@ class Initializer:
         """
 
     def configure_static(self, settings):
-        """Configure static media serving and cache busting.
+        """Configure static asset serving and cache busting.
 
         http://docs.pylonsproject.org/projects/pyramid/en/1.6-branch/narr/assets.html#static-assets-section
         """
@@ -306,16 +306,12 @@ class Initializer:
 
         self.config.include("pyramid_redis_sessions")
 
-    def configure_admin_models(self, settings):
-        """Configure CRUD for known SQLAlchemy models."""
-
     def preconfigure_admin(self, settings):
-        # Register admin root object
+        """Create signleton Admin instance and store it in the registry."""
         from websauna.system.admin import Admin
         from websauna.system.admin.interfaces import IAdmin
         _admin = Admin()
         self.config.registry.registerUtility(_admin, IAdmin)
-        # self.config.registry.settings["websauna.admin"] = _admin
 
     def configure_admin(self, settings):
         """Configure admin ux.
@@ -470,7 +466,6 @@ class Initializer:
 
         # Website administration
         self.configure_admin(settings)
-        self.configure_admin_models(settings)
         self.configure_notebook(settings)
 
         self.configure_instrumented_models(settings)

@@ -2,9 +2,6 @@ import os
 import unittest
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import scoped_session
-from sqlalchemy.ext.declarative import declarative_base
 
 import transaction
 
@@ -12,7 +9,6 @@ from pyramid import testing
 
 import pytest
 
-from websauna import models
 
 TEST_DATABASE_NAME = "websauna_test"
 
@@ -49,21 +45,3 @@ class DefaultModelBaseTest(unittest.TestCase):
             engine = create_engine('postgresql:///{}'.format(TEST_DATABASE_NAME))
 
         return engine
-
-
-def setup_sample_users(self):
-    """Test case with two sample users with predefined details.
-
-    - user, user2
-
-    - Password is x
-    """
-
-    self.user = models.User(username="user", email="user@example.com")
-    self.user.set_password("x")
-    DBSession.add(user)
-
-    self.user2 = models.User(username="user2", email="user2@example.com")
-    self.user2.set_password("x")
-    DBSession.add(user)
-

@@ -13,25 +13,29 @@ from websauna.system.model import DBSession
 from websauna.system.core import messages
 
 from . import sqlalchemy
+from . import paginator
+
 from websauna.system.form.colander import \
     PropertyAwareSQLAlchemySchemaNode
 
 
 class Listing:
-    """CRUD listing view base class.
+    """View class to render item list in CRUD."""
 
-    ``self.context`` points to ``CRUD`` instance.
-    """
-
-    #: If the child class is not overriding the rendering loop, point this to a template which provides the page frame and ``crud_content`` block.
+    #: base_tempalte may point into a template providing ``crud_content`` block where the contents of the view is rendered. This allows you to decorate your CRUD which a specific page frame.
     base_template = None
 
-    #: Instance of websauna.crud.listing.Table
+    #: Instance of websauna.crud.listing.Table describing how the list should be rendered
     table = None
 
-    def __init__(self, context, request):
+    #: How the result of this list should be split to pages
+    paginator = paginator.DefaultPaginator()
 
-        #: Context points to CRUD instance
+    def __init__(self, context, request):
+        """
+        :param context: Points to ``CRUD`` instance.
+        :param request:
+        """
         self.context = context
         self.request = request
 
@@ -60,9 +64,16 @@ class Listing:
         """Get the user-readable name of the listing view (breadcrumbs, etc.)"""
         return "All {}".format(self.get_crud().plural_name)
 
+    def paginate(self, query, template_context):
+        """Create template variables for paginatoin results."""
+        total_items =  self.get_count(query)
+        batch = self.paginator.paginate(query, self.request, total_items)
+        template_context["batch"] = batch
+        template_context["count"] = total_items
+
     @view_config(context=sqlalchemy.CRUD, name="listing", renderer="crud/listing.html", permission='view')
     def listing(self):
-        """View for listing all objects."""
+        """View for listing model contents in CRUD."""
 
         crud = self.context
 
@@ -79,7 +90,6 @@ class Listing:
                 raise RuntimeError("header_template missing for column: {}".format(c))
 
         query = self.get_query()
-        count = self.get_count(query)
         query = self.order_query(query)
         base_template = self.base_template
 
@@ -90,10 +100,15 @@ class Listing:
         if self.request.has_permission(crud, "add"):
             crud_buttons["add"] = self.request.resource_url(self.context, "add")
 
-        # TODO: Paginate
-
         title = self.context.title
-        return dict(title=title, count=count, columns=columns, base_template=base_template, query=query, crud=crud, current_view_name=current_view_name, crud_buttons=crud_buttons)
+        count =  self.get_count(query)
+        # Base listing template variables
+        template_vars = dict(title=title, columns=columns, base_template=base_template, query=query, crud=crud, current_view_name=current_view_name, crud_buttons=crud_buttons, count=count)
+
+        # Include pagination template context
+        # self.paginate(query, template_vars)
+
+        return template_vars
 
 
 

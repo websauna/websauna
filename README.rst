@@ -1,56 +1,5 @@
 Websauna is a a Python web framework aimed for building consumer and community websites.
 
-Goal
-====
-
-* Clone this repository and you get a running Pyramid website out of the box
-
-* Log in and sign up using Facebook, Github or email confirmation
-
-* Start extending the site in your own project step-by-step
-
-Benefits
-========
-
-* Running unit tests using PostgreSQL, optimized for speed
-
-* Setting up unit tests
-
-This is so-called *opionated* project where the authors have chosen best of their breeds components based on their long experience in web development. The chosen component set might not suit for your use case. However if you have no or little prior web development experience this project provides you somewhat sane defaults to get you started fast, cutting down the initial development time signicantly.
-
-Even if you are experienced developer this project may offer you some best practices you can copy-paste to your own projects.
-
-Stack
-=====
-
-Chosen set of components
-
-Backend
--------
-
-* Python 3.4
-
-* Pyramid 1.5.1 web framework
-
-* Deform form framework
-
-* PostgreSQL with JSONB fields for NoSQL-like schemaless data
-
-* Horus
-
-* `Authomatic <http://peterhudec.github.io/authomatic/>`_ - Social log ins
-
-Frontend
---------
-
-* Bootstrap (CDN distributed)
-
-* jQuery (CDN distributed)
-
-* FontAwesome icons
-
-Actual tested component versions may be found in the continuous integration test suite.
-
 Installation
 ============
 

@@ -82,7 +82,7 @@ setup(
     # for example:
     # $ pip install -e .[dev,test]
     extras_require={
-        'dev': ['check-manifest'],
+        'dev': ['check-manifest', 'Sphinx', 'sphinx-autoapi'],
         'test': ['pytest', 'coverage'],
     },
 

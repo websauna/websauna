@@ -1,6 +1,6 @@
-================================
-Developing websauna.core
-================================
+===================
+Developing Websauna
+===================
 
 .. contents:: :local:
 
@@ -11,7 +11,7 @@ Running tests
 Unit tests are `PyTest based <http://pytest.org/>`_. They use `Selenium browser automation framework <selenium-python.readthedocs.org/>`_ and  `Splinter simplified element interatcion <https://splinter.readthedocs.org/en/latest/>`_.
 
 Examples for running tests
-+++++++++++++++++++++++++++
+++++++++++++++++++++++++++
 
 Running all tests silently using a headless test browser::
 

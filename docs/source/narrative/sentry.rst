@@ -1,3 +1,15 @@
+====================
+Sentry error logging
+====================
+
+Introduction
+============
+
+`Sentry <http://sentry.readthedocs.org/>`_ is a popular open source error logging server for Python application.
+
+How to
+======
+
 Install pyramid_raven::
 
     pip install pyramid_raven

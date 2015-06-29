@@ -193,3 +193,5 @@ pseudoxml:
 
 apidoc:
 	sphinx-apidoc -o source/api --separate ../websauna
+	rm source/api/modules.rst
+	rm source/api/websauna.rst

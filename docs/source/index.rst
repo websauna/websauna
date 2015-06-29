@@ -18,6 +18,7 @@ Narrative developer guide
 
     narrative/intro
     narrative/comparison
+    narrative/architecture
     narrative/config
     narrative/database
     narrative/templatecontext

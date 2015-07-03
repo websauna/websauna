@@ -7,6 +7,8 @@ from websauna.utils.configincluder import monkey_patch_paster_config_parser
 from pyramid.paster import setup_logging
 from pyramid.scripts.common import parse_vars
 
+from websauna.system.model import DBSession
+
 
 def usage(argv):
     cmd = os.path.basename(argv[0])
@@ -26,5 +28,12 @@ def main(argv=sys.argv):
 
     bootstrap_env = bootstrap(config_uri, options=dict(sanity_check=False))
     url = bootstrap_env["registry"].settings.get("sqlalchemy.url")
+
+    # Print out the connection URL with the password masked out
+    engine = DBSession.get_bind()
+    print("Connecting to {}".format(engine))
+
+    # We don't want to leave hanging connection open when we enter pgcli
+    DBSession.close()
 
     os.system("pgcli {}".format(url))

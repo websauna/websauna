@@ -154,7 +154,6 @@ class UserMixin:
 
 
 class GroupMixin:
-
     #: When this group was created.
     created_at = Column(DateTime(timezone=utc), default=now)
 

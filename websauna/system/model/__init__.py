@@ -1,6 +1,8 @@
-
+from uuid import UUID
+import os
 import datetime
 
+from sqlalchemy import DateTime
 from sqlalchemy.ext.declarative import declarative_base
 
 from sqlalchemy.orm import (
@@ -27,3 +29,24 @@ utc = datetime.timezone.utc
 # Make sure we store all dateimes as UTC in the database by importing this SQLAlchemy type augmentator
 from . import sqlalchemyutcdatetime  # noqa
 
+
+def nonguessable_uuid4():
+    """Create non-guessable UUID object.
+
+    This is equal to ``uuid.uuid4()``, but we source all bytes from `os.urandom()` to guarantee the randomness and security.
+    """
+    return UUID(bytes=os.urandom(16), version=4)
+
+
+class UTCDateTime(DateTime):
+    """An SQLAlchemy DateTime column which forces UTC timezone."""
+
+    def __init__(self, *args, **kwargs):
+
+        # If there is an explicit timezone we accept UTC only
+        if "timezone" in kwargs:
+            assert kwargs["timezone"] == utc
+
+        kwargs = kwargs.copy()
+        kwargs["timezone"] = utc
+        super(UTCDateTime, self).__init__(**kwargs)

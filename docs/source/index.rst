@@ -21,6 +21,7 @@ Narrative developer guide
     narrative/architecture
     narrative/config
     narrative/database
+    narrative/transient
     narrative/templatecontext
     narrative/crud
     narrative/admin

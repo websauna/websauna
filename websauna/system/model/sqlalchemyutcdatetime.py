@@ -4,7 +4,7 @@ import datetime
 
 
 
-class UTCDateTime(types.TypeDecorator):
+class UTCDateTimeTypeDecorator(types.TypeDecorator):
     """Automatically make datetimes to UTC when loaded from the database.
 
     http://stackoverflow.com/a/2528453/315168

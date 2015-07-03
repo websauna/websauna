@@ -35,9 +35,9 @@ a {
 
 .btn-primary {
     text-decoration: none;
-    color: #FFF;
-    background-color: #4CDB00;
-    border: solid #4CDB00;
+    color: #333;
+    background-color: white;
+    border: 1px solid white;
     border-width: 10px 20px;
     line-height: 2;
     font-weight: bold;
@@ -85,7 +85,7 @@ table.body-wrap {
 }
 
 table.body-wrap .container {
-    border: 1px solid #f0f0f0;
+    border: 1px solid #eaeaea;
 }
 
 
@@ -183,9 +183,14 @@ tr td {
     padding-bottom: 10px;
 }
 </style>
+
+
+{% block extra_head %}
+{% endblock %}
+
 </head>
 
-<body bgcolor="#f6f6f6">
+<body bgcolor="#dadada">
 
 
 
@@ -193,7 +198,7 @@ tr td {
 <table class="body-wrap">
     <tr>
         <td></td>
-        <td class="container" bgcolor="#FFFFFF">
+        <td class="container" bgcolor="#f0f0f0">
 
             <!-- content -->
             <div class="content">

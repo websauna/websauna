@@ -126,7 +126,7 @@ def run_alembic(package):
     if context.is_offline_mode():
         run_migrations_offline(url, target_metadata)
     else:
-        logger.info("Running migrations now")
+        logger.info("Starting online migration engine")
         run_migrations_online(engine, target_metadata)
 
     logger.info("All done")

@@ -72,7 +72,7 @@ setup(
         # SQLAlchemy support
         "sqlalchemy",
         "alembic",
-        "backports.typing"
+        "backports.typing",
 
         # Needed by python_notebook etc. who call pyramid.paster module
         "PasteDeploy"

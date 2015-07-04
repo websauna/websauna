@@ -1,0 +1,11 @@
+{# Conditionally render a nested menu inside a menu entry if needed #}
+{% if entry.submenu and entry.submenu.has_items(request) %}
+    <ul class="dropdown-menu" aria-labelledby="{{ entry.id }}">
+
+        {% for subentry in entry.submenu.get_entries() %}
+            {% if subentry.is_enabled(request) %}
+                {{ subentry.render(request)|safe }}
+            {% endif %}
+        {% endfor %}
+    </ul>
+{% endif %}

@@ -2,6 +2,9 @@
 
 {% block content %}
 
+    {# Navbar menu #}
+    {{ admin.get_admin_menu_entry().render(request)|safe }}
+
     {{context|admin_breadcrumbs|safe}}
 
     {% block admin_content %}

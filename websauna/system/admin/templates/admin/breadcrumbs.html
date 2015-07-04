@@ -2,9 +2,6 @@
     {% for crumb in crumbs %}
         <li>
             <a href={{ crumb.url }}>
-                {% if loop.first %}
-                    <i class="fa fa-wrench"></i>
-                {% endif %}
                 {{ crumb.name }}
             </a>
         </li>

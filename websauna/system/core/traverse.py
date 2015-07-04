@@ -47,7 +47,7 @@ class Resource:
         return child
 
 
-def get_breadcrumb(context, request, root, current_view_name=None, current_view_url=None):
+def     get_breadcrumb(context, request, root, current_view_name=None, current_view_url=None):
     """Traverse context up to the root element in the reverse order.
 
     :return: List of {url, name} dictionaries

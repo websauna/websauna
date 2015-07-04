@@ -2,6 +2,7 @@ import sys
 
 from pyramid.security import Allow
 from websauna.system import crud
+from websauna.system.admin import menu
 from websauna.system.admin.interfaces import IAdmin
 from websauna.system.core.root import Root
 from websauna.system.crud import sqlalchemy as sqlalchemy_crud
@@ -23,6 +24,13 @@ class Admin(traverse.Resource):
     """Admin interface main object.
 
     Presents /admin part of the URL. Manages model admin registrations and discovery. Provides helper functions to map SQLAlchemy objects to their admin URLs.
+
+    ``Admin`` declares two default menu systems which can be used to register application specific and third party add on entries
+
+    * ``Admin.get_quick_menu()`` returns a vertical menu which is visible in the main site navigation
+
+    * ``Admin.get_admin_menu()`` returns a horizontal menu which is visible after entering the admin UI
+
     """
 
     # Root defines where admin interaface lies in the URL space
@@ -39,6 +47,7 @@ class Admin(traverse.Resource):
 
     def __init__(self):
         self.model_admins = {}
+        self.setup_menu()
 
     @classmethod
     def get_admin(cls, registry):
@@ -75,6 +84,11 @@ class Admin(traverse.Resource):
 
             self.model_admins[id] = model_admin
 
+            # Create a model listing entry
+            data_menu = self.get_admin_menu().get_entry("admin-menu-data").submenu
+            entry = menu.TraverseEntry("admin-menu-data-{}".format(id), label=model_admin.title, context=model_admin, name="listing")
+            data_menu.add_entry(entry)
+
     def get_admin_for_model(self, model):
         for model_admin in self.model_admins.values():
             if model_admin.model == model:
@@ -89,8 +103,6 @@ class Admin(traverse.Resource):
 
         :param obj: SQLAlchemy model instance
         """
-        if not obj:
-            import ipdb ; ipdb.set_trace()
         assert obj is not None, "get_admin_resource() you gave me None, I give you nothing"
 
         model = obj.__class__
@@ -119,6 +131,35 @@ class Admin(traverse.Resource):
         """Traverse to individual model admins by the model name."""
         model_admin = self.model_admins[name]
         return model_admin
+
+    def setup_menu(self):
+        """Setup admin main menu."""
+
+        self.admin_menu_entry = menu.NavbarEntry("admin-menu-navbar", label=None, submenu=menu.Menu(), css_class="navbar-admin")
+        self.quick_menu_entry = menu.RouteEntry("admin-menu-quick", "Admin", "admin_home", icon="fa-wrench", submenu=menu.Menu())
+
+        home = menu.RouteEntry("admin-quick-menu-home", "Dashboard", "admin_home", icon="fa-wrench")
+        self.quick_menu_entry.submenu.add_entry(home)
+
+        home = menu.RouteEntry("admin-menu-home", "Dashboard", "admin_home", icon="fa-wrench")
+        self.admin_menu_entry.submenu.add_entry(home)
+
+        data = menu.RouteEntry("admin-menu-data", "Data", "admin_home", submenu=menu.Menu(), icon="fa-list")
+
+        self.admin_menu_entry.submenu.add_entry(data)
+
+    def get_quick_menu_entry(self) -> menu.Entry:
+        """Return Admin root menu."""
+        return self.quick_menu_entry
+
+    def get_quick_menu(self) -> menu.Menu:
+        return self.quick_menu_entry.submenu
+
+    def get_admin_menu_entry(self) -> menu.Entry:
+        return self.admin_menu_entry
+
+    def get_admin_menu(self) -> menu.Menu:
+        return self.admin_menu_entry.submenu
 
 
 class ModelAdmin(CRUD):

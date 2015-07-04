@@ -382,11 +382,19 @@ class Initializer:
         self.config.scan(websauna.system.user.adminviews)
 
     def configure_notebook(self, settings):
+        """Setup pyramid_notebook integration."""
         import websauna.system.notebook.views
         self.config.add_route('admin_shell', '/notebook/admin-shell')
         self.config.add_route('shutdown_notebook', '/notebook/shutdown')
         self.config.add_route('notebook_proxy', '/notebook/*remainder')
         self.config.scan(websauna.system.notebook.views)
+
+        # Add admin menu entry
+        from websauna.system.admin import Admin
+        from websauna.system.admin import menu
+        admin = Admin.get_admin(self.config.registry)
+        entry = menu.RouteEntry("admin-notebook", label="Shell", icon="fa-terminal", route_name="admin_shell", condition=lambda entry, request:request.has_permission('shell'))
+        admin.get_quick_menu().add_entry(entry)
 
     def configure_tasks(self, settings):
         """Scan all Python modules with asynchoronou sna dperiodic tasks to be imported."""

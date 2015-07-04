@@ -122,8 +122,36 @@ Creating further migrations
 
 Repeat the tasks of creating the first migration.
 
-Running migrations to a third party package
--------------------------------------------
+Fixing a migration
+------------------
+
+In the case your initial attempt to migrate was not succesful, e.g. you forgot to add some columns, you can unwind the migration and construct it again.
+
+List the current migrations::
+
+    ws-alembic -c development.ini history
+
+    37e1cb6de47 -> 2d970929c35 (head), Adding offers
+    <base> -> 37e1cb6de47, Initial migration
+
+We are in head, let's go back to the base::
+
+     ws-alembic -c development.ini downgrade 37e1cb6de47
+
+Let's delete `2d970929c35_xxx.py`` migration script.
+
+Edit ``models.py`` to add the missing fields.
+
+Regenerate the migration script with fixes::
+
+    ws-alembic -c development.ini revision --autogenerate -m "Adding Offer model for managing deals"
+
+Then run the fixed script::
+
+    ws-alembic -c development.ini upgrade head
+
+Running migrations for a third party package
+============================================
 
 Activate your installation virtualenv. You can enter to the package source directory, then run *ws-alembic* command, pointing it to the configuration of your site.
 

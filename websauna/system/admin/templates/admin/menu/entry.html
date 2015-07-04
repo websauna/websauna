@@ -1,0 +1,14 @@
+<li>
+    <a id="{{ entry.id }}" href="{{entry.get_link(request)}}" {% if entry.submenu %}class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"{% endif %}>
+
+        {# More information about icon placeholders http://jsfiddle.net/tagliala/7z9b557v/ and https://github.com/FortAwesome/Font-Awesome/wiki/Troubleshooting#need-a-blankempty-icon #}
+        <i class="fa fa-fw {{ entry.icon }}"></i>
+        {{ entry.label }}
+
+        {% if entry.submenu and entry.submenu.has_items(request) %}
+            <span class="{{ entry.caret }}"></span>
+        {% endif %}
+    </a>
+
+    {% include "admin/menu/submenu.html" %}
+</li>

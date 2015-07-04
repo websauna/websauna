@@ -19,4 +19,10 @@ def admin_breadcrumbs(jinja_ctx, context, **kw):
 
     assert crumbs, "Could not get breadcrumbs for {}".format(context)
 
+    if len(crumbs) == 1:
+        return ""
+
+    # Fix admin name so we don't confuse this with the menubar
+    crumbs[0]["name"] = "Home"
+
     return render("templates/admin/breadcrumbs.html", dict(context=context, crumbs=crumbs), request=request)

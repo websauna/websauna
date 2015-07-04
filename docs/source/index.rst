@@ -23,6 +23,7 @@ Narrative developer guide
     narrative/database
     narrative/transient
     narrative/templatecontext
+    narrative/form
     narrative/crud
     narrative/admin
     narrative/mail

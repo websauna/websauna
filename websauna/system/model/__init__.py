@@ -30,7 +30,7 @@ utc = datetime.timezone.utc
 from . import sqlalchemyutcdatetime  # noqa
 
 
-def nonguessable_uuid4():
+def secure_uuid():
     """Create non-guessable UUID object.
 
     This is equal to ``uuid.uuid4()``, but we source all bytes from `os.urandom()` to guarantee the randomness and security.

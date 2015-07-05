@@ -26,3 +26,35 @@ CRUD provides translation of object ids to URL paths and vice versa.
 * You can use UUIDs for sensitive data
 
 This is handled by settings the mapper attribute of CRUD.
+
+Resource buttons
+================
+
+One part of the CRUD view is resource buttons which allows jumping between different CRUD views.
+
+TODO: Screenshot here
+
+You can add these buttons yourself. Example:
+
+.. code-block:: python
+
+    from websauna.viewconfig import view_overrides
+    from websauna.system.crud.views import TraverseLinkButton
+    from websauna.system.user import adminviews as useradminviews
+
+    from yourproject.admin import UserAdmin
+
+    @view_overrides(context=admin.UserAdmin.Resource)
+    class UserShow(useradminviews.UserShow):
+        """View for displaying user information in admin."""
+
+        # Add two more actions for the users
+        resource_buttons = [
+
+            # Default edit action
+            TraverseLinkButton(id="edit", name="Edit", view_name="edit"),
+
+            # New custom actions
+            TraverseLinkButton(id="sms-user", name="Send SMS", view_name="sms-user"),
+            TraverseLinkButton(id="license", name="Medical license", view_name="license")
+        ]

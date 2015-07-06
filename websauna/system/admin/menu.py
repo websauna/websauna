@@ -1,12 +1,12 @@
 """Simple mechanism to register admin menu entries."""
 
 from collections import OrderedDict
+from websauna.system.compat.typing import Callable
+from websauna.system.compat.typing import List
 
 from pyramid.renderers import render
 from pyramid.request import Request
 
-from backports.typing import Callable
-from backports.typing import List
 
 
 class Menu:

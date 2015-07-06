@@ -1,12 +1,4 @@
-from pyramid.security import Allow
-
 from websauna.system import admin
-from websauna.system import crud
-from websauna.system.crud import sqlalchemy as sqlalchemy_crud
-
-from websauna.system.model import DBSession
-
-
 
 
 @admin.ModelAdmin.register(model='websauna.system.user.models.User')
@@ -22,7 +14,9 @@ class UserAdmin(admin.ModelAdmin):
     plural_name = "users"
 
     class Resource(admin.ModelAdmin.Resource):
-        pass
+
+        def get_title(self):
+            return self.get_object().friendly_name
 
 
 @admin.ModelAdmin.register(model='websauna.system.user.models.Group')

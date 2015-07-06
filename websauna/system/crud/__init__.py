@@ -122,10 +122,10 @@ class Resource(traverse.Resource):
         path = crud.mapper.get_path_from_object(self.obj)
         return path
 
-    def get_model(self):
+    def get_model(self) -> object:
         return self.__parent__.get_model()
 
-    def get_title(self):
+    def get_title(self) -> str:
         """Title used on view, edit, delete, pages.
 
         By default use the capitalized URL path path.

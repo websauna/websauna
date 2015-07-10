@@ -9,12 +9,19 @@ def get_redis(registry=None, url=None, redis_client=StrictRedis, **redis_options
     Compatible with *pyramid_redis_session*, see https://github.com/ericrasmussen/pyramid_redis_sessions/blob/master/pyramid_redis_sessions/connection.py
 
     Default Redis connection handler. Once a connection is established it is
-    saved in `request.registry`.
+    cached in ``registry``.
+
+    Shell example::
+
+        from websauna.system.core.redis import get_redis
+        redis = get_redis(registry)
+
+        print(redis.keys())
 
     Parameters:
 
-    ``request``
-    The current pyramid request object
+    ``registry`` Pyramid registry
+
 
     ``url``
     An optional connection string that will be passed straight to
@@ -58,7 +65,8 @@ def get_redis(registry=None, url=None, redis_client=StrictRedis, **redis_options
     else:
         redis = redis_client(**redis_options)
 
+    # TODO: Fix caching by redis options
     # save the new connection in the registry
-    setattr(registry, '_redis_sessions', redis)
+    # setattr(registry, '_redis_sessions', redis)
 
     return redis

@@ -29,6 +29,7 @@ Narrative developer guide
     narrative/mail
     narrative/tweens
     narrative/commands
+    narrative/task
     narrative/testing
     narrative/develop
     narrative/docs

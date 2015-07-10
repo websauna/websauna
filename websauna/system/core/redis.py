@@ -40,7 +40,7 @@ def get_redis(registry=None, url=None, redis_client=StrictRedis, **redis_options
         registry = get_current_registry()
 
     # attempt to get an existing connection from the registry
-    redis = getattr(registry, '_redis_sessions', None)
+    redis = None
 
     # if we found an active connection, return it
     if redis is not None:

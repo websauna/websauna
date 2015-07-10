@@ -99,6 +99,10 @@ Run::
 
 This will update Python scripts in ``alembic/versions`` folder.
 
+Backup your database before running a migration::
+
+    ws-dump-db > dump.sql
+
 Then run the script against the database::
 
     ws-alembic -c development.ini upgrade head
@@ -121,6 +125,19 @@ Creating further migrations
 ---------------------------
 
 Repeat the tasks of creating the first migration.
+
+Running a migration on the production server
+--------------------------------------------
+
+Preface: You have created a migration script and deployed the migration script and changed model Python files on the production server. Now you wish to run the migration in the production.
+
+Backup your database before running a migration::
+
+    ws-dump-db > dump.sql
+
+Then run the script against the database::
+
+    ws-alembic -c production.ini upgrade head
 
 Fixing a migration
 ------------------
@@ -223,3 +240,38 @@ Example::
 Alembic creates migration scripts for these, but fails to insert ``datetime`` import statement. Thus, after running *autogenerate* you need to edit the resulting Python script and add the statement::
 
     import datetime
+
+FAILED: No such revision or branch 'xxx'
+----------------------------------------
+
+This error may appear if you try to run migrations on a database with ``upgrade head`. The ``alembic_version`` database table has gotten out of the sync with the actual migration scripts and their ids.
+
+The course of the actions is to drop ``alembic_version`` database table and reset the current migration pointer to the migration script matching your database.
+
+Backup your database before doing hardcore database manipulation:
+
+    ws-dump-db staging.ini > dump.sql
+
+Drop the alembic migration pointer table::
+
+    ws-db-shell staging.ini
+
+    DROP TABLE alembic_version
+
+    \q
+
+Output the available migration script versions::
+
+    ws-alembic -c staging.ini history
+
+    # Example output:
+    37e1cb6de47 -> 3ca5462d497 (head), Adding Offer model for managing deals
+    <base> -> 37e1cb6de47, Initial migration
+
+Update the alembic migration pointer::
+
+    ws-alembic -c staging.ini stamp 37e1cb6de47
+
+Run migrations. Now it should pick migrations from 37e1cb6de47 and run all the way to the latest migration::
+
+    ws-alembic -c staging.ini upgrade head

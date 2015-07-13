@@ -39,6 +39,7 @@ def get_redis(registry=None, url=None, redis_client=StrictRedis, **redis_options
     if not registry:
         registry = get_current_registry()
 
+    # TODO: Cache connections by name
     # attempt to get an existing connection from the registry
     redis = None
 

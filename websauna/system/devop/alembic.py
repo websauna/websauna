@@ -14,7 +14,14 @@ from websauna.system.model import DBSession
 logger = None
 
 
-def run_migrations_offline(url, target_metadata):
+def get_migration_table_name(package_name: str) -> str:
+    """Convert Python package name to migration table name."""
+    assert type(package_name) == str
+    table = package_name.replace(".", "_").lower()
+    return "alembic_history_{}".format(table)
+
+
+def run_migrations_offline(url, target_metadata, version_table):
     """Run migrations in 'offline' mode.
 
     This configures the context with just a URL
@@ -27,13 +34,13 @@ def run_migrations_offline(url, target_metadata):
 
     """
     context.configure(
-        url=url, target_metadata=target_metadata, literal_binds=True)
+        url=url, target_metadata=target_metadata, literal_binds=True, version_table=version_table)
 
     with context.begin_transaction():
         context.run_migrations()
 
 
-def run_migrations_online(engine, target_metadata):
+def run_migrations_online(engine, target_metadata, version_table):
     """Run migrations in 'online' mode.
 
     In this scenario we need to create an Engine
@@ -48,9 +55,11 @@ def run_migrations_online(engine, target_metadata):
     #    poolclass=pool.NullPool)
 
     with connectable.connect() as connection:
+
         context.configure(
             connection=connection,
-            target_metadata=target_metadata
+            target_metadata=target_metadata,
+            version_table=version_table
         )
 
         with context.begin_transaction():
@@ -94,6 +103,7 @@ def run_alembic(package):
     :param package: String of the Python package name whose model the migration concerns.
     """
     global logger
+    global version_table
 
     # this is the Alembic Config object, which provides
     # access to the values within the .ini file in use.
@@ -118,16 +128,13 @@ def run_alembic(package):
     # Use live SQLAlchemy engine object for online migrations
     engine = DBSession.get_bind()
 
-    # other values from the config, defined by the needs of env.py,
-    # can be acquired:
-    # my_important_option = config.get_main_option("my_important_option")
-    # ... etc.
+    version_table = get_migration_table_name(package)
 
     if context.is_offline_mode():
-        run_migrations_offline(url, target_metadata)
+        run_migrations_offline(url, target_metadata, version_table)
     else:
-        logger.info("Starting online migration engine")
-        run_migrations_online(engine, target_metadata)
+        logger.info("Starting online migration engine on database connection {} version history table {}".format(engine, version_table))
+        run_migrations_online(engine, target_metadata, version_table)
 
     logger.info("All done")
 

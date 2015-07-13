@@ -27,6 +27,54 @@ CRUD provides translation of object ids to URL paths and vice versa.
 
 This is handled by settings the mapper attribute of CRUD.
 
+Listing view
+============
+
+TODO
+
+Add view
+========
+
+TODO
+
+Customizing created objects
+---------------------------
+
+Override ``create_object()``. Example:
+
+.. code-block:: python
+
+    @view_overrides(context=ReferralProgramAdmin)
+    class ReferralProgramAdd(adminviews.Add):
+        """Admin view for editing shortened URL."""
+
+        # We only ask for name field, everything else is filled by system
+        includes = [
+            "name"
+        ]
+
+        def create_object(self):
+            """When created through admin, all referral programs are internal type by default."""
+            model = self.get_model()
+            item = model()
+            item.program_type = "internal"
+            return item
+
+Show view
+=========
+
+TODO
+
+Edit view
+=========
+
+TODO
+
+Delete view
+===========
+
+TODO
+
 Resource buttons
 ================
 

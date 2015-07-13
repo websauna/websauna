@@ -212,6 +212,15 @@ The modern web development is not simple having a script on the server which wri
             </tr>
 
             <tr>
+                <th>Third party package migration support</th>
+                <td class="built-in">Customized Alembic</td>
+                <td class="unopionated"></td>
+                <td class="built-in">Django migrations</td>
+                <td class="unopionated"></td>
+            </tr>
+
+
+            <tr>
                 <th>Session storage</th>
                 <td class="built-in">pyramid_redis</td>
                 <td class="unopionated"></td>

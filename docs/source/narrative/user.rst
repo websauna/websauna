@@ -35,3 +35,12 @@ Below is a simple shell script to generate empty users for manual testing purpos
         DBSession.add(user)
 
     transaction.commit()
+
+
+Getting all users who are members of a group
+--------------------------------------------
+
+Example::
+
+    admin_group = DBSession.query(Group).filter_by(name="admin").first()
+    users = admin_group.users

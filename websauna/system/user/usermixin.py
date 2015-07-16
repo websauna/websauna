@@ -19,6 +19,8 @@ from websauna.system.model import utc
 from websauna.system.model import DBSession
 from websauna.utils.jsonb import JSONBProperty
 
+from backports import typing
+
 
 #: Initialze user_data JSONB structure with these fields
 DEFAULT_USER_DATA = {

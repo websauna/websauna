@@ -24,9 +24,9 @@ DUPLICITY=`which duplicity`
 
 # Read .ini settings to bash variables
 
-[[ "$MAIN_websauna_SITE_ID" ]] || { echo "websauna.site_id missing";  exit 1; }
+[[ "$MAIN_WEBSAUNA_SITE_ID" ]] || { echo "websauna.site_id missing";  exit 1; }
 
-[[ "$MAIN_websauna_BACKUP_S3_BUCKET_URL" ]] || { echo "Backup S3 bucket missing"; exit 1; }
+[[ "$MAIN_WEBSAUNA_BACKUP_S3_BUCKET_URL" ]] || { echo "Backup S3 bucket missing"; exit 1; }
 
 [[ "$SECRET_BACKUP_ENCRYPTION_KEY" ]] || { echo "backup.encryption_key secrets passphare missing"; exit 1; }
 

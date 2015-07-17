@@ -21,7 +21,18 @@ def get_migration_table_name(package_name: str) -> str:
     return "alembic_history_{}".format(table)
 
 
-def run_migrations_offline(url, target_metadata, version_table):
+def get_class_by_table_name(tablename):
+  """Return class reference mapped to table.
+
+  :param tablename: String with name of table.
+  :return: Class reference or None.
+  """
+  for c in Base._decl_class_registry.values():
+    if hasattr(c, '__tablename__') and c.__tablename__ == tablename:
+      return c
+
+
+def run_migrations_offline(url, target_metadata, version_table, include_object):
     """Run migrations in 'offline' mode.
 
     This configures the context with just a URL
@@ -34,13 +45,13 @@ def run_migrations_offline(url, target_metadata, version_table):
 
     """
     context.configure(
-        url=url, target_metadata=target_metadata, literal_binds=True, version_table=version_table)
+        url=url, target_metadata=target_metadata, literal_binds=True, version_table=version_table, include_object=include_object)
 
     with context.begin_transaction():
         context.run_migrations()
 
 
-def run_migrations_online(engine, target_metadata, version_table):
+def run_migrations_online(engine, target_metadata, version_table, include_object):
     """Run migrations in 'online' mode.
 
     In this scenario we need to create an Engine
@@ -59,7 +70,8 @@ def run_migrations_online(engine, target_metadata, version_table):
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
-            version_table=version_table
+            version_table=version_table,
+            include_object=include_object
         )
 
         with context.begin_transaction():
@@ -95,7 +107,7 @@ def get_sqlalchemy_metadata(package):
 
 
 
-def run_alembic(package):
+def run_alembic(package:str):
     """Alembic env.py script entry point for Websauna application.
 
     Initialize the application, load models and pass control to Alembic migration handler.
@@ -114,12 +126,13 @@ def run_alembic(package):
 
     setup_logging(config_file)
 
-    # Create the application, don't run any database sanitycheckss
+    # Load the WSGI application, etc.
     env = bootstrap(config_file, options=dict(sanity_check=False))
 
     # Delay logger creation until we have initialized the logging system
     logger = logging.getLogger(__name__)
 
+    #: Pull out MetaData instance for the system
     target_metadata = get_sqlalchemy_metadata(package)
 
     # Extract database connection URL from the settings
@@ -128,13 +141,38 @@ def run_alembic(package):
     # Use live SQLAlchemy engine object for online migrations
     engine = DBSession.get_bind()
 
+    # Each package needs to maintain its own alembic_history table
     version_table = get_migration_table_name(package)
 
+    def include_object(object, name, type_, reflected, compare_to):
+        """Determine if the migrations should consider this model or not.
+
+        We are only interested models provided by our package.
+
+        http://dev.utek.pl/2013/ignoring-tables-in-alembic/
+        """
+        if type_ == "index":
+            table_name = object.table.name
+        else:
+            table_name = object.name
+
+        print(object, type_, table_name)
+
+        model = get_class_by_table_name(table_name)
+        if not model:
+            # Don't know what's this... let's skip
+            return False
+
+        module = model.__module__
+
+        # XXX: This is not very beautiful check but works for now
+        return module.startswith(package)
+
     if context.is_offline_mode():
-        run_migrations_offline(url, target_metadata, version_table)
+        run_migrations_offline(url, target_metadata, version_table, include_object)
     else:
         logger.info("Starting online migration engine on database connection {} version history table {}".format(engine, version_table))
-        run_migrations_online(engine, target_metadata, version_table)
+        run_migrations_online(engine, target_metadata, version_table, include_object)
 
     logger.info("All done")
 

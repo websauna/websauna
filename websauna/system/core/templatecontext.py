@@ -125,9 +125,12 @@ def friendly_time(jinja_ctx, context, **kw):
     else:
         tz = datetime.timezone.utc
 
-    arrow = Arrow.fromdatetime(now, tzinfo=tz)
+    # Meke relative time between two timestamps
 
-    other = Arrow.fromdatetime(datetime.datetime.now(tz=tz))
+    now = now.astimezone(tz)
+
+    arrow = Arrow.fromdatetime(now)
+    other = Arrow.fromdatetime(datetime.datetime.utcnow())
 
     return arrow.humanize(other)
 

@@ -34,15 +34,17 @@ DUPLICITY=`which duplicity`
 
 [[ "$SECRET_AWS_SECRET_ACCESS_KEY" ]] || { echo "aws.secret_access_key secrets.ini entry missing"; exit 1; }
 
+[[ "$MAIN_WEBSAUNA_BACKUP_S3_BUCKET_URL" ]] || { echo "websauna.backup_s3_bucket_url ini entry missing"; exit 1; }
+
 # Our S3 bucket where we drop files
-DUPLICITY_TARGET=$MAIN_websauna_BACKUP_S3_BUCKET_URL/$MAIN_websauna_SITE_ID
+DUPLICITY_TARGET=$MAIN_WEBSAUNA_BACKUP_S3_BUCKET_URL/$MAIN_WEBSAUNA_SITE_ID
 
 # Tell credentials to Boto
 export AWS_ACCESS_KEY_ID=$SECRET_AWS_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY=$SECRET_AWS_SECRET_ACCESS_KEY
 
 # Assume we store backups in the same folder as project
-LOCAL_BACKUP_DIR=$PWD/backups/$MAIN_websauna_SITE_ID
+LOCAL_BACKUP_DIR=$PWD/backups/$MAIN_WEBSAUNA_SITE_ID
 install -d $LOCAL_BACKUP_DIR
 
 # We need to export passphrase for GPG piping

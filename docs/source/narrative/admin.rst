@@ -50,8 +50,32 @@ In the template ``phone_order.html``::
     {% endblock %}
 
 
-Adding an admin menu entry
-==========================
+Then you can later get the link to this page in template code::
 
-Websauna comes with an admin menu. By default it lists, dashboard, Notebook shell and links to model listing. You are free to register your entries.
+    <p>
+        <a href="{{ request.resource_url(admin, 'phone-order') }}>Create phone order</a>
+    </p>
 
+Getting an model instance link in admin
+=======================================
+
+Preface: You have an SQLAlchemy object and you want to provide the link to its admin interface: show, edit or custom action.
+
+To construct a link to the model instance inside admin interface, you need to
+
+* Get a hold of the current admin object
+
+* Ask admin to provide traversable resource for this object
+
+* Use ``request.resource_url()`` to get the link
+
+Example::
+
+    # Get admin singleton from the registry
+    admin = Admin.get_admin(request.registry)
+
+    # Get traversable resource for a model instance
+    resource = admin.get_admin_resource(user)
+
+    # Get a context view named "edit" for this resource
+    edit_link = request.resource_url(resource, "edit")

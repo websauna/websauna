@@ -228,6 +228,15 @@ The solution is to hand edit migration script after ``ws-alembic --autogenerate`
 Troubleshooting
 ===============
 
+Force Alembic autogenerate to consider models from all packages
+---------------------------------------------------------------
+
+By default ``ws-alembic -c development.ini revision --autogenerate`` only looks up models and tables specific to your current package (`otherwise a lot of extra DROP table statements would be generated <http://stackoverflow.com/questions/31196631/alembic-when-autogenerating-migrations-how-to-ignore-database-tables-by-other-p>`_). However, sometimes this behavior is not desirable when cross-package references are foreign keys are considered. You can disable this behavior with ``ALEMBIC_ALL_PACKAGES`` environment variable::
+
+     ALEMBIC_ALL_PACKAGES=true ws-alembic -c development.ini revision --autogenerate -m "Adding referral program column to subscriber"
+
+... and then hand edit the resulting migration script to remove unnecessary migration statements.
+
 NameError: name 'datetime' is not defined
 -----------------------------------------
 
@@ -275,3 +284,7 @@ Update the alembic migration pointer::
 Run migrations. Now it should pick migrations from 37e1cb6de47 and run all the way to the latest migration::
 
     ws-alembic -c staging.ini upgrade head
+
+Alternatively, you can also try to fix version history by directly manipulating Alembic history in PostgreSQL::
+
+    update alembic_history_trees set version_num="3dd2f080895";

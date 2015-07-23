@@ -1,4 +1,5 @@
 """Support for Alembic SQL migrations."""
+import os
 import logging
 
 from pyramid.paster import setup_logging
@@ -167,6 +168,12 @@ def run_alembic(package:str):
 
         # XXX: This is not very beautiful check but works for now
         return module.startswith(package)
+
+    # XXX: Make this a proper command line switch when writing more refined Alembic front end
+    if "ALEMBIC_ALL_PACKAGES" in os.environ:
+        # Force Alembic to consider all packages
+        import ipdb ; ipdb.set_trace()
+        include_object = lambda object, name, type_, reflected, compare_to: True
 
     if context.is_offline_mode():
         run_migrations_offline(url, target_metadata, version_table, include_object)

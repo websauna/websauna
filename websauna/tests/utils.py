@@ -1,9 +1,13 @@
 import time
 import os
 from decimal import Decimal
+from pyramid.registry import Registry
+from pyramid.session import signed_deserialize
+from pyramid_redis_sessions import RedisSession, get_default_connection
 from websauna.system.model import now
 from websauna.system.model import DBSession
 
+from selenium.webdriver.remote.webdriver import WebDriver
 from websauna.system.user.usermixin import check_empty_site_init
 
 #: The default test login name
@@ -94,3 +98,66 @@ def login(web_server, browser, email=EMAIL, password=PASSWORD):
     b.find_by_name("Log_in").click()
     assert b.is_element_visible_by_css("#nav-logout")
 
+
+def get_session_from_webdriver(driver:WebDriver, registry:Registry) -> RedisSession:
+    """Extract session cookie from a Selenium driver and fetch a matching pyramid_redis_sesssion data.
+
+    Example::
+
+        def test_newsletter_referral(DBSession, web_server, browser, init):
+            '''Referral is tracker for the newsletter subscription.'''
+
+            b = browser
+            b.visit(web_server + "/newsletter")
+
+            with transaction.manager:
+                r = ReferralProgram()
+                r.name = "Foobar program"
+                DBSession.add(r)
+                DBSession.flush()
+                ref_id, slug = r.id, r.slug
+
+            # Inject referral data to the active session. We do this because it is very hard to spoof external links pointing to localhost test web server.
+            session = get_session_from_webdriver(b.driver, init.config.registry)
+            session["referral"] = {
+                "ref": slug,
+                "referrer": "http://example.com"
+            }
+            session.to_redis()
+
+            b.fill("email", "foobar@example.com")
+            b.find_by_name("subscribe").click()
+
+            # Displayed as a message after succesful form subscription
+            assert b.is_text_present("Thank you!")
+
+            # Check we get an entry
+            with transaction.manager:
+                assert DBSession.query(NewsletterSubscriber).count() == 1
+                subscription = DBSession.query(NewsletterSubscriber).first()
+                assert subscription.email == "foobar@example.com"
+                assert subscription.ip == "127.0.0.1"
+                assert subscription.referral_program_id == ref_id
+                assert subscription.referrer == "http://example.com"
+
+    :param driver: The active WebDriver (usually ``browser.driver``)
+
+    :param registry: The Pyramid registry (usually ``init.config.registry``)
+    """
+
+    # Decode the session our test browser is associated with by reading the raw session cookie value and fetching the session object from Redis
+    secret = registry.settings["redis.sessions.secret"]
+
+    session_cookie = driver.get_cookie("session")["value"]
+    session_id = signed_deserialize(session_cookie, secret)
+
+    class MockRequest:
+        def __init__(self, registry):
+            self.registry = registry
+
+    # Use pyramid_redis_session to get a connection to the Redis database
+    redis = get_default_connection(MockRequest(registry))
+
+    session = RedisSession(redis, session_id, new=False, new_session=None)
+
+    return session

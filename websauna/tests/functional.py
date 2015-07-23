@@ -5,9 +5,12 @@ import threading
 import time
 from wsgiref.simple_server import make_server
 from urllib.parse import urlparse
+from pyramid.paster import bootstrap
 
 import pytest
 from webtest import TestApp
+
+from backports import typing
 
 #: The URL where WSGI server is run from where Selenium browser loads the pages
 HOST_BASE = "http://localhost:8521"
@@ -51,8 +54,13 @@ class ServerThread(threading.Thread):
 
 
 @pytest.fixture(scope='session')
-def web_server(request, app):
-    """Have a WSGI server for running functional tests."""
+def web_server(request, app) -> str:
+    """py.test fixture to create a WSGI web server for functional tests.
+
+    :param app: py.test fixture for constructing a WSGI application
+
+    :return: localhost URL where the web server is running.
+    """
 
     server = ServerThread(app)
     server.start()
@@ -63,8 +71,6 @@ def web_server(request, app):
 
     assert server.srv is not None, "Could not start the test web server"
 
-    app = TestApp(app)
-
     host_base = HOST_BASE
 
     def teardown():
@@ -74,11 +80,85 @@ def web_server(request, app):
     return host_base
 
 
+
+_customized_web_server_port = 8522
+
+@pytest.fixture()
+def customized_web_server(request, app) -> typing.Callable:
+    """py.test fixture to create a WSGI web server for functional tests with custom INI options set.
+
+    This is similar to ``web_server``, but instead directly spawning a server, it returns a factory method which you can use to launch the web server which custom parameters besides those given in test.ini.
+
+    Example::
+
+        def test_newsletter_splash(DBSession, customized_web_server, browser):
+            '''All visitors get a newsletter subscription dialog when arriving to the landing page.
+
+            :param dbsession: py.test fixture for
+            :param ini_settings: py.test fixture for loading INI settings from command line
+            '''
+
+            # Create a WSGI server where newsletter splash dialog is explicitly enabled (disabled by default for testing)
+            web_server = customized_web_server({"trees.newsletter_splash": True})
+
+            b = browser
+            b.visit(web_server)
+
+            # Scroll down a bit to trigger the dialog
+            browser.driver.execute_script("window.scrollTo(0, 10)")
+
+            # Wait the dialog to come up
+            time.sleep(2)
+
+
+    Inspiration: http://stackoverflow.com/a/28570677/315168
+
+    :param app: py.test fixture for constructing a WSGI application
+
+    :return: A factory function you can use to spawn a web server. Optional kwargs dict can be passed to this function.
+    """
+
+    def customized_web_server_inner(overrides:dict) -> str:
+
+        global _customized_web_server_port
+
+        old_settings = app.registry.settings.copy()
+
+        app.registry.settings.update(overrides)
+
+        host_base = HOST_BASE.replace("8521", str(_customized_web_server_port))
+        _customized_web_server_port += 1
+
+        server = ServerThread(app, host_base)
+        server.start()
+
+        # Wait randomish time to allows SocketServer to initialize itself.
+        # TODO: Replace this with proper event telling the server is up.
+        time.sleep(0.1)
+
+        assert server.srv is not None, "Could not start the test web server at {}".format(host_base)
+
+        def teardown():
+            # Restore old settings
+            app.settings = old_settings
+
+            # Shutdown server thread
+            server.quit()
+
+        request.addfinalizer(teardown)
+        return host_base
+
+    return customized_web_server_inner
+
+
+
 @pytest.fixture(scope='session')
 def light_web_server(request, app):
     """Creates a test web server which does not give any CSS and JS assets to load.
 
     Because the server life-cycle is one test session and we run with different settings we need to run a in different port.
+
+    TODO: Remove - make this configuration for web_server()
     """
 
     app.initializer.config.registry["websauna.testing_skip_css"] = True

@@ -5,11 +5,11 @@ https://gist.github.com/inklesspen/4504383
 
 
 import os
-
 import pyramid.testing
-
 import pytest
 import transaction
+
+from sqlalchemy.orm.session import Session
 
 from pyramid.paster import (
     get_appsettings,
@@ -19,7 +19,6 @@ from pyramid.paster import (
 # TODO: Remove this method
 from websauna.system import get_init
 
-from websauna.system.model import DBSession
 from websauna.system.model import Base
 
 
@@ -52,8 +51,14 @@ def test_case_ini_settings(request):
 
 
 @pytest.fixture(scope='session')
-def app(request, ini_settings):
+def app(request, ini_settings, **settings_overrides):
     """Initialize WSGI application from INI file given on the command line.
+
+    TODO: This can be run only once per testing session, as SQLAlchemy does some stupid shit on import, leaks globals and if you run it again it doesn't work. E.g. trying to manually call ``app()`` twice::
+
+         Class <class 'websauna.referral.models.ReferralProgram'> already has been instrumented declaratively
+
+    :param settings_overrides: Override specific settings for the test case.
 
     :return: WSGI application instance as created by ``Initializer.make_wsgi_app()``.
     """
@@ -98,6 +103,9 @@ def dbtransaction(request, sqlengine):
 
     The transaction is rolled back at the end of the test.
     """
+
+    from websauna.system.model import DBSession
+
     connection = sqlengine.connect()
     transaction = connection.begin()  # noqa
     DBSession.configure(bind=connection)
@@ -113,11 +121,35 @@ def dbtransaction(request, sqlengine):
 
 
 @pytest.fixture()
-def dbsession(request, app):
-    """Get a database session where we have initialized user models.
+def DBSession(request, app) -> Session:
+    """Create a test database and database session.
 
-    Tables are purged after the run.
+    Connect to the test database specified in test.ini. Create and destroy all tables by your Initializer configuration.
+
+    Performs SQLAlchemy table initialization for all models connected to ``websauna.system.model.Base``.
+    You must do manual opening and closing transaction inside the test, preferably using ``transaction.manager`` context manager. If transaction is left open, subsequent tests may fail.
+
+    Example::
+
+        import transaction
+
+        from trees.models import NewsletterSubscriber
+
+        def test_subscribe_newsletter(DBSession):
+            '''Visitor can subscribe to a newsletter.'''
+
+            # ... test code goes here ...
+
+            # Check we get an entry
+            with transaction.manager:
+                assert DBSession.query(NewsletterSubscriber).count() == 1
+                subscription = DBSession.query(NewsletterSubscriber).first()
+                assert subscription.email == "foobar@example.com"
+                assert subscription.ip == "127.0.0.1"
+
+    :return: A SQLAlchemy session instance you can use to query database.
     """
+    from websauna.system.model import DBSession
     DBSession.close()
 
     with transaction.manager:
@@ -138,6 +170,10 @@ def dbsession(request, app):
     request.addfinalizer(teardown)
 
     return DBSession
+
+
+#: BBB - to be removed
+dbsession = DBSession
 
 
 @pytest.fixture()
@@ -194,7 +230,7 @@ def pyramid_request(request, init):
 #: Make sure py.test picks this up
 from websauna.tests.functional import web_server  # noqa
 from websauna.tests.functional import light_web_server  # noqa
-
+from websauna.tests.functional import customized_web_server  # noqa
 
 def pytest_addoption(parser):
     parser.addoption("--ini", action="store", metavar="INI_FILE", help="use INI_FILE to configure SQLAlchemy")

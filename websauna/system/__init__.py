@@ -52,6 +52,19 @@ class Initializer:
         configurator = Configurator(settings=settings)
         return configurator
 
+    def get_cache_max_age(self, settings):
+        """Get websauna.cache_max_age setting and convert it to seconds.
+
+        :return: None for no caching or cache_max_age as seconds
+        """
+
+        cache_max_age = settings.get("websauna.cache_max_age")
+        if (not cache_max_age) or (not cache_max_age.strip()):
+            return None
+        else:
+            return int(cache_max_age)
+
+
     def configure_logging(self, settings):
         """Create and set Pyramid debug logger.
 
@@ -149,22 +162,6 @@ class Initializer:
         self.config.include('pyramid_mako')
 
         self.config.include("websauna.system.core.templatecontext")
-
-        def include_filter(name, func):
-
-            def deferred():
-                for renderer_name in (".html", ".txt"):
-                    env = self.config.get_jinja2_environment(name=renderer_name)
-                    assert env, "Jinja 2 not configured - cannot add filters"
-                    env.filters[name] = func
-
-            # Because Jinja 2 engine is not initialized here, only included here, we need to do template filter including asynchronously
-            self.config.action('pyramid_web-include-filter-{}'.format(name), deferred, order=1)
-
-        include_filter("friendly_time", templatecontext.friendly_time)
-        include_filter("datetime", templatecontext.filter_datetime)
-        include_filter("escape_js", templatecontext.escape_js)
-        include_filter("timestruct", templatecontext.timestruct)
 
         # Make Deform widgets aware of our widget template paths
         configure_zpt_renderer(["websauna:system/form/templates/deform"])

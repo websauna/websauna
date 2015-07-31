@@ -1,5 +1,6 @@
 """Extra template variables."""
 import datetime
+import json
 
 from pyramid.events import BeforeRender
 from pyramid.renderers import render
@@ -19,54 +20,6 @@ from arrow import Arrow
 
 from websauna.utils import html
 from websauna.system.model import now
-
-
-def includeme(config):
-
-    # The site name - used in <title> tag, front page, etc.
-    site_name = config.registry.settings["websauna.site_name"]
-
-    # Do not use - use request.route_url("home") to get link to the site root
-    site_url = config.registry.settings["websauna.site_url"]
-
-    # Shown in the footer as the site copyright owner
-    site_author = config.registry.settings["websauna.site_author"]
-
-    # Shown on the front page below title
-    site_tag_line = config.registry.settings["websauna.site_tag_line"]
-
-    # [label] Added beginning of every outgoing email subject
-    site_email_prefix = config.registry.settings["websauna.site_email_prefix"]
-
-    # True if this is production set up - can be used in templates to change/hide texts
-    site_production = asbool(config.registry.settings.get("websauna.site_production"))
-
-    #: The default site timezone - can be used in templates to translate UTC timetamps
-    site_timezone = asbool(config.registry.settings.get("websauna.site_timezone", "UTC"))
-
-    #: Skip CSS in templates in functional test runs to speed them up. This flag is set by py.test fixture.
-    testing_skip_css = asbool(config.registry.settings.get("websauna.testing_skip_css", False))
-
-    #: Skip JS in templates loading in functional test runs to speed them up. This flag is set by py.test fixture.
-    testing_skip_js = asbool(config.registry.settings.get("websauna.testing_skip_js", False))
-
-    def on_before_render(event):
-        # Augment Pyramid template renderers with these extra variables
-        event['site_name'] = site_name
-        event['site_url'] = site_url
-        event['site_author'] = site_author
-        event['site_tag_line'] = site_tag_line
-        event['site_now'] = now
-        event['site_email_prefix'] = site_email_prefix
-        event['site_production'] = site_production
-        event['site_timezone'] = site_timezone
-
-        event['testing_skip_css'] = testing_skip_css
-        event['testing_skip_js'] = testing_skip_css
-
-
-
-    config.add_subscriber(on_before_render, BeforeRender)
 
 
 
@@ -143,6 +96,23 @@ def escape_js(jinja_ctx, context, **kw):
 
 
 @contextfilter
+def to_json(jinja_ctx, context, safe=True):
+    """Converts Python dict to JSON, safe to be placed inside <script> tag.
+
+    :param context: Takes Python dictionary as input
+
+    :param safe: Set to False to not to run ``escape_js()`` on the resulting JSON. True by default.
+
+    :return: JSON string to be included inside HTML code
+    """
+    json_ = json.dumps(context)
+    if safe:
+        return escape_js(jinja_ctx, json_)
+    else:
+        return json_
+
+
+@contextfilter
 def timestruct(jinja_ctx, context, **kw):
     """Render both humanized time and accurate time.
 
@@ -169,3 +139,68 @@ def timestruct(jinja_ctx, context, **kw):
     kw["format"] = kw.get("format") or "YYYY-MM-DD HH:mm"
 
     return Markup(render("core/timestruct.html", kw, request=request))
+
+
+def includeme(config):
+
+    # The site name - used in <title> tag, front page, etc.
+    site_name = config.registry.settings["websauna.site_name"]
+
+    # Do not use - use request.route_url("home") to get link to the site root
+    site_url = config.registry.settings["websauna.site_url"]
+
+    # Shown in the footer as the site copyright owner
+    site_author = config.registry.settings["websauna.site_author"]
+
+    # Shown on the front page below title
+    site_tag_line = config.registry.settings["websauna.site_tag_line"]
+
+    # [label] Added beginning of every outgoing email subject
+    site_email_prefix = config.registry.settings["websauna.site_email_prefix"]
+
+    # True if this is production set up - can be used in templates to change/hide texts
+    site_production = asbool(config.registry.settings.get("websauna.site_production"))
+
+    #: The default site timezone - can be used in templates to translate UTC timetamps
+    site_timezone = asbool(config.registry.settings.get("websauna.site_timezone", "UTC"))
+
+    #: Skip CSS in templates in functional test runs to speed them up. This flag is set by py.test fixture.
+    testing_skip_css = asbool(config.registry.settings.get("websauna.testing_skip_css", False))
+
+    #: Skip JS in templates loading in functional test runs to speed them up. This flag is set by py.test fixture.
+    testing_skip_js = asbool(config.registry.settings.get("websauna.testing_skip_js", False))
+
+    def on_before_render(event):
+        # Augment Pyramid template renderers with these extra variables
+        event['site_name'] = site_name
+        event['site_url'] = site_url
+        event['site_author'] = site_author
+        event['site_tag_line'] = site_tag_line
+        event['site_now'] = now
+        event['site_email_prefix'] = site_email_prefix
+        event['site_production'] = site_production
+        event['site_timezone'] = site_timezone
+
+        event['testing_skip_css'] = testing_skip_css
+        event['testing_skip_js'] = testing_skip_css
+
+
+
+    config.add_subscriber(on_before_render, BeforeRender)
+
+    def include_filter(name, func):
+
+        def deferred():
+            for renderer_name in (".html", ".txt"):
+                env = config.get_jinja2_environment(name=renderer_name)
+                assert env, "Jinja 2 not configured - cannot add filters"
+                env.filters[name] = func
+
+        # Because Jinja 2 engine is not initialized here, only included here, we need to do template filter including asynchronously
+        config.action('pyramid_web-include-filter-{}'.format(name), deferred, order=1)
+
+    include_filter("friendly_time", friendly_time)
+    include_filter("datetime", filter_datetime)
+    include_filter("escape_js", escape_js)
+    include_filter("timestruct", timestruct)
+    include_filter("to_json", to_json)

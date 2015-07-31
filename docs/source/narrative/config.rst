@@ -23,8 +23,15 @@ Configuration variables
 
 The following variables are available
 
+websauna.cache_max_age
+----------------------
+
+How long *Expires* header is set for served static assets.
+
+Default: ``None`` (zero) seconds. In production configuration this is overridden to 3600 seconds.
+
 websauna.superuser
------------------------
+------------------
 
 List of superuser emails or usernames. Add your username on this list to make it super user.
 

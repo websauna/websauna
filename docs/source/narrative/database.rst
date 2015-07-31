@@ -99,6 +99,10 @@ Run::
 
 This will update Python scripts in ``alembic/versions`` folder.
 
+.. note ::
+
+    Always manually inspect generated migration scripts after they have been created with revision --autogenerate. Sometimes the automatic logic fails to correctly detect database changes.
+
 Backup your database before running a migration::
 
     ws-dump-db > dump.sql
@@ -135,9 +139,16 @@ Backup your database before running a migration::
 
     ws-dump-db > dump.sql
 
+Checkout the migration scripts from ``alembic`` directory on the production server, without upgrading the full codebase. We do not want to pull in models which do not have persistent data models created for them yet::
+
+    git fetch
+    git checkout origin -- alembic
+
 Then run the script against the database::
 
     ws-alembic -c production.ini upgrade head
+
+Now the database is prepared for the upcoming code update. Proceed to update the rest of the codebase and restart the services.
 
 Fixing a migration
 ------------------

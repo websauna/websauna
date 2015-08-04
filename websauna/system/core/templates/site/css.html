@@ -1,7 +1,17 @@
 {# Speed up automatic testing by skipping the loading of CSS resources #}
 
 {% if not testing_skip_css %}
+
+    {# CDN'ed version #}
+    {#
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+     #}
+    <link rel="stylesheet" href="{{ 'websauna.system:static/bootstrap.min.css'|static_url }}">
+
+    {#
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+     #}
+
+
 {% endif %}
 

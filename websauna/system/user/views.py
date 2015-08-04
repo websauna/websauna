@@ -1,4 +1,5 @@
 import datetime
+from pyramid.request import Request
 from websauna.system.model import now, DBSession
 
 from pyramid.view import view_config
@@ -41,7 +42,7 @@ from horus.events import RegistrationActivatedEvent
 from horus.events import PasswordResetEvent
 from horus.events import ProfileUpdatedEvent
 from horus.lib import FlashMessage
-from horus.models import _
+from horus.models import _, UserMixin
 from horus.exceptions import AuthenticationFailure
 from horus.httpexceptions import HTTPBadRequest
 from horus import views as horus_views
@@ -97,10 +98,18 @@ def create_activation(request, user):
     init_user(request, user)
 
 
-def authenticated(request, user):
-    """Sets the auth cookies and redirects to the page defined in horus.login_redirect, which defaults to a view named 'index'.
+def authenticated(request:Request, user:UserMixin, location:str=None) -> HTTPFound:
+    """Logs in the user.
+
+    Sets the auth cookies and redirects to the page defined in horus.login_redirect, which defaults to a view named 'index'.
 
     Fills in user last login details.
+
+    :param request: Current request
+
+    :param user: User model to log in
+
+    :param location: Override the redirect page. If none use ``horus.login_redirect``
     """
 
     # See that our user model matches one we expect from the configuration
@@ -124,7 +133,8 @@ def authenticated(request, user):
     user.last_login_at = datetime.datetime.utcnow()
     user.last_login_ip = request.client_addr
 
-    location = get_config_route(request, 'horus.login_redirect')
+    if not location:
+        location = get_config_route(request, 'horus.login_redirect')
 
     return HTTPFound(location=location, headers=headers)
 

@@ -1,29 +1,22 @@
 {# Horus render_flash_messages() #}
 
-<div class="container">
+{% set queues = ['error', 'warning', 'info', 'success', ''] %}
 
-    <div class="row">
-        <div class="col-md-12">
-            {% set queues = ['error', 'warning', 'info', 'success', ''] %}
+{# Bootstrap 3.x alert classes mapped to error levels #}
+{% set visuals = {'error': 'danger'} %}
 
-            {# Bootstrap 3.x alert classes mapped to error levels #}
-            {% set visuals = {'error': 'danger'} %}
-
-            {% for queue in queues %}
-                 {% with messages = request.session.pop_flash(queue) %}
-                    {% for msg in messages %}
-                        {% if msg.kind %}
-                            <div class="alert alert-{{ visuals.get(msg.kind, msg.kind) }}">
-                                {{ msg.plain }}
-                            </div>
-                        {% else %}
-                            <div class="alert alert-danger">
-                                {{ msg.plain }}
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                {% endwith %}
-            {% endfor %}
-        </div>
-    </div>
-</div>
+{% for queue in queues %}
+     {% with messages = request.session.pop_flash(queue) %}
+        {% for msg in messages %}
+            {% if msg.kind %}
+                <div class="alert alert-{{ visuals.get(msg.kind, msg.kind) }}">
+                    {{ msg.plain }}
+                </div>
+            {% else %}
+                <div class="alert alert-danger">
+                    {{ msg.plain }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endwith %}
+{% endfor %}

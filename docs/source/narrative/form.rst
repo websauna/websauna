@@ -13,6 +13,69 @@ Websauna comes with a form subsystem to easily create and manage various website
 
 * There exists security tools like cross-site request forgery checking (mandatory) and submission throttling (optional) to protect your site against attacks.
 
+Basic form life cycle (Deform)
+==============================
+
+Below is an example how to create and validate one form::
+
+    import deform
+
+    from websauna.system.core import messages
+
+    def my_view(request):
+
+        schema = MySchema().bind(request=request)
+
+        # Create a styled button with some extra Bootstrap 3 CSS classes
+        b = deform.Button(name='start_order', title="Begin", css_class="btn-block btn-lg")
+        form = deform.Form(schema, buttons=(b, ))
+
+        # User submitted this form
+        if request.method == "POST":
+            if 'start_order' in request.POST:
+
+                try:
+                    appstruct = form.validate(request.POST.items())
+
+                    # Save form data from appstruct
+
+                    # Thank user and take him/her to the next page
+                    messages.add(request, kind="info", message="Thank you for submission")
+                    return HTTPFound(request.route_url("another_page_displayed_after_succesful_submission"))
+
+                except deform.ValidationFailure as e:
+                    # Render a form version where errors are visible next to the fields,
+                    # and the submitted values are posted back
+                    rendered_form = e.render()
+            else:
+                # We don't know which control caused form submission
+                raise AssertionError("Unknown form button pressed")
+        else:
+            # Render a form with initial values
+            rendered_form = form.render()
+
+         return locals()
+
+
+Then the template ``sample_form.html``::
+
+.. code-block:: html
+
+    {% extends "site/base.html" %}
+
+    {% block content %}
+        <div class="row">
+            <div class="col-md-12">
+
+                <h1>Enter some data</h1>
+
+                {{rendered_form|safe}}
+
+            </div>
+        </div>
+    {% endblock content %}
+
+
 Cross-site request forgery checking
 ===================================
 
@@ -58,6 +121,21 @@ Check the token in your view handling form submission::
                 raise AssertionError("Unknown submit type")
 
 For more information see :py:meth:`websauna.system.form.csrf.check_csrf_token`.
+
+Formatting
+==========
+
+Dynamically manipulating widgets
+--------------------------------
+
+The widget parameters can be manipulated after constructing the form instance. Example of settings a CSS class::
+
+    def my_view(request):
+        # ...
+        schema = schemas.DeliveryInformation().bind(request=request)
+        form = deform.Form(schema)
+        form["additional_driver_information"].widget.css_class = "wide-field"
+
 
 
 Throttling

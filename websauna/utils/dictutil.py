@@ -3,8 +3,8 @@ class MergeError(Exception):
     pass
 
 
-def merge(a, b):
-    """merges b into a and return merged result.
+def merge(a:dict, b:dict) -> dict:
+    """Merges b into a by deep copy and return merged result.
 
     NOTE: tuples and arbitrary objects are not handled as it is totally ambiguous what should happen
 
@@ -50,3 +50,4 @@ def combine(a, b):
     c = a.copy()
     merge(c, b)
     return c
+

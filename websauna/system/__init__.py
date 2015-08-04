@@ -291,7 +291,7 @@ class Initializer:
         http://docs.pylonsproject.org/projects/pyramid/en/1.6-branch/narr/assets.html#static-assets-section
         """
         cachebust = asbool(self.settings.get("websauna.cachebust"))
-        self.config.add_static_view('static', 'websauna:static', cachebust=cachebust)
+        self.config.add_static_view('websauna-static', 'websauna.system:static', cachebust=cachebust)
 
     def configure_sessions(self, settings, secrets):
         """Configure session storage."""

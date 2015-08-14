@@ -135,3 +135,6 @@ def get(registry, key):
     """
     redis = get_redis(registry)
     return _check(redis, key)
+
+
+

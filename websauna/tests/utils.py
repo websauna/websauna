@@ -94,7 +94,9 @@ def login(web_server, browser, email=EMAIL, password=PASSWORD):
     assert b.is_element_visible_by_css("#nav-sign-in"), "Could not see login button"
     b.find_by_css("#nav-sign-in").click()
     b.fill("username", email)
+
     b.fill("password", password)
+
     b.find_by_name("Log_in").click()
     assert b.is_element_visible_by_css("#nav-logout")
 

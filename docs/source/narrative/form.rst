@@ -18,10 +18,12 @@ Basic form life cycle (Deform)
 
 Below is an example how to create and validate one form::
 
+    from pyramid.httpexceptions import HTTPFound
     import deform
 
     from websauna.system.core import messages
 
+    # XXX: Add @view_config() here
     def my_view(request):
 
         schema = MySchema().bind(request=request)

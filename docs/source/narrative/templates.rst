@@ -7,6 +7,36 @@ Introduction
 
 Websauna uses Jinja 2 template language in its default templates. You are, however, free to choose any other template engine for your templates (see Pyramid template support).
 
+Rendering a template
+====================
+
+View use case
+-------------
+
+The template is usually rendered by returning a template context dictionary from a view function. The template context dictionary is passed to a template defined by ``renderer`` parameter in the view config. ``renderer`` must be a path to a file defined in one of the template paths.
+
+Manual rendering
+----------------
+
+You can manually render a template by calling ``pyramid.renderers.render``. Example::
+
+    from pyramid.renderers import render
+
+    def my_utility_function(request, first_name, last_name):
+        output = render("hello_world.txt", dict(first_name=first_name, last_name=last_name), request=request)
+
+Alternatively if you know the output will be a HTTP response you can use ``pyramid.renderers.render_to_response``::
+
+    from pyramid.renderers import render_to_response
+
+    def my_view(request):
+        return render_to_response("hello_world.html", dict(first_name="Mikko", last_name="Ohtamaa"), request=request)
+
+Defining template paths
+-----------------------
+
+TODO
+
 Linking
 =======
 

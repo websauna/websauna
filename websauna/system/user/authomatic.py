@@ -4,6 +4,7 @@ import authomatic
 
 _authomatic = None
 
+# TODO: Change to registry based
 
 def setup(authomatic_secret, config):
     global _authomatic

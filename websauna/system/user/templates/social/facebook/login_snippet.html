@@ -2,6 +2,9 @@
 
 {% block social %}
     <form method="post" action="{{'login'|route_url}}/facebook">
+
+        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}"/>
+
         <button class="btn btn-primary btn-block btn-lg btn-login-facebook">
             <i class="fa fa-facebook"></i>
             Login with Facebook

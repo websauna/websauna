@@ -16,7 +16,6 @@ from pyramid_deform import configure_zpt_renderer
 
 from websauna.system.model import Base
 from websauna.system.model import DBSession
-from websauna.system.user.interfaces import IUserClass, IGroupClass
 from websauna.utils.configincluder import IncludeAwareConfigParser
 from websauna.utils import dictutil
 
@@ -80,13 +79,14 @@ class Initializer:
 
         # Avoid importing horus if not needed as it will bring in its own SQLAlchemy models and dirties our SQLAlchemy initialization
         from hem.interfaces import IDBSession
-        from websauna.system.user import schemas
-        from websauna.system.user import auth
         from horus.interfaces import IRegisterSchema
         from horus.interfaces import ILoginSchema
-        from horus.resources import UserFactory
-        from websauna.system.user import horus as horus_init
         from horus import IResetPasswordSchema
+        from websauna.system.user.interfaces import IUserClass, IGroupClass
+        from websauna.system.user import schemas
+        from websauna.system.user import auth
+        from websauna.system.user import horus as horus_init
+        from websauna.system.model import DBSession
 
         # Tell horus which SQLAlchemy scoped session to use:
         registry = self.config.registry
@@ -103,15 +103,6 @@ class Initializer:
         horus_init.includeme(self.config)
 
         self.config.scan_horus(users_models)
-
-        self.config.add_route('waiting_for_activation', '/waiting-for-activation')
-        self.config.add_route('registration_complete', '/registration-complete')
-        self.config.add_route('login', '/login')
-        self.config.add_route('logout', '/logout')
-        self.config.add_route('forgot_password', '/forgot-password')
-        self.config.add_route('reset_password', '/reset-password/{code}')
-        self.config.add_route('register', '/register')
-        self.config.add_route('activate', '/activate/{user_id}/{code}', factory=UserFactory)
         self.config.registry.registerUtility(schemas.RegisterSchema, IRegisterSchema)
         self.config.registry.registerUtility(schemas.LoginSchema, ILoginSchema)
         self.config.registry.registerUtility(schemas.ResetPasswordSchema, IResetPasswordSchema)
@@ -193,6 +184,7 @@ class Initializer:
         """
         from websauna.system.user import authomatic
 
+        # Add OAuth 2 generic endpoint
         self.config.add_route('login_social', '/login/{provider_name}')
 
         social_logins = aslist(settings.get("websauna.social_logins", ""))
@@ -354,20 +346,25 @@ class Initializer:
     def configure_user(self, settings, secrets):
         """Configure user model, sign in and sign up subsystem."""
         from websauna.system.user import views
+        from horus.resources import UserFactory
 
         self.configure_authentication(settings, secrets)
         self.configure_authomatic(settings, secrets)
+        self.configure_horus(settings)
 
-        # XXX: Different syntax to include templates as with admin... circular import problem, etc?
         self.config.add_jinja2_search_path('websauna.system:user/templates', name='.html')
         self.config.add_jinja2_search_path('websauna.system:user/templates', name='.txt')
 
         self.config.scan(views)
+        self.config.add_route('waiting_for_activation', '/waiting-for-activation')
+        self.config.add_route('registration_complete', '/registration-complete')
+        self.config.add_route('login', '/login')
+        self.config.add_route('logout', '/logout')
+        self.config.add_route('forgot_password', '/forgot-password')
+        self.config.add_route('reset_password', '/reset-password/{code}')
+        self.config.add_route('register', '/register')
+        self.config.add_route('activate', '/activate/{user_id}/{code}', factory=UserFactory)
 
-        # TODO: Horus implicitly imports its admin views... WE DON'T WANT THOSE and we cannot avoid import for now.
-        # Thus, do Horus import as last.
-        # Long term solution: Work with the upstream to fix Horus behavior.
-        self.configure_horus(settings)
 
     def configure_user_admin(self, settings):
         import websauna.system.user.admin

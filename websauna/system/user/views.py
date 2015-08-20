@@ -1,5 +1,6 @@
 import datetime
 from pyramid.request import Request
+from websauna.system.compat import typing
 from websauna.system.model import now, DBSession
 
 from pyramid.view import view_config
@@ -337,63 +338,11 @@ class AuthController(horus_views.AuthController):
     def login_social(self):
         """Login using OAuth and any of the social providers."""
 
-        # Login is always state changing operation
-        if self.request.method != 'POST' and not self.request.params:
-            login_url = self.request.route_url("login")
-            return HTTPFound(location=login_url)
-
-        # We will need the response to pass it to the WebObAdapter.
-        response = Response()
-
-        social_logins = aslist(self.settings.get("websauna.social_logins", ""))
-
         # Get the internal provider name URL variable.
         provider_name = self.request.matchdict.get('provider_name')
-
-        # Allow only logins which we are configured
-        if provider_name not in social_logins:
-            raise RuntimeError("Attempt to login non-configured social media {}".format(provider_name))
-
-        mapper = get_social_login_mapper(self.request.registry, provider_name)
-        if not mapper:
-            raise RuntimeError("No social media login mapper configured for {}".format(provider_name))
-
-        # Get handle to Authomatic instance
-        authomatic = get_authomatic(self.request.registry)
-
-        # Start the login procedure.
-        class FixedWebObAdapter(WebObAdapter):
-            """Our own request.POST parameters with CSRF would mess up the FB login logic... don't pass them forward."""
-            @property
-            def params(self):
-                return dict()
-
-        if "csrf_token" in self.request.POST:
-            # This was internal HTTP POST by our own site to this view
-            # TODO: Make it use to explicit post parameter to detect this
-            adapter = FixedWebObAdapter(self.request, response)
-        else:
-            adapter = WebObAdapter(self.request, response)
-
-        authomatic_result = authomatic.login(adapter, provider_name)
-
-        if not authomatic_result:
-            # Guess it wants to redirect us to Facebook et. al and it set response through the adapter
-            return response
-
-        if not authomatic_result.error:
-            # Login succeeded
-            try:
-                user = mapper.capture_social_media_user(self.request, authomatic_result)
-                return authenticated(self.request, user)
-            except NotSatisfiedWithData as e:
-                # TODO: Clean this up
-                authomatic_result.error = e
-
-        # We got some error result, now let see how it goes
-        self.form.action = self.request.route_url('login')
-        context = {"form": self.form.render(), "authomatic_result": authomatic_result, "social_logins": social_logins}
-        return render_to_response('login/login.html', context, request=self.request)
+        ae = AuthomaticLoginHandler(self.request, provider_name)
+        response = ae.handle()
+        return response
 
     @view_config(permission='authenticated', route_name='logout')
     def logout(self):
@@ -484,3 +433,102 @@ class ForgotPasswordController(horus_views.ForgotPasswordController):
                     location = self.reset_password_redirect_view
                     return HTTPFound(location=location)
         raise HTTPNotFound("Activation code not found")
+
+
+
+class AuthomaticLoginHandler:
+    """Social login (OAuth/authomatic) internal handling.
+
+   Subclass and override this for customizations.
+
+    Internal implementation of handling OAuth endpoint. The request must be processed as view /login/{provider_name} where provider_name is one of the Authomatic providers set up by Initializer.configure_authomatic(). This view will
+
+    * Check if the request is internal login request and then redirect to OAuth provider
+
+    * Process POST/redirect back from the OAuth Provider
+
+    * Call ISocialAuthMapper to create the user account for incoming social login
+
+    The function returns a tuple. If login success, HTTP response is set. If login fails automatic result is set. If the automatic result is set you are expected to render a login page with error message on it.
+
+    :return: Tuple (HTTP response, Authomatic result)
+    """
+
+    def __init__(self, request:Request, provider_name:str):
+
+        self.request = request
+        self.provider_name = provider_name
+
+        settings = request.registry.settings
+        self.social_logins = aslist(settings.get("websauna.social_logins", ""))
+
+        # Allow only logins which we are configured
+        assert provider_name in self.social_logins, "Attempt to login non-configured social media {}".format(provider_name)
+
+        self.mapper = get_social_login_mapper(request.registry, provider_name)
+        assert self.mapper, "No social media login mapper configured for {}".format(provider_name)
+
+    def do_success(self, authomatic_result) -> Response:
+        """Handle we got a valid OAuth login data."""
+        user = self.mapper.capture_social_media_user(self.request, authomatic_result)
+        return authenticated(self.request, user)
+
+    def do_error(self, authomatic_result, e:Exception) -> Response:
+        """Handle getting error from OAuth provider."""
+        # We got some error result, now let see how it goes
+        request = self.request
+        social_logins = aslist(self.settings.get("websauna.social_logins", ""))
+        self.form.action = request.route_url('login')
+        context = {"form": self.form.render(), "authomatic_result": authomatic_result, "social_logins": social_logins}
+        return render_to_response("login/login.html", context, request=request)
+
+    def do_bad_request(self):
+        """Handle getting HTTP GET to POST endpoint.
+
+        GoogleBot et. al.
+        """
+        login_url = self.request.route_url("login")
+        return HTTPFound(location=login_url)
+
+    def handle(self) -> Response:
+
+        # Login is always state changing operation
+        if self.request.method != 'POST' and not self.request.params:
+            self.do_bad_request()
+
+        # We will need the response to pass it to the WebObAdapter.
+        response = Response()
+
+        # Get handle to Authomatic instance
+        authomatic = get_authomatic(self.request.registry)
+
+        # Start the login procedure.
+        class InternalPOSTWebObAdapter(WebObAdapter):
+            """Our own request.POST parameters with CSRF would mess up the FB login logic... don't pass them forward."""
+            @property
+            def params(self):
+                return dict()
+
+        if "csrf_token" in self.request.POST:
+            # This was internal HTTP POST by our own site to this view
+            # TODO: Make it use to explicit post parameter to detect this
+            adapter = InternalPOSTWebObAdapter(self.request, response)
+        else:
+            adapter = WebObAdapter(self.request, response)
+
+        authomatic_result = authomatic.login(adapter, self.provider_name)
+
+        if not authomatic_result:
+            # Guess it wants to redirect us to Facebook et. al and it set response through the adapter
+            return response
+
+        if not authomatic_result.error:
+            # Login succeeded
+            try:
+                return self.do_success(authomatic_result)
+            except NotSatisfiedWithData as e:
+                # TODO: Clean this up
+                authomatic_result.error = e
+
+        return self.do_error(authomatic_result, e)
+

@@ -1,4 +1,5 @@
 import os
+from splinter import Browser
 
 import transaction
 import pytest
@@ -27,6 +28,17 @@ def do_facebook_login(browser):
         b.find_by_css("button[name='__CONFIRM__']").click()
 
 
+def do_facebook_login_if_facebook_didnt_log_us_already(browser):
+    """Facebook doesn't give us login dialog again as the time is so short, or Authomatic does some caching here?."""
+
+    if browser.is_text_present("Facebook Login"):
+        do_facebook_login(browser)
+    else:
+        # Clicking btn-facebook-login goes directly through to the our login view
+        pass
+
+
+
 @pytest.mark.skipif("FACEBOOK_USER" not in os.environ, reason="Give Facebook user/pass as environment variables")
 def test_facebook_first_login(web_server, browser, DBSession):
     """Login an user."""
@@ -40,9 +52,9 @@ def test_facebook_first_login(web_server, browser, DBSession):
 
     b.find_by_css(".btn-login-facebook").click()
 
-    do_facebook_login(browser)
+    do_facebook_login_if_facebook_didnt_log_us_already(browser)
 
-    assert b.is_text_present("You are not logged in")
+    assert b.is_text_present("You are now logged in")
 
     # See that we got somewhat sane data
     with transaction.manager:
@@ -52,6 +64,8 @@ def test_facebook_first_login(web_server, browser, DBSession):
         assert u.email == os.environ["FACEBOOK_USER"]
         assert u.is_admin()  # First user becomes admin
         assert u.activated_at
+
+    b.find_by_css("#nav-logout").click()
 
 
 @pytest.mark.skipif("FACEBOOK_USER" not in os.environ, reason="Give Facebook user/pass as environment variables")
@@ -64,16 +78,20 @@ def test_facebook_second_login(web_server, browser, DBSession):
     b.visit("{}/login".format(web_server))
     b.find_by_css(".btn-login-facebook").click()
 
-    do_facebook_login(b)
-    assert b.is_text_present("You are not logged in")
+    do_facebook_login_if_facebook_didnt_log_us_already(b)
+    assert b.is_text_present("You are now logged in")
     b.find_by_css("#nav-logout").click()
 
+    assert b.is_text_present("You have logged out")
+
     # And again!
+
     b.visit("{}/login".format(web_server))
     b.find_by_css(".btn-login-facebook").click()
-    do_facebook_login(b)
 
-    assert b.is_text_present("You are not logged in")
+    do_facebook_login_if_facebook_didnt_log_us_already(b)
+
+    assert b.is_text_present("You are now logged in")
 
     # See that we got somewhat sane data
     with transaction.manager:

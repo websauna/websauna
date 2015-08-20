@@ -1,4 +1,6 @@
 from abc import abstractmethod, ABC
+import authomatic
+from authomatic.core import LoginResult
 from pyramid.request import Request
 
 from websauna.system.model import DBSession
@@ -17,7 +19,7 @@ class NotSatisfiedWithData(Exception):
 
 @implementer(ISocialLoginMapper)
 class SocialLoginMapper(ABC):
-    """Map Authomatic user objects (social network users) to our internal database users."""
+    """Map Authomatic LoginResult objects (social network logins) to our internal database users."""
 
     def __init__(self, provider_id:str):
         """Create a mapper.
@@ -33,8 +35,8 @@ class SocialLoginMapper(ABC):
         usermixin.check_empty_site_init(user)
 
     @abstractmethod
-    def capture_social_media_user(self, request, result) -> IUserClass:
-        """Extract social media information from the login in order to associate the user account."""
+    def capture_social_media_user(self, request:Request, result:LoginResult) -> IUserClass:
+        """Extract social media information from the Authomatic login result in order to associate the user account."""
 
 
 
@@ -64,33 +66,31 @@ class EmailSocialLoginMapper(SocialLoginMapper):
         """
         pass
 
-    def import_social_media_user(self, data:dict) -> dict:
+    @abstractmethod
+    def import_social_media_user(self, user:authomatic.core.User) -> dict:
         """Map incoming social network data to internal data structure.
 
         Sometimes social networks change how the data is presented over API and you might need to do some wiggling to get it a proper shape you wish to have.
-
-        Default operation is no-op, data is passed through as is.
         """
-        return data
 
-    def create_blank_user(self, dbsession, email, data) -> IUserClass:
+    def create_blank_user(self, user_model, dbsession, email) -> IUserClass:
         """Create a new blank user instance as we could not find matching user with the existing details."""
-        User = self.registry.queryUtility(IUserClass)
-        user = User(email=email)
+        user = user_model(email=email)
         dbsession.add(user)
         dbsession.flush()
         user.username = user.generate_username()
-        user.registration_source = self.provider
+        user.registration_source = self.provider_id
         return user
 
     def update_every_login_social_data(self, user:IUserClass, data:dict):
         user.social[self.provider_id] = data
 
-    def get_existing_user(self, user_model, email, dbsession, data):
+    def get_existing_user(self, user_model, dbsession, email):
+        """Check if we have a matching user for the email already."""
         user = dbsession.query(user_model).filter_by(email=email).first()
         return user
 
-    def get_or_create_user_by_social_medial_email(self, request:Request, user:object) -> IUserClass:
+    def get_or_create_user_by_social_medial_email(self, request:Request, user:authomatic.core.User) -> IUserClass:
 
         registry = request.registry
         User = registry.queryUtility(IUserClass)
@@ -100,10 +100,10 @@ class EmailSocialLoginMapper(SocialLoginMapper):
         imported_data = self.import_social_media_user(user)
         email = imported_data["email"]
 
-        user = self.get_existing_user(dbsession, email)
+        user = self.get_existing_user(User, dbsession, email)
 
         if not user:
-            user = self.create_blank_user(dbsession, email)
+            user = self.create_blank_user(User, dbsession, email)
             self.update_first_login_social_data(user, imported_data)
             user.first_login = True
 
@@ -129,33 +129,35 @@ class FacebookMapper(EmailSocialLoginMapper):
 
     """
 
-    def import_social_media_user(data):
+    def import_social_media_user(self, user):
         return {
-            "country": data.country,
-            "timezone": data.timezone,
-            "gender": data.gender,
-            "first_name": data.first_name,
-            "last_name": data.last_name,
-            "full_name": data.first_name + " " + data.last_name,
-            "link": data.link,
-            "birth_date": data.birth_date,
-            "city": data.city,
-            "postal_code": data.postal_code,
-            "email": data.email,
-            "id": data.id,
-            "nickname": data.nickname,
+            "country": user.country,
+            "timezone": user.timezone,
+            "gender": user.gender,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "full_name": user.name,
+            "link": user.link,
+            "birth_date": user.birth_date,
+            "city": user.city,
+            "postal_code": user.postal_code,
+            "email": user.email,
+            "id": user.id,
+            "nickname": user.nickname,
+            # "address": user.address,
         }
 
     def update_first_login_social_data(self, user:IUserClass, data:dict):
         if not user.full_name and data.get("full_name"):
             user.full_name = data["full_name"]
 
-    def capture_social_media_user(self, request, result) -> IUserClass:
-        """Extract social media information from the login in order to associate the user account."""
+    def capture_social_media_user(self, request:Request, result:LoginResult) -> IUserClass:
+        """Extract social media information from the Authomatic login result in order to associate the user account."""
         assert not result.error
 
         # Facebook specific Authomatic call to fetch more user data from the Facebook provider
-        import ipdb ; ipdb.set_trace()
+        # https://github.com/peterhudec/authomatic/issues/112
+        result.user.provider.user_info_url = 'https://graph.facebook.com/me?fields=id,email,name,first_name,last_name,address,gender,hometown,link,timezone,verified,website,locale,languages'
         result.user.update()
 
         # Make user Facebook user looks somewhat legit

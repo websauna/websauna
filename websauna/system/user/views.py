@@ -56,6 +56,7 @@ from . import usermixin
 from . import events
 from websauna.system.user.social import NotSatisfiedWithData
 from websauna.system.user.utils import get_authomatic, get_social_login_mapper
+from websauna.system.core import messages
 
 
 def create_activation(request, user):
@@ -94,6 +95,8 @@ def create_activation(request, user):
 def authenticated(request:Request, user:UserMixin, location:str=None) -> HTTPFound:
     """Logs in the user.
 
+    TODO: Make this is a registry component for overriding
+
     Sets the auth cookies and redirects to the page defined in horus.login_redirect, which defaults to a view named 'index'.
 
     Fills in user last login details.
@@ -128,6 +131,8 @@ def authenticated(request:Request, user:UserMixin, location:str=None) -> HTTPFou
 
     if not location:
         location = get_config_route(request, 'horus.login_redirect')
+
+    messages.add(request, kind="success", msg="You are now logged in.")
 
     return HTTPFound(location=location, headers=headers)
 

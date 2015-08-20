@@ -152,6 +152,44 @@ Below is an example which calls third party API (Twilio SMS out) - you don't wan
             send_review_sms_notification.apply_async(args=(delivery.id, request.url,), countdown=delay)
 
 
+Another example how to turn a call to third party API library to async::
+
+    """Send Slack message."""
+    from pyramid.settings import asbool
+    from pyramid_celery import celery_app
+
+    from slackclient import SlackClient
+
+
+    def get_slack(registry):
+        slack = SlackClient(registry.settings["trees.slack_token"].strip())
+        return slack
+
+
+    @celery_app.task
+    def _call_slack_api_delayed(**kwargs):
+        """Asynchronous call to Slack API.
+
+        Do not block HTTP response head.
+        """
+        registry = celery_app.conf['PYRAMID_REGISTRY']
+        slack = get_slack(registry)
+        slack.api_call(**kwargs)
+
+
+    def send_slack_message(request, channel, text):
+        """API to send Slack chat notifications from at application."""
+
+        # Slack bombing disabled by configuration
+        if not asbool(request.registry.get("trees.slack", True)):
+            return
+
+        # Old, synchronous, way blocks HTTP response and decreases responsiveness
+        # slack = get_slack(request.registry)
+        # slack.api_call("chat.postMessage", channel=channel, text=text)
+
+        _call_slack_api_delayed.apply_async(kwargs=dict(method="chat.postMessage", channel=channel, text=text))
+
 
 Eager execution in development and unit testing
 -----------------------------------------------

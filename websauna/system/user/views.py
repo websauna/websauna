@@ -52,19 +52,14 @@ from authomatic.adapters import WebObAdapter
 
 from websauna.system.mail import send_templated_mail
 
-from . import authomatic
 from . import usermixin
 from . import events
+from websauna.system.user.utils import get_authomatic, get_social_login_mapper
+
 
 class NotSatisfiedWithData(Exception):
     """Risen when social media login cannot proceed due to incomplete provided information."""
 
-
-def init_user(request, user):
-    """Checks to perform when the user becomes a valid user for the first tim.e"""
-    user.activated_at = now()
-    user.first_login = False
-    usermixin.check_empty_site_init(user)
 
 def create_activation(request, user):
     """Create through-the-web user sign up with his/her email.
@@ -95,7 +90,8 @@ def create_activation(request, user):
 
     send_templated_mail(request, [user.email], "login/email/activate", context)
 
-    init_user(request, user)
+    # XXX: Move this to an event
+    usermixin.check_empty_site_init(user)
 
 
 def authenticated(request:Request, user:UserMixin, location:str=None) -> HTTPFound:
@@ -137,89 +133,6 @@ def authenticated(request:Request, user:UserMixin, location:str=None) -> HTTPFou
         location = get_config_route(request, 'horus.login_redirect')
 
     return HTTPFound(location=location, headers=headers)
-
-
-def normalize_facebook_data(data):
-    return {
-        "country": data.country,
-        "timezone": data.timezone,
-        "gender": data.gender,
-        "first_name": data.first_name,
-        "last_name": data.last_name,
-        "full_name": data.first_name + " " + data.last_name,
-        "link": data.link,
-        "birth_date": data.birth_date,
-        "city": data.city,
-        "postal_code": data.postal_code,
-        "email": data.email,
-        "id": data.id,
-        "nickname": data.nickname,
-    }
-
-
-def update_first_login_social_data(user, data):
-    """
-    :param data: Normalized data
-    """
-    if not user.full_name and data.get("full_name"):
-        user.full_name = data["full_name"]
-
-
-def get_or_create_user_by_social_medial_email(request, provider, email, social_data):
-    """ """
-
-    registry = request.registry
-    User = registry.queryUtility(IUserClass)
-
-    session = DBSession
-
-    user = session.query(User).filter_by(email=email).first()
-
-    if not user:
-        user = User(email=email)
-        session.add(user)
-        session.flush()
-        user.username = user.generate_username()
-        user.registration_source = provider
-
-    if provider == "facebook":
-        exported_data = normalize_facebook_data(social_data)
-    else:
-        raise AssertionError("Unsupported social provider")
-
-    # Update the social network data
-    user.social[provider] = exported_data
-
-    if user.first_login:
-        update_first_login_social_data(user, exported_data)
-
-    return user
-
-
-def capture_social_media_user(request, provider, result):
-    """Extract social media information from the login in order to associate the user account."""
-    assert not result.error
-
-    session = DBSession
-
-    if provider == "facebook":
-        result.user.update()
-
-        assert result.user.credentials
-        assert result.user.id
-
-        if not result.user.email:
-            raise NotSatisfiedWithData("Email address is needed in order to user this service and we could not get one from your social media provider. Please try to sign up with your email instead.")
-
-        user = get_or_create_user_by_social_medial_email(request, provider, result.user.email, result.user)
-
-        # Cancel any pending email activations if the user chooses the option to use social media login
-        if user.activation:
-            session.delete(user.activation)
-
-        init_user(request, user)
-
-    return user
 
 
 class RegisterController(horus_views.RegisterController):
@@ -439,27 +352,34 @@ class AuthController(horus_views.AuthController):
         if provider_name not in social_logins:
             raise RuntimeError("Attempt to login non-configured social media {}".format(provider_name))
 
-        autho = authomatic.get()
+        mapper = get_social_login_mapper(self.request.registry, provider_name)
+        autho = get_authomatic(self.request.registry)
 
         # Start the login procedure.
-        adapter = WebObAdapter(self.request, response)
+        class FixedWebObAdapter(WebObAdapter):
+            """Our own request.POST parameters with CSRF would mess up the FB login logic... don't pass them forward."""
+            @property
+            def params(self):
+                return dict()
+
+        adapter = FixedWebObAdapter(self.request, response)
 
         authomatic_result = autho.login(adapter, provider_name)
 
         if not authomatic_result:
-            # Guess it wants to redirect us
+            # Guess it wants to redirect us to Facebook et. al
             return response
 
         if not authomatic_result.error:
             # Login succeeded
             try:
-                user = capture_social_media_user(self.request, provider_name, authomatic_result)
+                user = mapper.capture_social_media_user(self.request, authomatic_result)
                 return authenticated(self.request, user)
             except NotSatisfiedWithData as e:
                 # TODO: Clean this up
                 authomatic_result.error = e
 
-        # We got some result, now let see how it goes
+        # We got some error result, now let see how it goes
         self.form.action = self.request.route_url('login')
         context = {"form": self.form.render(), "authomatic_result": authomatic_result, "social_logins": social_logins}
         return render_to_response('login/login.html', context, request=self.request)

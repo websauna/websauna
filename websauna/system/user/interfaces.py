@@ -8,3 +8,11 @@ class IUserClass(IUserClass):
 
 class IGroupClass(Interface):
     """Register utility registration which marks active Group class."""
+
+
+class IAuthomatic(Interface):
+    """Mark Authomatic instance in the registry."""
+
+
+class ISocialLoginMapper(Interface):
+    """Named marker interface to look up social login mappers."""

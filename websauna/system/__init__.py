@@ -16,6 +16,7 @@ from pyramid_deform import configure_zpt_renderer
 
 from websauna.system.model import Base
 from websauna.system.model import DBSession
+from websauna.system.user.interfaces import IAuthomatic
 from websauna.utils.configincluder import IncludeAwareConfigParser
 from websauna.utils import dictutil
 
@@ -62,7 +63,6 @@ class Initializer:
             return None
         else:
             return int(cache_max_age)
-
 
     def configure_logging(self, settings):
         """Create and set Pyramid debug logger.
@@ -182,9 +182,10 @@ class Initializer:
 
         Read consumer secrets from a secrets.ini.
         """
-        from websauna.system.user import authomatic
-
         # Add OAuth 2 generic endpoint
+
+        import authomatic
+
         self.config.add_route('login_social', '/login/{provider_name}')
 
         social_logins = aslist(settings.get("websauna.social_logins", ""))
@@ -214,7 +215,16 @@ class Initializer:
             # TODO: Class is not a real secret, think smarter way to do this
             authomatic_config[login]["class_"] = resolver.resolve(xget(login, "class"))
 
-        authomatic.setup(authomatic_secret, authomatic_config)
+            # Construct social login mapper
+            mapper_class = resolver.resolve(xget(login, "mapper"))
+            mapper = mapper(login)
+            self.config.registry.registerUtility(mapper)
+
+
+        # Store instance
+        instance = authomatic.Authomatic(config=authomatic_config, secret=authomatic_secret)
+        self.config.registry.registerUtility(instance, IAuthomatic)
+
 
     def configure_database(self, settings):
         """

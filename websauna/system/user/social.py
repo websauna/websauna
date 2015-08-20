@@ -5,7 +5,7 @@ from websauna.system.model import DBSession
 from websauna.system.model import now
 from websauna.system.user import usermixin
 from websauna.system.user.interfaces import IUserClass, ISocialLoginMapper
-from zope.interface import implements
+from zope.interface import implements, implementer
 
 
 class NotSatisfiedWithData(Exception):
@@ -15,11 +15,9 @@ class NotSatisfiedWithData(Exception):
     """
 
 
-
+@implementer(ISocialLoginMapper)
 class SocialLoginMapper(ABC):
     """Map Authomatic user objects (social network users) to our internal database users."""
-
-    implements(ISocialLoginMapper)
 
     def __init__(self, provider_id:str):
         """Create a mapper.
@@ -85,16 +83,6 @@ class EmailSocialLoginMapper(SocialLoginMapper):
         user.registration_source = self.provider
         return user
 
-    @abstractmethod
-    def get_or_create_user_by_social_login(self, request:Request, provider:str, email:str, social_data:dict) -> IUserClass:
-        """OAuth login callback views call this when when OAuth login is succesfull.
-
-        Map the OAuth identity information to a internal user instance.
-
-        Users are mapped by their email, so if you have multiple logins (Facebook, Twitter, by email) they all map to the same user as long as the email is not changed. However this is an implemetation detail internal to the ``SocialProvider``. Do not expect this to be guaranteed in the future as this is potential security matter and in the future each user is identified by (network id, user id) tuple.
-        """
-        raise NotImplementedError()
-
     def update_every_login_social_data(self, user:IUserClass, data:dict):
         user.social[self.provider_id] = data
 
@@ -102,32 +90,7 @@ class EmailSocialLoginMapper(SocialLoginMapper):
         user = dbsession.query(user_model).filter_by(email=email).first()
         return user
 
-
-class FacebookMapper(EmailSocialLoginMapper):
-    """Map and login Facebook OAuth users to internal users."""
-
-    def import_social_media_user(data):
-        return {
-            "country": data.country,
-            "timezone": data.timezone,
-            "gender": data.gender,
-            "first_name": data.first_name,
-            "last_name": data.last_name,
-            "full_name": data.first_name + " " + data.last_name,
-            "link": data.link,
-            "birth_date": data.birth_date,
-            "city": data.city,
-            "postal_code": data.postal_code,
-            "email": data.email,
-            "id": data.id,
-            "nickname": data.nickname,
-        }
-
-    def update_first_login_social_data(self, user:IUserClass, data:dict):
-        if not user.full_name and data.get("full_name"):
-            user.full_name = data["full_name"]
-
-    def get_or_create_user_by_social_login(self, request:Request, user:object) -> IUserClass:
+    def get_or_create_user_by_social_medial_email(self, request:Request, user:object) -> IUserClass:
 
         registry = request.registry
         User = registry.queryUtility(IUserClass)
@@ -154,11 +117,45 @@ class FacebookMapper(EmailSocialLoginMapper):
 
         return user
 
+
+class FacebookMapper(EmailSocialLoginMapper):
+    """Map and login Facebook OAuth users to internal users.
+
+    You must have application created in developers.facebook.com
+
+    The application must have its consumer_key and consumer_secret configured in the secrets config file.
+
+    For testing: The application must have one Web site platform configured in developers.facebook.com, pointing to http://localhost:8521/ and Valid OAuth redirect URLs to http://localhost:8521/login/facebook
+
+    """
+
+    def import_social_media_user(data):
+        return {
+            "country": data.country,
+            "timezone": data.timezone,
+            "gender": data.gender,
+            "first_name": data.first_name,
+            "last_name": data.last_name,
+            "full_name": data.first_name + " " + data.last_name,
+            "link": data.link,
+            "birth_date": data.birth_date,
+            "city": data.city,
+            "postal_code": data.postal_code,
+            "email": data.email,
+            "id": data.id,
+            "nickname": data.nickname,
+        }
+
+    def update_first_login_social_data(self, user:IUserClass, data:dict):
+        if not user.full_name and data.get("full_name"):
+            user.full_name = data["full_name"]
+
     def capture_social_media_user(self, request, result) -> IUserClass:
         """Extract social media information from the login in order to associate the user account."""
         assert not result.error
 
         # Facebook specific Authomatic call to fetch more user data from the Facebook provider
+        import ipdb ; ipdb.set_trace()
         result.user.update()
 
         # Make user Facebook user looks somewhat legit
@@ -167,6 +164,7 @@ class FacebookMapper(EmailSocialLoginMapper):
 
         if not result.user.email:
             # We cannot login if the Facebook doesnt' give us email as we use it for the user mapping
+            # This can also happen when you have not configured Facebook app properly in the developers.facebook.com
             raise NotSatisfiedWithData("Email address is needed in order to user this service and we could not get one from your social media provider. Please try to sign up with your email instead.")
 
         user = self.get_or_create_user_by_social_medial_email(request, result.user)

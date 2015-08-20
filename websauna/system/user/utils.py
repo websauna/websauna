@@ -1,6 +1,6 @@
 from authomatic import Authomatic
 
-from websauna.system.user.interfaces import IGroupClass, IUserClass, IAuthomatic
+from websauna.system.user.interfaces import IGroupClass, IUserClass, IAuthomatic, ISocialLoginMapper
 
 
 def get_user_class(registry) -> IUserClass:
@@ -24,9 +24,12 @@ def get_authomatic(registry) -> Authomatic:
     return instance
 
 
-class ISocialLogin(object):
-    pass
+def get_social_login_mapper(registry, provider_id:str) -> ISocialLoginMapper:
+    """Get a named social login mapper.
 
+    Example::
 
-def get_social_login_mapper(registry, provider_id:str) -> ISocialLogin:
-    return registry.queryUtility(ISocialLogin, name=provider_id)
+        get_social_login_mapper(registry, "facebook")
+
+    """
+    return registry.queryUtility(ISocialLoginMapper, name=provider_id)

@@ -4,6 +4,7 @@ import transaction
 import pytest
 
 from .utils import create_user
+from websauna.system.user.models import User
 
 
 def do_facebook_login(browser):
@@ -27,11 +28,8 @@ def do_facebook_login(browser):
 
 
 @pytest.mark.skipif("FACEBOOK_USER" not in os.environ, reason="Give Facebook user/pass as environment variables")
-def test_facebook_first_login(web_server, browser, dbsession):
+def test_facebook_first_login(web_server, browser, DBSession):
     """Login an user."""
-
-    with transaction.manager:
-        create_user()
 
     b = browser
     b.visit(web_server)
@@ -43,10 +41,45 @@ def test_facebook_first_login(web_server, browser, dbsession):
     b.find_by_css(".btn-login-facebook").click()
 
     do_facebook_login(browser)
-    # After login we see a profile link to our profile
-    # assert b.is_element_visible_by_css("#nav-logout")
+
+    assert b.is_text_present("You are not logged in")
+
+    # See that we got somewhat sane data
+    with transaction.manager:
+        assert DBSession.query(User).count() == 1
+        u = DBSession.query(User).get(1)
+        assert u.first_login
+        assert u.email == os.environ["FACEBOOK_USER"]
+        assert u.is_admin()  # First user becomes admin
+        assert u.activated_at
 
 
 @pytest.mark.skipif("FACEBOOK_USER" not in os.environ, reason="Give Facebook user/pass as environment variables")
-def test_facebook_second_login(web_server, browser, dbsession):
-    """Login an user."""
+def test_facebook_second_login(web_server, browser, DBSession):
+    """Login second time through Facebook and see our first_login flag is unset.
+    """
+    b = browser
+
+    # Initiate Facebook login with Authomatic
+    b.visit("{}/login".format(web_server))
+    b.find_by_css(".btn-login-facebook").click()
+
+    do_facebook_login(b)
+    assert b.is_text_present("You are not logged in")
+    b.find_by_css("#nav-logout").click()
+
+    # And again!
+    b.visit("{}/login".format(web_server))
+    b.find_by_css(".btn-login-facebook").click()
+    do_facebook_login(b)
+
+    assert b.is_text_present("You are not logged in")
+
+    # See that we got somewhat sane data
+    with transaction.manager:
+        assert DBSession.query(User).count() == 1
+        u = DBSession.query(User).get(1)
+        assert not u.first_login
+        assert u.activated_at
+
+    b.find_by_css("#nav-logout").click()

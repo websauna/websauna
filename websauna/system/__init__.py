@@ -16,7 +16,7 @@ from pyramid_deform import configure_zpt_renderer
 
 from websauna.system.model import Base
 from websauna.system.model import DBSession
-from websauna.system.user.interfaces import IAuthomatic
+from websauna.system.user.interfaces import IAuthomatic, ISocialLoginMapper
 from websauna.utils.configincluder import IncludeAwareConfigParser
 from websauna.utils import dictutil
 
@@ -217,9 +217,8 @@ class Initializer:
 
             # Construct social login mapper
             mapper_class = resolver.resolve(xget(login, "mapper"))
-            mapper = mapper(login)
-            self.config.registry.registerUtility(mapper)
-
+            mapper = mapper_class(login)
+            self.config.registry.registerUtility(mapper, ISocialLoginMapper, name=login)
 
         # Store instance
         instance = authomatic.Authomatic(config=authomatic_config, secret=authomatic_secret)

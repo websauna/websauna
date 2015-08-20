@@ -54,11 +54,8 @@ from websauna.system.mail import send_templated_mail
 
 from . import usermixin
 from . import events
+from websauna.system.user.social import NotSatisfiedWithData
 from websauna.system.user.utils import get_authomatic, get_social_login_mapper
-
-
-class NotSatisfiedWithData(Exception):
-    """Risen when social media login cannot proceed due to incomplete provided information."""
 
 
 def create_activation(request, user):
@@ -333,7 +330,7 @@ class AuthController(horus_views.AuthController):
 
     @view_config(route_name='login_social')
     def login_social(self):
-        """After activation initial login screen."""
+        """Login using OAuth and any of the social providers."""
 
         # Login is always state changing operation
         if self.request.method != 'POST' and not self.request.params:
@@ -353,7 +350,11 @@ class AuthController(horus_views.AuthController):
             raise RuntimeError("Attempt to login non-configured social media {}".format(provider_name))
 
         mapper = get_social_login_mapper(self.request.registry, provider_name)
-        autho = get_authomatic(self.request.registry)
+        if not mapper:
+            raise RuntimeError("No social media login mapper configured for {}".format(provider_name))
+
+        # Get handle to Authomatic instance
+        authomatic = get_authomatic(self.request.registry)
 
         # Start the login procedure.
         class FixedWebObAdapter(WebObAdapter):
@@ -362,12 +363,17 @@ class AuthController(horus_views.AuthController):
             def params(self):
                 return dict()
 
-        adapter = FixedWebObAdapter(self.request, response)
+        if "csrf_token" in self.request.POST:
+            # This was internal HTTP POST by our own site to this view
+            # TODO: Make it use to explicit post parameter to detect this
+            adapter = FixedWebObAdapter(self.request, response)
+        else:
+            adapter = WebObAdapter(self.request, response)
 
-        authomatic_result = autho.login(adapter, provider_name)
+        authomatic_result = authomatic.login(adapter, provider_name)
 
         if not authomatic_result:
-            # Guess it wants to redirect us to Facebook et. al
+            # Guess it wants to redirect us to Facebook et. al and it set response through the adapter
             return response
 
         if not authomatic_result.error:

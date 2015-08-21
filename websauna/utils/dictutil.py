@@ -3,7 +3,7 @@ class MergeError(Exception):
     pass
 
 
-def merge(a:dict, b:dict) -> dict:
+def merge(a: dict, b: dict) -> dict:
     """Merges b into a by deep copy and return merged result.
 
     NOTE: tuples and arbitrary objects are not handled as it is totally ambiguous what should happen
@@ -11,8 +11,7 @@ def merge(a:dict, b:dict) -> dict:
     Courtesy of http://stackoverflow.com/a/15836901/315168
     """
     key = None
-    # ## debug output
-    # sys.stderr.write("DEBUG: %s to %s\n" %(b,a))
+
     try:
         if a is None or isinstance(a, str) or isinstance(a, int) or isinstance(a, float):
             # border case for first run or if a is a primitive

@@ -1,11 +1,7 @@
 import os
-from splinter import Browser
 
 import transaction
 import pytest
-
-from .utils import create_user
-from websauna.system.user.models import User
 
 
 def do_facebook_login(browser):
@@ -43,6 +39,9 @@ def do_facebook_login_if_facebook_didnt_log_us_already(browser):
 def test_facebook_first_login(web_server, browser, DBSession):
     """Login an user."""
 
+    #: Don't import on top because of SQLAlchemy Base registration issues
+    from websauna.system.user.models import User
+
     b = browser
     b.visit(web_server)
 
@@ -72,6 +71,10 @@ def test_facebook_first_login(web_server, browser, DBSession):
 def test_facebook_second_login(web_server, browser, DBSession):
     """Login second time through Facebook and see our first_login flag is unset.
     """
+
+    #: Don't import on top because of SQLAlchemy Base registration issues
+    from websauna.system.user.models import User
+
     b = browser
 
     # Initiate Facebook login with Authomatic

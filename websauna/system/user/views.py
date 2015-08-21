@@ -1,4 +1,5 @@
 import datetime
+from authomatic.core import LoginResult
 from pyramid.request import Request
 from websauna.system.compat import typing
 from websauna.system.model import now, DBSession
@@ -468,12 +469,35 @@ class AuthomaticLoginHandler:
         self.mapper = get_social_login_mapper(request.registry, provider_name)
         assert self.mapper, "No social media login mapper configured for {}".format(provider_name)
 
-    def do_success(self, authomatic_result) -> Response:
+    def process_form(self):
+        """Process form values from the internal post request.
+
+        By default this doesn nothing. If your site wants to combine e.g. login + choose product action to single POST you can do it here.
+
+        Example::
+
+            class TreesAuthomaticLoginHandler(AuthomaticLoginHandler):
+
+                def process_form(self):
+                    request = self.request
+                    product_id = request.POST.get("product_id")
+                    if product_id:
+                        request.session["delivery_data"] = {
+                            "product": product_id,
+                            "delivery_details": {},
+                            "started": now().isoformat()
+                        }
+                        request.session.changed()
+
+
+        """
+
+    def do_success(self, authomatic_result:LoginResult) -> Response:
         """Handle we got a valid OAuth login data."""
         user = self.mapper.capture_social_media_user(self.request, authomatic_result)
         return authenticated(self.request, user)
 
-    def do_error(self, authomatic_result, e:Exception) -> Response:
+    def do_error(self, authomatic_result:LoginResult, e:Exception) -> Response:
         """Handle getting error from OAuth provider."""
         # We got some error result, now let see how it goes
         request = self.request
@@ -512,6 +536,7 @@ class AuthomaticLoginHandler:
         if "csrf_token" in self.request.POST:
             # This was internal HTTP POST by our own site to this view
             # TODO: Make it use to explicit post parameter to detect this
+            self.process_form()
             adapter = InternalPOSTWebObAdapter(self.request, response)
         else:
             adapter = WebObAdapter(self.request, response)
@@ -521,6 +546,9 @@ class AuthomaticLoginHandler:
         if not authomatic_result:
             # Guess it wants to redirect us to Facebook et. al and it set response through the adapter
             return response
+
+        # Grab exception if we get any
+        e = None
 
         if not authomatic_result.error:
             # Login succeeded

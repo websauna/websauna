@@ -55,7 +55,7 @@ class EmailSocialLoginMapper(SocialLoginMapper):
         if user.activation:
             dbsession.delete(user.activation)
 
-    def update_first_login_social_data(user:object, data:dict):
+    def update_first_login_social_data(self, user:object, data:dict):
         """Set the initial data on the user model.
 
         When the user logs in from a social network for the first time (no prior logins with this email before) we fill in blanks in the user model with incoming data.
@@ -66,11 +66,20 @@ class EmailSocialLoginMapper(SocialLoginMapper):
         """
         pass
 
+    def update_every_login_social_data(self, user:IUserClass, data:dict):
+        """Update internal user data on every login.
+
+        Bt default, sets user.user_data["facebook"] or user.user_data["yoursocialnetwork"] to reflect the raw data given us by ``import_social_media_user()``.
+        """
+        user.social[self.provider_id] = data
+
     @abstractmethod
     def import_social_media_user(self, user:authomatic.core.User) -> dict:
         """Map incoming social network data to internal data structure.
 
         Sometimes social networks change how the data is presented over API and you might need to do some wiggling to get it a proper shape you wish to have.
+
+        The resulting dict must be JSON serializable as it is persisted as is.
         """
 
     def create_blank_user(self, user_model, dbsession, email) -> IUserClass:
@@ -81,9 +90,6 @@ class EmailSocialLoginMapper(SocialLoginMapper):
         user.username = user.generate_username()
         user.registration_source = self.provider_id
         return user
-
-    def update_every_login_social_data(self, user:IUserClass, data:dict):
-        user.social[self.provider_id] = data
 
     def get_existing_user(self, user_model, dbsession, email):
         """Check if we have a matching user for the email already."""
@@ -148,6 +154,7 @@ class FacebookMapper(EmailSocialLoginMapper):
         }
 
     def update_first_login_social_data(self, user:IUserClass, data:dict):
+        super(FacebookMapper, self).update_first_login_social_data(user, data)
         if not user.full_name and data.get("full_name"):
             user.full_name = data["full_name"]
 

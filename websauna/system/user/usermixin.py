@@ -25,12 +25,15 @@ from backports import typing
 #: Initialze user_data JSONB structure with these fields
 DEFAULT_USER_DATA = {
     "full_name": None,
-    "user_registration_source": None,
+
+    # The initial sign up method (email, phone no, imported, Facebook) for this user
+    "registration_source": None,
 
     # Is it the first time this user is logging to our system? If it is then take the user to fill in the profile page.
     "first_login": True,
 
     "social": {
+        # Each of the social media login data imported here as it goes through SocialLoginMapper.import_social_media_user()
     }
 }
 
@@ -94,7 +97,8 @@ class UserMixin:
     #: When this user changed the password for the last time. The value is null if the user comes from social networks. Information stored for the security audits.
     last_password_change_at = Column(DateTime, nullable=True)
 
-    #: Store all user related settings in this expandable field
+    #: Store all user related settings in this expandable field.
+    #: TODO: Make this fully mutation trackable JSON http://variable-scope.com/posts/mutation-tracking-in-nested-json-structures-using-sqlalchemy
     user_data = Column(JSONB, default=DEFAULT_USER_DATA)
 
     #: Full name of the user (if given)

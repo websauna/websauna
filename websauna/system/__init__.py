@@ -217,7 +217,7 @@ class Initializer:
 
             # Construct social login mapper
             mapper_class = resolver.resolve(xget(login, "mapper"))
-            mapper = mapper_class(login)
+            mapper = mapper_class(self.config.registry, login)
             self.config.registry.registerUtility(mapper, ISocialLoginMapper, name=login)
 
         # Store instance

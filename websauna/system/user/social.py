@@ -1,7 +1,9 @@
 from abc import abstractmethod, ABC
 import authomatic
 from authomatic.core import LoginResult
+from pyramid.registry import Registry
 from pyramid.request import Request
+from sqlalchemy.orm.attributes import flag_modified
 
 from websauna.system.model import DBSession
 from websauna.system.model import now
@@ -21,13 +23,16 @@ class NotSatisfiedWithData(Exception):
 class SocialLoginMapper(ABC):
     """Map Authomatic LoginResult objects (social network logins) to our internal database users."""
 
-    def __init__(self, provider_id:str):
+    def __init__(self, registry:Registry, provider_id:str):
         """Create a mapper.
+
+        :param registry: Pyramid configuration used to drive this mapper. Subclasses might want to query this when they create users.
 
         :param provider_id: String id we use to refer to this authentication source in the configuration file and in the database.
         """
         #: This is the string we use to map configuration for the
         self.provider_id = provider_id
+        self.registry = registry
 
     def prepare_new_site(self, user):
         """If this is the first user on the site, initialize groups and give this user admin permissions."""
@@ -69,9 +74,15 @@ class EmailSocialLoginMapper(SocialLoginMapper):
     def update_every_login_social_data(self, user:IUserClass, data:dict):
         """Update internal user data on every login.
 
-        Bt default, sets user.user_data["facebook"] or user.user_data["yoursocialnetwork"] to reflect the raw data given us by ``import_social_media_user()``.
+        Bt default, sets user.user_data["social"]["facebook"] or user.user_data["social"]["yoursocialnetwork"] to reflect the raw data given us by ``import_social_media_user()``.
         """
-        user.social[self.provider_id] = data
+
+        # Non-destructive update - don't remove values which might not be present in the new data
+        user.user_data["social"][self.provider_id] = user.user_data["social"].get(self.provider_id) or {}
+        user.user_data["social"][self.provider_id].update(data)
+
+        # Because we are doing direct
+        flag_modified(user, "user_data")
 
     @abstractmethod
     def import_social_media_user(self, user:authomatic.core.User) -> dict:
@@ -98,8 +109,7 @@ class EmailSocialLoginMapper(SocialLoginMapper):
 
     def get_or_create_user_by_social_medial_email(self, request:Request, user:authomatic.core.User) -> IUserClass:
 
-        registry = request.registry
-        User = registry.queryUtility(IUserClass)
+        User = self.registry.queryUtility(IUserClass)
 
         dbsession = DBSession
 
@@ -120,7 +130,6 @@ class EmailSocialLoginMapper(SocialLoginMapper):
         self.activate_user(dbsession, user)
 
         self.update_every_login_social_data(user, imported_data)
-
         return user
 
 

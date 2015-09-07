@@ -75,8 +75,6 @@ def test_case_ini_settings(request):
     return config
 
 
-
-
 @pytest.fixture(scope='session')
 def init(request, app):
     """Backwards compatibility.
@@ -84,7 +82,6 @@ def init(request, app):
     TODO: Remove this fixture, use app
     """
     return app.initializer
-
 
 
 @pytest.fixture(scope='session')

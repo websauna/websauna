@@ -11,9 +11,9 @@
 * {
     margin: 0;
     padding: 0;
-    font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
-    font-size: 100%;
-    line-height: 1.6;
+    font-family: "Helvetica", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 25px;
 }
 
 img {
@@ -35,17 +35,24 @@ a {
 
 .btn-primary {
     text-decoration: none;
-    color: #333;
-    background-color: white;
-    border: 1px solid white;
-    border-width: 10px 20px;
+    color: #F3F3F3;
+    background-color: #aa905f;
+    border: 1px solid #aa905f;
+    border-radius: 0;
     line-height: 2;
-    font-weight: bold;
-    margin-right: 10px;
+    font-weight: lighter;
+    margin: 25px;
+    padding: 10px 25px;
     text-align: center;
     cursor: pointer;
     display: inline-block;
-    border-radius: 25px;
+    transition: color 0.3s, background 0.3s;
+}
+
+.btn-primary:hover {
+  color: #aa905f;
+  background-color: #f3f3f3;
+  border: 1px solid #aa905f;
 }
 
 .btn-secondary {

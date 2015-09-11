@@ -1,6 +1,7 @@
 """Extra template variables."""
 import datetime
 import json
+from time import ctime as time_ctime
 
 from pyramid.events import BeforeRender
 from pyramid.renderers import render
@@ -141,6 +142,31 @@ def timestruct(jinja_ctx, context, **kw):
     return Markup(render("core/timestruct.html", kw, request=request))
 
 
+@contextfilter
+def fromtimestamp(jinja_ctx, context, **kw):
+    """Convert UNIX datetime to timestamp.
+
+    Example:
+
+    .. code-block:: html
+
+        <p>
+            Prestodoctor license expires: {{ prestodoctor.recommendation.expires|fromtimestamp(timezone="US/Pacific")|friendly_time }}
+        </p>
+
+    :param context: UNIX timestamps as float as seconds since 1970
+    :return: Python datetime object
+    """
+
+    tz = kw.get("timezone")
+    assert tz, "You need to give an explicitimezone when converting UNIX times to datetime objects"
+
+    # From string to object
+    tz = timezone(tz)
+    ct = datetime.datetime.fromtimestamp(context, tz=tz)
+    return ct
+
+
 def includeme(config):
 
     # The site name - used in <title> tag, front page, etc.
@@ -204,3 +230,6 @@ def includeme(config):
     include_filter("escape_js", escape_js)
     include_filter("timestruct", timestruct)
     include_filter("to_json", to_json)
+    include_filter("fromtimestamp", fromtimestamp)
+
+

@@ -554,9 +554,10 @@ class AuthomaticLoginHandler:
             # Login succeeded
             try:
                 return self.do_success(authomatic_result)
-            except NotSatisfiedWithData as e:
-                # TODO: Clean this up
-                authomatic_result.error = e
+            except NotSatisfiedWithData as ex:
+                # TODO: Clean this up - some scoping issues?
+                authomatic_result.error = ex
+                e = ex
 
         return self.do_error(authomatic_result, e)
 

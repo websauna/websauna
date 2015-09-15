@@ -210,8 +210,6 @@ def includeme(config):
         event['testing_skip_css'] = testing_skip_css
         event['testing_skip_js'] = testing_skip_css
 
-
-
     config.add_subscriber(on_before_render, BeforeRender)
 
     def include_filter(name, func):

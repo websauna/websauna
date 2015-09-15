@@ -9,11 +9,11 @@
      {% with messages = request.session.pop_flash(queue) %}
         {% for msg in messages %}
             {% if msg.kind %}
-                <div class="alert alert-{{ visuals.get(msg.kind, msg.kind) }}">
+                <div {% if msg.msg_id %}id="{{ msg.msg_id }}"{% endif %} class="alert alert-{{ visuals.get(msg.kind, msg.kind) }}">
                     {{ msg.plain }}
                 </div>
             {% else %}
-                <div class="alert alert-danger">
+                <div {% if msg.msg_id %}id="{{ msg.msg_id }}"{% endif %} class="alert alert-danger">
                     {{ msg.plain }}
                 </div>
             {% endif %}

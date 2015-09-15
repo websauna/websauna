@@ -134,7 +134,7 @@ def authenticated(request:Request, user:UserMixin, location:str=None) -> HTTPFou
     if not location:
         location = get_config_route(request, 'horus.login_redirect')
 
-    messages.add(request, kind="success", msg="You are now logged in.")
+    messages.add(request, kind="success", msg="You are now logged in.", msg_id="msg-you-are-logged-in")
 
     return HTTPFound(location=location, headers=headers)
 

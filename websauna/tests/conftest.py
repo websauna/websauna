@@ -24,12 +24,14 @@ from websauna.system.model import Base
 
 @pytest.fixture(scope='session')
 def ini_settings(request):
-    """Load INI settings from py.test command line.
+    """Load INI settings for test run from py.test command line.
 
     Example:
 
          py.test yourpackage -s --ini=test.ini
 
+
+    :return: Adictionary representing the key/value pairs in an ``app`` section within the file represented by ``config_uri``
     """
 
     if not getattr(request.config.option, "ini", None):
@@ -42,7 +44,7 @@ def ini_settings(request):
     setup_logging(config_uri)
     config = get_appsettings(config_uri)
 
-    # To pass forward in fixtures
+    # To pass the config filename itself forward
     config["_ini_file"] = config_uri
 
     return config

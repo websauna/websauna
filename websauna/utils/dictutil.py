@@ -50,3 +50,18 @@ def combine(a, b):
     merge(c, b)
     return c
 
+def traverse(obj, visitor) -> object:
+    """Traverse deeply-nested dict/list structure and mutate along the way..
+
+    :param obj: dict/list to traverse
+    :param visitor: callback(obj) -> obj called for every value member
+    :return: Deep-copy of mutated data
+
+    http://nvie.com/posts/modifying-deeply-nested-structures/
+    """
+    if isinstance(obj, dict):
+        return {k: traverse(v, visitor) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [traverse(elem, visitor) for elem in obj]
+    else:
+        return visitor(obj)

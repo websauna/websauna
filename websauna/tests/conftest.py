@@ -235,9 +235,8 @@ def pyramid_request(request, init):
 
 
 #: Make sure py.test picks this up
-from websauna.tests.functional import web_server  # noqa
-from websauna.tests.functional import light_web_server  # noqa
-from websauna.tests.functional import customized_web_server  # noqa
+from websauna.tests.webserver import web_server  # noqa
+from websauna.tests.webserver import customized_web_server  # noqa
 
 def pytest_addoption(parser):
     parser.addoption("--ini", action="store", metavar="INI_FILE", help="use INI_FILE to configure SQLAlchemy")

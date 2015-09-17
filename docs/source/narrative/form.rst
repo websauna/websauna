@@ -96,7 +96,7 @@ If you are processing HTTP POST submissions without using any framework you can 
 Include ``csrf_token` in `<form>`::
 
         <form method="POST">
-            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}"/>
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             <button type="submit" name="confirm">Confirm</button>
         </form>
 

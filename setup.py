@@ -84,7 +84,7 @@ setup(
     # $ pip install -e .[dev,test]
     extras_require={
         'dev': ['check-manifest', 'Sphinx', 'sphinx-autoapi'],
-        'test': ['pytest', 'coverage'],
+        'test': ['pytest', 'coverage', 'waitress'],
     },
 
     # To provide executable scripts, use entry points in preference to the

@@ -8,11 +8,11 @@ from websauna.system.model import DBSession
 GROUP_NAME = "Sample Group"
 
 
-def test_add_group(light_web_server, browser, dbsession):
+def test_add_group(web_server, browser, dbsession):
     """Create a new group through admin interface."""
 
     b = browser
-    create_logged_in_user(light_web_server, browser, admin=True)
+    create_logged_in_user(web_server, browser, admin=True)
 
     b.find_by_css("#nav-admin").click()
 
@@ -24,20 +24,20 @@ def test_add_group(light_web_server, browser, dbsession):
     assert b.is_text_present("Item added")
 
     # Check we appear in the list
-    b.visit("{}/admin/group/listing".format(light_web_server))
+    b.visit("{}/admin/group/listing".format(web_server))
 
     # The description appears in the listing
     assert b.is_text_present("Foobar")
 
 
-def test_put_user_to_group(light_web_server, browser, dbsession):
+def test_put_user_to_group(web_server, browser, dbsession):
     """Check that we can assign users to groups in admin interface."""
 
     b = browser
 
     from websauna.system.user.models import Group
 
-    create_logged_in_user(light_web_server, browser, admin=True)
+    create_logged_in_user(web_server, browser, admin=True)
 
     # Create a group where we
     with transaction.manager:
@@ -59,7 +59,7 @@ def test_put_user_to_group(light_web_server, browser, dbsession):
 
 
 
-def test_user_group_choices_preserved_on_validation_error(light_web_server, browser, dbsession):
+def test_user_group_choices_preserved_on_validation_error(web_server, browser, dbsession):
     """When user edit form validation fails, we should preserve the existing group choices.
 
     This stresses out hacky implementation of websauna.system.form.colander and deserialization.
@@ -69,7 +69,7 @@ def test_user_group_choices_preserved_on_validation_error(light_web_server, brow
 
     from websauna.system.user.models import Group
 
-    create_logged_in_user(light_web_server, browser, admin=True)
+    create_logged_in_user(web_server, browser, admin=True)
 
     # Create a group where we
     with transaction.manager:
@@ -96,14 +96,14 @@ def test_user_group_choices_preserved_on_validation_error(light_web_server, brow
 
 
 
-def test_remove_user_from_group(light_web_server, browser, dbsession):
+def test_remove_user_from_group(web_server, browser, dbsession):
     """Remove users from assigned groups in admin."""
 
     b = browser
 
     from websauna.system.user.models import Group
 
-    create_logged_in_user(light_web_server, browser, admin=True)
+    create_logged_in_user(web_server, browser, admin=True)
 
     # Create a group where we
     with transaction.manager:

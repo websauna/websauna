@@ -64,7 +64,7 @@ class UserMixin:
     GROUP_ADMIN = "admin"
 
     #: Though not displayed on the site, the concept of "username" is still preversed. If the site needs to have username (think Instragram, Twitter) the user is free to choose this username after the sign up. Username is null until the initial user activation is completed after db.flush() in create_activation().
-    username = Column(String(32), nullable=True, unique=True)
+    username = Column(String(256), nullable=True, unique=True)
 
     #: Store the salted password. This is nullable because users using social media logins may never set the password.
     _password = Column('password', String(256), nullable=True)

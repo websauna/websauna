@@ -23,7 +23,7 @@ from websauna.system.model import Base
 
 
 @pytest.fixture(scope='session')
-def ini_settings(request):
+def ini_settings(request) -> dict:
     """Load INI settings for test run from py.test command line.
 
     Example:

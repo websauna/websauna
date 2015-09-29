@@ -2,6 +2,7 @@
 import datetime
 import json
 from time import ctime as time_ctime
+from pyramid.config import Configurator
 
 from pyramid.events import BeforeRender
 from pyramid.renderers import render
@@ -18,6 +19,7 @@ from jinja2 import contextfilter
 from jinja2 import Markup
 
 from arrow import Arrow
+from websauna.system.compat import typing
 
 from websauna.utils import html
 from websauna.system.model import now
@@ -167,6 +169,54 @@ def fromtimestamp(jinja_ctx, context, **kw):
     return ct
 
 
+def include_filter(config:Configurator, name:str, func:typing.Callable, renderers=(".html", ".txt",)):
+    """Register a new Jinja 2 template filter function.
+
+    Example::
+
+        import jinja2
+
+        @jinja2.contextfilter
+        def negative(jinja_ctx:jinja2.runtime.Context, context:object, **kw):
+            '''Output the negative number.
+
+            Usage:
+
+                {{ 3|neg }}
+
+            '''
+            neg = -context
+            return neg
+
+
+    Then in your initialization:
+
+        include_filter(config, "neg", negative)
+
+    :param config: Pyramid configurator
+
+    :param name: Filter name in templates
+
+    :param func: Python function which is the filter
+
+    :param renderers: List of renderers where the filter is made available
+
+    """
+
+    def _include_filter(name, func):
+
+        def deferred():
+            for renderer_name in renderers:
+                env = config.get_jinja2_environment(name=renderer_name)
+                assert env, "Jinja 2 not configured - cannot add filters"
+                env.filters[name] = func
+
+        # Because Jinja 2 engine is not initialized here, only included here, we need to do template filter including asynchronously
+        config.action('pyramid_web-include-filter-{}'.format(name), deferred, order=1)
+
+    _include_filter(name, func)
+
+
 def includeme(config):
 
     # The site name - used in <title> tag, front page, etc.
@@ -212,22 +262,12 @@ def includeme(config):
 
     config.add_subscriber(on_before_render, BeforeRender)
 
-    def include_filter(name, func):
 
-        def deferred():
-            for renderer_name in (".html", ".txt"):
-                env = config.get_jinja2_environment(name=renderer_name)
-                assert env, "Jinja 2 not configured - cannot add filters"
-                env.filters[name] = func
-
-        # Because Jinja 2 engine is not initialized here, only included here, we need to do template filter including asynchronously
-        config.action('pyramid_web-include-filter-{}'.format(name), deferred, order=1)
-
-    include_filter("friendly_time", friendly_time)
-    include_filter("datetime", filter_datetime)
-    include_filter("escape_js", escape_js)
-    include_filter("timestruct", timestruct)
-    include_filter("to_json", to_json)
-    include_filter("fromtimestamp", fromtimestamp)
+    include_filter(config, "friendly_time", friendly_time)
+    include_filter(config, "datetime", filter_datetime)
+    include_filter(config, "escape_js", escape_js)
+    include_filter(config, "timestruct", timestruct)
+    include_filter(config, "to_json", to_json)
+    include_filter(config, "fromtimestamp", fromtimestamp)
 
 

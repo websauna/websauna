@@ -3,51 +3,12 @@
 import threading
 import time
 from pyramid.router import Router
-from waitress import serve
+from webtest.http import StopableWSGIServer
 from urllib.parse import urlparse
 
 import pytest
 
 from backports import typing
-
-#: The URL where WSGI server is run from where Selenium browser loads the pages
-HOST_BASE = "http://localhost:8521"
-
-
-class ServerThread(threading.Thread):
-    """Run WSGI server on a background thread.
-
-    This thread starts a web server for a given WSGI application. Then the Selenium WebDriver can connect to this web server, like to any web server, for running functional tests.
-    """
-
-    def __init__(self, app:Router, hostbase:str=HOST_BASE):
-        threading.Thread.__init__(self)
-        self.app = app
-        self.srv = None
-        self.daemon = True
-        self.hostbase = hostbase
-
-    def run(self):
-        """Start WSGI server on a background to listen to incoming."""
-        parts = urlparse(self.hostbase)
-        domain, port = parts.netloc.split(":")
-
-        try:
-            # TODO: replace this with create_server call, so we can quit this later
-            # log_socket_errors -> when Selenium WebDriver quits it may uncleanly stop ongoing Firefox HTTP requests, spitting out stuff to console
-            serve(self.app, host='127.0.0.1', port=int(port), log_socket_errors=False, _quiet=True)
-        except Exception as e:
-            # We are a background thread so we have problems to interrupt tests in the case of error. Try spit out something to the console.
-            import traceback
-            traceback.print_exc()
-
-    def quit(self):
-        """Stop test webserver."""
-
-        # waitress has no quit
-
-        # if self.srv:
-        #    self.srv.shutdown()
 
 
 @pytest.fixture(scope='session')
@@ -59,26 +20,22 @@ def web_server(request, app) -> str:
     :return: localhost URL where the web server is running.
     """
 
-    server = ServerThread(app)
-    server.start()
+    host = "localhost"
+    port = 8521
 
-    # Wait randomish time to allows SocketServer to initialize itself.
-    # TODO: Replace this with proper event telling the server is up.
-    time.sleep(0.1)
-
-    # assert server.srv is not None, "Could not start the test web server"
-
-    host_base = HOST_BASE
+    server = StopableWSGIServer.create(app, host=host, port=port)
+    server.wait()
 
     def teardown():
-        server.quit()
+        server.shutdown()
 
     request.addfinalizer(teardown)
-    return host_base
+    return "http://{}:{}".format(host, port)
 
 
 
 _customized_web_server_port = 8522
+
 
 @pytest.fixture()
 def customized_web_server(request, app) -> typing.Callable:
@@ -186,22 +143,18 @@ def customized_web_server(request, app) -> typing.Callable:
 
         app.registry.settings.update(overrides)
 
-        host_base = HOST_BASE.replace("8521", str(_customized_web_server_port))
+        host_base = "http://localhost:{}".format(_customized_web_server_port)
+        server = StopableWSGIServer.create(app, host="localhost", port=_customized_web_server_port)
+        server.wait()
+
         _customized_web_server_port += 1
-
-        server = ServerThread(app, host_base)
-        server.start()
-
-        # Wait randomish time to allows SocketServer to initialize itself.
-        # TODO: Replace this with proper event telling the server is up.
-        time.sleep(0.1)
 
         def teardown():
             # Restore old settings
             app.registry.settings = old_settings
 
             # Shutdown server thread
-            server.quit()
+            server.shutdown()
 
         request.addfinalizer(teardown)
         return host_base

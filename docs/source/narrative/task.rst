@@ -195,3 +195,21 @@ Eager execution in development and unit testing
 -----------------------------------------------
 
 TODO
+
+Inspecting task queue
+=====================
+
+Sometimes you run to issues of not being sure if the tasks are being executed or not. First check that Celery is running, both scheduler process and worker processes. Then you can check the status of Celery queue.
+
+Start shell or do through IPython Notebook::
+
+    ws-shell production.ini
+
+Print out Celery queue::
+
+    from celery.task.control import inspect
+    i = inspect()
+    print("Queued: {}".format(i.scheduled())
+    print("Active: {}".format(i.active())
+
+

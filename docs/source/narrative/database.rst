@@ -87,7 +87,7 @@ Now you can return back to the original database::
 
 
 Creating first migration
--------------------------
+------------------------
 
 Preface: You have created initial migration as instructed above. Now, you edit your source code by introducting new models or columns. Now it is time to generate the code which updates the database to have those features.
 

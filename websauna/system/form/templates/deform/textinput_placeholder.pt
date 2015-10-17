@@ -19,7 +19,10 @@
     <input type="${type}" name="${name}" value="${cstruct}"
            tal:attributes="class string: form-control ${css_class};
                            style style;
-                           placeholder placeholder;"
+                           placeholder placeholder;
+                           data-placement python: getattr(field.widget, 'tooltip_placement', None);
+                           data-toggle python:'tooltip' if hasattr(field.widget, 'tooltip') else None;
+                           title field.widget.tooltip|nothing"
            id="${oid}"/>
     <script tal:condition="mask" type="text/javascript">
       deform.addCallback(

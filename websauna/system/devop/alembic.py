@@ -93,7 +93,7 @@ def get_sqlalchemy_metadata(package):
             continue
 
         if not klass.__module__.startswith(package):
-            logger.debug("Skipping SQLAlchemy model %s as out of scope for package %s", klass, package)
+            print("Skipping SQLAlchemy model %s as out of scope for package %s", klass, package)
             continue
 
         allowed_tables.append(klass.__table__)
@@ -152,16 +152,19 @@ def run_alembic(package:str):
 
         http://dev.utek.pl/2013/ignoring-tables-in-alembic/
         """
-        if type_ == "index":
-            table_name = object.table.name
-        else:
-            table_name = object.name
 
-        print(object, type_, table_name)
+        # Try to figure out smartly table from different object types
+        if type_ in ("index", "column", "foreign_key_constraint"):
+            table_name = object.table.name
+        elif type_ == "table":
+            table_name = object.name
+        else:
+            raise RuntimeError("Don't know how to check type for migration inclusion list: {}".format(type_))
 
         model = get_class_by_table_name(table_name)
         if not model:
             # Don't know what's this... let's skip
+            print("No model available", object, type_, table_name)
             return False
 
         module = model.__module__

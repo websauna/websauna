@@ -299,3 +299,34 @@ Run migrations. Now it should pick migrations from 37e1cb6de47 and run all the w
 Alternatively, you can also try to fix version history by directly manipulating Alembic history in PostgreSQL::
 
     update alembic_history_trees set version_num="3dd2f080895";
+
+Migrating enums
+---------------
+
+Alembic does not how to migrate SQLAlchemy and PostgreSQL enum types if you add or remove enum choices.
+
+For this you need to create a manual migration::
+
+    ws-alembic -c development.ini revision -m "Adding enum choice payment_under_review"
+
+Then edit generated script in ``versions``::
+
+    def upgrade():
+        """Perform non-atomic update on PostgreSQL enum."""
+
+        op.execute('COMMIT')  # See https://bitbucket.org/zzzeek/alembic/issue/123
+
+        # payment_status = name of the enum we are altering
+        op.execute('ALTER TYPE payment_status ADD VALUE \'payment_under_review\'')
+
+    def downgrade():
+        # TODO
+        # We don't support downgrade yet
+        pass
+
+
+More information
+
+* See https://bitbucket.org/zzzeek/alembic/issue/123
+
+* http://stackoverflow.com/questions/14845203/altering-an-enum-field-using-alembic

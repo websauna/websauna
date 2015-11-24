@@ -9,6 +9,8 @@ import premailer
 def send_templated_mail(request, recipients, template, context, sender=None):
     """Send out templatized HTML and plain text emails.
 
+    Each HTML email should have a plain text fallback. Premailer package is used to convert any CSS styles in HTML email messages to inline, so that email clients display them.
+
     The email is assembled from three different templates:
 
     * Read subject from a subject specific template $template.subject.txt
@@ -16,6 +18,8 @@ def send_templated_mail(request, recipients, template, context, sender=None):
     * Generate HTML email from HTML template, $template.body.html
 
     * Generate plain text email from HTML template, $template.body.txt
+
+    Make sure you have configured your template engine (Jinja 2) to read TXT templates beside HTML.
 
     :param request: HTTP request, passed to the template engine. Request configuration is used to get hold of the configured mailer.
 

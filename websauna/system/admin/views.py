@@ -4,7 +4,7 @@ from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
 from pyramid_layout.panel import panel_config
 
-from websauna.system import crud
+from websauna.system import crud, DBSession
 from websauna.system.crud import views as crud_views
 from websauna.system.crud import listing
 

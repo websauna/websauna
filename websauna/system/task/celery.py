@@ -1,4 +1,4 @@
-"""pyramid_celery loader, retrofitted with INI includer hack."""
+"""Wrap pyramid_celery loader, so that it works with our INI includer hack."""
 try:
     import coverage
     coverage.process_startup()
@@ -16,3 +16,7 @@ from pyramid_celery.loaders import INILoader
 INILoader.ConfigParser = IncludeAwareConfigParser
 
 from pyramid_celery import *
+from .transactionawaretask import TransactionAwareTask
+
+# Set up celery task class which is transaction aware
+celery_app.task = TransactionAwareTask

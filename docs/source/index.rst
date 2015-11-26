@@ -23,6 +23,7 @@ Narrative developer guide
     narrative/database
     narrative/transient
     narrative/views
+    narrative/models
     narrative/templatecontext
     narrative/form
     narrative/crud

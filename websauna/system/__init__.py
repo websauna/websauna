@@ -411,7 +411,7 @@ class Initializer:
         """
 
         # Patch pyramid_celery to use our config loader
-        import websauna.system.celery
+        import websauna.system.task.celery
 
         # Patch various paster internals
         from websauna.utils.configincluder import monkey_patch_paster_config_parser

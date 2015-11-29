@@ -24,14 +24,15 @@ Here is an example task for calling API and storing the results in Redis. In you
     import logging
     from pyramid.threadlocal import get_current_registry
 
-    from pyramid_celery import celery_app as app
     from trees.btcaverage import RedisConverter
     from websauna.system.core.redis import get_redis
+    from websauna.system.task.celery import celery_app as celery
+    from websauna.system.task.transactionawaretask import TransactionAwareTask
 
     logger = logging.getLogger(__name__)
 
 
-    @app.task(name="update_conversion_rates")
+    @celery.task(name="update_conversion_rates", base=TransactionAwareTask)
     def update_btc_rate():
         logger.info("Fetching currency conversion rates from API to Redis")
 
@@ -120,19 +121,19 @@ Below is an example which calls third party API (Twilio SMS out) - you don't wan
 
 .. code-block:: python
 
-    @celery_app.task
-    def send_review_sms_notification(delivery_id, url):
+    from websauna.system.task.celery import celery_app as celery
+    from websauna.system.task.transactionawaretask import TransactionAwareTask
 
-        # Create a blank request to be passed around for templates
-        request = Request.blank("/", base_url=url)
-        request.registry = celery_app.conf['PYRAMID_REGISTRY']
 
-        with transaction.manager:
-            delivery = DBSession.query(models.Delivery).filter_by(id=delivery_id).first()
-            customer = delivery.customer
+    @celery.task(base=TransactionAwareTask)
+    def send_review_sms_notification(request, delivery_id, url):
 
-            review_url = request.route_url("review", delivery_uuid=uuid_to_slug(delivery.uuid))
-            sms.send_templated_sms(request, delivery.phone_number, "drive/sms/review.txt", locals())
+        delivery = DBSession.query(models.Delivery).filter_by(id=delivery_id).first()
+        customer = delivery.customer
+
+        review_url = request.route_url("review", delivery_uuid=uuid_to_slug(delivery.uuid))
+        sms.send_templated_sms(request, delivery.phone_number, "drive/sms/review.txt", locals())
+
 
     @subscriber(events.DeliveryStateChanged)
     def on_delivery_completed(event):
@@ -166,6 +167,7 @@ Another example how to turn a call to third party API library to async::
         return slack
 
 
+    # TODO: Update to new Celery task convention
     @celery_app.task
     def _call_slack_api_delayed(**kwargs):
         """Asynchronous call to Slack API.

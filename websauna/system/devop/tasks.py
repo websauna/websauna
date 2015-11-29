@@ -1,12 +1,12 @@
 """Timed default devop tasks for the system."""
 import logging
 
-from pyramid_celery import celery_app as app
+from websauna.system.task.celery import celery_app as celery
 
 logger = logging.getLogger(__name__)
 
 
-@app.task(name="backup")
+@celery.task(name="backup")
 def backup_task():
     from . import backup
     logger.info("Running daily backup")

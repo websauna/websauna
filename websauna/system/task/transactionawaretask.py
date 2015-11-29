@@ -1,4 +1,4 @@
-"""
+"""Transaction-aware Celery task handling.
 
 Core originally written for Warehouse project https://raw.githubusercontent.com/pypa/warehouse/master/warehouse/celery.py
 """

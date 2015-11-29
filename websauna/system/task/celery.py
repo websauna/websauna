@@ -15,10 +15,9 @@ monkey_patch_paster_config_parser()
 from pyramid_celery.loaders import INILoader
 INILoader.ConfigParser = IncludeAwareConfigParser
 
-from pyramid_celery import *
-from .transactionawaretask import TransactionAwareTask
+from pyramid_celery import celery_app
+from pyramid_celery import includeme
 
-# Set up celery task class which is transaction aware
-celery_app.transaction_aware_task = TransactionAwareTask
+
 
 

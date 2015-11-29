@@ -45,6 +45,9 @@ class Initializer:
         #: Python module which provides Horus models
         self.user_models_module = None
 
+        #: Reference to Celery app instance
+        self.celery = None
+
         self.settings = settings
 
     def create_configurator(self, settings):
@@ -406,9 +409,7 @@ class Initializer:
         from websauna.system.devop import tasks  # noqa
 
     def configure_scheduler(self, settings):
-        """Configure Celery.
-
-        """
+        """Configure Celery."""
 
         # Patch pyramid_celery to use our config loader
         import websauna.system.task.celery
@@ -419,6 +420,8 @@ class Initializer:
         self.config.include("pyramid_celery")
 
         self.config.configure_celery(self.global_config["__file__"])
+
+        self.celery = websauna.system.task.celery.celery_app
 
     def read_secrets(self, settings):
         """Read secrets configuration file.

@@ -9,7 +9,7 @@ from pyramid import testing
 from tempfile import NamedTemporaryFile
 
 
-def test_backup(ini_settings):
+def test_backup(dbsession, ini_settings):
     """Execute backup script with having our settings content."""
 
     f = NamedTemporaryFile(delete=False)
@@ -18,6 +18,10 @@ def test_backup(ini_settings):
 
     ini_settings["websauna.backup_script"] = "websauna.tests:backup_script.bash"
     ini_settings["backup_test.filename"] = temp_fname
+
+
+    # Manually calling init would mess global dbsession management
+    dbsession.remove()
 
     init = get_init(dict(__file__=ini_settings["_ini_file"]), ini_settings)
     init.run(ini_settings)
@@ -41,6 +45,8 @@ def test_backup(ini_settings):
         assert contents.strip() == "foo"
     finally:
         testing.tearDown()
+
+
 
 
 

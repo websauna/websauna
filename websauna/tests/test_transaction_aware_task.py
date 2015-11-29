@@ -3,27 +3,30 @@
 Re(run) test (Celery might need to be nuked between failed test runs)::
 
     pkill -f celery
-    nohup celery worker -A websauna.tests.test_transaction_aware_task.test_celery_app --ini test.ini --loglevel DEBUG > celery-worker.log &
+    celery worker -A websauna.tests.test_transaction_aware_task.test_celery_app --ini test.ini --loglevel DEBUG &
     sleep 4
     py.test websauna -s --ini=test.ini -x -k test_transaction_aware_task_success
 
     # Not needed for now
     #     nohup celery beat -A websauna.tests.test_transaction_aware_task.test_celery_app --ini test.ini > celery-beat.log &
 """
-import configparser
+
+import subprocess
 import time
 from optparse import make_option
 
+import os
 import pyramid
 import pytest
 import transaction
 
-import psutil
 from celery import Celery
 from celery import signals
+from pyramid.paster import bootstrap
+from pyramid.settings import asbool
 from pyramid.testing import DummyRequest
 import pyramid_celery
-from pyramid_celery import on_preload_parsed
+from pyramid_celery.loaders import INILoader
 from websauna.system.task.transactionawaretask import TransactionAwareTask
 from websauna.system.user.utils import get_user_class
 from websauna.system.model import DBSession
@@ -44,7 +47,7 @@ test_celery_app = Celery("websauna_test")
 # test_celery_app.config_from_object(Config)
 #
 # Unfortunately we need to do this due to Celery globals
-pyramid_celery.celery_app = test_celery_app
+old_celery = pyramid_celery.celery_app
 
 
 test_celery_app.user_options['preload'].add(
@@ -62,23 +65,71 @@ test_celery_app.user_options['preload'].add(
 )
 
 
+def setup_app(registry, ini_location):
+    celery_app = test_celery_app
+    loader = INILoader(celery_app, ini_file=ini_location)
+    celery_config = loader.read_configuration()
+
+    if asbool(celery_config.get('USE_CELERYCONFIG', False)) is True:
+        config_path = 'celeryconfig'
+        celery_app.config_from_object(config_path)
+    else:
+        celery_app.config_from_object(celery_config)
+
+    celery_app.conf.update({'PYRAMID_REGISTRY': registry})
+
+    return celery_app
+
+
 @signals.user_preload_options.connect
 def _on_preload_parsed(options, **kwargs):
     """This is run when celery worker process boots up."""
-    on_preload_parsed(options, **kwargs)
+    ini_location = options['ini']
+    ini_vars = options['ini_var']
+
+    if ini_location is None:
+        print('You must provide the paste --ini argument')
+        exit(-1)
+
+    options = {}
+    if ini_vars is not None:
+        for pairs in ini_vars.split(','):
+            key, value = pairs.split('=')
+            options[key] = value
+
+        env = bootstrap(ini_location, options=options)
+    else:
+        env = bootstrap(ini_location)
+
+    registry = env['registry']
+    setup_app(registry, ini_location)
 
 
-def is_celery_running():
-    """Don't try to run any Celery tests unless Celery worker is running."""
-    marker = "celery worker -A websauna.tests.test_transaction_aware_task.test_celery_app"
-    for proc in psutil.process_iter():
-        try:
-            if marker in " ".join(proc.cmdline()):
-                return True
-        except (psutil.AccessDenied, psutil.NoSuchProcess):
-            pass
+@pytest.fixture(scope='module')
+def celery_worker(request, init):
+    """py.test fixture to shoot up Celery worker process with our test config."""
+    ini_file = os.path.join(os.path.dirname(__file__), "..", "..", "test.ini")
 
-    return False
+    setup_app(init.config.registry, ini_file)
+
+    cmdline = ["celery", "worker", "-A", "websauna.tests.test_transaction_aware_task.test_celery_app", "--ini", ini_file, "--loglevel", "DEBUG"]
+
+    worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    time.sleep(4.0)
+
+    worker.poll()
+    if worker.returncode is not None:
+        raise AssertionError("Celery worker process did not start up: {}".format(" ".join(cmdline)))
+
+    def teardown():
+        worker.terminate()
+        # XXX: Hard to capture this only on failure for now
+        # print(worker.stdout.read().decode("utf-8"))
+        # print(worker.stderr.read().decode("utf-8"))
+
+    request.addfinalizer(teardown)
+
+    return worker.pid
 
 
 def setup_celery(init):
@@ -89,17 +140,27 @@ def setup_celery(init):
 
     test_celery_app.pyramid_config = init.config
 
-    # We need to setup thread local request
+    # We need to setup thread local request which binds to our test transaction manager
     request = DummyRequest()
     request.tm = transaction.manager
-    pyramid.threadlocal.manager.get()['request'] = request
+    pyramid.threadlocal.manager.push({'request':  request})
 
     return test_celery_app, request
 
 
 @test_celery_app.task(base=TransactionAwareTask)
 def success_task(request, user_id):
+    # TODO: Eliminate global dbsession
+    dbsession = DBSession
+    registry = request.registry
 
+    User = get_user_class(registry)
+    u = dbsession.query(User).get(user_id)
+    u.username = "set by celery"
+
+
+@test_celery_app.task(base=TransactionAwareTask)
+def success_task_never_called(request, user_id):
     # TODO: Eliminate global dbsession
     dbsession = DBSession
     registry = request.registry
@@ -122,22 +183,26 @@ def failure_task(request, user_id):
     raise RuntimeError("Exception raised")
 
 
-@pytest.mark.skipif(not is_celery_running(), reason="No test Celery worker processes running")
-def test_transaction_aware_task_success(init, dbsession):
+def test_transaction_aware_task_success(celery_worker, init, dbsession):
     """Test that transaction aware task does not fail."""
 
     celery_app, request = setup_celery(init)
+    User = get_user_class(init.config.registry)
+
+    assert not celery_app.conf.CELERY_ALWAYS_EAGER
 
     with request.tm:
         # Do a dummy database write
-        User = get_user_class(init.config.registry)
         u = User(username="test", email="test@example.com")
         dbsession.add(u)
-        dbsession.flush()
+
+    with request.tm:
+        # Do a dummy database write
+        u = dbsession.query(User).get(1)
 
         success_task.apply_async(args=[u.id])
         # Let the task travel in Celery queue
-        time.sleep(0.5)
+        time.sleep(1.0)
 
         # Task should not fire unless we exit the transaction
         assert u.username != "set by celery"
@@ -151,8 +216,7 @@ def test_transaction_aware_task_success(init, dbsession):
         assert u.username == "set by celery"
 
 
-@pytest.mark.skipif(not is_celery_running(), reason="No test Celery worker processes running")
-def test_transaction_aware_task_fail(init, dbsession):
+def test_transaction_aware_task_fail(celery_worker, init, dbsession):
     """Test that transaction that do not commit do not run tasks."""
 
     celery_app, request = setup_celery(init)
@@ -162,12 +226,13 @@ def test_transaction_aware_task_fail(init, dbsession):
         User = get_user_class(init.config.registry)
         u = User(username="test", email="test@example.com")
         dbsession.add(u)
-        dbsession.flush()
 
     try:
         # Tasks do not execute if transaction is aborted because of exception
         with request.tm:
-            success_task.apply_async(args=[1])
+            assert dbsession.query(User).count() == 1
+            assert dbsession.query(User).get(1).username == "test"
+            success_task_never_called.apply_async(args=[1])
             raise RuntimeError("aargh")
     except RuntimeError:
         pass
@@ -181,11 +246,12 @@ def test_transaction_aware_task_fail(init, dbsession):
         assert u.username == "test"
 
 
-@pytest.mark.skipif(not is_celery_running(), reason="No test Celery worker processes running")
-def test_transaction_aware_task_throws_exception(init, dbsession):
+def test_transaction_aware_task_throws_exception(celery_worker, init, dbsession):
     """Test that transaction aware task does not commit if exception is thrown.."""
 
     celery_app, request = setup_celery(init)
+
+    assert not celery_app.conf.CELERY_ALWAYS_EAGER
 
     with request.tm:
         # Do a dummy database write

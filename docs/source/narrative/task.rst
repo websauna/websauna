@@ -77,11 +77,11 @@ Launch scripts for these are installed to your virtualenv ``bin`` folder when yo
 
 To launch a Celery beat do::
 
-    celery beat -A websauna.system.celery.celery_app --ini development.ini
+    celery beat -A websauna.system.task.celery.celery_app --ini development.ini
 
 To launch a Celery worker do::
 
-    celery worker -A websauna.system.celery.celery_app --ini development.ini
+    celery worker -A websauna.system.task.celery.celery_app --ini development.ini
 
 Supervisor configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^

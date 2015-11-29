@@ -19,4 +19,6 @@ from pyramid_celery import *
 from .transactionawaretask import TransactionAwareTask
 
 # Set up celery task class which is transaction aware
-celery_app.task = TransactionAwareTask
+celery_app.transaction_aware_task = TransactionAwareTask
+
+

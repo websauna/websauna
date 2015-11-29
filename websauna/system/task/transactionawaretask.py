@@ -11,21 +11,38 @@ from pyramid_tm import tm_tween_factory
 
 
 class TransactionAwareTask(Task):
+    """Celery task which is aware of Zope 2 transaction manager.
+
+    ``apply_async`` tasks are not added to the queue unless the transaction successfully commits and only after transaction successfully commits.
+
+    * The first argument of the task is `request` object prepared by `pyramid.scripting.prepare`.
+
+    * The task is run inside the transaction management of `pyramid_tm`. You do not need to commit the transaction at the end of the task. Failed tasks, due to exceptions, do not commit.
+    """
 
     abstract = True
 
+    def call_underlying(self, underlying_func, *args, **kwargs):
+        """Calls the underlying task function.
+
+        Subclass this to include further decoration around the function call.
+        """
+        return underlying_func(*args, **kwargs)
+
     def __call__(self, *args, **kwargs):
-        registry = self.app.pyramid_config.registry
+
+        registry = self.app.conf.PYRAMID_REGISTRY
+
         pyramid_env = scripting.prepare(registry=registry)
 
         try:
             underlying = super().__call__
             if getattr(self, "pyramid", True):
                 def handler(request):
-                    return underlying(request, *args, **kwargs)
+                    return self.call_underlying(underlying, request, *args, **kwargs)
             else:
                 def handler(request):
-                    return underlying(*args, **kwargs)
+                    return self.call_underlying(underlying(*args, **kwargs))
 
             handler = tm_tween_factory(handler, pyramid_env["registry"])
             result = handler(pyramid_env["request"])

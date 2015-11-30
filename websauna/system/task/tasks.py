@@ -66,8 +66,7 @@ class RequestAwareTask(Task):
         def _call_slack_api_delayed(request, **kwargs):
             '''Asynchronous call to Slack API.
 
-            Do not block HTTP response head.
-            ''''
+            '''
 
             registry = request.registry
             slack = get_slack(registry)
@@ -91,7 +90,8 @@ class RequestAwareTask(Task):
 
             '''
 
-            _call_slack_api_delayed.apply_async(kwargs=dict(method="chat.postMessage", channel=channel, text=text))
+            _call_slack_api_delayed.apply_async(kwargs=dict(request=request, method="chat.postMessage", channel=channel, text=text))
+
 
     """
 
@@ -151,6 +151,34 @@ class TransactionalTask(RequestAwareTask):
 
         from websauna.system.task.celery import celery_app as celery
         from websauna.system.task import TransactionAwareTask
+
+        @celery.task(task=TransactionalTask)
+        def send_review_sms_notification(request, delivery_id, url):
+
+            # TODO: Convert global dbsession to request.dbsession
+            delivery = DBSession.query(models.Delivery).filter_by(id=delivery_id).first()
+            customer = delivery.customer
+
+            review_url = request.route_url("review_public", delivery_uuid=uuid_to_slug(delivery.uuid))
+            sms.send_templated_sms_to_user(request, customer, "drive/sms/review.txt", locals())
+
+
+        @subscriber(events.DeliveryStateChanged)
+        def on_delivery_completed(event):
+            '''Trigger the mechanism to send SMS notification after sign off is completed.'''
+            request = event.request
+            delivery = event.delivery
+            assert delivery.id
+
+            # Trigger off review SMS
+            if delivery.delivery_status == "delivered":
+
+                reviews = models.Review.create_reviews(delivery)
+                customer_id = delivery.customer.id
+                delay = int(request.registry.settings["trees.review_sms_delay"])
+
+                # Pass request.url as base URL so that the async task request correctly populated host name and scheme
+                send_review_sms_notification.apply_async(args=(request, delivery.id, request.host_url,), countdown=delay)
 
 
     """

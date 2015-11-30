@@ -28,7 +28,7 @@ from pyramid.settings import asbool
 from pyramid.testing import DummyRequest
 import pyramid_celery
 from pyramid_celery.loaders import INILoader
-from websauna.system.task import TransactionAwareTask
+from websauna.system.task import TransactionalTask
 from websauna.system.task import RequestAwareTask
 from websauna.system.user.utils import get_user_class
 from websauna.system.model import DBSession
@@ -151,7 +151,7 @@ def setup_celery(init):
     return test_celery_app, request
 
 
-@test_celery_app.task(base=TransactionAwareTask)
+@test_celery_app.task(base=TransactionalTask)
 def success_task(request, user_id):
     # TODO: Eliminate global dbsession
     dbsession = DBSession
@@ -162,10 +162,12 @@ def success_task(request, user_id):
     u.username = "set by celery"
 
 
-@test_celery_app.task(base=TransactionAwareTask)
+@test_celery_app.task(base=TransactionalTask)
 def success_task_never_called(request, user_id):
     # TODO: Eliminate global dbsession
     dbsession = DBSession
+
+    request = test_celery_app
     registry = request.registry
 
     User = get_user_class(registry)
@@ -173,7 +175,7 @@ def success_task_never_called(request, user_id):
     u.username = "set by celery"
 
 
-@test_celery_app.task(base=TransactionAwareTask)
+@test_celery_app.task(base=TransactionalTask)
 def failure_task(request, user_id):
 
     # TODO: Eliminate global dbsession
@@ -216,7 +218,7 @@ def test_transaction_aware_task_success(celery_worker, init, dbsession):
         # Do a dummy database write
         u = dbsession.query(User).get(1)
 
-        success_task.apply_async(args=[u.id])
+        success_task.apply_async(args=[request, u.id])
         # Let the task travel in Celery queue
         time.sleep(1.0)
 
@@ -248,7 +250,7 @@ def test_transaction_aware_task_fail(celery_worker, init, dbsession):
         with request.tm:
             assert dbsession.query(User).count() == 1
             assert dbsession.query(User).get(1).username == "test"
-            success_task_never_called.apply_async(args=[1])
+            success_task_never_called.apply_async(args=[request, 1])
             raise RuntimeError("aargh")
     except RuntimeError:
         pass
@@ -274,7 +276,7 @@ def test_transaction_aware_task_throws_exception(celery_worker, init, dbsession)
         dbsession.add(u)
         dbsession.flush()
 
-        failure_task.apply_async(args=[u.id])
+        failure_task.apply_async(args=[request, u.id])
         # Let the task travel in Celery queue
         time.sleep(0.5)
 
@@ -305,7 +307,7 @@ def test_request_aware_task_success(celery_worker, init, dbsession):
         # Do a dummy database write
         u = dbsession.query(User).get(1)
 
-        request_task.apply_async(args=[u.id])
+        request_task.apply_async(kwargs={"request":request, "user_id":u.id})
         # Let the task travel in Celery queue
         time.sleep(1.0)
 

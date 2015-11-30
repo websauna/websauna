@@ -1,6 +1,6 @@
-================================
-Delated tasks and scheduled jobs
-================================
+===================================
+Tasks - delayed and scheduled tasks
+===================================
 
 Websauna uses *Celery* for
 
@@ -14,22 +14,26 @@ Websauna uses *Celery* for
 Celery basics
 =============
 
-Celery is a Python framework for runnign asynchronous and scheduled tasks in separate processes.
+Celery is a Python framework for running asynchronous and scheduled tasks in separate processes.
 
-* Tasks do not run in the same process as the web requests are handled
+* Tasks do not run in the same process or Python virtual machine as the web requests are handled
 
-* In fact, tasks can be run on a different computer altogether
+* In fact, tasks can run on a different computer altogether
 
 * Celery worker process executes task functions
 
 * Celery beat process triggers execution of scheduled tasks
+
+* Websauna is configured to use Celery through Redis. The default broken locations are localhost Redis database 3 for deployment, localhost Redis database 15 for testing.
+
+* All function arguments going into tasks must be JSON serializable. You cannot pass complex Python objects, like HTTPRequest, directly to the tasks. This is because tasks live in separate process and Python virtual machine.
 
 Task types
 ==========
 
 Websauna offers to Celery task classes
 
-* :py:class:`websauna.system.task.TransactionAwareTask`: Everything in the task is completed in one database transaction which commits when the transaction finishes. If an exception is raised no database changes are made.
+* :py:class:`websauna.system.task.TransactionalTask`: Everything in the task is completed in one database transaction which commits when the transaction finishes. If an exception is raised no database changes are made.
 
 * :py:class:`websauna.system.task.RequestAwareTask`: There is no transaction lifecycle and the task author is responsible for committed any changes. Good for tasks which do not read or write database.
 
@@ -54,12 +58,12 @@ Here is an example task for calling API and storing the results in Redis. In you
     from trees.btcaverage import RedisConverter
     from websauna.system.core.redis import get_redis
     from websauna.system.task.celery import celery_app as celery
-    from websauna.system.task.transactionawaretask import TransactionAwareTask
+    from websauna.system.task.TransactionalTask import TransactionalTask
 
     logger = logging.getLogger(__name__)
 
 
-    @celery.task(name="update_conversion_rates", base=TransactionAwareTask)
+    @celery.task(name="update_conversion_rates", base=TransactionalTask)
     def update_btc_rate():
         logger.info("Fetching currency conversion rates from API to Redis")
 
@@ -69,8 +73,6 @@ Here is an example task for calling API and storing the results in Redis. In you
         redis = get_redis(registry)
         converter = RedisConverter(redis)
         converter.update()
-
-
 
 Scheduling task
 ---------------
@@ -118,101 +120,20 @@ Delayed tasks are functions which are not executed immediately, but after a cert
 
 Below is an example which calls third party API (Twilio SMS out) - you don't want to block page render if the third party API fails or is delayed. The API is HTTP based, so calling it adds great amount of milliseconds on the request processing. The task also adds some extra delay and the SMS is not shoot up right away - it can be delayed hour or two after the user completes an order.
 
+Transactional task
+------------------
 
-.. code-block:: python
+See :py:class:`websauna.system.task.TransactionalTask`.
 
-    from websauna.system.task.celery import celery_app as celery
-    from websauna.system.task.transactionawaretask import TransactionAwareTask
+Non-transactional task
+----------------------
 
+See :py:class:`websauna.system.task.RequestAwareTask`.
 
-    @celery.task(base=TransactionAwareTask)
-    def send_review_sms_notification(request, delivery_id, url):
+Eager execution in development and testing
+------------------------------------------
 
-        delivery = DBSession.query(models.Delivery).filter_by(id=delivery_id).first()
-        customer = delivery.customer
-
-        review_url = request.route_url("review", delivery_uuid=uuid_to_slug(delivery.uuid))
-        sms.send_templated_sms(request, delivery.phone_number, "drive/sms/review.txt", locals())
-
-
-    @subscriber(events.DeliveryStateChanged)
-    def on_delivery_completed(event):
-        """Trigger the mechanism to send SMS notification after sign off is completed."""
-        request = event.request
-        delivery = event.delivery
-
-        # Trigger off review SMS
-        if delivery.delivery_status == "delivered":
-            reviews = models.Review.create_reviews(delivery)
-            customer_id = delivery.customer.id
-
-            # How many seconds this is
-            delay = int(request.registry.settings["trees.review_sms_delay"])
-
-            # Pass request.url as base URL so that the async task request correctly populated host name and scheme
-            send_review_sms_notification.apply_async(args=(delivery.id, request.url,), countdown=delay)
-
-
-Another example how to turn a call to third party API library to asyncrhonous. This time we don't need transaction awareness, because the task doesn't touch the database::
-
-    """Send Slack message."""
-    from pyramid.settings import asbool
-    from websauna.system.task.celery import celery_app as celery
-
-    from slackclient import SlackClient
-
-
-    def get_slack(registry):
-        slack = SlackClient(registry.settings["trees.slack_token"].strip())
-        return slack
-
-
-    @celery.task
-    def _call_slack_api_delayed(**kwargs):
-        """Asynchronous call to Slack API.
-
-        Do not block HTTP response head.
-        """
-        registry = celery.conf.PYRAMID_REGISTRY
-        slack = get_slack(registry)
-        slack.api_call(**kwargs)
-
-        slack.api_call(**kwargs)
-
-    def send_slack_message(request, channel, text):
-        """API to send Slack chat notifications from at application."""
-
-        # Slack bombing disabled by configuration
-        if not asbool(request.registry.get("trees.slack", True)):
-            return
-
-        # Old, synchronous, way blocks HTTP response and decreases responsiveness
-        # slack = get_slack(request.registry)
-        # slack.api_call("chat.postMessage", channel=channel, text=text)
-
-        _call_slack_api_delayed.apply_async(kwargs=dict(method="chat.postMessage", channel=channel, text=text))
-
-
-Eager execution in development and unit testing
------------------------------------------------
-
-TODO
-
-Inspecting task queue
-=====================
-
-Sometimes you run to issues of not being sure if the tasks are being executed or not. First check that Celery is running, both scheduler process and worker processes. Then you can check the status of Celery queue.
-
-Start shell or do through IPython Notebook::
-
-    ws-shell production.ini
-
-Print out Celery queue::
-
-    from celery.task.control import inspect
-    i = inspect()
-    print("Queued: {}".format(i.scheduled())
-    print("Active: {}".format(i.active())
+When testing one might not ramp full Celery environment.
 
 
 Configuring Celery to start with supervisor
@@ -242,3 +163,22 @@ Below is a supervisor configuration Ansible template for starting the two proces
     stopwaitsecs=600
     environment=C_FORCE_ROOT="true"
 
+
+Troubleshooting
+===============
+
+Inspecting task queue
+---------------------
+
+Sometimes you run to issues of not being sure if the tasks are being executed or not. First check that Celery is running, both scheduler process and worker processes. Then you can check the status of Celery queue.
+
+Start shell or do through IPython Notebook::
+
+    ws-shell production.ini
+
+Print out Celery queue::
+
+    from celery.task.control import inspect
+    i = inspect()
+    print("Queued: {}".format(i.scheduled())
+    print("Active: {}".format(i.active())

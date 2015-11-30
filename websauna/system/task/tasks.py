@@ -6,18 +6,43 @@ Core originally written for Warehouse project https://raw.githubusercontent.com/
 
 from celery import Task
 from pyramid import scripting
+from pyramid.interfaces import IRequest
+from pyramid.request import Request
 from pyramid.threadlocal import get_current_request
 from pyramid_tm import tm_tween_factory
+
+
+
+def _pop_request_argument(args, kwargs):
+
+    request = None
+
+    if args:
+        args = list(args)
+        request = args[0]
+        args.pop(0)
+
+    if kwargs:
+        request = kwargs.pop("request", None)
+
+    return request, args, kwargs
+
+
+
+class BadAsyncLifeCycleException(Exception):
+    pass
 
 
 class RequestAwareTask(Task):
     """Celery task which gets faux HTTPRequest instance as an argument.
 
-    * This task only executes through ``apply_async`` if the web transaction successfully commits and only after transaction successfully commits. Thus, it is safe to pass ids to any database objects for the task and expect the task to be able to read them.
+    * This is a helper class to be used with ``Celery.task`` function decorator.
 
-    * The first argument of the task is `request` object prepared by `pyramid.scripting.prepare`. ``request`` allows to access Pyramid registry, pass it templates as is.
+    * The created task only executes through ``apply_async`` if the web transaction successfully commits and only after transaction successfully commits. Thus, it is safe to pass ids to any database objects for the task and expect the task to be able to read them.
 
-    * When the task is done we call Pyramid ``closer`` to clean up the Pyramid framework bits.
+    * The task run mimics the lifecycle of a Pyramid web request.
+
+    * The decorated function first argument must be ``request``. This allows to access Pyramid registry and pass faux request object to templates as is. When task is executed asynchronously this request prepared by `pyramid.scripting.prepare` and it is not the original HTTPRequest passed when task was queued. When the task is executed synchronously using CELERY_ALWAYS_EAGER ``request`` is the original HTTPRequest object.
 
     .. warn::
 
@@ -25,31 +50,79 @@ class RequestAwareTask(Task):
 
     Example::
 
+        '''Send Slack message.'''
+        from pyramid.settings import asbool
+        from slackclient import SlackClient
+        from websauna.system.task import RequestAwareTask
+        from websauna.system.task.celery import celery_app as celery
+
+
+        def get_slack(registry):
+            slack = SlackClient(registry.settings["trees.slack_token"].strip())
+            return slack
+
+
+        @celery.task(task=RequestAwareTask)
+        def _call_slack_api_delayed(request, **kwargs):
+            '''Asynchronous call to Slack API.
+
+            Do not block HTTP response head.
+            ''''
+
+            registry = request.registry
+            slack = get_slack(registry)
+
+            # Slack bombing disabled by configuration
+            if not asbool(request.registry.get("trees.slack", True)):
+                # We could bail out early in send_slack_message, but letting it coming through here is better for test coverage
+                return
+
+            slack.api_call(**kwargs)
+
+
+        def send_slack_message(request, channel, text):
+            '''API to send Slack chat notifications from at application.
+
+            You must have Slack API token configured in INI settings.
+
+            Example::
+
+                send_slack_message(request, "#customers", "Customer just ordering #{}".format(delivery.id)
+
+            '''
+
+            _call_slack_api_delayed.apply_async(kwargs=dict(method="chat.postMessage", channel=channel, text=text))
 
     """
+
     abstract = True
 
     def __call__(self, *args, **kwargs):
-
         registry = self.app.conf.PYRAMID_REGISTRY
 
         pyramid_env = scripting.prepare(registry=registry)
 
         try:
             underlying = super().__call__
-            request = pyramid_env["request"]
-            return underlying(request, *args, **kwargs)
+            return underlying(pyramid_env["request"], *args, **kwargs)
         finally:
             pyramid_env["closer"]()
 
     def apply_async(self, *args, **kwargs):
-        # The API design of Celery makes this threadlocal pretty impossible to
-        # avoid :(
-        request = get_current_request()
+
+        # Intercept request argumetn going to the function
+        args_ = kwargs.get("args", [])
+        kwargs_ = kwargs.get("kwargs", {})
+        request, args_, kwargs_ = _pop_request_argument(args_, kwargs_)
+        kwargs["args"] = args_
+        kwargs["kwargs"] = kwargs_
+
+        if not IRequest.providedBy(request):
+            raise BadAsyncLifeCycleException("You must explicitly pass request as the first argument to asynchronous tasks as these tasks are bound to happen when the database transaction tied to the request lifecycle completes.")
 
         # If for whatever reason we were unable to get a request we'll just
         # skip this and call the original method to send this immediately.
-        if request is None or not hasattr(request, "tm"):
+        if not hasattr(request, "tm"):
             return super().apply_async(*args, **kwargs)
 
         # This will break things that expect to get an AsyncResult because
@@ -67,7 +140,7 @@ class RequestAwareTask(Task):
             super().apply_async(*args, **kwargs)
 
 
-class TransactionAwareTask(RequestAwareTask):
+class TransactionalTask(RequestAwareTask):
     """Celery task which is aware of Zope 2 transaction manager.
 
     * The first argument of the task is `request` object prepared by `pyramid.scripting.prepare`.
@@ -75,6 +148,9 @@ class TransactionAwareTask(RequestAwareTask):
     * The task is run inside the transaction management of `pyramid_tm`. You do not need to commit the transaction at the end of the task. Failed tasks, due to exceptions, do not commit.
 
     Example::
+
+        from websauna.system.task.celery import celery_app as celery
+        from websauna.system.task import TransactionAwareTask
 
 
     """
@@ -92,12 +168,8 @@ class TransactionAwareTask(RequestAwareTask):
             # http://stackoverflow.com/a/1015405/315168
             underlying = Task.__call__.__get__(self, Task)
 
-            if getattr(self, "pyramid", True):
-                def handler(request):
-                    underlying(request, *args, **kwargs)
-            else:
-                def handler(request):
-                    underlying(*args, **kwargs)
+            def handler(request):
+                underlying(request, *args, **kwargs)
 
             handler = tm_tween_factory(handler, pyramid_env["registry"])
             result = handler(pyramid_env["request"])

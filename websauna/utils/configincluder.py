@@ -76,6 +76,7 @@ class IncludeAwareConfigParser(configparser.SafeConfigParser):
             current_settings = [key for key, value in self.items(s, raw=True)]
 
             for key, value in config.items(s, raw=True):
+
                 if key not in current_settings:
                     self._sections[s][key] = value
 

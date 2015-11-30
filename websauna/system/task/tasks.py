@@ -62,7 +62,7 @@ class RequestAwareTask(Task):
             return slack
 
 
-        @celery.task(task=RequestAwareTask)
+        @celery.task(base=RequestAwareTask)
         def _call_slack_api_delayed(request, **kwargs):
             '''Asynchronous call to Slack API.
 
@@ -151,7 +151,7 @@ class TransactionalTask(RequestAwareTask):
         from websauna.system.task.celery import celery_app as celery
         from websauna.system.task import TransactionAwareTask
 
-        @celery.task(task=TransactionalTask)
+        @celery.task(base=TransactionalTask)
         def send_review_sms_notification(request, delivery_id, url):
 
             # TODO: Convert global dbsession to request.dbsession
@@ -204,3 +204,5 @@ class TransactionalTask(RequestAwareTask):
             pyramid_env["closer"]()
 
         return result
+
+

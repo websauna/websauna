@@ -148,7 +148,6 @@ class TransactionalTask(RequestAwareTask):
     * The task is run inside the transaction management of `pyramid_tm`. You do not need to commit the transaction at the end of the task. Failed tasks, due to exceptions, do not commit.
 
     Example::
-
         from websauna.system.task.celery import celery_app as celery
         from websauna.system.task import TransactionAwareTask
 

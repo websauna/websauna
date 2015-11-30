@@ -41,6 +41,21 @@ Websauna offers to Celery task classes
 
 * Both task classes supply :py:class:`pyramid.request.Request` dummy request as the first argument for the task functions. This allows you to access Pyramid registry (``request.registry``) or pass the dummy request to template functions. Please note that this is a dummy request object not coming from a web server and thus cannot be used for generating URLs.
 
+Running Celery
+==============
+
+Celery needs to run to process the tasks. Below is an example how to run Celery on your development installation.
+
+Launch scripts for these are installed to your virtualenv ``bin`` folder when you install Websauna.
+
+To launch a Celery worker do::
+
+    celery worker -A websauna.system.task.celery.celery_app --ini development.ini
+
+To launch a Celery beat do::
+
+    celery beat -A websauna.system.task.celery.celery_app --ini development.ini
+
 Scheduled tasks
 ===============
 
@@ -93,25 +108,6 @@ Your project INI configuration file has a section for Celery and Celery tasks. I
     task = update_conversion_rates
     type = timedelta
     schedule = {"hours": 1}
-
-Running the scheduler
----------------------
-
-Celery needs to processes to run timed tasks
-
-* *celery beat* is responsible for watching the wall clock and triggering tasks when they are about to be scheduled
-
-* *celery worker* (multiple processes) are responsible for running the actual Python code in the tasks
-
-Launch scripts for these are installed to your virtualenv ``bin`` folder when you install Websauna.
-
-To launch a Celery beat do::
-
-    celery beat -A websauna.system.task.celery.celery_app --ini development.ini
-
-To launch a Celery worker do::
-
-    celery worker -A websauna.system.task.celery.celery_app --ini development.ini
 
 Delayed tasks
 =============

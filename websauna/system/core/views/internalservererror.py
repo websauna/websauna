@@ -31,6 +31,8 @@ def internal_server_error(context, request):
         if session:
             session = dict(session.items())
             user_context.update(dict(session=session))
+        else:
+            user_context.update(dict(session="No session data available in interal_server_error()"))
 
         request.raven.user_context(user_context)
         request.raven.captureException()

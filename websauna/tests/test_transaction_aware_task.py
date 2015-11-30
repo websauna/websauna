@@ -1,14 +1,15 @@
 """Celery tasks and transaction awareness tests.
 
-Re(run) test (Celery might need to be nuked between failed test runs)::
+To debug Celery worker, disable Celery launching, re(run) test with Celery worker, running in another terminal::
 
     pkill -f celery
-    celery worker -A websauna.tests.test_transaction_aware_task.test_celery_app --ini test.ini --loglevel DEBUG &
+    celery worker -A websauna.tests.test_transaction_aware_task.test_celery_app --ini test.ini --loglevel DEBUG
+
     sleep 4
     py.test websauna -s --ini=test.ini -x -k test_transaction_aware_task_success
 
-    # Not needed for now
-    #     nohup celery beat -A websauna.tests.test_transaction_aware_task.test_celery_app --ini test.ini > celery-beat.log &
+Or turn of eager celery setting hardcoded below.
+
 """
 
 import subprocess
@@ -27,7 +28,8 @@ from pyramid.settings import asbool
 from pyramid.testing import DummyRequest
 import pyramid_celery
 from pyramid_celery.loaders import INILoader
-from websauna.system.task.transactionawaretask import TransactionAwareTask
+from websauna.system.task import TransactionAwareTask
+from websauna.system.task import RequestAwareTask
 from websauna.system.user.utils import get_user_class
 from websauna.system.model import DBSession
 
@@ -108,6 +110,7 @@ def _on_preload_parsed(options, **kwargs):
 @pytest.fixture(scope='module')
 def celery_worker(request, init):
     """py.test fixture to shoot up Celery worker process with our test config."""
+
     ini_file = os.path.join(os.path.dirname(__file__), "..", "..", "test.ini")
 
     setup_app(init.config.registry, ini_file)
@@ -124,8 +127,8 @@ def celery_worker(request, init):
     def teardown():
         worker.terminate()
         # XXX: Hard to capture this only on failure for now
-        # print(worker.stdout.read().decode("utf-8"))
-        # print(worker.stderr.read().decode("utf-8"))
+        print(worker.stdout.read().decode("utf-8"))
+        print(worker.stderr.read().decode("utf-8"))
 
     request.addfinalizer(teardown)
 
@@ -136,7 +139,7 @@ def setup_celery(init):
     """Setup Celery instance which has a lifetime of a test."""
 
     # XXX: Don't know why we need to force this again despite the settings... something internal to Celery stringifie this setting, resulting to false true. Tried to figure out for two hours, gave up, asking world to help to replace Celery with something else.
-    test_celery_app.conf.CELERY_ALWAYS_EAGER = False
+    test_celery_app.conf.CELERY_ALWAYS_EAGER = True
 
     test_celery_app.pyramid_config = init.config
 
@@ -183,13 +186,26 @@ def failure_task(request, user_id):
     raise RuntimeError("Exception raised")
 
 
+
+@test_celery_app.task(base=RequestAwareTask)
+def request_task(request, user_id):
+
+    # Run transaction manually
+    with transaction.manager:
+        # TODO: Eliminate global dbsession
+        dbsession = DBSession
+        registry = request.registry
+
+        User = get_user_class(registry)
+        u = dbsession.query(User).get(user_id)
+        u.username = "set by celery"
+
+
 def test_transaction_aware_task_success(celery_worker, init, dbsession):
     """Test that transaction aware task does not fail."""
 
     celery_app, request = setup_celery(init)
     User = get_user_class(init.config.registry)
-
-    assert not celery_app.conf.CELERY_ALWAYS_EAGER
 
     with request.tm:
         # Do a dummy database write
@@ -251,8 +267,6 @@ def test_transaction_aware_task_throws_exception(celery_worker, init, dbsession)
 
     celery_app, request = setup_celery(init)
 
-    assert not celery_app.conf.CELERY_ALWAYS_EAGER
-
     with request.tm:
         # Do a dummy database write
         User = get_user_class(init.config.registry)
@@ -274,3 +288,34 @@ def test_transaction_aware_task_throws_exception(celery_worker, init, dbsession)
     with transaction.manager:
         u = dbsession.query(User).get(1)
         assert u.username == "test"
+
+
+def test_request_aware_task_success(celery_worker, init, dbsession):
+    """Test that RequestAwareTask executes."""
+
+    celery_app, request = setup_celery(init)
+    User = get_user_class(init.config.registry)
+
+    with request.tm:
+        # Do a dummy database write
+        u = User(username="test", email="test@example.com")
+        dbsession.add(u)
+
+    with request.tm:
+        # Do a dummy database write
+        u = dbsession.query(User).get(1)
+
+        request_task.apply_async(args=[u.id])
+        # Let the task travel in Celery queue
+        time.sleep(1.0)
+
+        # Task should not fire unless we exit the transaction
+        assert u.username != "set by celery"
+
+    # Let the transaction commit
+    time.sleep(0.5)
+
+    # Task has now fired after transaction was committed
+    with transaction.manager:
+        u = dbsession.query(User).get(1)
+        assert u.username == "set by celery"

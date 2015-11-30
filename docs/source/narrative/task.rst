@@ -10,8 +10,35 @@ Websauna uses *Celery* for
 
 * *pyramid_celery* package is used to provide integration between Celery and Pyramid framework. This is mostly configuration integration.
 
-Adding a scheduled job
-======================
+
+Celery basics
+=============
+
+Celery is a Python framework for runnign asynchronous and scheduled tasks in separate processes.
+
+* Tasks do not run in the same process as the web requests are handled
+
+* In fact, tasks can be run on a different computer altogether
+
+* Celery worker process executes task functions
+
+* Celery beat process triggers execution of scheduled tasks
+
+Task types
+==========
+
+Websauna offers to Celery task classes
+
+* :py:class:`websauna.system.task.TransactionAwareTask`: Everything in the task is completed in one database transaction which commits when the transaction finishes. If an exception is raised no database changes are made.
+
+* :py:class:`websauna.system.task.RequestAwareTask`: There is no transaction lifecycle and the task author is responsible for committed any changes. Good for tasks which do not read or write database.
+
+* If called through ``delay`` or ``apply_async`` the tasks go to Celery queue only if the current :py:class:`pyramid.request.Request` successfully finishes and the transaction is committed.
+
+* Both task classes supply :py:class:`pyramid.request.Request` dummy request as the first argument for the task functions. This allows you to access Pyramid registry (``request.registry``) or pass the dummy request to template functions. Please note that this is a dummy request object not coming from a web server and thus cannot be used for generating URLs.
+
+Scheduled tasks
+===============
 
 Scheduled job is a task which is set to run on certain time interval or on a certain wall clock moment - e.g. every day 24:00.
 
@@ -84,33 +111,6 @@ To launch a Celery worker do::
 
     celery worker -A websauna.system.task.celery.celery_app --ini development.ini
 
-Supervisor configuration
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-Below is a supervisor configuration Ansible template for starting the two processes. Apply and modify as necessary for your deployment.
-
-.. code-block:: ini
-
-    [program:celerybeat]
-    command={{deploy_location}}/venv/bin/celery beat -A websauna.system.celery.celery_app --ini {{deploy_location}}/{{ site_id }}.ini --loglevel=debug
-    stderr_logfile={{ deploy_location }}/logs/celery-beat.log
-    directory={{ deploy_location }}
-    numprocs=1
-    autostart=true
-    autorestart=true
-    startsecs=10
-    stopwaitsecs=600
-
-    [program:celeryworker]
-    command={{deploy_location}}/venv/bin/celery worker -A websauna.system.celery.celery_app --ini {{deploy_location}}/{{ site_id }}.ini --loglevel=debug
-    stderr_logfile={{ deploy_location }}/logs/celery-worker.log
-    directory={{ deploy_location }}
-    autostart=true
-    autorestart=true
-    startsecs=10
-    stopwaitsecs=600
-    environment=C_FORCE_ROOT="true"
-
 Delayed tasks
 =============
 
@@ -153,11 +153,11 @@ Below is an example which calls third party API (Twilio SMS out) - you don't wan
             send_review_sms_notification.apply_async(args=(delivery.id, request.url,), countdown=delay)
 
 
-Another example how to turn a call to third party API library to async::
+Another example how to turn a call to third party API library to asyncrhonous. This time we don't need transaction awareness, because the task doesn't touch the database::
 
     """Send Slack message."""
     from pyramid.settings import asbool
-    from pyramid_celery import celery_app
+    from websauna.system.task.celery import celery_app as celery
 
     from slackclient import SlackClient
 
@@ -167,17 +167,17 @@ Another example how to turn a call to third party API library to async::
         return slack
 
 
-    # TODO: Update to new Celery task convention
-    @celery_app.task
+    @celery.task
     def _call_slack_api_delayed(**kwargs):
         """Asynchronous call to Slack API.
 
         Do not block HTTP response head.
         """
-        registry = celery_app.conf['PYRAMID_REGISTRY']
+        registry = celery.conf.PYRAMID_REGISTRY
         slack = get_slack(registry)
         slack.api_call(**kwargs)
 
+        slack.api_call(**kwargs)
 
     def send_slack_message(request, channel, text):
         """API to send Slack chat notifications from at application."""
@@ -214,4 +214,31 @@ Print out Celery queue::
     print("Queued: {}".format(i.scheduled())
     print("Active: {}".format(i.active())
 
+
+Configuring Celery to start with supervisor
+===========================================
+
+Below is a supervisor configuration Ansible template for starting the two processes. Apply and modify as necessary for your deployment.
+
+.. code-block:: ini
+
+    [program:celerybeat]
+    command={{deploy_location}}/venv/bin/celery beat -A websauna.system.task.celery.celery_app --ini {{deploy_location}}/{{ site_id }}.ini --loglevel=debug
+    stderr_logfile={{ deploy_location }}/logs/celery-beat.log
+    directory={{ deploy_location }}
+    numprocs=1
+    autostart=true
+    autorestart=true
+    startsecs=10
+    stopwaitsecs=600
+
+    [program:celeryworker]
+    command={{deploy_location}}/venv/bin/celery worker -A websauna.system.task.celery.celery_app --ini {{deploy_location}}/{{ site_id }}.ini --loglevel=debug
+    stderr_logfile={{ deploy_location }}/logs/celery-worker.log
+    directory={{ deploy_location }}
+    autostart=true
+    autorestart=true
+    startsecs=10
+    stopwaitsecs=600
+    environment=C_FORCE_ROOT="true"
 

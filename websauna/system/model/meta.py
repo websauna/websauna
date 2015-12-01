@@ -67,13 +67,12 @@ def get_dbmaker(engine):
     return dbmaker
 
 
-def create_dbsession(registry, manager=transaction.manager) -> Session:
+def create_dbsession(settings, manager=transaction.manager) -> Session:
     """Creates a new database session and transaction manager which co-ordinates it.
 
     :param manager: Transaction manager to bound the session. The default is thread local ``transaction.manager``.
     """
 
-    settings = registry.settings
     dbmaker = get_dbmaker(get_engine(settings))
 
     manager = transaction.manager

@@ -117,7 +117,7 @@ def dbsession(request, app) -> Session:
 
     from websauna.system.model.meta import Base
 
-    dbsession = create_dbsession(app.initializer.config.registry)
+    dbsession = create_dbsession(app.initializer.config.registry.settings)
     engine = dbsession.get_bind()
 
     with transaction.manager:

@@ -1,8 +1,3 @@
-import transaction
-
-from websauna.system.model import DBSession
-
-
 def test_internal_server_error(web_server, browser):
     """When things go KABOOM show a friendly error page."""
 
@@ -15,7 +10,6 @@ def test_internal_server_error(web_server, browser):
 
 def test_not_found(web_server, browser):
     """Show not found page on unknown URL."""
-
 
     b = browser
     b.visit("{}/foobar".format(web_server))

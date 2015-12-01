@@ -1,6 +1,5 @@
 import transaction
 
-from websauna.system.model import DBSession
 from websauna.system.user.usermixin import init_empty_site
 
 EMAIL = "example@example.com"
@@ -12,8 +11,8 @@ def create_user(email=EMAIL, password=PASSWORD):
 
     user = User(email=email, password=password)
     user.user_registration_source = User.USER_MEDIA_DUMMY
-    DBSession.add(user)
-    DBSession.flush()
+    dbsession.add(user)
+    dbsession.flush()
     user.username = user.generate_username()
     assert user.can_login()
     return user
@@ -23,7 +22,7 @@ def test_enter_admin(web_server, browser, dbsession):
     """The first user can open the admin page."""
 
     with transaction.manager:
-        u = create_user()
+        u = create_user(dbsession)
         init_empty_site(u)
         assert u.is_admin()
 
@@ -44,7 +43,7 @@ def test_non_admin_user_denied(web_server, browser, dbsession):
     """The second user should not see admin link nor get to the admin page."""
 
     with transaction.manager:
-        u = create_user()
+        u = create_user(dbsession)
         init_empty_site(u)
         assert u.is_admin()
 

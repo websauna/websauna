@@ -1,13 +1,11 @@
-from websauna.system.model import DBSession
-
 EMAIL = "example@example.com"
 PASSWORD = "ToholamppiMadCowz585"
 
 
-def get_user():
+def get_user(dbsession):
     from websauna.system.user.models import User
 
-    return DBSession.query(User).get(1)
+    return dbsession.query(User).get(1)
 
 
 def test_register_email(web_server, browser, dbsession):
@@ -34,7 +32,7 @@ def test_register_email(web_server, browser, dbsession):
     assert b.is_element_visible_by_css("#waiting-for-activation")
 
     # Now peek the Activation link from the database
-    user = get_user()
+    user = get_user(dbsession)
     assert user.activation.code
 
     activation_link = "{}/activate/{}/{}".format(web_server, user.id, user.activation.code)

@@ -42,7 +42,7 @@ def customized_web_server(request, app:Router) -> typing.Callable:
 
     Example::
 
-        def test_newsletter_splash(DBSession, customized_web_server, browser):
+        def test_newsletter_splash(dbsession, customized_web_server, browser):
             """All visitors get a newsletter subscription dialog when arriving to the landing page.
 
             :param dbsession: py.test fixture for
@@ -87,7 +87,7 @@ def customized_web_server(request, app:Router) -> typing.Callable:
             return web_server_factory({"trees.choose_box": True})
 
 
-        def test_order_free_foxyboxy(choose_box_web_server, browser, DBSession, init):
+        def test_order_free_foxyboxy(choose_box_web_server, browser, dbsession, init):
             """Fresh user places an order and gets foxyboxy for free.."""
 
             web_server = choose_box_web_server
@@ -96,7 +96,7 @@ def customized_web_server(request, app:Router) -> typing.Callable:
             purge_redis(init)
 
             with transaction.manager:
-                user = create_user()
+                user = create_user(dbsession)
                 spoof_license(init, user)
                 user.dispensary_membership_confirmed_at = now()
 
@@ -119,7 +119,7 @@ def customized_web_server(request, app:Router) -> typing.Callable:
             assert b.is_element_present_by_css("#thank-you")
 
 
-        def test_order_non_free_foxyboxy(choose_box_web_server, browser, DBSession, init):
+        def test_order_non_free_foxyboxy(choose_box_web_server, browser, dbsession, init):
             """Fresh user places the second order and gets foxyboxy for free.."""
             web_server = choose_box_web_server
             ...

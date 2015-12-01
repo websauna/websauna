@@ -1,8 +1,6 @@
 import datetime
 from authomatic.core import LoginResult
 from pyramid.request import Request
-from websauna.system.compat import typing
-from websauna.system.model import now, DBSession
 
 from pyramid.view import view_config
 from pyramid.url import route_url
@@ -91,7 +89,7 @@ def create_activation(request, user):
     send_templated_mail(request, [user.email], "login/email/activate", context)
 
     # XXX: Move this to an event
-    usermixin.check_empty_site_init(user)
+    usermixin.check_empty_site_init(request.dbsession, user)
 
 
 def authenticated(request:Request, user:UserMixin, location:str=None) -> HTTPFound:

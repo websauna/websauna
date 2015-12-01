@@ -5,8 +5,7 @@ from pyramid.registry import Registry
 from pyramid.request import Request
 from sqlalchemy.orm.attributes import flag_modified
 
-from websauna.system.model import DBSession
-from websauna.system.model import now
+from websauna.utils.time import now
 from websauna.system.user import usermixin
 from websauna.system.user.interfaces import IUserClass, ISocialLoginMapper
 from zope.interface import implements, implementer

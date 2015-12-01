@@ -11,7 +11,6 @@ from sqlalchemy.dialects.postgresql import JSONB
 
 from sqlalchemy import engine_from_config
 
-from websauna.system.model import DBSession
 from websauna.utils.jsonb import BadJSONData
 from websauna.utils.jsonb import BadStoredData
 from websauna.utils.jsonb import JSONBProperty
@@ -70,7 +69,7 @@ class TestJSON(unittest.TestCase):
         self.engine = engine_from_config(self.config, 'sqlalchemy.')
 
         # Create a threadh-local automatic session factory
-        self.session = DBSession
+        self.session = dbsession
 
         # Load Bitcoin models to play around with
         Base.metadata.create_all(self.engine, tables=[TestModel.__table__, DefautDataTestModel.__table__])

@@ -10,12 +10,9 @@ from pyramid.path import DottedNameResolver
 from pyramid.settings import aslist
 from pyramid.settings import asbool
 
-from sqlalchemy import engine_from_config
 from pyramid_mailer.interfaces import IMailer
 from pyramid_deform import configure_zpt_renderer
 
-from websauna.system.model import Base
-from websauna.system.model import DBSession
 from websauna.system.user.interfaces import IAuthomatic, ISocialLoginMapper
 from websauna.utils.configincluder import IncludeAwareConfigParser
 from websauna.utils import dictutil
@@ -38,9 +35,6 @@ class Initializer:
         self.global_config = global_config
 
         self.config = self.create_configurator(settings)
-
-        #: SQLAlchemy engine
-        self.engine = None
 
         #: Python module which provides Horus models
         self.user_models_module = None
@@ -89,11 +83,10 @@ class Initializer:
         from websauna.system.user import schemas
         from websauna.system.user import auth
         from websauna.system.user import horus as horus_init
-        from websauna.system.model import DBSession
 
         # Tell horus which SQLAlchemy scoped session to use:
         registry = self.config.registry
-        registry.registerUtility(DBSession, IDBSession)
+        registry.registerUtility(None, IDBSession)
 
         resolver = DottedNameResolver()
         self.user_models_module = users_models = resolver.resolve(settings["websauna.user_models_module"])
@@ -229,18 +222,11 @@ class Initializer:
 
 
     def configure_database(self, settings):
-        """
-        :param settings: Any individual settings to override.
+        """Configure database.
 
-        :return: SQLEngine instance
+        Calls py:func:`websauna.system.model.meta.includeme`.
         """
-        from websauna.system.model import DBSession
-
-        settings = dictutil.combine(self.settings, settings)
-        # http://stackoverflow.com/questions/14783505/encoding-error-with-sqlalchemy-and-postgresql
-        engine = engine_from_config(settings, 'sqlalchemy.', connect_args={"options": "-c timezone=utc"}, client_encoding='utf8')
-        DBSession.configure(bind=engine)
-        return engine
+        self.config.include(".model.meta")
 
     def configure_instrumented_models(self, settings):
         """Configure models from third party addons.
@@ -249,6 +235,7 @@ class Initializer:
         """
 
         # Expose Pyramid configuration to classes
+        from websauna.system.model.meta import Base
         Base.metadata.pyramid_config = self.config
 
     def configure_error_views(self, settings):

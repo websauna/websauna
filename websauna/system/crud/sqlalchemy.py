@@ -1,8 +1,6 @@
 from . import CRUD as _CRUD
 from . import Resource as _Resource
 
-from websauna.system.model import DBSession
-
 
 class Resource(_Resource):
     """Map SQLAlchemy object to a traversable URL path.

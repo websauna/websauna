@@ -22,7 +22,7 @@ from arrow import Arrow
 from websauna.system.compat import typing
 
 from websauna.utils import html
-from websauna.system.model import now
+from websauna.utils.time import now
 
 
 

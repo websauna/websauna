@@ -63,6 +63,26 @@ Disabled for testing.
 
 Default: ``true``
 
+
+websauna.force_utc_on_columns
+-----------------------------
+
+Enforce that all datetime values going to SQLAlchemy models are timezone-aware and in UTC timezone.
+
+It is a recommended best practice that you store only UTC dates and times in SQL databases. SQL databases themselves are very naive what comes to storing timezones are doing time operations in SQL. Storing everything in UTC and doing timezones on the application side is one way to ensure consistency.
+
+* When you set a value on datetime is must contain timezone information, naive datetime objects are not accepted
+
+* Time is converted to UTC
+
+* Datetime is stored in the database
+
+If set to to true the application will fail with assertion error if you try to store non-UTC datetime.
+
+Default: ``true``
+
+For more information see :py:mod:`websauna.system.model.sqlalchemyutcdatetime`.
+
 Configuration variables from other packages
 ===========================================
 

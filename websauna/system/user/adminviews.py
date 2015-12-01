@@ -9,7 +9,6 @@ from pyramid_layout.panel import panel_config
 from websauna.system.crud import listing
 from websauna.system.admin import views as admin_views
 
-from websauna.system.model import DBSession
 from websauna.system.form.widget import RelationshipCheckboxWidget
 from websauna.system.user.utils import get_group_class
 

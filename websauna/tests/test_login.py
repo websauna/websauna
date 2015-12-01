@@ -1,7 +1,5 @@
 import transaction
 
-from websauna.system.model import DBSession
-
 from websauna.tests.utils import create_user
 from websauna.tests.utils import EMAIL
 from websauna.tests.utils import PASSWORD
@@ -10,14 +8,14 @@ from websauna.tests.utils import PASSWORD
 
 def get_user():
     from websauna.system.user.models import User
-    return DBSession.query(User).get(1)
+    return dbsession.query(User).get(1)
 
 
 def test_login(web_server, browser, dbsession):
     """Login an user."""
 
     with transaction.manager:
-        create_user()
+        create_user(dbsession)
 
     b = browser
     b.visit(web_server)
@@ -38,7 +36,7 @@ def test_login_inactive(web_server, browser, dbsession):
     """Login disabled user account."""
 
     with transaction.manager:
-        create_user()
+        create_user(dbsession)
 
     with transaction.manager:
         user = get_user()
@@ -64,7 +62,7 @@ def test_logout(web_server, browser, dbsession):
     """Log out."""
 
     with transaction.manager:
-        create_user()
+        create_user(dbsession)
 
     b = browser
     b.visit("{}/{}".format(web_server, "login"))
@@ -88,7 +86,7 @@ def test_last_login_ip(web_server, browser, dbsession):
     """Record last log in IP correctly."""
 
     with transaction.manager:
-        create_user()
+        create_user(dbsession)
 
     with transaction.manager:
         user = get_user()
@@ -115,7 +113,7 @@ def test_forget_password(web_server, browser, dbsession):
     """Reset password by email."""
 
     with transaction.manager:
-        user = create_user()
+        user = create_user(dbsession)
 
     b = browser
     b.visit(web_server)

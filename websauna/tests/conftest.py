@@ -18,8 +18,7 @@ from pyramid.paster import (
 
 # TODO: Remove this method
 from websauna.system import get_init
-
-from websauna.system.model import Base
+from websauna.system.model.meta import create_dbsession
 
 
 @pytest.fixture(scope='session')
@@ -60,7 +59,7 @@ def app(request, ini_settings, **settings_overrides):
 
     :param settings_overrides: Override specific settings for the test case.
 
-    :return: WSGI application instance as created by ``Initializer.make_wsgi_app()``.
+    :return: WSGI application instance as created by ``Initializer.make_wsgi_app()``. You can access the Initializer instance itself as ``app.initializer``.
     """
     if not getattr(request.config.option, "ini", None):
         raise RuntimeError("You need to give --ini test.ini command line option to py.test to find our test settings")
@@ -86,54 +85,13 @@ def init(request, app):
     return app.initializer
 
 
-@pytest.fixture(scope='session')
-def sqlengine(request, app):
-
-    engine = app.initializer.engine
-
-    # Make sure we don't have any old data left from the last run
-    Base.metadata.drop_all(engine)
-    Base.metadata.create_all(engine)
-
-    def teardown():
-        # There might be open transactions in the database. They will block DROP ALL and thus the tests would end up in a deadlock. Thus, we clean up all connections we know about.
-        DBSession.close()
-        Base.metadata.drop_all()
-
-    request.addfinalizer(teardown)
-    return engine
-
-
 @pytest.fixture()
-def dbtransaction(request, sqlengine):
-    """Test runs within a single db transaction.
-
-    The transaction is rolled back at the end of the test.
-    """
-
-    from websauna.system.model import DBSession
-
-    connection = sqlengine.connect()
-    transaction = connection.begin()  # noqa
-    DBSession.configure(bind=connection)
-
-    def teardown():
-        #connection.close()
-        transaction.abort()
-        DBSession.remove()
-
-    request.addfinalizer(teardown)
-
-    return connection
-
-
-@pytest.fixture()
-def DBSession(request, app) -> Session:
+def dbsession(request, app) -> Session:
     """Create a test database and database session.
 
     Connect to the test database specified in test.ini. Create and destroy all tables by your Initializer configuration.
 
-    Performs SQLAlchemy table initialization for all models connected to ``websauna.system.model.Base``.
+    Performs SQLAlchemy table initialization for all models connected to ``websauna.system.model.meta.Base``.
     You must do manual opening and closing transaction inside the test, preferably using ``transaction.manager`` context manager. If transaction is left open, subsequent tests may fail.
 
     Example::
@@ -142,45 +100,42 @@ def DBSession(request, app) -> Session:
 
         from trees.models import NewsletterSubscriber
 
-        def test_subscribe_newsletter(DBSession):
+        def test_subscribe_newsletter(dbsession):
             '''Visitor can subscribe to a newsletter.'''
 
             # ... test code goes here ...
 
             # Check we get an entry
             with transaction.manager:
-                assert DBSession.query(NewsletterSubscriber).count() == 1
-                subscription = DBSession.query(NewsletterSubscriber).first()
+                assert dbsession.query(NewsletterSubscriber).count() == 1
+                subscription = dbsession.query(NewsletterSubscriber).first()
                 assert subscription.email == "foobar@example.com"
                 assert subscription.ip == "127.0.0.1"
 
     :return: A SQLAlchemy session instance you can use to query database.
     """
-    from websauna.system.model import DBSession
-    DBSession.close()
+
+    from websauna.system.model.meta import Base
+
+    dbsession = create_dbsession(app.initializer.config.registry)
+    engine = dbsession.get_bind()
 
     with transaction.manager:
-        Base.metadata.drop_all(app.initializer.engine)
-        Base.metadata.create_all(app.initializer.engine)
-
+        Base.metadata.drop_all(engine)
+        Base.metadata.create_all(engine)
 
     def teardown():
         # There might be open transactions in the database. They will block DROP ALL and thus the tests would end up in a deadlock. Thus, we clean up all connections we know about.
         # XXX: Fix this shit
 
         with transaction.manager:
-            Base.metadata.drop_all(app.initializer.engine)
+            Base.metadata.drop_all(engine)
 
-        DBSession.close()
-        pass
+        dbsession.close()
 
     request.addfinalizer(teardown)
 
-    return DBSession
-
-
-#: BBB - to be removed
-dbsession = DBSession
+    return dbsession
 
 
 @pytest.fixture()

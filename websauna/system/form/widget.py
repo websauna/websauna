@@ -5,7 +5,6 @@ Mostly for high level integration.
 from colander import null, string_types
 import deform
 from deform.widget import _normalize_choices
-from websauna.system.model import DBSession
 
 
 class RelationshipCheckboxWidget(deform.widget.CheckboxChoiceWidget):

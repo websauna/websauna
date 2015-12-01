@@ -8,11 +8,10 @@ Avoid importing this module directly. Instead use:
 
 from horus import models as horus_models
 
-from . import usermixin
-from websauna.system.model import Base
+from websauna.system.model.meta import Base
 
-#: TODO: How to handle the fact that Horus requires custom declarative base?
-# Base = declarative_base(cls=horus_models.BaseModel)
+from . import usermixin
+
 
 
 # XXX: Fix upstream code - Horus uses harcoded table name in declarative attributes

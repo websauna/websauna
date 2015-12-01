@@ -14,7 +14,6 @@ from websauna.system.compat import typing
 
 import deform
 
-from websauna.system.model import DBSession
 from websauna.system.core import messages
 from websauna.system.core.traverse import Resource
 

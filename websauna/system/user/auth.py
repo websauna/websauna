@@ -2,7 +2,6 @@
 from pyramid.settings import aslist
 
 from pyramid.security import unauthenticated_userid
-from websauna.system.model import DBSession
 
 
 def get_user(request):
@@ -24,13 +23,15 @@ def get_user(request):
 def find_groups(userid, request):
     """Get applied groups and other for the user"""
 
+    dbsession = request.dbsession
+
     from horus.interfaces import IUserClass
     user_class = request.registry.queryUtility(IUserClass)
 
     # Read superuser names from the config
     superusers = aslist(request.registry.settings.get("websauna.superusers"))
 
-    user = DBSession.query(user_class).get(userid)
+    user = dbsession.query(user_class).get(userid)
     if user:
         if user.can_login():
             principals = ['group:{}'.format(g.name) for g in user.groups]

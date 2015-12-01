@@ -4,7 +4,7 @@ from pyramid_notebook import startup
 from pyramid_notebook.views import launch_notebook
 from pyramid_notebook.views import shutdown_notebook as _shutdown_notebook
 from pyramid_notebook.views import notebook_proxy as _notebook_proxy
-from websauna.system.model import Base
+from websauna.system.model.meta import Base
 
 
 #: Include our database session in notebook so it is easy to query stuff right away from the prompt

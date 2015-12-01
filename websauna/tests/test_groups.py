@@ -2,7 +2,6 @@ import transaction
 
 from websauna.tests.utils import create_logged_in_user
 from websauna.tests.utils import get_user
-from websauna.system.model import DBSession
 
 
 GROUP_NAME = "Sample Group"
@@ -42,7 +41,7 @@ def test_put_user_to_group(web_server, browser, dbsession):
     # Create a group where we
     with transaction.manager:
         g = Group(name=GROUP_NAME)
-        DBSession.add(g)
+        dbsession.add(g)
 
     b.find_by_css("#nav-admin").click()
     b.find_by_css("#btn-panel-list-user").click()
@@ -74,7 +73,7 @@ def test_user_group_choices_preserved_on_validation_error(web_server, browser, d
     # Create a group where we
     with transaction.manager:
         g = Group(name=GROUP_NAME)
-        DBSession.add(g)
+        dbsession.add(g)
         u = get_user()
         u.groups.append(g)
 
@@ -108,7 +107,7 @@ def test_remove_user_from_group(web_server, browser, dbsession):
     # Create a group where we
     with transaction.manager:
         g = Group(name=GROUP_NAME)
-        DBSession.add(g)
+        dbsession.add(g)
         u = get_user()
         u.groups.append(g)
 

@@ -36,7 +36,7 @@ def do_facebook_login_if_facebook_didnt_log_us_already(browser):
 
 
 @pytest.mark.skipif("FACEBOOK_USER" not in os.environ, reason="Give Facebook user/pass as environment variables")
-def test_facebook_first_login(web_server, browser, DBSession):
+def test_facebook_first_login(web_server, browser, dbsession):
     """Login an user."""
 
     #: Don't import on top because of SQLAlchemy Base registration issues
@@ -57,8 +57,8 @@ def test_facebook_first_login(web_server, browser, DBSession):
 
     # See that we got somewhat sane data
     with transaction.manager:
-        assert DBSession.query(User).count() == 1
-        u = DBSession.query(User).get(1)
+        assert dbsession.query(User).count() == 1
+        u = dbsession.query(User).get(1)
         assert u.first_login
         assert u.email == os.environ["FACEBOOK_USER"]
         assert u.is_admin()  # First user becomes admin
@@ -68,7 +68,7 @@ def test_facebook_first_login(web_server, browser, DBSession):
 
 
 @pytest.mark.skipif("FACEBOOK_USER" not in os.environ, reason="Give Facebook user/pass as environment variables")
-def test_facebook_second_login(web_server, browser, DBSession):
+def test_facebook_second_login(web_server, browser, dbsession):
     """Login second time through Facebook and see our first_login flag is unset.
     """
 
@@ -98,8 +98,8 @@ def test_facebook_second_login(web_server, browser, DBSession):
 
     # See that we got somewhat sane data
     with transaction.manager:
-        assert DBSession.query(User).count() == 1
-        u = DBSession.query(User).get(1)
+        assert dbsession.query(User).count() == 1
+        u = dbsession.query(User).get(1)
         assert not u.first_login
         assert u.activated_at
 

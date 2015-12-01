@@ -31,7 +31,6 @@ from pyramid_celery.loaders import INILoader
 from websauna.system.task import TransactionalTask
 from websauna.system.task import RequestAwareTask
 from websauna.system.user.utils import get_user_class
-from websauna.system.model import DBSession
 
 
 
@@ -154,7 +153,7 @@ def setup_celery(init):
 @test_celery_app.task(base=TransactionalTask)
 def success_task(request, user_id):
     # TODO: Eliminate global dbsession
-    dbsession = DBSession
+    dbsession = dbsession
     registry = request.registry
 
     User = get_user_class(registry)
@@ -165,7 +164,7 @@ def success_task(request, user_id):
 @test_celery_app.task(base=TransactionalTask)
 def success_task_never_called(request, user_id):
     # TODO: Eliminate global dbsession
-    dbsession = DBSession
+    dbsession = dbsession
 
     request = test_celery_app
     registry = request.registry
@@ -179,7 +178,7 @@ def success_task_never_called(request, user_id):
 def failure_task(request, user_id):
 
     # TODO: Eliminate global dbsession
-    dbsession = DBSession
+    dbsession = dbsession
     registry = request.registry
 
     User = get_user_class(registry)
@@ -195,7 +194,7 @@ def request_task(request, user_id):
     # Run transaction manually
     with transaction.manager:
         # TODO: Eliminate global dbsession
-        dbsession = DBSession
+        dbsession = dbsession
         registry = request.registry
 
         User = get_user_class(registry)

@@ -39,7 +39,7 @@ def default_model_admin_panel(context, request):
     Display count of items in the database.
     """
     model_admin = context
-    count = model_admin.get_query().count()
+    count = model_admin.get_query(request.dbsession).count()
     admin = model_admin.__parent__
     title = model_admin.title
     return locals()

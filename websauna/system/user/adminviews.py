@@ -16,13 +16,16 @@ from websauna.system.user.utils import get_group_class
 @panel_config(name='admin_panel', context=UserAdmin, renderer='admin/user_panel.html')
 def default_model_admin_panel(context, request):
     """Admin panel for Users."""
+
+    dbsession = request.dbsession
+
     model_admin = context
     admin = model_admin.__parent__
     model = model_admin.get_model()
 
     title = model_admin.title
-    count = DBSession.query(model).count()
-    latest_user = DBSession.query(model).order_by(model.id.desc()).first()
+    count = dbsession.query(model).count()
+    latest_user = dbsession.query(model).order_by(model.id.desc()).first()
     latest_user_url = request.resource_url(admin.get_admin_resource(latest_user))
 
     return locals()

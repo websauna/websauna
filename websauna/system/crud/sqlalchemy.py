@@ -23,15 +23,15 @@ class CRUD(_CRUD):
     def get_model(self):
         return self.model
 
-    def get_query(self):
+    def get_query(self, dbsession):
         """Get SQLAlchemy Query object which we use to populate this listing.
 
         Views can specify their own queries - e.g. filter by user. This is just the default for everything.
         """
         model = self.get_model()
-        return DBSession.query(model)
+        return dbsession.query(model)
 
-    def fetch_object(self, id):
+    def fetch_object(self, dbsession, id):
         """Pull a raw object from the database.
 
         Use the ``get_query()`` to get the query base and then return the object with matching id.
@@ -45,7 +45,7 @@ class CRUD(_CRUD):
         column_instance = getattr(model, column_name, None)
         assert column_instance, "Model {} does not define column/attribute {} used for CRUD resource traversing".format(self.model, column_name)
 
-        obj = self.get_query().filter(column_instance==id).first()
+        obj = self.get_query(dbsession).filter(column_instance==id).first()
         if not obj:
             raise KeyError("Object id {} was not found for CRUD {} using model {}".format(id, self, model))
 

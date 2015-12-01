@@ -33,8 +33,8 @@ class Admin(traverse.Resource):
 
     """
 
-    # Root defines where admin interaface lies in the URL space
-    __parent__ = Root.get_root()
+    # Root defines where admin interface lies in the URL space
+    # __parent__ = Root.get_root()
     __name__ = "admin"
 
     title = "Admin"
@@ -45,17 +45,21 @@ class Admin(traverse.Resource):
         (Allow, 'group:admin', 'edit'),
     ]
 
-    def __init__(self):
+    def __init__(self, request):
+        super(Admin, self).__init__(request)
         self.model_admins = {}
         self.setup_menu()
 
     @classmethod
-    def get_admin(cls, registry):
+    def get_admin(cls, request):
         """Get hold of admin singleton."""
         return registry.queryUtility(IAdmin)
 
     def scan(self, config, module):
-        """Picks up admin definitions from the module."""
+        """Picks up admin definitions from the module.
+
+        TODO: This is poor-man's Venusian replacement until we get proper implementation.
+        """
 
         __admin__ = getattr(module, "__admin__", None)
 

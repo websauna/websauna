@@ -22,19 +22,12 @@ class Root:
 
     _instance = None
 
-    def __init__(self):
-        pass
-
-    @classmethod
-    def get_root(cls):
-        root = cls._instance
-        if not root:
-            root = cls._instance = Root()
-        return root
+    def __init__(self, request):
+        self.request = request
 
     @classmethod
     def root_factory(cls, request):
         # Root is a global object, as it is referred in global traversing context objects like Admin
-        return cls.get_root()
+        return Root(request)
 
 

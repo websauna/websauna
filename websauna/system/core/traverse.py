@@ -1,10 +1,10 @@
-from abc import abstractmethod
+"""Traversing definitions."""
 
 
 class Resource:
     """Traversable resource part.
 
-    Wraps underlying object into a traverse path.
+    Wraps underlying object into a traverse path. All resources are also tied to ``request`` object which gives them ability to query databases for further traversing through ``__getitem__()``.
     """
 
     def __init__(self):
@@ -14,6 +14,8 @@ class Resource:
 
         #: The id of this resource as its appear in URL and traversing path
         self.__name__ = None
+
+        self.request = request
 
     def get_title(self):
         """Return human-readable title of this resource.
@@ -47,7 +49,7 @@ class Resource:
         return child
 
 
-def     get_breadcrumb(context, request, root, current_view_name=None, current_view_url=None):
+def get_breadcrumb(context, request, root, current_view_name=None, current_view_url=None):
     """Traverse context up to the root element in the reverse order.
 
     :return: List of {url, name} dictionaries

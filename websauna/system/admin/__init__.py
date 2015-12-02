@@ -1,25 +1,14 @@
 import sys
 
 from pyramid.security import Allow
-from websauna.system import crud
 from websauna.system.admin import menu
+from websauna.system.admin.events import AdminConstruction
 from websauna.system.admin.interfaces import IAdmin
-from websauna.system.core.root import Root
-from websauna.system.crud import sqlalchemy as sqlalchemy_crud
-from websauna.system.crud.sqlalchemy import CRUD as CRUD
-from websauna.system.crud.sqlalchemy import Resource as AlchemyResource
 from websauna.system.core import traverse
+from zope.interface import implements
 
 
-
-
-def admin_root_factory(request):
-    """Get the admin object for the routes."""
-    admin = Admin.get_admin(request.registry)
-    return admin
-
-
-
+@implements(IAdmin)
 class Admin(traverse.Resource):
     """Admin interface main object.
 
@@ -31,11 +20,8 @@ class Admin(traverse.Resource):
 
     * ``Admin.get_admin_menu()`` returns a horizontal menu which is visible after entering the admin UI
 
+    This class is instiated for each request and does not have global state.
     """
-
-    # Root defines where admin interface lies in the URL space
-    # __parent__ = Root.get_root()
-    __name__ = "admin"
 
     title = "Admin"
 
@@ -47,81 +33,37 @@ class Admin(traverse.Resource):
 
     def __init__(self, request):
         super(Admin, self).__init__(request)
-        self.model_admins = {}
-        self.setup_menu()
 
-    @classmethod
-    def get_admin(cls, request):
-        """Get hold of admin singleton."""
-        return registry.queryUtility(IAdmin)
+        # Assume this admin instance lives directly under the root
+        self.__parent__ = request.root
+        self.__name__ = "admin"
 
-    def scan(self, config, module):
-        """Picks up admin definitions from the module.
+        self.admin_menu_entry = None
+        self.quick_menu_entry = None
 
-        TODO: This is poor-man's Venusian replacement until we get proper implementation.
-        """
+        # Registered child resources
+        self.children = {}
 
-        __admin__ = getattr(module, "__admin__", None)
+        self.construct()
 
-        if not __admin__:
-            raise RuntimeError("Admin tried to scan module {}, but it doesn't have __admin__ attribute. The module probably doesn't define any admin objects.".format(module))
+    def construct(self):
+        """Call all admin contributors and let them register parts to this admin."""
 
-        for model_dotted, admin_cls in __admin__.items():
+        self.construct_default_menu()
 
-            # Instiate model admin
-            try:
-                model = config.maybe_dotted(model_dotted)
-            except ImportError as e:
-                raise ImportError("Tried to initialize model admin for {}, but could not import it".format(model_dotted)) from e
+        # Call all plugins to register themselves
+        self.request.registry.notify(AdminConstruction(self))
 
-            try:
-                model_admin = admin_cls(model)
-            except Exception as e:
-                raise RuntimeError("Could not instiate model admin {} for model {}".format(admin_cls, model)) from e
-
-            id = getattr(model_admin, "id", None)
-            if not id:
-                raise RuntimeError("Model admin does not define id {}".format(model_admin))
-
-            # Keep ACL chain intact
-            traverse.Resource.make_lineage(self, model_admin, id, allow_reinit=True)
-
-            self.model_admins[id] = model_admin
-
-            # Create a model listing entry
-            data_menu = self.get_admin_menu().get_entry("admin-menu-data").submenu
-            entry = menu.TraverseEntry("admin-menu-data-{}".format(id), label=model_admin.title, context=model_admin, name="listing")
-            data_menu.add_entry(entry)
-
-    def get_admin_for_model(self, model):
-        for model_admin in self.model_admins.values():
-            if model_admin.model == model:
-                return model_admin
-
-        raise KeyError("No admin defined for model: {}, got {} ".format(model, self.model_admins.values()))
-
-    def get_admin_resource(self, obj):
-        """Get a admin traversable item for a SQLAlchemy object.
-
-        To get admin URL of an SQLAlchemy object::
-
-        :param obj: SQLAlchemy model instance
-        """
-        assert obj is not None, "get_admin_resource() you gave me None, I give you nothing"
-
-        model = obj.__class__
-        model_admin = self.get_admin_for_model(model)
-
-        path = model_admin.mapper.get_path_from_object(obj)
-        return model_admin[path]
-
-    def get_admin_object_url(self, request, obj, view_name=None):
+    def get_admin_object_url(self, obj, view_name=None):
         """Get URL for viewing the object in admin.
 
         *obj* must be a model instance which has a registered admin interface.
 
         :param: URL where to manage this object in admin interface or None if we cannot do mapping for some reason or input is None.
         """
+
+        request = self.request
+
         if not obj:
             return None
 
@@ -131,12 +73,7 @@ class Admin(traverse.Resource):
         else:
             return request.resource_url(res)
 
-    def __getitem__(self, name):
-        """Traverse to individual model admins by the model name."""
-        model_admin = self.model_admins[name]
-        return model_admin
-
-    def setup_menu(self):
+    def construct_default_menu(self):
         """Setup admin main menu."""
 
         self.admin_menu_entry = menu.NavbarEntry("admin-menu-navbar", label=None, submenu=menu.Menu(), css_class="navbar-admin")
@@ -165,49 +102,13 @@ class Admin(traverse.Resource):
     def get_admin_menu(self) -> menu.Menu:
         return self.admin_menu_entry.submenu
 
+    def __getitem__(self, name):
+        """Traverse to individual model admins by the model name."""
+        child = self.children[name]
+        make_lineage(self, child, name)
+        return child
 
-class ModelAdmin(CRUD):
-    """Present one model in admin interface.
 
-    Provide automatized list, show add, edit and delete actions for an SQLAlchemy model which declares admin interface.
-    """
-
-    #: URL traversing id
-    id = None
-
-    #: Title used in breadcrumbs, other places
-    title = None
-
-    #: Our resource factory
-    class Resource(AlchemyResource):
-        pass
-
-    def get_admin(self):
-        """Get Admin resource object."""
-        return self.__parent__
-
-    @classmethod
-    def register(cls, model):
-        """Mark the class to become a model admin on Admin.scan()."""
-
-        def inner(wrapped_cls):
-
-            assert cls.__module__, "Class without module attached cannot possibly work"
-
-            # XXX: Now store registered model admins in a module attribute, which will be later picked up scan(). Think some smarter way to do this, like using events and pyramid config registry.
-            module = sys.modules[wrapped_cls.__module__]
-            __admin__ = getattr(module, "__admin__", {})
-            __admin__[model] = wrapped_cls
-            module.__admin__ = __admin__
-
-            return wrapped_cls
-
-        return inner
-
-    def get_title(self):
-        if self.title:
-            return self.title
-        return self.id.capitalize()
 
 
 

@@ -294,13 +294,6 @@ class Initializer:
 
         self.config.include("pyramid_redis_sessions")
 
-    def preconfigure_admin(self, settings):
-        """Create signleton Admin instance and store it in the registry."""
-        from websauna.system.admin import Admin
-        from websauna.system.admin.interfaces import IAdmin
-        _admin = Admin()
-        self.config.registry.registerUtility(_admin, IAdmin)
-
     def configure_admin(self, settings):
         """Configure admin ux.
 
@@ -308,19 +301,30 @@ class Initializer:
         """
 
         from websauna.system.admin import views
+        from websauna.system.admin import Admin
+        from websauna.system.modeladmin import ModelAdmin
+        from websauna.system.modeladmin import ModelAdminRegistry
+        from websauna.system.admin.interfaces import IAdmin
+        from websauna.system.admin.interfaces import IModelAdmin
+        from websauna.system.admin.interfaces import IAdminContributor
 
-        self.config.add_jinja2_search_path('websauna.system.admin:templates', name='.html')
-        self.config.add_jinja2_search_path('websauna.system.admin:templates', name='.txt')
+        # Register default Admin provider
+        config = self.config
+        config.registry.registerUtility(Admin, IAdmin)
+        config.registry.registerUtility(ModelAdmin, IModelAdmin)
+        config.registry.registerSubscriptionAdapter(ModelAdminRegistry.contribute_admin, [IAdminContributor])
 
-        self.config.add_route('admin_home', '/admin/', factory="websauna.system.admin.admin_root_factory")
-        self.config.add_route('admin', "/admin/*traverse", factory="websauna.system.admin.admin_root_factory")
+        config.add_jinja2_search_path('websauna.system.admin:templates', name='.html')
+        config.add_jinja2_search_path('websauna.system.admin:templates', name='.txt')
 
-        self.config.add_panel('websauna.system.admin.views.default_model_admin_panel')
-        self.config.scan(views)
+        config.add_route('admin_home', '/admin/', factory="websauna.system.admin.utils.get_admin")
+        config.add_route('admin', "/admin/*traverse", factory="websauna.system.admin.utils.get_admin")
+
+        config.add_panel('websauna.system.admin.views.default_model_admin_panel')
+        config.scan(views)
 
         # Add templatecontext handler
-        from websauna.system.admin import templatecontext
-        templatecontext.includeme(self.config)
+        config.inclpude(".admin.templatecontext")
 
     def preconfigure_user(self, settings):
         # self.configure_horus(settings)
@@ -363,7 +367,6 @@ class Initializer:
         self.config.add_route('reset_password', '/reset-password/{code}')
         self.config.add_route('register', '/register')
         self.config.add_route('activate', '/activate/{user_id}/{code}', factory=UserFactory)
-
 
     def configure_user_admin(self, settings):
         import websauna.system.user.admin
@@ -438,7 +441,6 @@ class Initializer:
         self.configure_logging(settings)
 
         self.preconfigure_user(settings)
-        self.preconfigure_admin(settings)
         self.configure_forms(settings)
 
         # Serving

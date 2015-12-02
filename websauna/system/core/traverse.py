@@ -7,7 +7,7 @@ class Resource:
     Wraps underlying object into a traverse path. All resources are also tied to ``request`` object which gives them ability to query databases for further traversing through ``__getitem__()``.
     """
 
-    def __init__(self):
+    def __init__(self, request):
 
         #: Pointer to the parent object in traverse hierarchy. This is none until make_lineage is called.
         self.__parent__ = None
@@ -29,17 +29,25 @@ class Resource:
         raise NotImplementedError("get_breadcrumbs_title() implementation missing for {}".format(self))
 
     @classmethod
-    def make_lineage(self, parent, child, name, allow_reinit=False):
+    def make_lineage(self, parent, child, name, allow_new_parent=False):
         """Set traversing pointers between the child and the parent resources.
 
         Builds __parent__ and __name__ pointer and sets it on the child resource.
+
+        :param parent: Parent resource who children is become part to
+
+        :param child: Child resource mutated in place
+
+        :param name: Id of the child resource as it will appear in the URL traversing path
+
+        :param allow_new_parent: If the child has alraedy a parent assigned, allow override the parent
         """
 
         assert child
         assert parent
         assert name
 
-        if not allow_reinit:
+        if not allow_new_parent:
             # TODO:
             # We should not really allow this, but the at the moment unit tests reinialize admin object which in turn reinitializes all hardcoded model admin lineages. Fix it so that harcoded lineages are handled in more sane way.
             assert not getattr(child, "__parent__", None), "Tried to double init lineage for {} -> {}, previous parent was {}".format(parent, child, child.__parent__)

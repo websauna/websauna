@@ -1,3 +1,4 @@
+from pyramid.interfaces import IRequest
 from . import CRUD as _CRUD
 from . import Resource as _Resource
 
@@ -16,9 +17,15 @@ class Resource(_Resource):
 class CRUD(_CRUD):
     """CRUD controller utilizing admin interface permissions and templates."""
 
-    def __init__(self, request, model):
+    def __init__(self, request:IRequest, model:type=None):
+        """Create a CRUD root resource for a given model.
+
+        :param model: Can be set on class level or instance level.
+        """
         super(CRUD, self).__init__(request)
-        self.model = model
+
+        if model is not None:
+            self.model = model
 
     def get_model(self):
         return self.model

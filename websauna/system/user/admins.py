@@ -1,8 +1,8 @@
 from websauna.system.admin.modeladmin import ModelAdmin, model_admin
-from websauna.system.user.usermixin import UserMixin, GroupMixin
+from websauna.system.user.models import User, Group
 
 
-@model_admin(traverse_id="user", model=UserMixin)
+@model_admin(traverse_id="user")
 class UserAdmin(ModelAdmin):
 
     #: Traverse title
@@ -10,6 +10,7 @@ class UserAdmin(ModelAdmin):
 
     singular_name = "user"
     plural_name = "users"
+    model = User
 
     class Resource(ModelAdmin.Resource):
 
@@ -17,14 +18,14 @@ class UserAdmin(ModelAdmin):
             return self.get_object().friendly_name
 
 
-@model_admin(traverse_id="group", model=GroupMixin)
+@model_admin(traverse_id="group")
 class GroupAdmin(ModelAdmin):
 
     #: Traverse title
     title = "Groups"
-
     singular_name = "group"
     plural_name = "groups"
+    model = Group
 
     class Resource(ModelAdmin.Resource):
         pass

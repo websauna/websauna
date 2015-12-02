@@ -1,11 +1,14 @@
 """Automatic admin and CRUD for SQLAlchemy models."""
 
 import venusian
+import zope
 from pyramid.interfaces import IRequest
 from websauna.system.admin.interfaces import IModelAdmin, IModel
+from websauna.system.compat import typing
 from websauna.system.core.traverse import Resource
 from websauna.system.crud.sqlalchemy import CRUD as CRUD
 from websauna.system.crud.sqlalchemy import Resource as AlchemyResource
+from zope.interface import classProvides
 
 
 class ModelAdmin(CRUD):
@@ -17,14 +20,17 @@ class ModelAdmin(CRUD):
     #: Title used in breadcrumbs, other places
     title = None
 
+    #: Model must be set by subclass
+    model = None
+
+    def __init__(self, request):
+        import pdb ; pdb.set_trace()
+        assert self.model, "Model must be set by a subclass"
+        super(ModelAdmin, self).__init__(request)
+
     #: Our resource factory
     class Resource(AlchemyResource):
         pass
-
-    def get_model(self) -> type:
-        """Return the model for which this admin is registered for."""
-        registry = self.request.registry
-        return registry.getAdapter([self], IModel)
 
     def get_admin(self):
         """Get Admin resource object."""
@@ -39,21 +45,19 @@ class ModelAdmin(CRUD):
 class ModelAdminRoot(Resource):
     """Admin resource under which all model admins lurk."""
 
-    def get_models(self):
-        """List all registered models.
+    def get_model_admins(self):
+        """List all registered model admin classes.
 
-        :yield: (id, class) tuples
+        :yield: (model_id, IModelAdmin) tuples
         """
 
-        for a in self.request.registry.getAdapters([self.request], IModelAdmin):
-            yield(a[0], a[1])
+        for model_id, model_cls in self.request.registry.getAdapters([self.request], IModelAdmin):
+            yield(model_id, model_cls)
 
     def __getitem__(self, item):
 
         registry = self.request.registry
-        model = registry.queryAdapter(self.request, IModel, name=item)
-        import pdb ; pdb.set_trace()
-        model_admin_resource = self.request.registry.queryAdapter([self.request, model], IModelAdmin, name=item)
+        model_admin_resource = registry.queryAdapter([self.request], IModelAdmin, name=item)
         import pdb ; pdb.set_trace()
         if not model_admin_resource:
             raise RuntimeError("Did not find model admin with id: {}".format(item))
@@ -61,12 +65,12 @@ class ModelAdminRoot(Resource):
         Resource.make_lineage(self, model_admin_resource, item)
         return model_admin_resource
 
-    def items(self):
-        for id in self.get_models():
+    def items(self) -> typing.List[typing.Tuple[str, ModelAdmin]]:
+        for id in self.get_model_admins():
             yield id, self[id]
 
 
-def model_admin(traverse_id:str, model:type):
+def model_admin(traverse_id:str):
     """Class decorator to mark the class to become part of model admins.
 
     ``Configure.scan()`` must be run on this module for the definitino to be picked up.
@@ -80,10 +84,10 @@ def model_admin(traverse_id:str, model:type):
 
         def register(scanner, name, wrapped):
             config = scanner.config
-            config.registry.registerAdapter(model, required=[IRequest], provided=IModel, name=traverse_id)
-            config.registry.registerAdapter(cls, required=[IRequest, IModel], provided=IModelAdmin, name=traverse_id)
-            #config.registry.registerAdapter(model, required=[IRequest], provided=IModel, name=traverse_id)
-            #config.registry.registerAdapter(cls, required=[IRequest], provided=IModelAdmin, name=traverse_id)
+            config.registry.registerAdapter(cls, required=[IRequest], provided=IModelAdmin, name=traverse_id)
+
+
+        classProvides(cls, IModelAdmin)
 
         venusian.attach(cls, register, category='websauna')
         return cls

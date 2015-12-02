@@ -127,8 +127,8 @@ def celery_worker(request, init):
     def teardown():
         worker.terminate()
         # XXX: Hard to capture this only on failure for now
-        print(worker.stdout.read().decode("utf-8"))
-        print(worker.stderr.read().decode("utf-8"))
+        # print(worker.stdout.read().decode("utf-8"))
+        # print(worker.stderr.read().decode("utf-8"))
 
     request.addfinalizer(teardown)
 
@@ -321,3 +321,6 @@ def test_request_aware_task_success(celery_worker, init, dbsession):
     with transaction.manager:
         u = dbsession.query(User).get(1)
         assert u.username == "set by celery"
+
+
+

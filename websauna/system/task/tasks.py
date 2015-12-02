@@ -28,7 +28,6 @@ def _pop_request_argument(args, kwargs):
     return request, args, kwargs
 
 
-
 class BadAsyncLifeCycleException(Exception):
     pass
 
@@ -42,11 +41,7 @@ class RequestAwareTask(Task):
 
     * The task run mimics the lifecycle of a Pyramid web request.
 
-    * The decorated function first argument must be ``request``. This allows to access Pyramid registry and pass faux request object to templates as is. When task is executed asynchronously this request prepared by `pyramid.scripting.prepare` and it is not the original HTTPRequest passed when task was queued. When the task is executed synchronously using CELERY_ALWAYS_EAGER ``request`` is the original HTTPRequest object.
-
-    .. warn::
-
-        ``request.route_url()`` or other URL routing functions do not work, as the proper site URL is passed from the web server to Pyramid and is not available in tasks. If you need to use proper URLs, e.g. when sending out messages, please pass those URLs to the task as an arguments for ``apply_async()`` or similar.
+    * The decorated function first argument must be ``request``. This allows to access Pyramid registry and pass faux request object to templates as is. When task is executed asynchronously this request prepared by `pyramid.scripting.prepare` using ``websauna.site_url`` config value as URL. When the task is executed synchronously using CELERY_ALWAYS_EAGER ``request`` is the original HTTPRequest object.
 
     Example::
 
@@ -97,10 +92,16 @@ class RequestAwareTask(Task):
 
     abstract = True
 
-    def __call__(self, *args, **kwargs):
+    def get_env(self):
         registry = self.app.conf.PYRAMID_REGISTRY
+        base_url = registry.settings["websauna.site_url"]
+        request = Request.blank("/", base_url=base_url)
+        env = scripting.prepare(request=request, registry=registry)
+        return env
 
-        pyramid_env = scripting.prepare(registry=registry)
+    def __call__(self, *args, **kwargs):
+
+        pyramid_env = self.get_env()
 
         try:
             underlying = super().__call__
@@ -186,9 +187,7 @@ class TransactionalTask(RequestAwareTask):
 
     def __call__(self, *args, **kwargs):
 
-        registry = self.app.conf.PYRAMID_REGISTRY
-
-        pyramid_env = scripting.prepare(registry=registry)
+        pyramid_env = self.get_env()
 
         try:
             # Get bound Task.__call__

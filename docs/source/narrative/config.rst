@@ -23,6 +23,15 @@ Configuration variables
 
 The following variables are available
 
+websauna.site_url
+-----------------
+
+Where this site is running. When serving web pages, this value is not accessed, as ``request.route_url()`` and similar methods rely on the HTTP headers coming from the web server.
+
+The value is mostly used when running tasks and command line scripts.
+
+Default: No default, must be set.
+
 websauna.cache_max_age
 ----------------------
 

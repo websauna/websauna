@@ -81,7 +81,7 @@ def model_admin(traverse_id:str, model:type):
         def register(scanner, name, wrapped):
             config = scanner.config
             config.registry.registerAdapter(model, required=[IRequest], provided=IModel, name=traverse_id)
-            #config.registry.registerAdapter(cls, required=[IRequest, IModel], provided=IModelAdmin, name=traverse_id)
+            config.registry.registerAdapter(cls, required=[IRequest, IModel], provided=IModelAdmin, name=traverse_id)
             #config.registry.registerAdapter(model, required=[IRequest], provided=IModel, name=traverse_id)
             #config.registry.registerAdapter(cls, required=[IRequest], provided=IModelAdmin, name=traverse_id)
 

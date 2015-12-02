@@ -15,7 +15,6 @@ from pyramid_deform import configure_zpt_renderer
 
 from websauna.system.user.interfaces import IAuthomatic, ISocialLoginMapper
 from websauna.utils.configincluder import IncludeAwareConfigParser
-from websauna.utils import dictutil
 
 
 class SanityCheckFailed(Exception):
@@ -301,18 +300,13 @@ class Initializer:
         """
 
         from websauna.system.admin import views
-        from websauna.system.admin import Admin
-        from websauna.system.modeladmin import ModelAdmin
-        from websauna.system.modeladmin import ModelAdminRegistry
+        from websauna.system.admin import subscribers
+        from websauna.system.admin.admin import Admin
         from websauna.system.admin.interfaces import IAdmin
-        from websauna.system.admin.interfaces import IModelAdmin
-        from websauna.system.admin.interfaces import IAdminContributor
 
         # Register default Admin provider
         config = self.config
         config.registry.registerUtility(Admin, IAdmin)
-        config.registry.registerUtility(ModelAdmin, IModelAdmin)
-        config.registry.registerSubscriptionAdapter(ModelAdminRegistry.contribute_admin, [IAdminContributor])
 
         config.add_jinja2_search_path('websauna.system.admin:templates', name='.html')
         config.add_jinja2_search_path('websauna.system.admin:templates', name='.txt')
@@ -322,9 +316,10 @@ class Initializer:
 
         config.add_panel('websauna.system.admin.views.default_model_admin_panel')
         config.scan(views)
+        config.scan(subscribers)
 
         # Add templatecontext handler
-        config.inclpude(".admin.templatecontext")
+        config.include(".admin.templatecontext")
 
     def preconfigure_user(self, settings):
         # self.configure_horus(settings)
@@ -369,13 +364,9 @@ class Initializer:
         self.config.add_route('activate', '/activate/{user_id}/{code}', factory=UserFactory)
 
     def configure_user_admin(self, settings):
-        import websauna.system.user.admin
+        import websauna.system.user.admins
         import websauna.system.user.adminviews
-        from websauna.system.admin import Admin
-
-        _admin = Admin.get_admin(self.config.registry)
-        _admin.scan(self.config, websauna.system.user.admin)
-        self.config.scan(websauna.system.user.adminviews)
+        self.config.scan(websauna.system.user.admins)
 
     def configure_notebook(self, settings):
         """Setup pyramid_notebook integration."""
@@ -384,13 +375,6 @@ class Initializer:
         self.config.add_route('shutdown_notebook', '/notebook/shutdown')
         self.config.add_route('notebook_proxy', '/notebook/*remainder')
         self.config.scan(websauna.system.notebook.views)
-
-        # Add admin menu entry
-        from websauna.system.admin import Admin
-        from websauna.system.admin import menu
-        admin = Admin.get_admin(self.config.registry)
-        entry = menu.RouteEntry("admin-notebook", label="Shell", icon="fa-terminal", route_name="admin_shell", condition=lambda entry, request:request.has_permission('shell'))
-        admin.get_quick_menu().add_entry(entry)
 
     def configure_tasks(self, settings):
         """Scan all Python modules with asynchoronou sna dperiodic tasks to be imported."""

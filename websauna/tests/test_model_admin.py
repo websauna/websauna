@@ -1,6 +1,6 @@
 from pyramid.config import Configurator
 
-from websauna.system.admin import Admin
+from websauna.system.admin.admin import Admin
 
 
 def test_model_admin_decoration():

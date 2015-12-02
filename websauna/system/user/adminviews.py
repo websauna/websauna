@@ -2,8 +2,8 @@ import colander
 import deform
 from pyramid.view import view_config, view_defaults
 
-from .admin import UserAdmin
-from .admin import GroupAdmin
+from .admins import UserAdmin
+from .admins import GroupAdmin
 
 from pyramid_layout.panel import panel_config
 from websauna.system.crud import listing

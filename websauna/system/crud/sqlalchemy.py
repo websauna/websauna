@@ -16,8 +16,8 @@ class Resource(_Resource):
 class CRUD(_CRUD):
     """CRUD controller utilizing admin interface permissions and templates."""
 
-    def __init__(self, model):
-        super(CRUD, self).__init__()
+    def __init__(self, request, model):
+        super(CRUD, self).__init__(request)
         self.model = model
 
     def get_model(self):

@@ -36,7 +36,7 @@ def test_non_admin_user_denied(web_server, browser, dbsession):
         init_empty_site(dbsession, u)
         assert u.is_admin()
 
-        u = create_user(email="example2@example.com")
+        u = create_user(dbsession, email="example2@example.com")
         assert not u.is_admin()
 
     b = browser

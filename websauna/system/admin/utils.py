@@ -1,4 +1,5 @@
-from websauna.system.admin import IAdmin
+from websauna.system.admin.interfaces import IAdmin
+from websauna.system.core.traverse import Resource
 
 
 def get_admin(request) -> IAdmin:
@@ -7,13 +8,13 @@ def get_admin(request) -> IAdmin:
     return admin_class(request)
 
 
-def get_admin_for_model(self, admin:IAdmin, model:object) -> Resource:
+def get_admin_for_model(admin:IAdmin, model:type) -> Resource:
+    """Return Admin resource for a model manager interface."""
 
+    model_manager = admin["models"]
 
+    if not model.id in model_manager:
+        raise KeyError("No admin defined for model: {}".format(model))
+    return model_manager[model.id]
 
-    for model_admin in self.model_admins.values():
-        if model_admin.model == model:
-            return model_admin
-
-    raise KeyError("No admin defined for model: {}, got {} ".format(model, self.model_admins.values()))
 

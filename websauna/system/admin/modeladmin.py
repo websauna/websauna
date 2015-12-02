@@ -1,19 +1,15 @@
 """Automatic admin and CRUD for SQLAlchemy models."""
-import sys
 
-from pyramid.events import subscriber
-
-from websauna.system.admin import AdminConstruction
-from websauna.system.admin import menu
-from websauna.system.admin.interfaces import IModelAdminRegistry
+import venusian
+from pyramid.interfaces import IRequest
+from websauna.system.admin.interfaces import IModelAdmin, IModel
 from websauna.system.core.traverse import Resource
 from websauna.system.crud.sqlalchemy import CRUD as CRUD
 from websauna.system.crud.sqlalchemy import Resource as AlchemyResource
-from zope.interface import implements
 
 
 class ModelAdmin(CRUD):
-    """Present one model in admin interface.
+    """Resource presenting one model in admin interface.
 
     Provide automatized list, show add, edit and delete actions for an SQLAlchemy model which declares admin interface.
     """
@@ -25,6 +21,11 @@ class ModelAdmin(CRUD):
     class Resource(AlchemyResource):
         pass
 
+    def get_model(self) -> type:
+        """Return the model for which this admin is registered for."""
+        registry = self.request.registry
+        return registry.getAdapter([self], IModel)
+
     def get_admin(self):
         """Get Admin resource object."""
         return self.__parent__.__parent__
@@ -35,96 +36,56 @@ class ModelAdmin(CRUD):
         return self.id.capitalize()
 
 
-@implements(IModelAdminRegistry)
-class ModelAdminRegistry:
-    """Hold a registry of model admins."""
-
-    # Hold references to the scanned model admins
-    model_admins = {}
-
-    @classmethod
-    def register(cls, model):
-        """Mark the class to become a model admin on Admin.scan()."""
-
-        def inner(wrapped_cls):
-
-            assert cls.__module__, "Class without module attached cannot possibly work"
-
-            # XXX: Now store registered model admins in a module attribute, which will be later picked up scan(). Think some smarter way to do this, like using events and pyramid config registry.
-            module = sys.modules[wrapped_cls.__module__]
-            __admin__ = getattr(module, "__admin__", {})
-            __admin__[model] = wrapped_cls
-            module.__admin__ = __admin__
-
-            return wrapped_cls
-
-        return inner
-
-    @classmethod
-    def scan(cls, config, module):
-        """Picks up admin definitions from the module.
-
-        TODO: This is poor-man's Venusian replacement until we get proper implementation.
-        """
-
-        __admin__ = getattr(module, "__admin__", None)
-
-        if not __admin__:
-            raise RuntimeError("Admin tried to scan module {}, but it doesn't have __admin__ attribute. The module probably doesn't define any admin objects.".format(module))
-
-        for model_dotted, admin_cls in __admin__.items():
-
-            # Instiate model admin
-            try:
-                model_cls = config.maybe_dotted(model_dotted)
-            except ImportError as e:
-                raise ImportError("Tried to initialize model admin for {}, but could not import it".format(model_dotted)) from e
-
-            id = getattr(model_cls, "id", None)
-            if not id:
-                raise RuntimeError("Model admin does not define id {}".format(model_cls))
-
-            cls.model_admins[id] = model_cls
-
-    def get_admin_resource(self, obj):
-        """Get a admin traversable item for a SQLAlchemy object.
-
-        To get admin URL of an SQLAlchemy object::
-
-        :param obj: SQLAlchemy model instance
-        """
-        assert obj is not None, "get_admin_resource() you gave me None, I give you nothing"
-
-        model = obj.__class__
-        model_admin = self.get_admin_for_model(model)
-
-        path = model_admin.mapper.get_path_from_object(obj)
-        return model_admin[path]
-
-
 class ModelAdminRoot(Resource):
     """Admin resource under which all model admins lurk."""
 
+    def get_models(self):
+        """List all registered models.
+
+        :yield: (id, class) tuples
+        """
+
+        for a in self.request.registry.getAdapters([self.request], IModelAdmin):
+            yield(a[0], a[1])
+
     def __getitem__(self, item):
-        model_admin_registry = self.request.registry.getUtility(IModelAdmin)
-        model_admin_class = model_admin_registry[item]
-        model_admin_resource = model_admin_class(self.request)
-        make_lineage(self, model_admin_resource, item)
+
+        registry = self.request.registry
+        model = registry.queryAdapter(self.request, IModel, name=item)
+        import pdb ; pdb.set_trace()
+        model_admin_resource = self.request.registry.queryAdapter([self.request, model], IModelAdmin, name=item)
+        import pdb ; pdb.set_trace()
+        if not model_admin_resource:
+            raise RuntimeError("Did not find model admin with id: {}".format(item))
+
+        Resource.make_lineage(self, model_admin_resource, item)
         return model_admin_resource
 
-
-@subscriber(AdminConstruction)
-def contribute_admin(event):
-    """Add model menus to the admin user interface."""
-    admin = event.admin
-
-    admin.chilren["models"] = ModelAdminRoot(admin.request)
-
-    # Create a model listing entry
-    data_menu = admin.get_admin_menu().get_entry("admin-menu-data").submenu
-    entry = menu.TraverseEntry("admin-menu-data-{}".format(id), label=model_admin.title, context=model_admin, name="listing")
-    data_menu.add_entry(entry)
+    def items(self):
+        for id in self.get_models():
+            yield id, self[id]
 
 
+def model_admin(traverse_id:str, model:type):
+    """Class decorator to mark the class to become part of model admins.
 
+    ``Configure.scan()`` must be run on this module for the definitino to be picked up.
 
+    :param traverse_id: Under which URL id this model appears in the admin interface
+
+    :param model_cls: Which model class this admin resource is controlling
+    """
+    def _inner(cls):
+        "The class decorator example"
+
+        def register(scanner, name, wrapped):
+            config = scanner.config
+            config.registry.registerAdapter(model, required=[IRequest], provided=IModel, name=traverse_id)
+            #config.registry.registerAdapter(cls, required=[IRequest, IModel], provided=IModelAdmin, name=traverse_id)
+            #config.registry.registerAdapter(model, required=[IRequest], provided=IModel, name=traverse_id)
+            #config.registry.registerAdapter(cls, required=[IRequest], provided=IModelAdmin, name=traverse_id)
+
+        venusian.attach(cls, register, category='websauna')
+        return cls
+
+    return _inner

@@ -2,9 +2,9 @@ from pyramid.renderers import render
 from pyramid.threadlocal import get_current_request
 
 from jinja2 import contextfilter
-
+from websauna.system.admin.interfaces import IAdmin
+from websauna.system.admin.utils import get_admin
 from websauna.system.core import traverse
-from . import Admin
 
 
 @contextfilter
@@ -15,7 +15,7 @@ def admin_breadcrumbs(jinja_ctx, context, **kw):
         return ""
 
     request = jinja_ctx.get('request') or get_current_request()
-    crumbs = traverse.get_breadcrumb(context, request, root=Admin)
+    crumbs = traverse.get_breadcrumb(context, request, root_iface=IAdmin)
 
     assert crumbs, "Could not get breadcrumbs for {}".format(context)
 

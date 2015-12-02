@@ -1,6 +1,9 @@
 from pyramid.security import Authenticated, Allow
+from websauna.system.core.interfaces import IRoot
+from zope.interface import implementer
 
 
+@implementer(IRoot)
 class Root:
     """Pyramid routing root with default permission set up.
 
@@ -29,5 +32,9 @@ class Root:
     def root_factory(cls, request):
         # Root is a global object, as it is referred in global traversing context objects like Admin
         return Root(request)
+
+    def get_title(self):
+        """Title used in breadcrumbs."""
+        return "Home"
 
 

@@ -1,4 +1,8 @@
 """Traversing definitions."""
+from pyramid.request import Request
+from websauna.system.core.interfaces import IRoot
+from websauna.system.core.root import Root
+from zope.interface import Interface
 
 
 class Resource:
@@ -57,7 +61,7 @@ class Resource:
         return child
 
 
-def get_breadcrumb(context, request, root, current_view_name=None, current_view_url=None):
+def get_breadcrumb(context:Resource, request:Request, root_iface:IRoot, current_view_name=None, current_view_url=None):
     """Traverse context up to the root element in the reverse order.
 
     :return: List of {url, name} dictionaries
@@ -66,13 +70,17 @@ def get_breadcrumb(context, request, root, current_view_name=None, current_view_
 
     elems = []
 
+    assert issubclass(root_iface, Interface), "Traversing root must be declared by an interface, got {}".format(root_iface)
+
     # Looks like it is not possible to dig out the matched view from Pyramid request,
     # so we need to explicitly pass it if we want it to appear in URL
     if current_view_name:
         assert current_view_url
         elems.append(dict(url=current_view_url, name=current_view_name))
 
-    while not isinstance(context, root):
+    while not root_iface.providedBy(context):
+
+        print("Breadcrumbs ", context)
 
         if not hasattr(context, "get_title"):
             raise RuntimeError("Breadcrumbs part missing get_title(): {}".format(context))

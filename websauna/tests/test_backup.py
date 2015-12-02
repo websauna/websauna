@@ -19,7 +19,6 @@ def test_backup(dbsession, ini_settings):
     ini_settings["websauna.backup_script"] = "websauna.tests:backup_script.bash"
     ini_settings["backup_test.filename"] = temp_fname
 
-
     # Manually calling init would mess global dbsession management
     dbsession.remove()
 

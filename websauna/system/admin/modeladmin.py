@@ -24,9 +24,11 @@ class ModelAdmin(CRUD):
     model = None
 
     def __init__(self, request):
-        import pdb ; pdb.set_trace()
-        assert self.model, "Model must be set by a subclass"
         super(ModelAdmin, self).__init__(request)
+
+    def get_model(self):
+        assert self.model, "Model must be set by a subclass as a class attribute"
+        return self.model
 
     #: Our resource factory
     class Resource(AlchemyResource):
@@ -55,10 +57,9 @@ class ModelAdminRoot(Resource):
             yield(model_id, model_cls)
 
     def __getitem__(self, item):
-
+        """Traverse to model admins. """
         registry = self.request.registry
-        model_admin_resource = registry.queryAdapter([self.request], IModelAdmin, name=item)
-        import pdb ; pdb.set_trace()
+        model_admin_resource = registry.queryAdapter(self.request, IModelAdmin, name=item)
         if not model_admin_resource:
             raise RuntimeError("Did not find model admin with id: {}".format(item))
 
@@ -66,7 +67,7 @@ class ModelAdminRoot(Resource):
         return model_admin_resource
 
     def items(self) -> typing.List[typing.Tuple[str, ModelAdmin]]:
-        for id in self.get_model_admins():
+        for id, model_cls in self.get_model_admins():
             yield id, self[id]
 
 
@@ -85,9 +86,6 @@ def model_admin(traverse_id:str):
         def register(scanner, name, wrapped):
             config = scanner.config
             config.registry.registerAdapter(cls, required=[IRequest], provided=IModelAdmin, name=traverse_id)
-
-
-        classProvides(cls, IModelAdmin)
 
         venusian.attach(cls, register, category='websauna')
         return cls

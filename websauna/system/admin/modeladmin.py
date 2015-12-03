@@ -1,14 +1,12 @@
 """Automatic admin and CRUD for SQLAlchemy models."""
 
 import venusian
-import zope
 from pyramid.interfaces import IRequest
-from websauna.system.admin.interfaces import IModelAdmin, IModel
+from websauna.system.admin.interfaces import IModelAdmin
 from websauna.system.compat import typing
 from websauna.system.core.traverse import Resource
 from websauna.system.crud.sqlalchemy import CRUD as CRUD
 from websauna.system.crud.sqlalchemy import Resource as AlchemyResource
-from zope.interface import classProvides
 
 
 class ModelAdmin(CRUD):

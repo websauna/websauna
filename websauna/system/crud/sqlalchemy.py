@@ -28,6 +28,7 @@ class CRUD(_CRUD):
             self.model = model
 
     def get_model(self):
+        """Get the SQLAlchemy model instance we are managing."""
         return self.model
 
     def get_query(self, dbsession):

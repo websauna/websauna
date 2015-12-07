@@ -3,8 +3,7 @@ from pyramid.threadlocal import get_current_request
 
 from jinja2 import contextfilter
 from websauna.system.admin.interfaces import IAdmin
-from websauna.system.admin.utils import get_admin
-from websauna.system.core import traverse
+from websauna.system.core.breadcrumbs import get_breadcrumb
 
 
 @contextfilter
@@ -15,14 +14,11 @@ def admin_breadcrumbs(jinja_ctx, context, **kw):
         return ""
 
     request = jinja_ctx.get('request') or get_current_request()
-    crumbs = traverse.get_breadcrumb(context, request, root_iface=IAdmin)
+    crumbs = get_breadcrumb(context, request, root_iface=IAdmin)
 
     assert crumbs, "Could not get breadcrumbs for {}".format(context)
 
     if len(crumbs) == 1:
         return ""
-
-    # Fix admin name so we don't confuse this with the menubar
-    crumbs[0]["name"] = "Home"
 
     return render("templates/admin/breadcrumbs.html", dict(context=context, crumbs=crumbs), request=request)

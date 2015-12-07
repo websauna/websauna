@@ -26,8 +26,6 @@ class Admin(traverse.Resource):
     This class is instiated for each request and does not have global state.
     """
 
-    title = "Admin"
-
     #: Default permissions of who can add, read and write things in admin
     __acl__ = [
         (Allow, 'group:admin', 'add'),
@@ -38,14 +36,9 @@ class Admin(traverse.Resource):
     def __init__(self, request):
         super(Admin, self).__init__(request)
 
-        # if not hasattr(request, "root"):
-        #    import pdb ; pdb.set_trace()
-
-        # assert hasattr(request, "root"), "request {} missing root".format(request)
-
-        # TODO: Inspect the case why we don't see root on request
+        # Current add_route() view config sets Admin instance as request.root when traversing inside admin.
         # Assume this admin instance lives directly under the root
-        self.__parent__ = request.root if hasattr(request, "root") else Root(request)
+        self.__parent__ =  Root(request)
         self.__name__ = "admin"
 
         self.admin_menu_entry = None
@@ -55,6 +48,9 @@ class Admin(traverse.Resource):
         self.children = {}
 
         self.construct()
+
+    def get_title(self):
+        return "Admin"
 
     def construct(self):
         """Call all admin contributors and let them register parts to this admin."""
@@ -115,7 +111,6 @@ class Admin(traverse.Resource):
     def __getitem__(self, name):
         """Traverse to individual model admins by the model name."""
         child = self.children[name]
-        Resource.make_lineage(self, child, name)
         return child
 
 

@@ -1,5 +1,6 @@
 import io
 import os
+import transaction
 from pyramid.threadlocal import get_current_registry
 from websauna.system import get_init
 from websauna.system.core.secrets import get_secrets
@@ -19,31 +20,31 @@ def test_backup(dbsession, ini_settings):
     ini_settings["websauna.backup_script"] = "websauna.tests:backup_script.bash"
     ini_settings["backup_test.filename"] = temp_fname
 
-    # Manually calling init would mess global dbsession management
-    dbsession.remove()
+    # We have some scoping issues with the dbsession here, make sure we close transaction at the end of the test
+    with transaction.manager:
 
-    init = get_init(dict(__file__=ini_settings["_ini_file"]), ini_settings)
-    init.run(ini_settings)
+        init = get_init(dict(__file__=ini_settings["_ini_file"]), ini_settings)
+        init.run(ini_settings)
 
-    testing.setUp(registry=init.config.registry)
+        testing.setUp(registry=init.config.registry)
 
-    # Check we have faux AWS variable to export
-    secrets = get_secrets(get_current_registry())
-    assert "aws.access_key_id" in secrets
+        # Check we have faux AWS variable to export
+        secrets = get_secrets(get_current_registry())
+        assert "aws.access_key_id" in secrets
 
-    try:
+        try:
 
-        # This will run the bash script above
-        backup_site()
+            # This will run the bash script above
+            backup_site()
 
-        # The result should be generated here
-        assert os.path.exists(temp_fname)
-        contents = io.open(temp_fname).read()
+            # The result should be generated here
+            assert os.path.exists(temp_fname)
+            contents = io.open(temp_fname).read()
 
-        # test-secrets.ini, AWS access key
-        assert contents.strip() == "foo"
-    finally:
-        testing.tearDown()
+            # test-secrets.ini, AWS access key
+            assert contents.strip() == "foo"
+        finally:
+            testing.tearDown()
 
 
 

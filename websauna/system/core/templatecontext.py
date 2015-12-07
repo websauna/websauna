@@ -15,7 +15,7 @@ from jinja2 import contextfilter
 from jinja2 import Markup
 
 from arrow import Arrow
-from websauna.system.compat import typing
+from websauna.compat import typing
 
 from websauna.utils import html
 from websauna.utils.time import now

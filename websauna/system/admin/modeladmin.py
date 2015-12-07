@@ -1,12 +1,17 @@
 """Automatic admin and CRUD for SQLAlchemy models."""
+import string
 
 import venusian
 from pyramid.interfaces import IRequest
 from websauna.system.admin.interfaces import IModelAdmin
-from websauna.system.compat import typing
+from websauna.compat import typing
 from websauna.system.core.traverse import Resource
 from websauna.system.crud.sqlalchemy import CRUD as CRUD
 from websauna.system.crud.sqlalchemy import Resource as AlchemyResource
+
+
+# We enforce some best practices to readable URL names of model admins. This is an arbitrary choice of the author.
+ALLOWED_TRAVERSE_ID_CHARACTERS = string.ascii_lowercase + string.digits + "-"
 
 
 class ModelAdmin(CRUD):
@@ -45,6 +50,9 @@ class ModelAdmin(CRUD):
 class ModelAdminRoot(Resource):
     """Admin resource under which all model admins lurk."""
 
+    def get_title(self):
+        return "Models"
+
     def get_model_admins(self):
         """List all registered model admin classes.
 
@@ -69,15 +77,18 @@ class ModelAdminRoot(Resource):
             yield id, self[id]
 
 
-def model_admin(traverse_id:str):
+def model_admin(traverse_id:str) -> type:
     """Class decorator to mark the class to become part of model admins.
 
     ``Configure.scan()`` must be run on this module for the definitino to be picked up.
 
-    :param traverse_id: Under which URL id this model appears in the admin interface
+    :param traverse_id: Under which URL id this model appears in the admin interface. Allowed to contain lowercase letters, dash and digits. This will be available as ``ModelAdmin.__name__`` instance attribute.
 
     :param model_cls: Which model class this admin resource is controlling
     """
+
+    assert all(c in ALLOWED_TRAVERSE_ID_CHARACTERS for c in traverse_id), "traverse_id may only contain lowercase letters, digits and a dash: {}".format(traverse_id)
+
     def _inner(cls):
         "The class decorator example"
 

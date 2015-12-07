@@ -1,12 +1,12 @@
 """Simple mechanism to register admin menu entries."""
 
 from collections import OrderedDict
-from websauna.system.compat.typing import Callable
-from websauna.system.compat.typing import List
+from websauna.compat.typing import Callable
+from websauna.compat.typing import List
 
 from pyramid.renderers import render
 from pyramid.request import Request
-
+from websauna.system.core.traverse import Resource
 
 
 class Menu:
@@ -142,7 +142,7 @@ class TraverseEntry(Entry):
         admin.get_admin_menu().add_entry(entry)
     """
 
-    def __init__(self, id:str, label:str, context:object, name:str, **kwargs):
+    def __init__(self, id:str, label:str, resource:Resource, name:str, **kwargs):
         """
         :param context: Any Pyramid resource object
         :param name: Traversable view name
@@ -150,11 +150,11 @@ class TraverseEntry(Entry):
         assert name
         assert type(name) == str
         super(TraverseEntry, self).__init__(id, label, **kwargs)
-        self.context = context
+        self.resource = resource
         self.name = name
 
     def get_link(self, request):
-        return request.resource_url(self.context, self.name)
+        return request.resource_url(self.resource, self.name)
 
 
 

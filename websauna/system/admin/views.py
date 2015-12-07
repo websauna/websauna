@@ -3,7 +3,7 @@ from pyramid.httpexceptions import HTTPFound
 
 from pyramid.view import view_config
 from pyramid_layout.panel import panel_config
-from websauna.system.admin.modeladmin import ModelAdmin
+from websauna.system.admin.modeladmin import ModelAdmin, ModelAdminRoot
 from websauna.system.admin.utils import get_admin
 from websauna.system.crud import views as crud_views
 from websauna.system.crud import listing
@@ -17,7 +17,6 @@ def admin(request):
     """Admin front page page."""
 
     admin = get_admin(request)
-    url = request.resource_url(admin)
 
     # For now, admin panels always appear in ascending order
 
@@ -36,7 +35,7 @@ def default_model_admin_panel(context, request):
     Display count of items in the database.
     """
     model_admin = context
-    count = model_admin.get_query(request.dbsession).count()
+    count = model_admin.get_query().count()
     admin = model_admin.__parent__
     title = model_admin.title
     return locals()
@@ -106,3 +105,10 @@ def model_admin_default_view(context, request):
 def model_resource_default_view(context, request):
     """Redirect to show if model instance URL is being accessed without a view name."""
     return HTTPFound(request.resource_url(context, "show"))
+
+
+@view_config(route_name='admin', context=ModelAdminRoot, permission='view')
+def view__model_admin_root(context, request):
+    """Model admin root does not have a view per se so we redirect to admin root."""
+    return HTTPFound(request.resource_url(context.__parent__))
+

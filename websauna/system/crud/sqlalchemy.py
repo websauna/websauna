@@ -31,12 +31,13 @@ class CRUD(_CRUD):
         """Get the SQLAlchemy model instance we are managing."""
         return self.model
 
-    def get_query(self, dbsession):
+    def get_query(self):
         """Get SQLAlchemy Query object which we use to populate this listing.
 
         Views can specify their own queries - e.g. filter by user. This is just the default for everything.
         """
         model = self.get_model()
+        dbsession = self.request.dbsession
         return dbsession.query(model)
 
     def fetch_object(self, dbsession, id):

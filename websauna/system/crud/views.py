@@ -10,19 +10,18 @@ from pyramid.renderers import render
 from pyramid.request import Request
 from pyramid.view import view_config
 
-from websauna.system.compat import typing
+from websauna.compat import typing
 
 import deform
 
 from websauna.system.core import messages
-from websauna.system.core.traverse import Resource
+from websauna.system.form.colander import PropertyAwareSQLAlchemySchemaNode
 
 from . import sqlalchemy, Resource
 from . import paginator
 from . import CRUD
 
-from websauna.system.form.colander import \
-    PropertyAwareSQLAlchemySchemaNode
+
 
 
 

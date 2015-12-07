@@ -1,6 +1,6 @@
-<div id="admin-panel-{{model_admin.id}}" class="panel panel-default panel-admin">
+<div id="admin-panel-{{ model_admin.__name__ }}" class="panel panel-default panel-admin">
     {% block panel_heading%}
-        <div class="panel-heading">
+        <div class="panel-heading clearfix">
 
             <h3 class="panel-title pull-left">
                 {% block panel_title %}
@@ -12,8 +12,6 @@
                 {% block panel_buttons %}
                 {% endblock panel_buttons %}
             </div>
-
-            <div style="clear: both"></div>
         </div>
     {% endblock panel_heading %}
 

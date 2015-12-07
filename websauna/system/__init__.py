@@ -1,6 +1,7 @@
 """Websauna framework initialization."""
 import logging
 import os
+import transaction
 
 from pyramid.config import Configurator
 from pyramid.authentication import AuthTktAuthenticationPolicy
@@ -211,14 +212,15 @@ class Initializer:
             authomatic_config[login]["class_"] = resolver.resolve(xget(login, "class"))
 
             # Construct social login mapper
-            mapper_class = resolver.resolve(xget(login, "mapper"))
-            mapper = mapper_class(self.config.registry, login)
-            self.config.registry.registerUtility(mapper, ISocialLoginMapper, name=login)
+            mapper_class = xget(login, "mapper")
+            if mapper_class:
+                mapper_class = resolver.resolve(mapper_class)
+                mapper = mapper_class(self.config.registry, login)
+                self.config.registry.registerUtility(mapper, ISocialLoginMapper, name=login)
 
         # Store instance
         instance = authomatic.Authomatic(config=authomatic_config, secret=authomatic_secret)
         self.config.registry.registerUtility(instance, IAuthomatic)
-
 
     def configure_database(self, settings):
         """Configure database.
@@ -460,10 +462,19 @@ class Initializer:
 
     def sanity_check(self):
         """Perform post-initialization sanity checks.
+
+        This is run on every startup to check that the database table schema matches our model definitions. If there are un-run migrations this will bail out and do not let the problem to escalate later.
         """
         from websauna.system.model import sanitycheck
-        if not sanitycheck.is_sane_database(Base, DBSession):
+        from websauna.system.model.meta import Base
+        from websauna.system.model.meta import create_dbsession
+
+        dbsession = create_dbsession(self.config.registry.settings)
+
+        if not sanitycheck.is_sane_database(Base, dbsession):
             raise SanityCheckFailed("The database sanity check failed. Check log for details.")
+
+        dbsession.close()
 
     def wrap_wsgi_app(self, app):
         """Perform any necessary WSGI application wrapping.

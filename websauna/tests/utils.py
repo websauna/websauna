@@ -4,10 +4,8 @@ from decimal import Decimal
 from pyramid.registry import Registry
 from pyramid.session import signed_deserialize
 from pyramid_redis_sessions import RedisSession, get_default_connection
-
 from selenium.webdriver.remote.webdriver import WebDriver
 from websauna.system.user.usermixin import check_empty_site_init
-
 #: The default test login name
 import transaction
 
@@ -30,7 +28,7 @@ def create_user(dbsession, email=EMAIL, password=PASSWORD, admin=False):
 
     # First user, make it admin
     if admin:
-        check_empty_site_init(user)
+        check_empty_site_init(dbsession, user)
         admin_grp = dbsession.query(Group).first()
         assert admin_grp
         user.groups.append(admin_grp)
@@ -39,18 +37,16 @@ def create_user(dbsession, email=EMAIL, password=PASSWORD, admin=False):
     return user
 
 
-def get_user(email=EMAIL):
+def get_user(dbsession, email=EMAIL):
     from websauna.system.user.models import User
     return dbsession.query(User).filter_by(email=EMAIL).first()
 
 
-
-
-def create_logged_in_user(web_server, browser, admin=False):
+def create_logged_in_user(dbsession, web_server, browser, admin=False):
     """For a web browser test session, creates a new user and logs it in."""
 
     with transaction.manager:
-        create_user(admin=admin)
+        create_user(dbsession, admin=admin)
 
     b = browser
     b.visit("{}/{}".format(web_server, "login"))
@@ -99,7 +95,7 @@ def login(web_server, browser, email=EMAIL, password=PASSWORD):
     assert b.is_element_visible_by_css("#nav-logout")
 
 
-def get_session_from_webdriver(driver:WebDriver, registry:Registry) -> RedisSession:
+def get_session_from_webdriver(driver: WebDriver, registry: Registry) -> RedisSession:
     """Extract session cookie from a Selenium driver and fetch a matching pyramid_redis_sesssion data.
 
     Example::

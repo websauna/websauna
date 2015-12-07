@@ -11,7 +11,7 @@ def test_add_group(web_server, browser, dbsession):
     """Create a new group through admin interface."""
 
     b = browser
-    create_logged_in_user(web_server, browser, admin=True)
+    create_logged_in_user(dbsession, web_server, browser, admin=True)
 
     b.find_by_css("#nav-admin").click()
 
@@ -36,7 +36,7 @@ def test_put_user_to_group(web_server, browser, dbsession):
 
     from websauna.system.user.models import Group
 
-    create_logged_in_user(web_server, browser, admin=True)
+    create_logged_in_user(dbsession, web_server, browser, admin=True)
 
     # Create a group where we
     with transaction.manager:
@@ -68,7 +68,7 @@ def test_user_group_choices_preserved_on_validation_error(web_server, browser, d
 
     from websauna.system.user.models import Group
 
-    create_logged_in_user(web_server, browser, admin=True)
+    create_logged_in_user(dbsession, web_server, browser, admin=True)
 
     # Create a group where we
     with transaction.manager:
@@ -102,7 +102,7 @@ def test_remove_user_from_group(web_server, browser, dbsession):
 
     from websauna.system.user.models import Group
 
-    create_logged_in_user(web_server, browser, admin=True)
+    create_logged_in_user(dbsession, web_server, browser, admin=True)
 
     # Create a group where we
     with transaction.manager:

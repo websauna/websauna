@@ -1,7 +1,7 @@
 import colander
 import deform
 from pyramid.view import view_config, view_defaults
-
+from websauna.viewconfig import view_overrides
 from .admins import UserAdmin
 from .admins import GroupAdmin
 
@@ -115,6 +115,17 @@ class UserEdit(admin_views.Edit):
         schema["groups"].widget = GroupWidget(model=group_model, dictify=schema.dictify)
         schema["groups"].missing = []
 
+
+@view_overrides(context=UserAdmin)
+class UserAdd(admin_views.Add):
+
+    includes = [
+        "username",
+        "email"
+    ]
+
+
+@view_overrides(context=GroupAdmin)
 class GroupListing(admin_views.Listing):
     """Listing view for Groups."""
 
@@ -129,11 +140,6 @@ class GroupListing(admin_views.Listing):
 
     def order_query(self, query):
         return query.order_by(self.get_model().id.desc())
-
-    @view_config(context=GroupAdmin, route_name="admin", name="listing", renderer="crud/listing.html", permission='view')
-    def listing(self):
-        return super(GroupListing, self).listing()
-
 
 
 class GroupShow(admin_views.Show):

@@ -12,15 +12,14 @@ Or turn of eager celery setting hardcoded below.
 
 """
 
+import logging
 import subprocess
 import time
 from optparse import make_option
-
 import os
 import pyramid
 import pytest
 import transaction
-
 from celery import Celery
 from celery import signals
 from pyramid.paster import bootstrap
@@ -32,7 +31,7 @@ from websauna.system.task import TransactionalTask
 from websauna.system.task import RequestAwareTask
 from websauna.system.user.utils import get_user_class
 
-
+logger = logging.getLogger(__name__)
 
 # Hardcode here for a now as passing command line option to Celery just for executing seems to be bit too much boilerplate
 test_celery_app = Celery("websauna_test")
@@ -49,7 +48,6 @@ test_celery_app = Celery("websauna_test")
 #
 # Unfortunately we need to do this due to Celery globals
 old_celery = pyramid_celery.celery_app
-
 
 test_celery_app.user_options['preload'].add(
     make_option(
@@ -116,6 +114,8 @@ def celery_worker(request, init):
 
     cmdline = ["celery", "worker", "-A", "websauna.tests.test_transaction_aware_task.test_celery_app", "--ini", ini_file, "--loglevel", "DEBUG"]
 
+    logger.info("Running celery worker: %s", cmdline)
+
     worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     time.sleep(4.0)
 
@@ -145,7 +145,7 @@ def setup_celery(init):
     # We need to setup thread local request which binds to our test transaction manager
     request = DummyRequest()
     request.tm = transaction.manager
-    pyramid.threadlocal.manager.push({'request':  request})
+    pyramid.threadlocal.manager.push({'request': request})
 
     return test_celery_app, request
 
@@ -153,7 +153,7 @@ def setup_celery(init):
 @test_celery_app.task(base=TransactionalTask)
 def success_task(request, user_id):
     # TODO: Eliminate global dbsession
-    dbsession = dbsession
+    dbsession = request.dbsession
     registry = request.registry
 
     User = get_user_class(registry)
@@ -164,7 +164,7 @@ def success_task(request, user_id):
 @test_celery_app.task(base=TransactionalTask)
 def success_task_never_called(request, user_id):
     # TODO: Eliminate global dbsession
-    dbsession = dbsession
+    dbsession = request.dbsession
 
     request = test_celery_app
     registry = request.registry
@@ -176,9 +176,8 @@ def success_task_never_called(request, user_id):
 
 @test_celery_app.task(base=TransactionalTask)
 def failure_task(request, user_id):
-
     # TODO: Eliminate global dbsession
-    dbsession = dbsession
+    dbsession = request.dbsession
     registry = request.registry
 
     User = get_user_class(registry)
@@ -187,14 +186,12 @@ def failure_task(request, user_id):
     raise RuntimeError("Exception raised")
 
 
-
 @test_celery_app.task(base=RequestAwareTask)
 def request_task(request, user_id):
-
     # Run transaction manually
     with transaction.manager:
         # TODO: Eliminate global dbsession
-        dbsession = dbsession
+        dbsession = request.dbsession
         registry = request.registry
 
         User = get_user_class(registry)
@@ -306,7 +303,7 @@ def test_request_aware_task_success(celery_worker, init, dbsession):
         # Do a dummy database write
         u = dbsession.query(User).get(1)
 
-        request_task.apply_async(kwargs={"request":request, "user_id":u.id})
+        request_task.apply_async(kwargs={"request": request, "user_id": u.id})
         # Let the task travel in Celery queue
         time.sleep(1.0)
 

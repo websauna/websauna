@@ -3,7 +3,7 @@ import string
 
 import venusian
 from pyramid.interfaces import IRequest
-from websauna.system.admin.interfaces import IModelAdmin
+from websauna.system.admin.interfaces import IModelAdmin, IAdmin
 from websauna.compat import typing
 from websauna.system.core.traverse import Resource
 from websauna.system.crud.sqlalchemy import CRUD as CRUD
@@ -11,6 +11,9 @@ from websauna.system.crud.sqlalchemy import Resource as AlchemyResource
 
 
 # We enforce some best practices to readable URL names of model admins. This is an arbitrary choice of the author.
+from websauna.system.model.interfaces import IModel
+from zope.interface import classImplements
+
 ALLOWED_TRAVERSE_ID_CHARACTERS = string.ascii_lowercase + string.digits + "-"
 
 
@@ -37,11 +40,11 @@ class ModelAdmin(CRUD):
     class Resource(AlchemyResource):
         pass
 
-    def get_admin(self):
+    def get_admin(self) -> IAdmin:
         """Get Admin resource object."""
         return self.__parent__.__parent__
 
-    def get_title(self):
+    def get_title(self) -> str:
         if self.title:
             return self.title
         return self.id.capitalize()
@@ -94,9 +97,20 @@ def model_admin(traverse_id:str) -> type:
 
         def register(scanner, name, wrapped):
             config = scanner.config
+            # We can look up midels by
+
+            model = getattr(cls, "model", None)
+            assert model, "Class {} must declare model attribute".format(cls)
+
             config.registry.registerAdapter(cls, required=[IRequest], provided=IModelAdmin, name=traverse_id)
+            config.registry.model_admin_ids_by_model[model] = traverse_id
 
         venusian.attach(cls, register, category='websauna')
         return cls
 
     return _inner
+
+
+def configure_model_admin(config):
+    """Sets up model -> model admin registry."""
+    config.registry.model_admin_ids_by_model = {}

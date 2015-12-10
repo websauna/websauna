@@ -23,7 +23,7 @@ def test_add_group(web_server, browser, dbsession):
     assert b.is_text_present("Item added")
 
     # Check we appear in the list
-    b.visit("{}/admin/group/listing".format(web_server))
+    b.visit("{}/admin/models/group/listing".format(web_server))
 
     # The description appears in the listing
     assert b.is_text_present("Foobar")
@@ -74,7 +74,7 @@ def test_user_group_choices_preserved_on_validation_error(web_server, browser, d
     with transaction.manager:
         g = Group(name=GROUP_NAME)
         dbsession.add(g)
-        u = get_user()
+        u = get_user(dbsession)
         u.groups.append(g)
 
     b.find_by_css("#nav-admin").click()
@@ -108,7 +108,7 @@ def test_remove_user_from_group(web_server, browser, dbsession):
     with transaction.manager:
         g = Group(name=GROUP_NAME)
         dbsession.add(g)
-        u = get_user()
+        u = get_user(dbsession)
         u.groups.append(g)
 
     b.find_by_css("#nav-admin").click()

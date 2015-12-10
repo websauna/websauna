@@ -1,6 +1,7 @@
 import colander
 import deform
 from pyramid.view import view_config, view_defaults
+from websauna.system.admin.utils import get_model_admin_for_sqlalchemy_object
 from websauna.viewconfig import view_overrides
 from .admins import UserAdmin
 from .admins import GroupAdmin
@@ -20,13 +21,13 @@ def default_model_admin_panel(context, request):
     dbsession = request.dbsession
 
     model_admin = context
-    admin = model_admin.__parent__
+    admin = model_admin.get_admin()
     model = model_admin.get_model()
 
     title = model_admin.title
     count = dbsession.query(model).count()
     latest_user = dbsession.query(model).order_by(model.id.desc()).first()
-    latest_user_url = request.resource_url(admin.get_admin_resource(latest_user))
+    latest_user_url = get_model_admin_for_sqlalchemy_object(admin, latest_user)
 
     return locals()
 

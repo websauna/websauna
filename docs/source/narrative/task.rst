@@ -172,9 +172,34 @@ Start shell or do through IPython Notebook::
 
     ws-shell production.ini
 
-Print out Celery queue::
+How many tasks queued in the default celery queue::
 
     from celery.task.control import inspect
     i = inspect()
-    print("Queued: {}".format(i.scheduled())
-    print("Active: {}".format(i.active())
+    print(len(list(i.scheduled().values())[0]))
+
+Print out Celery queue and active tasks::
+
+    from celery.task.control import inspect
+    i = inspect()
+    for celery, data in i.scheduled().items():
+        print("Instance {}".format(celery))
+        for task in data:
+            print(task)
+        print("Queued: {}".format(i.scheduled()))
+
+    print("Active: {}".format(i.active()))
+
+
+Dropping task queue
+-------------------
+
+First stop worker.
+
+Then start worker locally attacted to the terminal with --purge and it will drop all the messages::
+
+    celery worker -A websauna.system.task.celery.celery_app --ini production.ini --purge
+
+Stop with CTRL+C.
+
+Start worker again properly daemonized.

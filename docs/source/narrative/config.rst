@@ -83,6 +83,24 @@ Default: ``true``
 
 For more information see :py:mod:`websauna.system.model.sqlalchemyutcdatetime`.
 
+
+websauna.allowed_hosts
+----------------------
+
+Whitespace separated list of hostnames this site is allowed to respond.
+
+This is a security feature preventing direct IP access of sites.
+
+Set this to list of your production domain names::
+
+    websauna.allowed_hosts =
+        libertymusicstore.net
+        upload.libertymusicstore.net
+
+Default: ``localhost``.
+
+Feature: TODO
+
 Configuration variables from other packages
 ===========================================
 

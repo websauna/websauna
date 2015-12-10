@@ -4,7 +4,7 @@ from . import Resource as _Resource
 
 
 class Resource(_Resource):
-    """Map SQLAlchemy object to a traversable URL path.
+    """Maps one SQLAlchemy model instance to a traversable URL path.
 
     Describe how to display SQLAlchemy objects in breadcrumbs.
     """
@@ -15,7 +15,10 @@ class Resource(_Resource):
 
 
 class CRUD(_CRUD):
-    """CRUD controller utilizing admin interface permissions and templates."""
+    """SQLAlchemy CRUD controller.
+
+    A traversing endpoint which maps listing, add, edit and delete views for an SQLAlchemy model.
+    """
 
     def __init__(self, request:IRequest, model:type=None):
         """Create a CRUD root resource for a given model.
@@ -31,16 +34,23 @@ class CRUD(_CRUD):
         """Get the SQLAlchemy model instance we are managing."""
         return self.model
 
+    def get_dbsession(self):
+        """Override to use a different database session.
+
+        Default to ``request.dbsession``.
+        """
+        return self.request.dbsession
+
     def get_query(self):
         """Get SQLAlchemy Query object which we use to populate this listing.
 
         Views can specify their own queries - e.g. filter by user. This is just the default for everything.
         """
         model = self.get_model()
-        dbsession = self.request.dbsession
+        dbsession = self.get_dbsession()
         return dbsession.query(model)
 
-    def fetch_object(self, dbsession, id):
+    def fetch_object(self, id):
         """Pull a raw object from the database.
 
         Use the ``get_query()`` to get the query base and then return the object with matching id.
@@ -54,7 +64,7 @@ class CRUD(_CRUD):
         column_instance = getattr(model, column_name, None)
         assert column_instance, "Model {} does not define column/attribute {} used for CRUD resource traversing".format(self.model, column_name)
 
-        obj = self.get_query(dbsession).filter(column_instance==id).first()
+        obj = self.get_query().filter(column_instance==id).first()
         if not obj:
             raise KeyError("Object id {} was not found for CRUD {} using model {}".format(id, self, model))
 

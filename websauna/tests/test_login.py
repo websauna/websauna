@@ -1,12 +1,10 @@
 import transaction
-
 from websauna.tests.utils import create_user
 from websauna.tests.utils import EMAIL
 from websauna.tests.utils import PASSWORD
 
 
-
-def get_user():
+def get_user(dbsession):
     from websauna.system.user.models import User
     return dbsession.query(User).get(1)
 
@@ -39,7 +37,7 @@ def test_login_inactive(web_server, browser, dbsession):
         create_user(dbsession)
 
     with transaction.manager:
-        user = get_user()
+        user = get_user(dbsession)
         user.enabled = False
         assert not user.can_login()
 
@@ -89,7 +87,7 @@ def test_last_login_ip(web_server, browser, dbsession):
         create_user(dbsession)
 
     with transaction.manager:
-        user = get_user()
+        user = get_user(dbsession)
         assert not user.last_login_ip
 
     b = browser
@@ -104,9 +102,8 @@ def test_last_login_ip(web_server, browser, dbsession):
     b.find_by_name("Log_in").click()
 
     with transaction.manager:
-        user = get_user()
+        user = get_user(dbsession)
         assert user.last_login_ip == "127.0.0.1"
-
 
 
 def test_forget_password(web_server, browser, dbsession):
@@ -130,7 +127,7 @@ def test_forget_password(web_server, browser, dbsession):
     assert b.is_text_present("Please check your email")
 
     with transaction.manager:
-        user = get_user()
+        user = get_user(dbsession)
         activation_code = user.activation.code
 
     b.visit("{}/reset-password/{}".format(web_server, activation_code))

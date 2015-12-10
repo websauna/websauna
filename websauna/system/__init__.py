@@ -13,7 +13,7 @@ from pyramid.settings import asbool
 
 from pyramid_mailer.interfaces import IMailer
 from pyramid_deform import configure_zpt_renderer
-
+from websauna.system.admin.modeladmin import configure_model_admin
 from websauna.system.user.interfaces import IAuthomatic, ISocialLoginMapper
 from websauna.utils.configincluder import IncludeAwareConfigParser
 
@@ -305,10 +305,14 @@ class Initializer:
         from websauna.system.admin import subscribers
         from websauna.system.admin.admin import Admin
         from websauna.system.admin.interfaces import IAdmin
+        from websauna.system.admin.interfaces import IAdmin
 
         # Register default Admin provider
         config = self.config
         config.registry.registerUtility(Admin, IAdmin)
+
+        # Set up model lookup
+        configure_model_admin(config)
 
         config.add_jinja2_search_path('websauna.system.admin:templates', name='.html')
         config.add_jinja2_search_path('websauna.system.admin:templates', name='.txt')
@@ -369,6 +373,7 @@ class Initializer:
         import websauna.system.user.admins
         import websauna.system.user.adminviews
         self.config.scan(websauna.system.user.admins)
+        self.config.scan(websauna.system.user.adminviews)
 
     def configure_notebook(self, settings):
         """Setup pyramid_notebook integration."""
@@ -447,14 +452,15 @@ class Initializer:
         self.configure_panels(settings)
         self.configure_sitemap(settings)
 
+        # Website administration
+        self.configure_admin(settings)
+
         # Sessions and users
         self.configure_sessions(settings, _secrets)
         self.configure_user(settings, _secrets)
         self.configure_user_admin(settings)
         self.configure_crud(settings)
 
-        # Website administration
-        self.configure_admin(settings)
         self.configure_notebook(settings)
 
         self.configure_instrumented_models(settings)

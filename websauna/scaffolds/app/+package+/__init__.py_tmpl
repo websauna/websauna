@@ -1,0 +1,21 @@
+"""App entry point and configuration."""
+
+import websauna.system
+from websauna.utils.configincluder import IncludeAwareConfigParser
+
+
+class Initializer(websauna.system.Initializer):
+    """An initialization configuration used for starting {{project}}.
+
+    Override parent class methods to customize application behavior.
+    """
+
+    def run(self, settings):
+        super(Initializer, self).run(settings)
+
+
+def main(global_config, **settings):
+    settings = IncludeAwareConfigParser.retrofit_settings(global_config)
+    init = Initializer(global_config, settings)
+    init.run(settings)
+    return init.make_wsgi_app()

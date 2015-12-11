@@ -105,7 +105,11 @@ setup(
 
             #: Scheduler integration test entry point
             'scheduler_test=websauna.tests.test_scheduler:main',
+        ],
 
+        'pyramid.scaffold': [
+            "websauna_app=websauna.scaffolds:App",
+            "websauna_addon=websauna.scaffolds:Addon",
         ]
     },
 )

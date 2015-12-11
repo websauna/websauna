@@ -1,0 +1,33 @@
+###
+# app configuration
+# http://docs.pylonsproject.org/projects/pyramid/en/1.5-branch/narr/environment.html
+###
+
+[includes]
+include_ini_files =
+    resource://{{project}}/base.ini
+    resource://websauna/development.ini
+    resource://websauna/base.ini
+
+[app:main]
+use = egg:{{project}}
+websauna.init = {{project}}.Initializer
+websauna.site_id = development
+websauna.site_email_prefix = [{{project}} DEV]
+
+sqlalchemy.url = postgresql://localhost/{{project}}
+
+websauna.secrets_file = resource://{{project}}/development-secrets.ini
+websauna.cachebust = false
+
+# No websockets proxies for localhost
+pyramid_notebook.websocket_proxy =
+pyramid_notebook.alternative_domain =
+
+[celery]
+CELERY_ALWAYS_EAGER = true
+
+[server:main]
+use = egg:waitress#main
+host = 0.0.0.0
+port = 6543

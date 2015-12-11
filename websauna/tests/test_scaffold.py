@@ -1,16 +1,23 @@
 """Test different scaffold operations."""
 import subprocess
 import time
+from contextlib import closing
 
 import os
+import pg8000
 import shutil
 
 import pytest
+import testing
 from tempfile import mkdtemp
 
 
 #: Python command for creating a virtualenv (platform specific)
+from testing.postgresql import Postgresql
+
 VIRTUALENV = ["virtualenv-3.4", "venv"]
+
+PSQL = "psql"
 
 
 def print_subprocess_fail(worker, cmdline):
@@ -79,6 +86,37 @@ def execute_venv_command(cmdline, folder, timeout=5.0, wait_and_see=None):
     return worker.returncode
 
 
+def create_psq_db(request, dbname):
+    """py.test fixture to createdb and destroy postgresql database on demand."""
+
+    with closing(pg8000.connect(database='postgres')) as conn:
+        conn.autocommit = True
+        with closing(conn.cursor()) as cursor:
+            cursor.execute("SELECT COUNT(*) FROM pg_database WHERE datname='{}'".format(dbname))
+
+            if cursor.fetchone()[0] == 1:
+                # Prior interrupted test run
+                cursor.execute('DROP DATABASE ' + dbname)
+
+            cursor.execute('CREATE DATABASE ' + dbname)
+
+    def teardown():
+        with closing(pg8000.connect(database='postgres')) as conn:
+            conn.autocommit = True
+            with closing(conn.cursor()) as cursor:
+                cursor.execute("SELECT COUNT(*) FROM pg_database WHERE datname='{}'".format(dbname))
+                if cursor.fetchone()[0] == 1:
+                    cursor.execute('DROP DATABASE ' + dbname)
+
+    request.addfinalizer(teardown)
+
+
+@pytest.fixture()
+def dev_db(request):
+    """Create PostgreSQL database myapp_dev and return its connection information."""
+    return create_psq_db(request, "myapp_dev")
+
+
 @pytest.fixture(scope='module')
 def app_scaffold(request) -> str:
     """py.test fixture to create app scaffold.
@@ -91,6 +129,7 @@ def app_scaffold(request) -> str:
     websauna_folder = os.getcwd()
 
     execute_command(["pcreate", "-s", "websauna_app", "myapp"], folder)
+    execute_command(VIRTUALENV , content_folder)
     execute_command(VIRTUALENV , content_folder)
 
     # Install websauna
@@ -111,11 +150,9 @@ def app_scaffold(request) -> str:
     return content_folder
 
 
-def test_app_pserve(app_scaffold):
+def test_app_pserve(app_scaffold, dev_db):
     """Create an application and see if pserve starts. """
-
-    cmdline = ["pserve", "development.ini"]
-    execute_venv_command(cmdline, app_scaffold, wait_and_see=10.0)
+    execute_venv_command("pserve development.ini", app_scaffold, wait_and_see=10.0)
 
 
 def test_app_pytest(app_scaffold):
@@ -129,8 +166,9 @@ def test_app_sdist():
     """Create an application and see if sdist egg can be created. """
 
 
-def test_app_initializedb():
+def test_app_syncdb(app_scaffold, dev_db):
     """Create an application and see if database is correctly created."""
+    execute_venv_command("ws-sync-db development.ini", app_scaffold)
 
 
 def test_app_shell():

@@ -12,17 +12,13 @@ include_ini_files =
 [app:main]
 use = egg:{{project}}
 websauna.init = {{project}}.Initializer
-websauna.site_id = development
+websauna.site_id = {{project}}_dev
 websauna.site_email_prefix = [{{project}} DEV]
 
-sqlalchemy.url = postgresql://localhost/{{project}}
+sqlalchemy.url = postgresql://localhost/{{project}}_dev
 
 websauna.secrets_file = resource://{{project}}/development-secrets.ini
 websauna.cachebust = false
-
-# No websockets proxies for localhost
-pyramid_notebook.websocket_proxy =
-pyramid_notebook.alternative_domain =
 
 [celery]
 CELERY_ALWAYS_EAGER = true

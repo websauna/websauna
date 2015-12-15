@@ -1,12 +1,9 @@
-###
-# app configuration
-# http://docs.pylonsproject.org/projects/pyramid/en/1.5-branch/narr/environment.html
-###
+# Configuration for running pserve command on a local development machine
 
 [includes]
 include_ini_files =
-    resource://{{project}}/base.ini
     resource://websauna/development.ini
+    resource://{{project}}/base.ini
     resource://websauna/base.ini
 
 [app:main]
@@ -14,11 +11,8 @@ use = egg:{{project}}
 websauna.init = {{project}}.Initializer
 websauna.site_id = {{project}}_dev
 websauna.site_email_prefix = [{{project}} DEV]
-
 sqlalchemy.url = postgresql://localhost/{{project}}_dev
-
 websauna.secrets_file = resource://{{project}}/development-secrets.ini
-websauna.cachebust = false
 
 [celery]
 CELERY_ALWAYS_EAGER = true

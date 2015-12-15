@@ -1,16 +1,16 @@
 import os
 import sys
-from pyramid.paster import bootstrap
 
+import transaction
 from websauna.utils.configincluder import monkey_patch_paster_config_parser
+from websauna.system.devop.cmdline import init_websauna
+from websauna.system.model.meta import Base
 
 monkey_patch_paster_config_parser()
 
 from pyramid.paster import setup_logging
 
 from pyramid.scripts.common import parse_vars
-from websauna.system.model import DBSession
-from websauna.system.model import Base
 
 
 def usage(argv):
@@ -27,13 +27,13 @@ def main(argv=sys.argv):
     if len(argv) < 2:
         usage(argv)
     config_uri = argv[1]
-    options = parse_vars(argv[2:])
+    # options = parse_vars(argv[2:])
     setup_logging(config_uri)
 
-    bootstrap(config_uri, options=dict(sanity_check=False))
-
-    engine = DBSession.get_bind()
-    Base.metadata.create_all(engine)
+    request = init_websauna(config_uri)
+    with transaction.manager:
+        engine = request.dbsession.get_bind()
+        Base.metadata.create_all(engine)
 
 if __name__ == "__main__":
     main()

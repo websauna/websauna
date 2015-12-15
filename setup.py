@@ -68,14 +68,26 @@ setup(
         'pyramid-layout',
         "arrow",
         "tomb-routes",
+        'pyramid_deform',
+        "pyramid_tm",
+        "pyramid_debugtoolbar",
 
         # SQLAlchemy support
         "sqlalchemy",
         "alembic",
-        "typing",
+
+        # User management
+        "horus",
+        "authomatic",
+
+        # Python 3.4 typing
+        "backports.typing",
 
         # Needed by python_notebook etc. who call pyramid.paster module
-        "PasteDeploy"
+        "PasteDeploy",
+
+        # Console logging
+        "rainbow_logging_handler"
     ],
 
     # List additional groups of  dependencies here (e.g. development

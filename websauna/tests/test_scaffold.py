@@ -26,6 +26,7 @@ def print_subprocess_fail(worker, cmdline):
     print(worker.stderr.read().decode("utf-8"))
 
 
+
 def execute_command(cmdline, folder):
     """Run a command in a specific folder."""
     worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=folder)
@@ -77,13 +78,32 @@ def execute_venv_command(cmdline, folder, timeout=5.0, wait_and_see=None):
         worker.terminate()
         return 0
     else:
-        worker.wait(timeout=timeout)
+        try:
+            worker.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            print_subprocess_fail(worker, cmdline)
+            raise
 
     if worker.returncode != 0:
         print_subprocess_fail(worker, cmdline)
         raise AssertionError("venv command did not properly exit: {} in {}".format(cmdline, folder))
 
     return worker.returncode
+
+
+def preload_wheelhouse(folder:str):
+    """Speed up tests by loading Python packages from primed cache.
+
+    Use ``create_wheelhouse.bash`` to prime the cache.
+
+    :param folder: Temporary virtualenv installation
+    """
+    cache_folder = os.getcwd()
+
+    if os.path.exists(os.path.join(cache_folder, "wheelhouse")):
+        execute_venv_command("pip install {}/wheelhouse/*".format(cache_folder), folder, timeout=3*60)
+    else:
+        print("No preloaded Python package cache found")
 
 
 def create_psq_db(request, dbname):
@@ -130,14 +150,16 @@ def app_scaffold(request) -> str:
 
     execute_command(["pcreate", "-s", "websauna_app", "myapp"], folder)
     execute_command(VIRTUALENV , content_folder)
-    execute_command(VIRTUALENV , content_folder)
+
+    # Install cached PyPi packages
+    preload_wheelhouse(content_folder)
 
     # Install websauna
     # Try to run through all PyPi installation in 2 minutes
-    execute_venv_command("cd {} ; python setup.py develop".format(websauna_folder), content_folder, timeout=2*60)
+    execute_venv_command("cd {} ; python setup.py develop".format(websauna_folder), content_folder, timeout=5*60)
 
     # Now install the scaffold itself
-    execute_venv_command(["python", "setup.py", "develop"], content_folder, timeout=2*60)
+    execute_venv_command(["python", "setup.py", "develop"], content_folder, timeout=5*60)
 
     def teardown():
         pass

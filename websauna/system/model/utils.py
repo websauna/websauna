@@ -2,6 +2,7 @@ import os
 from uuid import UUID
 
 #: BBB Remove importers and move them to right place
+from sqlalchemy.ext.declarative import instrument_declarative
 from websauna.utils.time import now
 
 
@@ -21,3 +22,52 @@ def secure_uuid():
     * https://tools.ietf.org/html/rfc4122
     """
     return UUID(bytes=os.urandom(16), version=4)
+
+
+def attach_model_to_base(ModelClass:type, Base:type):
+    """Dynamically add a model to chosen SQLAlchemy Base class.
+
+    More flexibility is gained by not inheriting from SQLAlchemy declarative base and instead plugging in models during the configuration time more.
+
+    Directly inheritng from SQLAlchemy Base class has non-undoable side effects. All models automatically pollute SQLAlchemy namespace and may e.g. cause problems with conflicting table names. This also allows @declared_attr to access Pyramid registry.
+
+    Example how to use Pyramid registry in SQLAlchemy's declared attributes::
+
+        class SamplePluggableModel:
+            '''Demostrate pluggable model which gets a referred class from Pyramid config.'''
+            id = Column(Integer, primary_key=True)
+
+            def __init__(self, **kwargs):
+                # Default constructor
+                self.__dict__.update(kwargs)
+
+            @declared_attr
+            def owner(cls):
+                '''Refer to the configured user model.'''
+                from websauna.system.user.utils import get_user_class
+                config = cls.metadata.pyramid_config
+                User = get_user_class(config.registry)
+                return relationship(User, backref="referral_programs")
+
+            @declared_attr
+            def owner_id(cls):
+                '''Refer to user.id column'''
+                from websauna.system.user.utils import get_user_class
+                config = cls.metadata.pyramid_config
+                User = get_user_class(config.registry)
+                return Column(Integer, ForeignKey('{}.id'.format(User.__tablename__)))
+
+    Then you need to call in your Initializer::
+
+        from example import models
+        from websauna.system.model.meta import Base
+
+        attach_model_to_base(models.SamplePluggableModel, Base)
+
+    :param ModelClass: SQLAlchemy model class
+
+    :param Base: SQLAlchemy declarative Base for which model should belong to
+    """
+
+    instrument_declarative(ModelClass, Base._decl_class_registry, Base.metadata)
+

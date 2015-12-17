@@ -1,7 +1,6 @@
 """Websauna framework initialization."""
 import logging
 import os
-import transaction
 
 from pyramid.config import Configurator
 from pyramid.authentication import AuthTktAuthenticationPolicy
@@ -14,6 +13,7 @@ from pyramid.settings import asbool
 from pyramid_mailer.interfaces import IMailer
 from pyramid_deform import configure_zpt_renderer
 from websauna.system.admin.modeladmin import configure_model_admin
+from websauna.system.model.utils import attach_model_to_base
 from websauna.system.user.interfaces import IAuthomatic, ISocialLoginMapper
 from websauna.utils.configincluder import IncludeAwareConfigParser
 
@@ -104,9 +104,6 @@ class Initializer:
         self.config.registry.registerUtility(schemas.ResetPasswordSchema, IResetPasswordSchema)
 
         self.config.add_request_method(auth.get_user, 'user', reify=True)
-
-        # Pass the declarateive base for user models
-        return users_models.Base
 
     def configure_mailer(self, settings):
         """Configure outgoing email backend based on the INI settings."""
@@ -327,10 +324,6 @@ class Initializer:
         # Add templatecontext handler
         config.include(".admin.templatecontext")
 
-    def preconfigure_user(self, settings):
-        # self.configure_horus(settings)
-        pass
-
     def configure_forms(self, settings):
 
         # Add custom SQLAlchemy <-> Deform type mapping
@@ -347,14 +340,39 @@ class Initializer:
         from websauna.system.crud import views
         self.config.scan(views)
 
+    def configure_user_models(self, settings):
+        """Plug in user models.
+
+        Connect chosen user model to base class.
+
+        Override this to have no-op user models.
+        """
+        from websauna.system.user import models
+        from websauna.system.model.meta import Base
+
+        attach_model_to_base(models.User, Base)
+        attach_model_to_base(models.Group, Base)
+        attach_model_to_base(models.Activation, Base)
+        attach_model_to_base(models.UserGroup, Base)
+
     def configure_user(self, settings, secrets):
         """Configure user model, sign in and sign up subsystem."""
         from websauna.system.user import views
         from horus.resources import UserFactory
 
-        self.configure_authentication(settings, secrets)
-        self.configure_authomatic(settings, secrets)
+        # Configure user models base package
+        # TODO: Get rid of Horus
         self.configure_horus(settings)
+
+        self.configure_user_models(settings)
+
+        # Configure user models
+
+        # Configure authentication and
+        self.configure_authentication(settings, secrets)
+
+        # Configure social logins
+        self.configure_authomatic(settings, secrets)
 
         self.config.add_jinja2_search_path('websauna.system:user/templates', name='.html')
         self.config.add_jinja2_search_path('websauna.system:user/templates', name='.txt')
@@ -431,7 +449,6 @@ class Initializer:
 
         self.configure_logging(settings)
 
-        self.preconfigure_user(settings)
         self.configure_forms(settings)
 
         # Serving

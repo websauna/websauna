@@ -64,21 +64,33 @@ setup(
     install_requires=[
         'websauna.viewconfig',
         'pyramid_redis_sessions',
-        'pyramid-mailer',
         'pyramid-layout',
-        "arrow",
         "tomb-routes",
         'pyramid_deform',
-        "pyramid_tm",
         "pyramid_debugtoolbar",
+        "pyramid_jinja2",
 
-        # SQLAlchemy support
+        # Time handling
+        "arrow",
+        "pytz",
+
+        # SQLAlchemy and database support
         "sqlalchemy",
         "alembic",
+        "colanderalchemy",
+        "pyramid_tm",
+        "jsonpointer",
 
         # User management
         "horus",
         "authomatic",
+
+        # Email
+        'pyramid-mailer',
+        'premailer',
+
+        # Tasks
+        'pyramid_celery',
 
         # Python 3.4 typing
         "backports.typing",
@@ -115,7 +127,7 @@ setup(
         'paste.app_factory': [
             'main=websauna.system:main',
 
-            #: Scheduler integration test entry point
+            # Scheduler auomated test suite entry point
             'scheduler_test=websauna.tests.test_scheduler:main',
         ],
 

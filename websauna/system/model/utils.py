@@ -24,7 +24,7 @@ def secure_uuid():
     return UUID(bytes=os.urandom(16), version=4)
 
 
-def attach_model_to_base(ModelClass:type, Base:type):
+def attach_model_to_base(ModelClass:type, Base:type, ignore_reattach:bool=True):
     """Dynamically add a model to chosen SQLAlchemy Base class.
 
     More flexibility is gained by not inheriting from SQLAlchemy declarative base and instead plugging in models during the configuration time more.
@@ -67,7 +67,13 @@ def attach_model_to_base(ModelClass:type, Base:type):
     :param ModelClass: SQLAlchemy model class
 
     :param Base: SQLAlchemy declarative Base for which model should belong to
+
+    :param ignore_reattach: Do nothing if ``ModelClass`` is already attached to base. Base registry is effectively global. ``attach_model_to_base()`` may be called several times within the same process during unit tests runs. Complain only if we try to attach a different base.
     """
+
+    if ignore_reattach:
+         if '_decl_class_registry' in ModelClass.__dict__:
+            import pdb ; pdb.set_trace()
 
     instrument_declarative(ModelClass, Base._decl_class_registry, Base.metadata)
 

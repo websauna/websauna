@@ -1,12 +1,9 @@
 import transaction
 
+from websauna.system.user.models import User
 
 def test_user_subsystem(init, dbsession):
     """Load the default user models and see we create correponding tables right."""
-
-    # Load user model
-    User = init.user_models_module.User
-    assert User
 
     with transaction.manager:
         u = User(email="example@example.com")

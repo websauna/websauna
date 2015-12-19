@@ -1,4 +1,10 @@
-"""Test different scaffold operations."""
+"""Test different scaffold operations.
+
+Rerunning these tests can be greatly sped up by creating a local Python package cache (wheelhouse)::
+
+    bash websauna/tests/create_wheelhouse.bash
+
+"""
 import subprocess
 import time
 from contextlib import closing, contextmanager
@@ -64,7 +70,7 @@ def execute_venv_command(cmdline, folder, timeout=5.0, wait_and_see=None, assert
 
     cmdline = ". {}/venv/bin/activate ; {}".format(folder, cmdline)
 
-    print("Executing {} in {}".format(cmdline, folder))
+    # print("Executing {} in {}".format(cmdline, folder))
 
     worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=folder, shell=True)
 
@@ -188,10 +194,10 @@ def app_scaffold(request) -> str:
     execute_venv_command("pip install -e {}".format(content_folder), folder, timeout=5*60)
 
     def teardown():
-        pass
-        # if return_code != 0:
-            # Leave files around on a failure so you can explore what went wrong
-        #    shutil.rmtree(folder)
+        # Clean any processes who still think they want to stick around. Namely: ws-shell doesn't die
+
+        # This kills all processes referring to the temporary folder
+        subprocess.call("pkill -SIGKILL -f {}".format(folder), shell=True)
 
     request.addfinalizer(teardown)
 
@@ -204,7 +210,9 @@ def test_pserve(app_scaffold, dev_db):
     # User models are needed to start the web server
     execute_venv_command("cd myapp && ws-sync-db development.ini", app_scaffold)
 
-    execute_venv_command("cd myapp && pserve development.ini", app_scaffold, wait_and_see=3.0)
+    execute_venv_command("cd myapp && pserve development.ini --pid-file=test_pserve.pid", app_scaffold, wait_and_see=3.0)
+
+    execute_venv_command("cd myapp && pserve development.ini --stop-daemon --pid-file=test_pserve.pid", app_scaffold)
 
 
 def test_pytest(app_scaffold):
@@ -240,14 +248,23 @@ def test_migration(app_scaffold, dev_db):
         execute_venv_command("cd myapp && ws-alembic -c development.ini upgrade head", app_scaffold)
 
 
-def test_app_sanity_check_fail():
+def test_app_sanity_check_fail(app_scaffold, dev_db):
     """Create an application and see we don't start if migrations are not run."""
-    execute_venv_command("cd myapp && pserve development.ini", app_scaffold, assert_exit=3)
+    execute_venv_command("cd myapp && pserve development.ini", app_scaffold, assert_exit=1)
 
 
-def test_app_add_admin():
-    """Create an application and add an admin interface."""
+def test_dump_db(app_scaffold, dev_db):
+    """Test database dump."""
+    execute_venv_command("cd myapp && ws-sync-db development.ini", app_scaffold)
+    execute_venv_command("cd myapp && ws-dump-db development.ini", app_scaffold)
 
+
+def test_tweens(app_scaffold, dev_db):
+    """Test tweens command."""
+
+    # TODO: Tweens should not really depent on database, but let's fix this later
+    execute_venv_command("cd myapp && ws-sync-db development.ini", app_scaffold)
+    execute_venv_command("cd myapp && ws-tweens development.ini", app_scaffold)
 
 
 #: Migration test file

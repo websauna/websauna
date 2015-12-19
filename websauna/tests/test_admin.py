@@ -1,10 +1,7 @@
 import transaction
 
 from websauna.system.user.usermixin import init_empty_site
-from websauna.tests.utils import create_user
-
-EMAIL = "example@example.com"
-PASSWORD = "ToholamppiMadCowz585"
+from websauna.tests.utils import create_user, EMAIL, PASSWORD
 
 
 def test_enter_admin(web_server, browser, dbsession):

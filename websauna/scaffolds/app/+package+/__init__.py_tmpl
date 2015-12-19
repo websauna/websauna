@@ -10,6 +10,13 @@ class Initializer(websauna.system.Initializer):
     Override parent class methods to customize application behavior.
     """
 
+    def configure_static(self):
+        """Configure static asset serving and cache busting."""
+        super(Initializer, self).configure_static()
+
+        self.config.add_static_view('{{myapp}}-static', '{{myapp}}:static')
+        self.add_cache_buster("{{myapp}}:static/")
+
     def run(self, settings):
         super(Initializer, self).run(settings)
 

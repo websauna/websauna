@@ -55,7 +55,7 @@ from websauna.system.mail import send_templated_mail
 from . import usermixin
 from . import events
 from websauna.system.user.social import NotSatisfiedWithData
-from websauna.system.user.utils import get_authomatic, get_social_login_mapper
+from websauna.system.user.utils import get_authomatic, get_social_login_mapper, get_user_class
 from websauna.system.core import messages
 
 
@@ -110,7 +110,7 @@ def authenticated(request:Request, user:UserMixin, location:str=None) -> HTTPFou
 
     # See that our user model matches one we expect from the configuration
     registry = request.registry
-    User = registry.queryUtility(IUserClass)
+    User = get_user_class(registry)
     assert User
     assert isinstance(user, User)
 
@@ -270,11 +270,13 @@ class AuthController(horus_views.AuthController):
     def check_credentials(self, username, password):
         allow_email_auth = self.settings.get('horus.allow_email_auth', False)
 
-        user = self.User.get_user(self.request, username, password)
+        # Check login with username
+        User = get_user_class(self.request.registry)
+        user = User.get_user(self.request, username, password)
 
+        # Check login with email
         if allow_email_auth and not user:
-            user = self.User.get_by_email_password(
-                self.request, username, password)
+            user = User.get_by_email_password(self.request, username, password)
 
         if not user:
             raise AuthenticationFailure(_('Invalid username or password.'))
@@ -285,8 +287,7 @@ class AuthController(horus_views.AuthController):
                 _('Your account is not active, please check your e-mail.'))
 
         if not user.can_login():
-            raise AuthenticationFailure(
-                _('Account log in disabled.'))
+            raise AuthenticationFailure(_('Account log in disabled.'))
 
         return user
 

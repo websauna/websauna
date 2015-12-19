@@ -23,6 +23,23 @@ Configuration variables
 
 The following variables are available
 
+websauna.cachebust
+------------------
+
+Use Pyramid cache busting mechanism when serving static assets.
+
+This option controls whether or not static assets are served in production deployment or CDN mode.
+
+Enable this in production deployments to have never expiring URLs for all items referred by ``request.static_url()`` or ``{{ 'xxx'|static_url }}`` in templates.
+
+URLs are tagged by file MD5 hash. If the source asset file (CSS, JS image) changes a new URL is generated, invalidating the cache.
+
+Default:: ``False``.
+
+More info
+
+* http://docs.pylonsproject.org/projects/pyramid/en/1.6-branch/narr/assets.html#cache-busting-and-asset-overrides
+
 websauna.cache_max_age
 ----------------------
 
@@ -47,7 +64,7 @@ Example::
 
 
 websauna.global_config
----------------------------
+----------------------
 
 This is a reference to ``global_config`` object which is used to initialize Pyramid application. It is a dictionary. Example::
 
@@ -55,7 +72,7 @@ This is a reference to ``global_config`` object which is used to initialize Pyra
 
 
 websauna.sanity_check
---------------------------
+---------------------
 
 Perform database sanity check after the startup. This will check all models have corresponding tables and columns in the database and there are no unsynced models.
 

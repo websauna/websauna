@@ -2,16 +2,16 @@
 from pyramid.settings import aslist
 
 from pyramid.security import unauthenticated_userid
+from websauna.system.user.utils import get_user_class
 
 
 def get_user(request):
 
-    from horus.interfaces import IUserClass
-    userid = unauthenticated_userid(request)
-    user_class = request.registry.queryUtility(IUserClass)
+    user_id = unauthenticated_userid(request)
+    user_class = get_user_class(request.registry)
 
-    if userid is not None:
-        user = user_class.get_by_id(request, userid)
+    if user_id is not None:
+        user = user_class.get_by_id(request, user_id)
         if user and not user.can_login():
             # User account disabled while in mid-session
             return None
@@ -25,8 +25,7 @@ def find_groups(userid, request):
 
     dbsession = request.dbsession
 
-    from horus.interfaces import IUserClass
-    user_class = request.registry.queryUtility(IUserClass)
+    user_class = get_user_class(request.registry)
 
     # Read superuser names from the config
     superusers = aslist(request.registry.settings.get("websauna.superusers"))

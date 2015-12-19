@@ -16,8 +16,10 @@ PASSWORD = "ToholamppiMadCowz585"
 
 
 def create_user(dbsession, email=EMAIL, password=PASSWORD, admin=False):
+
     from websauna.system.user.models import User
     from websauna.system.user.models import Group
+
     user = User(email=email, password=password)
     user.user_registration_source = User.USER_MEDIA_DUMMY
     dbsession.add(user)

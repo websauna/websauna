@@ -5,15 +5,10 @@ from contextlib import closing
 
 import os
 import pg8000
-import shutil
 
 import pytest
-import testing
 from tempfile import mkdtemp
 
-
-#: Python command for creating a virtualenv (platform specific)
-from testing.postgresql import Postgresql
 
 VIRTUALENV = ["virtualenv-3.4", "venv"]
 
@@ -67,6 +62,8 @@ def execute_venv_command(cmdline, folder, timeout=5.0, wait_and_see=None):
         cmdline = " ".join(cmdline)
 
     cmdline = ". {}/venv/bin/activate ; {}".format(folder, cmdline)
+
+    print("Executing {} in {}".format(cmdline, folder))
 
     worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=folder, shell=True)
 
@@ -133,7 +130,7 @@ def create_psq_db(request, dbname):
 
 @pytest.fixture()
 def dev_db(request):
-    """Create PostgreSQL database myapp_dev and return its connection information."""
+    """Create PostgreSQL database myapcdp_dev and return its connection information."""
     return create_psq_db(request, "myapp_dev")
 
 
@@ -142,24 +139,28 @@ def app_scaffold(request) -> str:
     """py.test fixture to create app scaffold.
 
     Create application and virtualenv for it. Run setup.py.
-    """
+
+    :return: Path to a temporary folder. In this folder there is `venv` folder and `myapp` folder.
+   """
 
     folder = mkdtemp(prefix="websauna_test_")
-    content_folder = os.path.join(folder, "myapp")
+
     websauna_folder = os.getcwd()
 
-    execute_command(["pcreate", "-s", "websauna_app", "myapp"], folder)
-    execute_command(VIRTUALENV , content_folder)
+    execute_command(VIRTUALENV, folder)
 
     # Install cached PyPi packages
-    preload_wheelhouse(content_folder)
+    preload_wheelhouse(folder)
 
     # Install websauna
-    # Try to run through all PyPi installation in 2 minutes
-    execute_venv_command("cd {} ; python setup.py develop".format(websauna_folder), content_folder, timeout=5*60)
+    execute_venv_command("cd {} ; pip install -e .".format(websauna_folder), folder, timeout=5*60)
 
-    # Now install the scaffold itself
-    execute_venv_command(["python", "setup.py", "develop"], content_folder, timeout=5*60)
+    # Create scaffold
+    execute_venv_command("pcreate -s websauna_app myapp", folder)
+
+    # Instal package created by scaffold
+    content_folder = os.path.join(folder, "myapp")
+    execute_venv_command("pip install -e {}".format(content_folder), folder, timeout=5*60)
 
     def teardown():
         pass
@@ -169,7 +170,7 @@ def app_scaffold(request) -> str:
 
     request.addfinalizer(teardown)
 
-    return content_folder
+    return folder
 
 
 def test_app_pserve(app_scaffold, dev_db):
@@ -190,7 +191,7 @@ def test_app_sdist():
 
 def test_app_syncdb(app_scaffold, dev_db):
     """Create an application and see if database is correctly created."""
-    execute_venv_command("ws-sync-db development.ini", app_scaffold)
+    execute_venv_command("cd myapp && ws-sync-db development.ini", app_scaffold)
 
 
 def test_app_shell():

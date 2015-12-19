@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declared_attr
 
 from hem.text import pluralize
 from horus import models as horus_models
-
+from sqlalchemy.ext.declarative.base import _declarative_constructor
 from . import usermixin
 
 
@@ -13,9 +13,7 @@ class User(usermixin.UserMixin, horus_models.UserMixin):
     # In PSQL "user", the automatically generated table name, is a reserved word
     __tablename__ = "users"
 
-    # Default constructor
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
+    __init__ = _declarative_constructor
 
     @property
     def last_login_date(self):
@@ -39,9 +37,7 @@ class User(usermixin.UserMixin, horus_models.UserMixin):
 
 class Group(usermixin.GroupMixin, horus_models.GroupMixin):
 
-    # Default constructor
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
+    __init__ = _declarative_constructor
 
     # Fix SAWarning: Unmanaged access of declarative attribute __tablename__ from non-mapped class ...
     @declared_attr
@@ -62,8 +58,7 @@ class UserGroup(horus_models.UserGroupMixin):
     __tablename__ = "usergroup"
 
     # Default constructor
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
+    __init__ = _declarative_constructor
 
     @declared_attr
     def user_id(self):
@@ -94,8 +89,8 @@ class Activation(horus_models.ActivationMixin):
     __tablename__ = "activation"
 
     # Default constructor
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
+    __init__ = _declarative_constructor
+
 
 
 

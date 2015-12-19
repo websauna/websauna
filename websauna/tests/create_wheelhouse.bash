@@ -6,6 +6,7 @@
 
 set -e
 rm -rf /tmp/wheelhouse-venv
+rm -rf wheelhouse
 virtualenv-3.4 --no-site-packages /tmp/wheelhouse-venv
 source /tmp/wheelhouse-venv/bin/activate
 pip install .

@@ -75,6 +75,7 @@ setup(
         "pytz",
 
         # SQLAlchemy and database support
+        "psycopg2",
         "sqlalchemy",
         "alembic",
         "colanderalchemy",
@@ -96,6 +97,7 @@ setup(
         "backports.typing",
 
         # Needed by python_notebook etc. who call pyramid.paster module
+        "pyramid_notebook",
         "PasteDeploy",
 
         # Console logging

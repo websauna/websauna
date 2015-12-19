@@ -7,7 +7,7 @@ websauna.site_url = http://localhost:6543
 websauna.site_author = {{project}} team
 websauna.site_id = {{project}}
 mail.default_sender = no-reply@example.com
-websauna.user_models_module = {{project}}.usermodels
+websauna.user_models_module = websauna.system.user.models
 
 
 

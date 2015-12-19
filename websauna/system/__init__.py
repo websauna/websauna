@@ -1,7 +1,7 @@
 """Websauna framework initialization."""
 import logging
 import os
-
+from horus import IUserClass
 from pyramid.config import Configurator
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
@@ -61,6 +61,20 @@ class Initializer:
         else:
             return int(cache_max_age)
 
+    def add_cache_buster(self, asset_spec:str):
+        """Adds configured cache busting capability to a given static assets.
+
+        You need to call this for every added ``config.add_static_view()``.
+
+        Override this to customize cache busting mechanism on your site. The default implementation uses ``PathSegmentMd5CacheBuster``.
+        """
+
+        from pyramid.static import PathSegmentMd5CacheBuster
+
+        cachebust = asbool(self.settings.get("websauna.cachebust"))
+        if cachebust:
+            self.config.add_cache_buster(asset_spec, PathSegmentMd5CacheBuster())
+
     def configure_logging(self, settings):
         """Create and set Pyramid debug logger.
 
@@ -88,17 +102,10 @@ class Initializer:
         registry = self.config.registry
         registry.registerUtility(None, IDBSession)
 
-        resolver = DottedNameResolver()
-        self.user_models_module = users_models = resolver.resolve(settings["websauna.user_models_module"])
-
-        # Mark activate user and group class
-        registry.registerUtility(users_models.User, IUserClass)
-        registry.registerUtility(users_models.Group, IGroupClass)
-
         # self.config.include("horus")
         horus_init.includeme(self.config)
 
-        self.config.scan_horus(users_models)
+        # self.config.scan_horus(users_models)
         self.config.registry.registerUtility(schemas.RegisterSchema, IRegisterSchema)
         self.config.registry.registerUtility(schemas.LoginSchema, ILoginSchema)
         self.config.registry.registerUtility(schemas.ResetPasswordSchema, IResetPasswordSchema)
@@ -274,13 +281,15 @@ class Initializer:
         By default this is not configured and nothing is done.
         """
 
-    def configure_static(self, settings):
+    def configure_static(self):
         """Configure static asset serving and cache busting.
+
+        By default we serve only core Websauna assets. Override this to add more static asset declarations to your app.
 
         http://docs.pylonsproject.org/projects/pyramid/en/1.6-branch/narr/assets.html#static-assets-section
         """
-        cachebust = asbool(self.settings.get("websauna.cachebust"))
-        self.config.add_static_view('websauna-static', 'websauna.system:static', cachebust=cachebust)
+        self.config.add_static_view('websauna-static', 'websauna.system:static')
+        self.add_cache_buster("websauna.system:static/")
 
     def configure_sessions(self, settings, secrets):
         """Configure session storage."""
@@ -349,11 +358,21 @@ class Initializer:
         """
         from websauna.system.user import models
         from websauna.system.model.meta import Base
+        from websauna.system.user.interfaces import IGroupClass, IUserClass
+        from horus.interfaces import IActivationClass
 
         attach_model_to_base(models.User, Base)
         attach_model_to_base(models.Group, Base)
         attach_model_to_base(models.Activation, Base)
         attach_model_to_base(models.UserGroup, Base)
+
+        # Mark active user and group class
+        registry = self.config.registry
+        registry.registerUtility(models.User, IUserClass)
+        registry.registerUtility(models.Group, IGroupClass)
+
+        # TODO: Get rid of Horus
+        registry.registerUtility(models.Activation, IActivationClass)
 
     def configure_user(self, settings, secrets):
         """Configure user model, sign in and sign up subsystem."""
@@ -365,8 +384,6 @@ class Initializer:
         self.configure_horus(settings)
 
         self.configure_user_models(settings)
-
-        # Configure user models
 
         # Configure authentication and
         self.configure_authentication(settings, secrets)
@@ -449,11 +466,10 @@ class Initializer:
 
         self.configure_logging(settings)
 
-        self.configure_forms(settings)
-
         # Serving
         self.configure_templates()
-        self.configure_static(settings)
+        self.configure_forms(settings)
+        self.configure_static()
 
         # Email
         self.configure_mailer(settings)

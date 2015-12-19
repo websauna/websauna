@@ -14,8 +14,8 @@ class Initializer(websauna.system.Initializer):
         """Configure static asset serving and cache busting."""
         super(Initializer, self).configure_static()
 
-        self.config.add_static_view('{{myapp}}-static', '{{myapp}}:static')
-        self.add_cache_buster("{{myapp}}:static/")
+        self.config.add_static_view('{{project}}-static', '{{project}}:static')
+        self.add_cache_buster("{{project}}:static/")
 
     def run(self, settings):
         super(Initializer, self).run(settings)

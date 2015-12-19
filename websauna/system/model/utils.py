@@ -73,7 +73,8 @@ def attach_model_to_base(ModelClass:type, Base:type, ignore_reattach:bool=True):
 
     if ignore_reattach:
          if '_decl_class_registry' in ModelClass.__dict__:
-            import pdb ; pdb.set_trace()
+            assert ModelClass._decl_class_registry == Base._decl_class_registry, "Tried to attach to a different Base"
+            return
 
     instrument_declarative(ModelClass, Base._decl_class_registry, Base.metadata)
 

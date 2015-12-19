@@ -1,7 +1,7 @@
 """Websauna framework initialization."""
 import logging
 import os
-from horus import IUserClass
+
 from pyramid.config import Configurator
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
@@ -14,7 +14,6 @@ from pyramid_mailer.interfaces import IMailer
 from pyramid_deform import configure_zpt_renderer
 from websauna.system.admin.modeladmin import configure_model_admin
 from websauna.system.model.utils import attach_model_to_base
-from websauna.system.user.interfaces import IAuthomatic, ISocialLoginMapper
 from websauna.utils.configincluder import IncludeAwareConfigParser
 
 
@@ -69,11 +68,18 @@ class Initializer:
         Override this to customize cache busting mechanism on your site. The default implementation uses ``PathSegmentMd5CacheBuster``.
         """
 
-        from pyramid.static import PathSegmentMd5CacheBuster
+        try:
+            # Pyramid 1.6b3+
+            from pyramid.static import PathSegmentMd5CacheBuster
+            BusterClass = PathSegmentMd5CacheBuster
+        except ImportError:
+            # Pyramid 1.6b3
+            from pyramid.static import QueryStringCacheBuster
+            BusterClass = QueryStringCacheBuster
 
         cachebust = asbool(self.settings.get("websauna.cachebust"))
         if cachebust:
-            self.config.add_cache_buster(asset_spec, PathSegmentMd5CacheBuster())
+            self.config.add_cache_buster(asset_spec, BusterClass())
 
     def configure_logging(self, settings):
         """Create and set Pyramid debug logger.
@@ -185,6 +191,7 @@ class Initializer:
         # Add OAuth 2 generic endpoint
 
         import authomatic
+        from websauna.system.user.interfaces import IAuthomatic, ISocialLoginMapper
 
         self.config.add_route('login_social', '/login/{provider_name}')
 

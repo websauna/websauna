@@ -62,6 +62,7 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
+        'pyramid>=1.6b3',
         'websauna.viewconfig',
         'pyramid_redis_sessions',
         'pyramid-layout',

@@ -7,7 +7,7 @@ from websauna.utils.configincluder import IncludeAwareConfigParser
 
 
 # We need to monkey-patch Alembic ConfigParser
-from alembic import compat
+from alembic.util import compat
 compat.SafeConfigParser = IncludeAwareConfigParser
 
 def main():

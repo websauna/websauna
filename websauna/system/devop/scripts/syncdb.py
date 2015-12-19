@@ -27,7 +27,6 @@ def main(argv=sys.argv):
     if len(argv) < 2:
         usage(argv)
     config_uri = argv[1]
-    # options = parse_vars(argv[2:])
     setup_logging(config_uri)
 
     request = init_websauna(config_uri)

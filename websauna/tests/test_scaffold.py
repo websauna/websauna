@@ -1,13 +1,12 @@
 """Test different scaffold operations."""
 import subprocess
 import time
-from contextlib import closing
-
+from contextlib import closing, contextmanager
 import os
-import pg8000
-
-import pytest
 from tempfile import mkdtemp
+
+import psycopg2
+import pytest
 
 
 VIRTUALENV = ["virtualenv-3.4", "venv"]
@@ -16,7 +15,7 @@ PSQL = "psql"
 
 
 def print_subprocess_fail(worker, cmdline):
-    print("pcreate output:")
+    print("{} output:".format(cmdline))
     print(worker.stdout.read().decode("utf-8"))
     print(worker.stderr.read().decode("utf-8"))
 
@@ -48,12 +47,14 @@ def execute_command(cmdline, folder):
     return worker.returncode
 
 
-def execute_venv_command(cmdline, folder, timeout=5.0, wait_and_see=None):
+def execute_venv_command(cmdline, folder, timeout=5.0, wait_and_see=None, assert_exit=0):
     """Run a command in a specific folder using virtualenv created there.
 
     Assume virtualenv is under ``venv`` folder.
 
     :param wait_and_see: Wait this many seconds to see if app starts up.
+
+    :param assert_exit: Assume exit code is this
     """
 
     assert os.path.exists(os.path.join(folder, "venv", "bin", "activate"))
@@ -69,10 +70,14 @@ def execute_venv_command(cmdline, folder, timeout=5.0, wait_and_see=None):
 
     if wait_and_see is not None:
         time.sleep(wait_and_see)
+        worker.poll()
+
         if worker.returncode is not None:
+            # Return code is set if the worker dies within the timeout
             print_subprocess_fail(worker, cmdline)
             raise AssertionError("could not start server like app: {}".format(cmdline))
-        worker.terminate()
+
+        worker.kill()
         return 0
     else:
         try:
@@ -81,9 +86,9 @@ def execute_venv_command(cmdline, folder, timeout=5.0, wait_and_see=None):
             print_subprocess_fail(worker, cmdline)
             raise
 
-    if worker.returncode != 0:
+    if worker.returncode != assert_exit:
         print_subprocess_fail(worker, cmdline)
-        raise AssertionError("venv command did not properly exit: {} in {}".format(cmdline, folder))
+        raise AssertionError("venv command did not properly exit: {} in {}. Got exit code {}, assumed {}".format(cmdline, folder, worker.returncode, assert_exit))
 
     return worker.returncode
 
@@ -106,7 +111,7 @@ def preload_wheelhouse(folder:str):
 def create_psq_db(request, dbname):
     """py.test fixture to createdb and destroy postgresql database on demand."""
 
-    with closing(pg8000.connect(database='postgres')) as conn:
+    with closing(psycopg2.connect(database='postgres')) as conn:
         conn.autocommit = True
         with closing(conn.cursor()) as cursor:
             cursor.execute("SELECT COUNT(*) FROM pg_database WHERE datname='{}'".format(dbname))
@@ -118,14 +123,34 @@ def create_psq_db(request, dbname):
             cursor.execute('CREATE DATABASE ' + dbname)
 
     def teardown():
-        with closing(pg8000.connect(database='postgres')) as conn:
+        with closing(psycopg2.connect(database='postgres')) as conn:
             conn.autocommit = True
             with closing(conn.cursor()) as cursor:
+
+                # http://blog.gahooa.com/2010/11/03/how-to-force-drop-a-postgresql-database-by-killing-off-connection-processes/
+                cursor.execute("SELECT pg_terminate_backend(pid) from pg_stat_activity where datname='{}';".format(dbname))
+                conn.commit()
                 cursor.execute("SELECT COUNT(*) FROM pg_database WHERE datname='{}'".format(dbname))
                 if cursor.fetchone()[0] == 1:
                     cursor.execute('DROP DATABASE ' + dbname)
 
     request.addfinalizer(teardown)
+
+
+@contextmanager
+def replace_file(path:str, content:str):
+    """A context manager to temporary swap the content of a file.
+
+    :param path: Path to the file
+    :param content: New content as a text
+    """
+    backup = open(path, "rt").read()
+    open(path, "wt").write(content)
+
+    try:
+        yield None
+    finally:
+        open(path, "wt").write(backup)
 
 
 @pytest.fixture()
@@ -173,20 +198,23 @@ def app_scaffold(request) -> str:
     return folder
 
 
-def test_app_pserve(app_scaffold, dev_db):
+def test_pserve(app_scaffold, dev_db):
     """Create an application and see if pserve starts. """
-    execute_venv_command("pserve development.ini", app_scaffold, wait_and_see=10.0)
+
+    # User models are needed to start the web server
+    execute_venv_command("cd myapp && ws-sync-db development.ini", app_scaffold)
+
+    execute_venv_command("cd myapp && pserve development.ini", app_scaffold, wait_and_see=3.0)
 
 
-def test_app_pytest(app_scaffold):
+def test_pytest(app_scaffold):
     """Create an application and see if py.test tests pass. """
-
-    cmdline = ["py.test", "--ini", "test.ini", "myapp"]
-    execute_venv_command(cmdline, app_scaffold)
+    execute_venv_command("py.test --ini test.ini myapp/myapp/tests", app_scaffold)
 
 
-def test_app_sdist():
+def test_sdist(app_scaffold):
     """Create an application and see if sdist egg can be created. """
+    execute_venv_command("cd myapp && python setup.py sdist", app_scaffold)
 
 
 def test_app_syncdb(app_scaffold, dev_db):
@@ -194,17 +222,39 @@ def test_app_syncdb(app_scaffold, dev_db):
     execute_venv_command("cd myapp && ws-sync-db development.ini", app_scaffold)
 
 
-def test_app_shell():
+def test_shell(app_scaffold, dev_db):
     """Create an application and see if shell is started."""
+    execute_venv_command("cd myapp && ws-shell development.ini", app_scaffold, wait_and_see=2.0)
 
 
-def test_app_migration():
-    """Create an application and see if migrations are run."""
+def test_db_shell(app_scaffold, dev_db):
+    """Create an application and see if shell is started."""
+    execute_venv_command("cd myapp && ws-db-shell development.ini", app_scaffold, wait_and_see=2.0)
+
+
+def test_migration(app_scaffold, dev_db):
+    """Create an application, add a model and see if migrations are run."""
+
+    with replace_file(os.path.join(app_scaffold, "myapp", "myapp", "models.py"), MODELS_PY):
+        execute_venv_command("cd myapp && ws-alembic -c development.ini revision --autogenerate -m 'Added MyModel'", app_scaffold)
+        execute_venv_command("cd myapp && ws-alembic -c development.ini upgrade head", app_scaffold)
 
 
 def test_app_sanity_check_fail():
     """Create an application and see we don't start if migrations are not run."""
+    execute_venv_command("cd myapp && pserve development.ini", app_scaffold, assert_exit=3)
 
 
-def test_app_add_adminl():
+def test_app_add_admin():
     """Create an application and add an admin interface."""
+
+
+
+#: Migration test file
+MODELS_PY="""
+from websauna.system.model.meta import Base
+
+class MyModel(Base):
+    id = Column(Integer, autoincrement=True, primary_key=True)
+
+"""

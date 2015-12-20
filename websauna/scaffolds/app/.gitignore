@@ -1,0 +1,25 @@
+# Never commit our secrets files
+*secrets.ini
+
+# Default .gitignore with common Pythonic web ignores
+venv
+build/
+dist/
+*.pyc
+__pycache__
+*.egg
+*.egg-info
+
+# Logs
+*.log
+
+# Database dumbs
+*.sql
+*.sqlite
+
+# If somebody does npm local installs
+node_modules
+
+# Created by running a celery
+celerybeat*
+

@@ -28,6 +28,7 @@ Narrative developer guide
     narrative/form
     narrative/crud
     narrative/admin
+    narrative/notebook
     narrative/mail
     narrative/tweens
     narrative/commands

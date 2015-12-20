@@ -62,6 +62,9 @@ Example::
 
     Superuser permission allows executing arbitrary code on the server.
 
+More information
+
+* See :doc:`Notebook documentation <./notebook>`
 
 websauna.global_config
 ----------------------
@@ -116,7 +119,6 @@ Set this to list of your production domain names::
 
 Default: ``localhost``.
 
-Feature: TODO
 
 Configuration variables from other packages
 ===========================================
@@ -130,3 +132,5 @@ Configuration variables from other packages
 * sqlalchemy
 
 * Python logging
+
+* `pyramid_notebook <https://bitbucket.org/miohtama/pyramid_notebook>`_

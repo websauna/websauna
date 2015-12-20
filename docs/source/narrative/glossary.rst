@@ -12,6 +12,5 @@ Glossary
    Paste
      A Python framework for building web applications on the top of `WSGI protocol <https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface>`_. See `Paste documentation <https://pypi.python.org/pypi/Paste>`_ .
 
-   request
-     An object that represents an HTTP request, usually an instance of the
-     :class:`pyramid.request.Request` class.
+   IPython Notebook
+     A powerful browser based shell for a Python. Popular in scientific community and data analysis. See `IPython Notebook site <http://ipython.org/notebook.html>`_ for more information.

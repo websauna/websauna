@@ -180,6 +180,10 @@ def app_scaffold(request) -> str:
 
     execute_command(VIRTUALENV, folder)
 
+    # PIP cannot handle pip -install .[test]
+    # On some systems, the default PIP is too old and it doesn't seem to allow upgrade through wheelhouse
+    execute_venv_command("pip install -U pip", folder, timeout=5*60)
+
     # Install cached PyPi packages
     preload_wheelhouse(folder)
 
@@ -204,7 +208,7 @@ def app_scaffold(request) -> str:
     return folder
 
 
-def test_pserve(app_scaffold, dev_db):
+def test_pserve(app_scaffold, dev_db, browser):
     """Create an application and see if pserve starts. """
 
     # User models are needed to start the web server
@@ -212,11 +216,26 @@ def test_pserve(app_scaffold, dev_db):
 
     execute_venv_command("cd myapp && pserve development.ini --pid-file=test_pserve.pid", app_scaffold, wait_and_see=3.0)
 
-    execute_venv_command("cd myapp && pserve development.ini --stop-daemon --pid-file=test_pserve.pid", app_scaffold)
+    try:
+
+        # Make sure we get some sensible output from the server
+        b  = browser
+        b.visit("http://localhost:6543")
+
+        # See our scaffold home page loads and demo text is there
+        assert b.is_element_present_by_css("#demo-text")
+
+    finally:
+        execute_venv_command("cd myapp && pserve development.ini --stop-daemon --pid-file=test_pserve.pid", app_scaffold)
 
 
 def test_pytest(app_scaffold):
     """Create an application and see if py.test tests pass. """
+
+    # Install test requirements
+    execute_venv_command("cd myapp && pip install '.[test]'", app_scaffold, timeout=2*60)
+
+    # Execute one functional test
     execute_venv_command("py.test --ini test.ini myapp/myapp/tests", app_scaffold)
 
 

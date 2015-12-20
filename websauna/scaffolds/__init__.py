@@ -3,9 +3,32 @@ import binascii
 import os
 
 from pyramid.scaffolds import PyramidTemplate
+from pyramid.scaffolds.template import bytes_
+from pyramid.scaffolds.template import substitute_escaped_double_braces
+from pyramid.scaffolds.template import substitute_double_braces
+from pyramid.scaffolds.template import _add_except
+from pyramid.scaffolds.template import TypeMapper
+from pyramid.scaffolds.template import fsenc
+from pyramid.scaffolds.template import native_
 
 
-class App(PyramidTemplate):
+class JinjaFriendlyTemplate(PyramidTemplate):
+
+    def render_template(self, content, vars, filename=None):
+        """ Return a bytestring representing a templated file based on the input (content) and the variable names defined (vars).  ``filename`` is used for exception reporting."""
+        content = native_(content, fsenc)
+        try:
+            # Our hacky attempt to escape {{ and }} in Jinja templates so that this process doesn't mangle them
+            text = substitute_escaped_double_braces(substitute_double_braces(content, TypeMapper(vars)))
+            text = text.replace("{[", "{{")
+            text = text.replace("]}", "}}")
+            return bytes_(text, fsenc)
+        except Exception as e:
+            _add_except(e, ' in file %s' % filename)
+            raise
+
+
+class App(JinjaFriendlyTemplate):
     _template_dir = 'app'
     summary = 'Websauna app'
 
@@ -30,3 +53,5 @@ class App(PyramidTemplate):
 class Addon(PyramidTemplate):
     _template_dir = 'addon'
     summary = 'Websauna addon'
+
+

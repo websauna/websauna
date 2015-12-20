@@ -62,6 +62,15 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
+
+        # TODO: Open bug on Daemonocle, the package needs a new release without pinned down dependencies
+        # Remove these when Daemonocle gets a bump.
+        # https://github.com/jnrbsn/daemonocle/issues/8
+        # http://blog.ziade.org/2013/04/13/declaring-dependencies-in-python/
+        # 'click==2.5',
+        # 'psutil==2.1.1',
+
+        # Pyramid dependencies
         'pyramid>=1.6b3',
         'waitress',
         'websauna.viewconfig',
@@ -83,6 +92,7 @@ setup(
         "colanderalchemy",
         "pyramid_tm",
         "jsonpointer",
+        "pgcli",
 
         # User management
         "horus",
@@ -111,8 +121,8 @@ setup(
     # for example:
     # $ pip install -e .[dev,test]
     extras_require={
-        'dev': ['check-manifest', 'Sphinx', 'sphinx-autoapi'],
-        'test': ['pytest', 'coverage', 'waitress'],
+        'dev': ['check-manifest', 'Sphinx', 'sphinx-autoapi', 'setuptools_git', 'zest.releaser'],
+        'test': ['pytest', 'coverage', 'webtest', 'pytest-splinter'],
     },
 
     # To provide executable scripts, use entry points in preference to the

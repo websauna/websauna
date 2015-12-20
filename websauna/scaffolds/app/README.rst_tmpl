@@ -1,14 +1,37 @@
-{{project}} README
-==================
+This is a Python package for {{project}}.
 
-Getting Started
----------------
+Prerequisites
+=============
 
-- cd <directory containing this file>
+* PostgreSQL
 
-- $VENV/bin/python setup.py develop
+* Redis
 
-- $VENV/bin/initialize_{{project}}_db development.ini
+Installation
+============
 
-- $VENV/bin/pserve development.ini
+Install to a Python virtual environment using pip command in an editable mode.
+
+Example::
+
+    cd {{package}}  # This is the folder with setup.py file
+    virtualenv venv
+    source venv/bin/activate
+
+    pip install -e myapp
+
+Running the website
+===================
+
+Local development machine
+-------------------------
+
+Example (OSX / Homebrew)::
+
+    psql create {{package}}_dev
+    ws-sync-db development.ini
+    pserve -c development.ini --reload
+
+
+
 

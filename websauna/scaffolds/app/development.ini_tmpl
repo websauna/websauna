@@ -1,4 +1,4 @@
-# Configuration for running pserve command on a local development machine
+# pserve and command line configuration for a local development machine
 
 [includes]
 include_ini_files =

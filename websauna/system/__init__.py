@@ -27,7 +27,14 @@ class Initializer:
     Customizers can subclass this and override parts they want to change.
     """
 
-    def __init__(self, global_config, settings):
+    def __init__(self, global_config:dict, settings:dict=None):
+        """
+        :param global_config: Dictionary as passed to WSGI entry point.
+        :param settings: DEPRECATED. Extra settings as passed to WSGI entry point.
+        """
+
+        if not settings:
+            settings = IncludeAwareConfigParser.retrofit_settings(global_config)
 
         #: This is the refer    ence to the config file which started our process. We need to later pass it to Notebook.
         settings["websauna.global_config"] = global_config
@@ -277,7 +284,7 @@ class Initializer:
         from websauna.system.core.root import Root
         self.config.set_root_factory(Root.root_factory)
 
-    def configure_views(self, settings):
+    def configure_views(self):
         from websauna.system.core.views import home
         self.config.add_route('home', '/')
         self.config.scan(home)
@@ -462,12 +469,15 @@ class Initializer:
         self.config.registry.registerUtility(_secrets, secrets.ISecrets)
         return _secrets
 
-    def run(self, settings):
+    def run(self):
         """Run the initialization and prepare Pyramid subsystems.
 
         This is the main entry for ramping up a Websauna application.
         We go through various subsystem inits.
         """
+
+        # TODO: Remove passing settings to methods as an argument
+        settings = self.settings
 
         _secrets = self.read_secrets(settings)
 
@@ -475,8 +485,11 @@ class Initializer:
 
         # Serving
         self.configure_templates()
-        self.configure_forms(settings)
         self.configure_static()
+
+        # Forms
+        self.configure_forms(settings)
+        self.configure_crud(settings)
 
         # Email
         self.configure_mailer(settings)
@@ -488,7 +501,7 @@ class Initializer:
         # Core view and layout related
         self.configure_root()
         self.configure_error_views(settings)
-        self.configure_views(settings)
+        self.configure_views()
         self.configure_panels(settings)
         self.configure_sitemap(settings)
 
@@ -499,7 +512,6 @@ class Initializer:
         self.configure_sessions(settings, _secrets)
         self.configure_user(settings, _secrets)
         self.configure_user_admin(settings)
-        self.configure_crud(settings)
 
         self.configure_notebook(settings)
 
@@ -597,9 +609,8 @@ def get_init(global_config, settings, init_cls=None):
 def main(global_config, **settings):
     """Entry point for creating a Pyramid WSGI application."""
 
-    settings = IncludeAwareConfigParser.retrofit_settings(global_config)
-    init = Initializer(global_config, settings)
-    init.run(settings)
+    init = Initializer(global_config)
+    init.run()
 
     wsgi_app = init.make_wsgi_app()
 

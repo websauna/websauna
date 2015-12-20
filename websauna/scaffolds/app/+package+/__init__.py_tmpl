@@ -1,7 +1,6 @@
 """App entry point and configuration."""
 
 import websauna.system
-from websauna.utils.configincluder import IncludeAwareConfigParser
 
 
 class Initializer(websauna.system.Initializer):
@@ -13,16 +12,32 @@ class Initializer(websauna.system.Initializer):
     def configure_static(self):
         """Configure static asset serving and cache busting."""
         super(Initializer, self).configure_static()
+py.test
+        self.config.add_static_view('{{package}}-static', '{{package}}:static')
+        self.add_cache_buster("{{package}}:static/")
 
-        self.config.add_static_view('{{project}}-static', '{{project}}:static')
-        self.add_cache_buster("{{project}}:static/")
+    def configure_templates(self):
+        """Include our package templates folder in Jinja 2 configuration."""
+        super(Initializer, self).configure_templates()
 
-    def run(self, settings):
-        super(Initializer, self).run(settings)
+        self.config.add_jinja2_search_path('{{package}}:templates', name='.html', prepend=True)  # HTML templates for pages
+        self.config.add_jinja2_search_path('{{package}}:templates', name='.txt', prepend=True)  # Plain text email templates (if any)
+        self.config.add_jinja2_search_path('{{package}}:templates', name='.xml', prepend=True)  # Sitemap and misc XML files (if any)
+
+    def configure_views(self):
+        """Configure views for your application.
+
+        Let the config scanner to pick ``@simple_route`` definitions from scanned modules. Alternative you can call ``config.add_route()`` and ``config.add_view()`` here.
+        """
+        # We override this method, so that we route home to our home screen, not Websauna default one
+        from . import views
+        self.config.scan(views)
+
+    def run(self):
+        super(Initializer, self).run()
 
 
 def main(global_config, **settings):
-    settings = IncludeAwareConfigParser.retrofit_settings(global_config)
-    init = Initializer(global_config, settings)
-    init.run(settings)
+    init = Initializer(global_config)
+    init.run()
     return init.make_wsgi_app()

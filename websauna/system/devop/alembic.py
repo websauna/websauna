@@ -1,4 +1,12 @@
-"""Support for Alembic SQL migrations."""
+"""Support for Alembic SQL migrations.
+
+1. Each Python package needs to get its own alembic_history table
+
+2. In "objects to consider" function we resolve the object's package and compare whether it is the package for which we try to create migrations for
+
+3. All migration scripts live inside the package, in alembic/ folder next to setup.py
+
+"""
 import os
 import logging
 

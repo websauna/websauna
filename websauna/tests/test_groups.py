@@ -10,6 +10,7 @@ GROUP_NAME = "Sample Group"
 def test_add_group(web_server, browser, dbsession):
     """Create a new group through admin interface."""
 
+    import pdb ; pdb.set_trace()
     b = browser
     create_logged_in_user(dbsession, web_server, browser, admin=True)
 

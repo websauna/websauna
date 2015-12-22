@@ -120,6 +120,24 @@ Set this to list of your production domain names::
 Default: ``localhost``.
 
 
+websauna.error_test_trigger
+---------------------------
+
+If set enable a view at path ``/error-trigger`` that generates a runtime error.
+
+You can use this view to generate an error and see that your logging and error monitoring system functions correctly.
+
+Default: ``False``.
+
+websauna.test_web_server_port
+-----------------------------
+
+A port where to run the test server for functional tests.
+
+This is used by ``web_server`` py.test test fixture.
+
+Default: ``8521``.
+
 Configuration variables from other packages
 ===========================================
 

@@ -24,7 +24,7 @@ def test_backup(dbsession, ini_settings):
     with transaction.manager:
 
         init = get_init(dict(__file__=ini_settings["_ini_file"]), ini_settings)
-        init.run(ini_settings)
+        init.run()
 
         testing.setUp(registry=init.config.registry)
 

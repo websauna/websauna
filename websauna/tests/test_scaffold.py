@@ -70,7 +70,7 @@ def execute_venv_command(cmdline, folder, timeout=5.0, wait_and_see=None, assert
 
     cmdline = ". {}/venv/bin/activate ; {}".format(folder, cmdline)
 
-    # print("Executing {} in {}".format(cmdline, folder))
+    print("Executing {} in {}".format(cmdline, folder))
 
     worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=folder, shell=True)
 
@@ -165,6 +165,11 @@ def dev_db(request):
     return create_psq_db(request, "myapp_dev")
 
 
+@pytest.fixture()
+def test_db(request):
+    return create_psq_db(request, "myapp_test")
+
+
 @pytest.fixture(scope='module')
 def app_scaffold(request) -> str:
     """py.test fixture to create app scaffold.
@@ -229,14 +234,35 @@ def test_pserve(app_scaffold, dev_db, browser):
         execute_venv_command("cd myapp && pserve development.ini --stop-daemon --pid-file=test_pserve.pid", app_scaffold)
 
 
-def test_pytest(app_scaffold):
+def test_pyramid_debugtoolbar(app_scaffold, dev_db, browser):
+    """Pyramid debug toolbar should be effective with the default development pserve."""
+
+    # User models are needed to start the web server
+    execute_venv_command("cd myapp && ws-sync-db development.ini", app_scaffold)
+
+    execute_venv_command("cd myapp && pserve development.ini --pid-file=test_pserve.pid", app_scaffold, wait_and_see=3.0)
+
+    try:
+
+        # Make sure we get some sensible output from the server
+        b  = browser
+        b.visit("http://localhost:6543/error-trigger")
+
+        # See that Wertzkreug debugger is up
+        assert b.is_element_present_by_css(".errormsg")
+
+    finally:
+        execute_venv_command("cd myapp && pserve development.ini --stop-daemon --pid-file=test_pserve.pid", app_scaffold)
+
+
+def test_pytest(app_scaffold, test_db):
     """Create an application and see if py.test tests pass. """
 
     # Install test requirements
     execute_venv_command("cd myapp && pip install '.[test]'", app_scaffold, timeout=2*60)
 
     # Execute one functional test
-    execute_venv_command("py.test --ini test.ini myapp/myapp/tests", app_scaffold)
+    execute_venv_command("py.test --ini myapp/test.ini myapp/myapp/tests", app_scaffold, timeout=1*60)
 
 
 def test_sdist(app_scaffold):

@@ -1,25 +1,20 @@
-###
-# app configuration
-# http://docs.pylonsproject.org/projects/pyramid/en/{{pyramid_docs_branch}}/narr/environment.html
-###
+# py.test --ini configuration for running the {{project}} test suite
+
+[includes]
+include_ini_files =
+    resource://websauna/test.ini
+    resource://{{project}}/base.ini
+    resource://websauna/base.ini
 
 [app:main]
 use = egg:{{project}}
 
-pyramid.reload_templates = true
-pyramid.debug_authorization = false
-pyramid.debug_notfound = false
-pyramid.debug_routematch = false
-pyramid.default_locale_name = en
-pyramid.includes =
-    pyramid_debugtoolbar
-    pyramid_tm
-
-sqlalchemy.url = sqlite:///%(here)s/{{project}}.sqlite
-
-# By default, the toolbar only appears for clients from IP addresses
-# '127.0.0.1' and '::1'.
-# debugtoolbar.hosts = 127.0.0.1 ::1
+websauna.init = {{project}}.Initializer
+websauna.site_id = {{project}}_test
+websauna.site_email_prefix = [{{project}} TEST]
+sqlalchemy.url = postgresql://localhost/{{project}}_test
+websauna.secrets_file = resource://{{project}}/development-secrets.ini
+websauna.test_web_server_port = 8533
 
 ###
 # wsgi server configuration
@@ -29,43 +24,3 @@ sqlalchemy.url = sqlite:///%(here)s/{{project}}.sqlite
 use = egg:waitress#main
 host = 0.0.0.0
 port = 6543
-
-###
-# logging configuration
-# http://docs.pylonsproject.org/projects/pyramid/en/{{pyramid_docs_branch}}/narr/logging.html
-###
-
-[loggers]
-keys = root, {{package_logger}}, sqlalchemy
-
-[handlers]
-keys = console
-
-[formatters]
-keys = generic
-
-[logger_root]
-level = INFO
-handlers = console
-
-[logger_{{package_logger}}]
-level = DEBUG
-handlers =
-qualname = {{package}}
-
-[logger_sqlalchemy]
-level = INFO
-handlers =
-qualname = sqlalchemy.engine
-# "level = INFO" logs SQL queries.
-# "level = DEBUG" logs SQL queries and results.
-# "level = WARN" logs neither.  (Recommended for production systems.)
-
-[handler_console]
-class = StreamHandler
-args = (sys.stderr,)
-level = NOTSET
-formatter = generic
-
-[formatter_generic]
-format = %(asctime)s %(levelname)-5.5s [%(name)s:%(lineno)s][%(threadName)s] %(message)s

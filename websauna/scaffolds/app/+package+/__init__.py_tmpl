@@ -2,6 +2,7 @@
 
 import websauna.system
 
+# Do not directly import any of your application code in the head of this file. Instead, import it inside the Initializer methods as in the example below. This guarantees that if you have any loggers in your Python modules they are correctly initialized.
 
 class Initializer(websauna.system.Initializer):
     """An initialization configuration used for starting {{project}}.
@@ -12,7 +13,7 @@ class Initializer(websauna.system.Initializer):
     def configure_static(self):
         """Configure static asset serving and cache busting."""
         super(Initializer, self).configure_static()
-py.test
+
         self.config.add_static_view('{{package}}-static', '{{package}}:static')
         self.add_cache_buster("{{package}}:static/")
 

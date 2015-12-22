@@ -67,7 +67,7 @@ setup(
         # Remove these when Daemonocle gets a bump.
         # https://github.com/jnrbsn/daemonocle/issues/8
         # http://blog.ziade.org/2013/04/13/declaring-dependencies-in-python/
-        # 'click==2.5',
+        'daemonocle>0.8',
         # 'psutil==2.1.1',
 
         # Pyramid dependencies

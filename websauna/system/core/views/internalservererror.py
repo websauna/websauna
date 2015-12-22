@@ -52,6 +52,3 @@ def internal_server_error(context, request):
     return resp
 
 
-@view_config(route_name='error_trigger')
-def error_trigger(request):
-    raise RuntimeError("Test error.")

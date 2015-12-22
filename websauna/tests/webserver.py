@@ -12,13 +12,15 @@ from backports import typing
 def web_server(request, app:Router) -> str:
     """py.test fixture to create a WSGI web server for functional tests.
 
+    The default web server address is localhost:8521. The port can be changed with ``websauna.test_web_server_port``.
+
     :param app: py.test fixture for constructing a WSGI application
 
     :return: localhost URL where the web server is running.
     """
 
     host = "localhost"
-    port = 8521
+    port = int(app.initializer.config.registry.settings.get("websauna.test_web_server_port", 8521))
 
     server = StopableWSGIServer.create(app, host=host, port=port)
     server.wait()

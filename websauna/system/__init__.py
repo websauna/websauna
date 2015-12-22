@@ -50,6 +50,9 @@ class Initializer:
 
         self.settings = settings
 
+        #: Flag to tell if we need to do sanity check for redis sessiosn
+        self._has_redis_sessions = False
+
     def create_configurator(self, settings):
         """Create Pyramid Configurator instance."""
         configurator = Configurator(settings=settings)
@@ -93,6 +96,11 @@ class Initializer:
 
         Please note that most o the logging is configured through the configuration file and that should be the primary way to do it.
         """
+
+        # Extract logging configuration from INI
+        from websauna.utils.configincluder import setup_logging
+
+        setup_logging(self.global_config["__file__"])
 
         # Make sure we can target Pyramid router debug messages in logging configuration
         pyramid_debug_logger = logging.getLogger("pyramid_debug")
@@ -257,7 +265,9 @@ class Initializer:
         from websauna.system.model.meta import Base
         Base.metadata.pyramid_config = self.config
 
-    def configure_error_views(self, settings):
+    def configure_error_views(self):
+
+        settings = self.settings
 
         # Forbidden view overrides helpful auth debug error messages,
         # so pull in only when really needed
@@ -274,6 +284,10 @@ class Initializer:
         if "pyramid_debugtoolbar" not in aslist(settings["pyramid.includes"]):
             from websauna.system.core.views import internalservererror
             self.config.scan(internalservererror)
+
+        if settings.get("websauna.error_test_trigger", False):
+            from websauna.system.core.views import errortrigger
+            self.config.scan(errortrigger)
             self.config.add_route('error_trigger', '/error-trigger')
 
     def configure_root(self):
@@ -312,8 +326,10 @@ class Initializer:
 
         # TODO: Make more boilerplate here so that we pass secret in more sane way
         self.config.registry.settings["redis.sessions.secret"] = session_secret
-
         self.config.include("pyramid_redis_sessions")
+
+        # Set a flag to perform Redis session check later and prevent web server start if Redis is down
+        self._has_redis_sessions = True
 
     def configure_admin(self, settings):
         """Configure admin ux.
@@ -500,7 +516,7 @@ class Initializer:
 
         # Core view and layout related
         self.configure_root()
-        self.configure_error_views(settings)
+        self.configure_error_views()
         self.configure_views()
         self.configure_panels(settings)
         self.configure_sitemap(settings)
@@ -526,6 +542,7 @@ class Initializer:
         from websauna.system.model import sanitycheck
         from websauna.system.model.meta import Base
         from websauna.system.model.meta import create_dbsession
+        from websauna.system.core import redis
 
         dbsession = create_dbsession(self.config.registry.settings)
 
@@ -533,6 +550,10 @@ class Initializer:
             raise SanityCheckFailed("The database sanity check failed. Check log for details.")
 
         dbsession.close()
+
+        if self._has_redis_sessions:
+            if not redis.is_sane_redis(self.config):
+                raise SanityCheckFailed("Could not connect to Redis server.\nWebsauna is configured to use Redis server for session data.\nIt cannot start up without a running Redis server.\nPlease consult your operating system community how to install and start a Redis server.")
 
     def wrap_wsgi_app(self, app):
         """Perform any necessary WSGI application wrapping.

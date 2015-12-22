@@ -31,7 +31,7 @@ def test_login(web_server:str, browser:DriverAPI, dbsession:Session):
     b.visit(web_server)
 
     # This link should be in the top navigation
-    b.click_link_by_text("#nav-sign-in")
+    b.find_by_css("#nav-sign-in").click()
 
     # Link gives us the login form
     assert b.is_element_visible_by_css("#login-form")

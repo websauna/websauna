@@ -22,9 +22,19 @@ class SanityCheckFailed(Exception):
 
 
 class Initializer:
-    """Initialize various subsystems and routes.
+    """Initializer is responsible to ramp up the frameworks and subsystems.
 
-    Customizers can subclass this and override parts they want to change.
+    There exist one ``Initializer`` instance which you create in your WSGI application constructor.
+
+    * You subclass the default ``Initializer`` provider by Websauna
+
+    * You override the methods for the parts where you want to customize the default Websauna behavior
+
+    * You also need to include addons and other Pyramid package configurations. This is usually done by calling ``self.config.include("your_pyramid_package")``.
+
+    * You can add your own application specific view initializations, like ``self.config.scan()`` for your application Python modules to register ``@view_config`` directives in those.
+
+    See :py:meth:`websauna.system.Initializer.run` for linear initialization order.
     """
 
     def __init__(self, global_config:dict, settings:dict=None):

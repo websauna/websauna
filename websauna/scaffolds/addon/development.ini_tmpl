@@ -1,0 +1,22 @@
+# pserve and command line configuration for a local development machine
+
+[includes]
+include_ini_files =
+    resource://websauna/development.ini
+    resource://websauna/base.ini
+
+[app:main]
+use = egg:websauna.{{package}}
+websauna.init = websauna.{{package}}.demo.Initializer
+websauna.site_id = {{project}}_dev
+websauna.site_email_prefix = [{{project}} DEV]
+sqlalchemy.url = postgresql://localhost/{{project}}_dev
+websauna.secrets_file = resource://websauna.{{package}}/development-secrets.ini
+
+[celery]
+CELERY_ALWAYS_EAGER = true
+
+[server:main]
+use = egg:waitress#main
+host = 0.0.0.0
+port = 6543

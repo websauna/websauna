@@ -1,0 +1,4 @@
+/* Don't let the logo image to grow too big */
+.navbar-brand img {
+  max-height: 26px;
+}

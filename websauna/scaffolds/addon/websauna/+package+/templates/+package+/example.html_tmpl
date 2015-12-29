@@ -1,0 +1,7 @@
+{# Template for home view #}
+
+{% extends "site/base.html" %}
+
+{% block content %}
+<h1 id="demo-text">Welcome to {{project}}!</h1>
+{% endblock %}

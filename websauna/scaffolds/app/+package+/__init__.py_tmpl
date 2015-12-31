@@ -2,7 +2,6 @@
 
 import websauna.system
 
-# Do not directly import any of your application code in the head of this file. Instead, import it inside the Initializer methods as in the example below. This guarantees that if you have any loggers in your Python modules they are correctly initialized.
 
 class Initializer(websauna.system.Initializer):
     """An initialization configuration used for starting {{project}}.

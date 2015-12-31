@@ -1,8 +1,10 @@
 """Scaffold test utility functions."""
-
+import fileinput
 import subprocess
 import time
 from contextlib import closing, contextmanager
+from fileinput import FileInput
+
 import os
 from tempfile import mkdtemp
 
@@ -58,6 +60,8 @@ def execute_venv_command(cmdline, folder, timeout=5.0, wait_and_see=None, assert
     :param assert_exit: Assume exit code is this
 
     :param cd_folder: cd to this folder before executing the command (relative to folder)
+
+    :return: tuple (exit code, stdout, stderr)
     """
 
     assert os.path.exists(os.path.join(folder, "venv", "bin", "activate"))
@@ -98,7 +102,7 @@ def execute_venv_command(cmdline, folder, timeout=5.0, wait_and_see=None, assert
         print_subprocess_fail(worker, cmdline)
         raise AssertionError("venv command did not properly exit: {} in {}. Got exit code {}, assumed {}".format(cmdline, folder, worker.returncode, assert_exit))
 
-    return worker.returncode
+    return (worker.returncode, worker.stdout.read().decode("utf-8"), worker.stderr.read().decode("utf-8"))
 
 
 def preload_wheelhouse(folder:str):
@@ -157,6 +161,29 @@ def replace_file(path:str, content:str):
 
     try:
         yield None
+    finally:
+        open(path, "wt").write(backup)
+
+
+@contextmanager
+def insert_content_after_line(path:str, content:str, marker:str):
+    """Add piece to text to a text file after a line having a marker string on it."""
+    backup = open(path, "rt").read()
+
+    try:
+        # Replaces stdout
+        out = open(path, "wt")
+        for line in backup.split("\n"):
+
+            if marker in line:
+                print(content, file=out)
+
+            print(line, file=out)
+
+        out.close()
+
+        yield None
+
     finally:
         open(path, "wt").write(backup)
 

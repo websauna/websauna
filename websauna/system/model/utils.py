@@ -1,9 +1,9 @@
 import os
 from uuid import UUID
+import inspect
+from types import ModuleType
 
-#: BBB Remove importers and move them to right place
 from sqlalchemy.ext.declarative import instrument_declarative
-from websauna.utils.time import now
 
 
 def secure_uuid():
@@ -78,3 +78,15 @@ def attach_model_to_base(ModelClass:type, Base:type, ignore_reattach:bool=True):
 
     instrument_declarative(ModelClass, Base._decl_class_registry, Base.metadata)
 
+
+def attach_models_to_base_from_module(mod:ModuleType, Base:type):
+    """Attach all models in a Python module to SQLAlchemy base class.
+
+    All models must declare ``__tablename__`` property.
+    """
+
+    for key in dir(mod):
+        value = getattr(mod, key)
+        if inspect.isclass(value):
+            if hasattr(value, "__tablename__"):
+                attach_model_to_base(value, Base)

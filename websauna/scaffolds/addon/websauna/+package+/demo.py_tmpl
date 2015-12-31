@@ -2,28 +2,13 @@
 
 import websauna.system
 
-# Do not directly import any of your application code in the head of this file. Instead, import it inside the Initializer methods as in the example below. This guarantees that if you have any loggers in your Python modules they are correctly initialized.
 
 class Initializer(websauna.system.Initializer):
-    """An initialization configuration used for starting {{project}}.
+    """A demo / test app initializer for testing addon websauna.{{package}}."""
 
-    Override parent class methods to customize application behavior.
-    """
-
-    def configure_templates(self):
-        """Include our package templates folder in Jinja 2 configuration."""
-        super(Initializer, self).configure_templates()
-
-        self.config.add_jinja2_search_path('websauna.{{package}}:templates', name='.html', prepend=True)  # HTML templates for pages
-
-    def configure_views(self):
-        """Configure views for your application.
-
-        Let the config scanner to pick ``@simple_route`` definitions from scanned modules. Alternative you can call ``config.add_route()`` and ``config.add_view()`` here.
-        """
-        # We override this method, so that we route home to our home screen, not Websauna default one
-        from . import views
-        self.config.scan(views)
+    def configure_addons(self):
+        """Include this addon in the configuration."""
+        self.config.include("websauna.{{package}}")
 
     def run(self):
         super(Initializer, self).run()

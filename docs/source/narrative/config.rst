@@ -83,6 +83,36 @@ Disabled for testing.
 
 Default: ``true``
 
+websauna.social_logins
+----------------------
+
+List of configured social logins, or federated authentication, methods.
+
+* List can be space or new line separated
+
+* Each social login corresponds one entry in secrets INI file
+
+Example value::
+
+    websauna.social_logins =
+        facebook
+        twitter
+
+In which case your secrets INI would contain::
+
+       [facebook]
+        class = authomatic.providers.oauth2.Facebook
+        consumer_key = xxx
+        consumer_secret = yyy
+        scope = user_about_me, email
+        mapper = websauna.system.user.social.FacebookMapper
+
+        [twitter]
+        class = authomatic.providers.oauth1.Twitter
+        consumer_key = xxx
+        consumer_secret = yyy
+        ...
+
 
 websauna.force_utc_on_columns
 -----------------------------

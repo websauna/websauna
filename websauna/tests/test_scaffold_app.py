@@ -103,6 +103,11 @@ def test_migration(app_scaffold, dev_db):
         execute_venv_command("cd myapp && ws-alembic -c development.ini revision --autogenerate -m 'Added MyModel'", app_scaffold)
         execute_venv_command("cd myapp && ws-alembic -c development.ini upgrade head", app_scaffold)
 
+        # Assert we got migration script for mymodel
+        files = os.listdir(os.path.join(app_scaffold, "myapp", "alembic", "versions"))
+        assert any("added_mymodel.py" in f for f in files), "Got files {}".format(files)
+
+
 
 def test_app_sanity_check_fail(app_scaffold, dev_db):
     """Create an application and see we don't start if migrations are not run."""
@@ -126,6 +131,9 @@ def test_tweens(app_scaffold, dev_db):
 #: Migration test file
 MODELS_PY="""
 from websauna.system.model.meta import Base
+from sqlalchemy import Column
+from sqlalchemy import Integer
+
 
 class MyModel(Base):
     id = Column(Integer, autoincrement=True, primary_key=True)

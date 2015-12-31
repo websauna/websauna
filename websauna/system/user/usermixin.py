@@ -1,5 +1,4 @@
 from sqlalchemy import inspection
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import INET
 from sqlalchemy import DateTime
@@ -14,7 +13,7 @@ from sqlalchemy.ext.mutable import MutableDict
 
 import colander
 
-from websauna.system.model.utils import now
+from websauna.utils.time import now
 from datetime import timezone
 from websauna.utils.jsonb import JSONBProperty
 

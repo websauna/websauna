@@ -5,6 +5,6 @@ from websauna.system.http import Request
 
 # Configure a sample view provided by this addon
 @simple_route("/example-view", route_name="example", renderer='{{package}}/example.html', append_slash=False)
-def home(request:Request):
+def example_view(request:Request):
     """Render site homepage."""
     return {"project": "{{project}}"}

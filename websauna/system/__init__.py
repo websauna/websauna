@@ -37,12 +37,15 @@ class Initializer:
     See :py:meth:`websauna.system.Initializer.run` for linear initialization order.
     """
 
-    def __init__(self, global_config:dict, settings:dict=None):
-        """
-        :param global_config: Dictionary as passed to WSGI entry point.
-        :param settings: DEPRECATED. Extra settings as passed to WSGI entry point.
+    def __init__(self, global_config:dict, settings:dict=None, configurator:Configurator=None):
         """
 
+        :param global_config: Dictionary as passed to WSGI entry point.
+
+        :param settings: DEPRECATED. Extra settings as passed to WSGI entry point. TODO: How to handle these?
+
+        :param config: Configurator passed by another Pyramid app entry point. If given use this. If not given extra the config file from ``global_config`` and then create a ``Configurator`` for it. This is usually given when Initializer is used with addon.
+        """
         if not settings:
             settings = IncludeAwareConfigParser.retrofit_settings(global_config)
 
@@ -265,10 +268,12 @@ class Initializer:
         """
         self.config.include(".model.meta")
 
-    def configure_instrumented_models(self, settings):
-        """Configure models from third party addons.
+    def configure_instrumented_models(self):
+        """Configure models from third party addons and dynamic SQLAlchemy fields which need access to the configuration.
 
         Third party addons might need references to configurable models which are not available at the import time. One of these models is user - you can supply your own user model. However third party addon models might want to build foreign key relationships to this model. Thus, ``configure_instrumented_models()`` is an initialization step which is called when database setup is half way there and you want to throw in some extra models in.
+
+        This exposes ``Configurator`` to SQLAlchemy through ``websauna.system.model.meta.Base.metadata.pyramid_config`` variable.
         """
 
         # Expose Pyramid configuration to classes
@@ -495,6 +500,14 @@ class Initializer:
         self.config.registry.registerUtility(_secrets, secrets.ISecrets)
         return _secrets
 
+    def configure_addons(self):
+        """Override this method to include Websauna addons for your app.
+
+        Websauna addons are created with ``websauna_addon`` scaffold.
+
+        By default do nothing.
+        """
+
     def run(self):
         """Run the initialization and prepare Pyramid subsystems.
 
@@ -541,8 +554,13 @@ class Initializer:
 
         self.configure_notebook(settings)
 
-        self.configure_instrumented_models(settings)
-        self.engine = self.configure_database(settings)
+        # Configure addons before anything else, so we can override bits from addon, like template lookup paths, later easily
+        self.configure_addons()
+
+        # Database
+        # This must be run before configure_database() because SQLAlchemy will resolve @declared_attr and we must have config present by then
+        self.configure_instrumented_models()
+        self.configure_database(settings)
 
     def sanity_check(self):
         """Perform post-initialization sanity checks.

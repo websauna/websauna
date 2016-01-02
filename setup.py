@@ -62,20 +62,58 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
+
+        # TODO: Open bug on Daemonocle, the package needs a new release without pinned down dependencies
+        # Remove these when Daemonocle gets a bump.
+        # https://github.com/jnrbsn/daemonocle/issues/8
+        # http://blog.ziade.org/2013/04/13/declaring-dependencies-in-python/
+        'daemonocle>0.8',
+        # 'psutil==2.1.1',
+
+        # Pyramid dependencies
+        'pyramid>=1.6b3',
+        'waitress',
         'websauna.viewconfig',
         'pyramid_redis_sessions',
-        'pyramid-mailer',
         'pyramid-layout',
-        "arrow",
         "tomb-routes",
+        'pyramid_deform',
+        "pyramid_debugtoolbar",
+        "pyramid_jinja2",
 
-        # SQLAlchemy support
+        # Time handling
+        "arrow",
+        "pytz",
+
+        # SQLAlchemy and database support
+        "psycopg2",
         "sqlalchemy",
         "alembic",
-        "typing",
+        "colanderalchemy",
+        "pyramid_tm",
+        "jsonpointer",
+        "pgcli",
+
+        # User management
+        "horus",
+        "authomatic",
+
+        # Email
+        'pyramid-mailer',
+        'premailer',
+
+        # Tasks
+        'pyramid_celery',
+
+        # Python 3.4 typing
+        "backports.typing",
 
         # Needed by python_notebook etc. who call pyramid.paster module
-        "PasteDeploy"
+        "pyramid_notebook",
+        "PasteDeploy",
+
+        # Console logging
+        "rainbow_logging_handler"
     ],
 
     # List additional groups of  dependencies here (e.g. development
@@ -83,8 +121,8 @@ setup(
     # for example:
     # $ pip install -e .[dev,test]
     extras_require={
-        'dev': ['check-manifest', 'Sphinx', 'sphinx-autoapi'],
-        'test': ['pytest', 'coverage', 'waitress'],
+        'dev': ['check-manifest', 'Sphinx', 'sphinx-autoapi', 'setuptools_git', 'zest.releaser'],
+        'test': ['pytest', 'coverage', 'webtest', 'pytest-splinter'],
     },
 
     # To provide executable scripts, use entry points in preference to the
@@ -103,9 +141,13 @@ setup(
         'paste.app_factory': [
             'main=websauna.system:main',
 
-            #: Scheduler integration test entry point
+            # Scheduler auomated test suite entry point
             'scheduler_test=websauna.tests.test_scheduler:main',
+        ],
 
+        'pyramid.scaffold': [
+            "websauna_app=websauna.scaffolds:App",
+            "websauna_addon=websauna.scaffolds:Addon",
         ]
     },
 )

@@ -1,0 +1,6 @@
+{# Override the default navigation bar logo from Websauna templates #}
+
+{# Logo file taken from here https://openclipart.org/detail/1105/workman-ahead-roadsign #}
+<a class="navbar-brand" href="{['home'|route_url]}">
+    <img src="{[ '{{package}}:static/logo.png'|static_url ]}" alt="{{package}}">
+</a>

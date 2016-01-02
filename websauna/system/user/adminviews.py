@@ -1,15 +1,15 @@
 import colander
 import deform
 from pyramid.view import view_config, view_defaults
-
-from .admin import UserAdmin
-from .admin import GroupAdmin
+from websauna.system.admin.utils import get_model_admin_for_sqlalchemy_object
+from websauna.viewconfig import view_overrides
+from .admins import UserAdmin
+from .admins import GroupAdmin
 
 from pyramid_layout.panel import panel_config
 from websauna.system.crud import listing
 from websauna.system.admin import views as admin_views
 
-from websauna.system.model import DBSession
 from websauna.system.form.widget import RelationshipCheckboxWidget
 from websauna.system.user.utils import get_group_class
 
@@ -17,14 +17,17 @@ from websauna.system.user.utils import get_group_class
 @panel_config(name='admin_panel', context=UserAdmin, renderer='admin/user_panel.html')
 def default_model_admin_panel(context, request):
     """Admin panel for Users."""
+
+    dbsession = request.dbsession
+
     model_admin = context
-    admin = model_admin.__parent__
+    admin = model_admin.get_admin()
     model = model_admin.get_model()
 
     title = model_admin.title
-    count = DBSession.query(model).count()
-    latest_user = DBSession.query(model).order_by(model.id.desc()).first()
-    latest_user_url = request.resource_url(admin.get_admin_resource(latest_user))
+    count = dbsession.query(model).count()
+    latest_user = dbsession.query(model).order_by(model.id.desc()).first()
+    latest_user_url = get_model_admin_for_sqlalchemy_object(admin, latest_user)
 
     return locals()
 
@@ -113,6 +116,17 @@ class UserEdit(admin_views.Edit):
         schema["groups"].widget = GroupWidget(model=group_model, dictify=schema.dictify)
         schema["groups"].missing = []
 
+
+@view_overrides(context=UserAdmin)
+class UserAdd(admin_views.Add):
+
+    includes = [
+        "username",
+        "email"
+    ]
+
+
+@view_overrides(context=GroupAdmin)
 class GroupListing(admin_views.Listing):
     """Listing view for Groups."""
 
@@ -127,11 +141,6 @@ class GroupListing(admin_views.Listing):
 
     def order_query(self, query):
         return query.order_by(self.get_model().id.desc())
-
-    @view_config(context=GroupAdmin, route_name="admin", name="listing", renderer="crud/listing.html", permission='view')
-    def listing(self):
-        return super(GroupListing, self).listing()
-
 
 
 class GroupShow(admin_views.Show):

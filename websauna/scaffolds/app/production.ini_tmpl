@@ -1,0 +1,20 @@
+# pserve and command line configuration for a production server
+
+[includes]
+include_ini_files =
+    resource://websauna/production.ini
+    resource://{{project}}/base.ini
+    resource://websauna/base.ini
+
+[app:main]
+use = egg:{{project}}
+websauna.init = {{project}}.Initializer
+websauna.site_id = {{project}}_prod
+websauna.site_email_prefix = [{{project}}]
+sqlalchemy.url = postgresql://localhost/{{project}}_prod
+websauna.secrets_file = resource://{{project}}/production-secrets.ini
+
+[server:main]
+use = egg:waitress#main
+host = 0.0.0.0
+port = 6543

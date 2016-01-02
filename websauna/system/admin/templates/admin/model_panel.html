@@ -10,14 +10,14 @@
 {% block panel_buttons %}
 
     {% if request.has_permission('view', context) %}
-        <a id="btn-panel-list-{{ model_admin.id }}" class="btn btn-default btn-admin-list" href="{{ model_admin|model_url('listing') }}">
+        <a id="btn-panel-list-{{ model_admin.__name__ }}" class="btn btn-default btn-admin-list" href="{{ request.resource_url(model_admin, 'listing') }}">
             List
         </a>
     {% endif %}
 
 
     {% if request.has_permission('add', context) %}
-        <a id="btn-panel-add-{{ model_admin.id }}" class="btn btn-default btn-admin-list" href="{{ model_admin|model_url('add') }}">
+        <a id="btn-panel-add-{{ model_admin.__name__ }}" class="btn btn-default btn-admin-list" href="{{ request.resource_url(model_admin, 'add') }}">
             Add
         </a>
     {% endif %} 

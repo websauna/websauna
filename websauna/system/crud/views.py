@@ -10,20 +10,18 @@ from pyramid.renderers import render
 from pyramid.request import Request
 from pyramid.view import view_config
 
-from websauna.system.compat import typing
+from websauna.compat import typing
 
 import deform
 
-from websauna.system.model import DBSession
 from websauna.system.core import messages
-from websauna.system.core.traverse import Resource
+from websauna.system.form.colander import PropertyAwareSQLAlchemySchemaNode
 
 from . import sqlalchemy, Resource
 from . import paginator
 from . import CRUD
 
-from websauna.system.form.colander import \
-    PropertyAwareSQLAlchemySchemaNode
+
 
 
 
@@ -234,8 +232,10 @@ class FormView(CRUDView):
         return form
 
     def bind_schema(self, schema):
-        """Initialize Colander field dynamic default values. By default, don't do anything."""
-        return schema
+        """Initialize Colander field dynamic default values. By default, don't do anything.
+        By default pass ``request`` and ``context`` to schema.
+        """
+        return schema.bind(request=self.request, context=self.context)
 
     def get_crud(self):
         """Get CRUD manager object for this view."""
@@ -313,7 +313,7 @@ class Edit(FormView):
         return super(Edit, self).create_form(buttons=("save", "cancel",))
 
     def bind_schema(self, schema):
-        return schema.bind(obj=self.context.get_object())
+        return schema.bind(obj=self.context.get_object(), request=self.request, context=self.context)
 
     def do_success(self):
         """Called after the save (objectify) has succeeded.
@@ -405,9 +405,10 @@ class Add(FormView):
         return model()
 
     def save_object(self, obj):
-        """Put newly created object to persist storage."""
-        DBSession.add(obj)
-        DBSession.flush()
+        """Flush newly created object to persist storage."""
+        dbsession = self.context.get_dbsession()
+        dbsession.add(obj)
+        dbsession.flush()
 
     @view_config(context=sqlalchemy.CRUD, name="add", renderer="crud/add.html", permission='add')
     def add(self):

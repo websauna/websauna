@@ -1,0 +1,55 @@
+from pyramid.config import Configurator
+
+from websauna.system.model.utils import attach_models_to_base_from_module
+
+
+class AddonInitializer:
+    """Configure this addon for websauna.
+
+    If the application wants to customize the addon behavior, it can subclass this class, override methods and bypass the default ``includeme()`` call.
+    """
+
+    def __init__(self, config:Configurator):
+        self.config = config
+
+    def configure_templates(self):
+        """Include our package templates folder in Jinja 2 configuration."""
+
+        # Use prepend=False here so that the app can override our templates easily
+        self.config.add_jinja2_search_path('websauna.{{package}}:templates', name='.html', prepend=False)  # HTML templates for pages
+
+    def configure_instrumented_models(self):
+        """Plug models from this addon to Websauna."""
+        from . import models
+        from websauna.system.model.meta import Base
+
+        # Load all models (if we have any) and attach them to SQLALchemy default base class
+        attach_models_to_base_from_module(models, Base)
+
+    def configure_views(self):
+        """Configure views for your application.
+
+        Let the config scanner to pick ``@simple_route`` definitions from scanned modules. Alternative you can call ``config.add_route()`` and ``config.add_view()`` here.
+        """
+        # We override this method, so that we route home to our home screen, not Websauna default one
+        from . import views
+        self.config.scan(views)
+
+    def run(self):
+        self.configure_templates()
+        self.configure_instrumented_models()
+        self.configure_views()
+
+
+def includeme(config:Configurator):
+    """Entry point for Websauna main app to include this addon.
+
+    In the Initializer of your app you should have:
+
+        def configure_addons(self):
+            # ...
+            self.config.include("websauna.{{package}}")
+
+    """
+    init = AddonInitializer(config)
+    init.run()

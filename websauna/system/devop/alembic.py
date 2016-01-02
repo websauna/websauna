@@ -1,16 +1,22 @@
-"""Support for Alembic SQL migrations."""
+"""Support for Alembic SQL migrations.
+
+1. Each Python package needs to get its own alembic_history table
+
+2. In "objects to consider" function we resolve the object's package and compare whether it is the package for which we try to create migrations for
+
+3. All migration scripts live inside the package, in alembic/ folder next to setup.py
+
+"""
 import os
 import logging
 
 from pyramid.paster import setup_logging
-from pyramid.paster import bootstrap
 
 from sqlalchemy.ext.declarative.clsregistry import _ModuleMarker
 from alembic import context
 
-from websauna.system.model import Base
-from websauna.system.model import DBSession
-
+from websauna.system.devop.cmdline import init_websauna
+from websauna.system.model.meta import Base
 
 logger = None
 
@@ -128,7 +134,8 @@ def run_alembic(package:str):
     setup_logging(config_file)
 
     # Load the WSGI application, etc.
-    env = bootstrap(config_file, options=dict(sanity_check=False))
+    request = init_websauna(config_file)
+    engine = request.dbsession.get_bind()
 
     # Delay logger creation until we have initialized the logging system
     logger = logging.getLogger(__name__)
@@ -137,10 +144,7 @@ def run_alembic(package:str):
     target_metadata = get_sqlalchemy_metadata(package)
 
     # Extract database connection URL from the settings
-    url = env["registry"].settings["sqlalchemy.url"]
-
-    # Use live SQLAlchemy engine object for online migrations
-    engine = DBSession.get_bind()
+    url = request.registry.settings["sqlalchemy.url"]
 
     # Each package needs to maintain its own alembic_history table
     version_table = get_migration_table_name(package)

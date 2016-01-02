@@ -5,8 +5,7 @@ from pyramid.registry import Registry
 from pyramid.request import Request
 from sqlalchemy.orm.attributes import flag_modified
 
-from websauna.system.model import DBSession
-from websauna.system.model import now
+from websauna.utils.time import now
 from websauna.system.user import usermixin
 from websauna.system.user.interfaces import IUserClass, ISocialLoginMapper
 from zope.interface import implements, implementer
@@ -34,10 +33,10 @@ class SocialLoginMapper(ABC):
         self.provider_id = provider_id
         self.registry = registry
 
-    def prepare_new_site(self, user):
+    def prepare_new_site(self, dbsession, user):
         """If this is the first user on the site, initialize groups and give this user admin permissions."""
         # XXX: Move this to an event
-        usermixin.check_empty_site_init(user)
+        usermixin.check_empty_site_init(dbsession, user)
 
     @abstractmethod
     def capture_social_media_user(self, request:Request, result:LoginResult) -> IUserClass:
@@ -111,7 +110,7 @@ class EmailSocialLoginMapper(SocialLoginMapper):
 
         User = self.registry.queryUtility(IUserClass)
 
-        dbsession = DBSession
+        dbsession = request.dbsession
 
         imported_data = self.import_social_media_user(user)
         email = imported_data["email"]
@@ -123,7 +122,7 @@ class EmailSocialLoginMapper(SocialLoginMapper):
             self.update_first_login_social_data(user, imported_data)
             user.first_login = True
 
-            self.prepare_new_site(user)
+            self.prepare_new_site(dbsession, user)
         else:
             user.first_login = False
 

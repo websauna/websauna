@@ -1,7 +1,11 @@
 from pyramid.security import Authenticated, Allow
+from websauna.system.core.interfaces import IRoot
+from websauna.system.core.traverse import Resource
+from zope.interface import implementer
 
 
-class Root:
+@implementer(IRoot)
+class Root(Resource):
     """Pyramid routing root with default permission set up.
 
     These permission mappings are used unless you supply your own traversing context. For the sake of simplicity, we only declare one permission named ``authenticated`` which is given to all authenticated users.
@@ -18,23 +22,17 @@ class Root:
         (Allow, "superuser:superuser", 'shell'),
     ]
 
-    __name__ = ''
-
-    _instance = None
-
-    def __init__(self):
-        pass
-
-    @classmethod
-    def get_root(cls):
-        root = cls._instance
-        if not root:
-            root = cls._instance = Root()
-        return root
+    def __init__(self, request):
+        self.request = request
+        self.__name__ = ""
 
     @classmethod
     def root_factory(cls, request):
-        # Root is a global object, as it is referred in global traversing context objects like Admin
-        return cls.get_root()
+        """Called by Pyramid routing framework to create a new root for a request."""
+        return Root(request)
+
+    def get_title(self):
+        """Title used in breadcrumbs."""
+        return "Home"
 
 

@@ -1,5 +1,4 @@
 from sqlalchemy import inspection
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import INET
 from sqlalchemy import DateTime
@@ -14,9 +13,8 @@ from sqlalchemy.ext.mutable import MutableDict
 
 import colander
 
-from websauna.system.model import now
-from websauna.system.model import utc
-from websauna.system.model import DBSession
+from websauna.utils.time import now
+from datetime import timezone
 from websauna.utils.jsonb import JSONBProperty
 
 from backports import typing
@@ -73,19 +71,19 @@ class UserMixin:
     salt = Column(String(256), nullable=True)
 
     #: When this account was created
-    created_at = Column(DateTime(timezone=utc), default=now)
+    created_at = Column(DateTime(timezone=timezone.utc), default=now)
 
     #: When the account data was updated last time
-    updated_at = Column(DateTime(timezone=utc), onupdate=now)
+    updated_at = Column(DateTime(timezone=timezone.utc), onupdate=now)
 
     #: When this user was activated: email confirmed or first social login
-    activated_at = Column(DateTime(timezone=utc), nullable=True)
+    activated_at = Column(DateTime(timezone=timezone.utc), nullable=True)
 
     #: Is this user account enabled. The support can disable the user account in the case of suspected malicious activity.
     enabled = Column(Boolean, default=True)
 
     #: When this user accessed the system last time. None if the user has never logged in (only activation email sent). Information stored for the security audits.
-    last_login_at = Column(DateTime(timezone=utc), nullable=True)
+    last_login_at = Column(DateTime(timezone=timezone.utc), nullable=True)
 
     #: From which IP address did this user log in from. If this IP is null the user has never logged in (only activation email sent). Information stored for the security audits. It is also useful for identifying the source country of users e.g. for localized versions.
     last_login_ip = Column(INET, nullable=True,
@@ -161,16 +159,16 @@ class UserMixin:
 
 class GroupMixin:
     #: When this group was created.
-    created_at = Column(DateTime(timezone=utc), default=now)
+    created_at = Column(DateTime(timezone=timezone.utc), default=now)
 
     #: When the group was updated last time. Please note that this does not concern group membership, only desription updates.
-    updated_at = Column(DateTime(timezone=utc), onupdate=now)
+    updated_at = Column(DateTime(timezone=timezone.utc), onupdate=now)
 
     #: Extra JSON data to be stored with this group
     group_data = Column(JSONB, default={})
 
 
-def init_empty_site(user):
+def init_empty_site(dbsession, user):
     """When the first user signs up build the admin groups and make the user member of it.
 
     Make the first member of the site to be admin and superuser.
@@ -181,16 +179,16 @@ def init_empty_site(user):
     Group = i.relationships["groups"].mapper.entity
 
     # Do we already have any groups... if we do we probably don'¨t want to init again
-    if DBSession.query(Group).count() > 0:
+    if dbsession.query(Group).count() > 0:
         return
 
     g = Group(name=user.GROUP_ADMIN)
-    DBSession.add(g)
+    dbsession.add(g)
 
     g.users.append(user)
 
 
-def check_empty_site_init(user):
+def check_empty_site_init(dbsession, user):
     """Call after user creation to see if this user is the first user and should get initial admin rights."""
 
     assert user.id, "Please flush your db"
@@ -199,7 +197,7 @@ def check_empty_site_init(user):
     i = inspection.inspect(user.__class__)
     Group = i.relationships["groups"].mapper.entity
 
-    if DBSession.query(Group).count() > 0:
+    if dbsession.query(Group).count() > 0:
         return
 
-    init_empty_site(user)
+    init_empty_site(dbsession, user)

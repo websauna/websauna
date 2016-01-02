@@ -1,11 +1,10 @@
+from pyramid.interfaces import IRequest
 from . import CRUD as _CRUD
 from . import Resource as _Resource
 
-from websauna.system.model import DBSession
-
 
 class Resource(_Resource):
-    """Map SQLAlchemy object to a traversable URL path.
+    """Maps one SQLAlchemy model instance to a traversable URL path.
 
     Describe how to display SQLAlchemy objects in breadcrumbs.
     """
@@ -16,14 +15,31 @@ class Resource(_Resource):
 
 
 class CRUD(_CRUD):
-    """CRUD controller utilizing admin interface permissions and templates."""
+    """SQLAlchemy CRUD controller.
 
-    def __init__(self, model):
-        super(CRUD, self).__init__()
-        self.model = model
+    A traversing endpoint which maps listing, add, edit and delete views for an SQLAlchemy model.
+    """
+
+    def __init__(self, request:IRequest, model:type=None):
+        """Create a CRUD root resource for a given model.
+
+        :param model: Can be set on class level or instance level.
+        """
+        super(CRUD, self).__init__(request)
+
+        if model is not None:
+            self.model = model
 
     def get_model(self):
+        """Get the SQLAlchemy model instance we are managing."""
         return self.model
+
+    def get_dbsession(self):
+        """Override to use a different database session.
+
+        Default to ``request.dbsession``.
+        """
+        return self.request.dbsession
 
     def get_query(self):
         """Get SQLAlchemy Query object which we use to populate this listing.
@@ -31,7 +47,8 @@ class CRUD(_CRUD):
         Views can specify their own queries - e.g. filter by user. This is just the default for everything.
         """
         model = self.get_model()
-        return DBSession.query(model)
+        dbsession = self.get_dbsession()
+        return dbsession.query(model)
 
     def fetch_object(self, id):
         """Pull a raw object from the database.

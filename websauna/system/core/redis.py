@@ -1,9 +1,18 @@
 """Redis connection manager."""
-from pyramid.threadlocal import get_current_registry
+import logging
+
 from redis import StrictRedis
+from redis import ConnectionError
+
+from pyramid.config import Configurator
+from pyramid.registry import Registry
+from pyramid.threadlocal import get_current_registry
 
 
-def get_redis(registry=None, url=None, redis_client=StrictRedis, **redis_options):
+logger = logging.getLogger(__name__)
+
+
+def get_redis(registry:Registry=None, url:str=None, redis_client=StrictRedis, **redis_options):
     """Get a connection to Redis.
 
     Compatible with *pyramid_redis_session*, see https://github.com/ericrasmussen/pyramid_redis_sessions/blob/master/pyramid_redis_sessions/connection.py
@@ -36,7 +45,8 @@ def get_redis(registry=None, url=None, redis_client=StrictRedis, **redis_options
     An instance of `StrictRedis`
     """
 
-    if not registry:
+    if registry is None:
+        logger.warn("Always pass registry explicitly to get_redis()")
         registry = get_current_registry()
 
     # TODO: Cache connections by name
@@ -71,3 +81,14 @@ def get_redis(registry=None, url=None, redis_client=StrictRedis, **redis_options
     # setattr(registry, '_redis_sessions', redis)
 
     return redis
+
+
+def is_sane_redis(config:Configurator) -> bool:
+    """Check that we have a working Redis connection for session."""
+
+    try:
+        redis = get_redis(config.registry)
+        redis.set("websauna_session_test", True)
+        return True
+    except ConnectionError as e:
+        return False

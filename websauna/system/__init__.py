@@ -10,15 +10,11 @@ from pyramid.path import DottedNameResolver
 from pyramid.settings import aslist
 from pyramid.settings import asbool
 
-from sqlalchemy import engine_from_config
 from pyramid_mailer.interfaces import IMailer
 from pyramid_deform import configure_zpt_renderer
-
-from websauna.system.model import Base
-from websauna.system.model import DBSession
-from websauna.system.user.interfaces import IAuthomatic, ISocialLoginMapper
+from websauna.system.admin.modeladmin import configure_model_admin
+from websauna.system.model.utils import attach_model_to_base
 from websauna.utils.configincluder import IncludeAwareConfigParser
-from websauna.utils import dictutil
 
 
 class SanityCheckFailed(Exception):
@@ -26,21 +22,38 @@ class SanityCheckFailed(Exception):
 
 
 class Initializer:
-    """Initialize various subsystems and routes.
+    """Initializer is responsible to ramp up the frameworks and subsystems.
 
-    Customizers can subclass this and override parts they want to change.
+    There exist one ``Initializer`` instance which you create in your WSGI application constructor.
+
+    * You subclass the default ``Initializer`` provider by Websauna
+
+    * You override the methods for the parts where you want to customize the default Websauna behavior
+
+    * You also need to include addons and other Pyramid package configurations. This is usually done by calling ``self.config.include("your_pyramid_package")``.
+
+    * You can add your own application specific view initializations, like ``self.config.scan()`` for your application Python modules to register ``@view_config`` directives in those.
+
+    See :py:meth:`websauna.system.Initializer.run` for linear initialization order.
     """
 
-    def __init__(self, global_config, settings):
+    def __init__(self, global_config:dict, settings:dict=None, configurator:Configurator=None):
+        """
+
+        :param global_config: Dictionary as passed to WSGI entry point.
+
+        :param settings: DEPRECATED. Extra settings as passed to WSGI entry point. TODO: How to handle these?
+
+        :param config: Configurator passed by another Pyramid app entry point. If given use this. If not given extra the config file from ``global_config`` and then create a ``Configurator`` for it. This is usually given when Initializer is used with addon.
+        """
+        if not settings:
+            settings = IncludeAwareConfigParser.retrofit_settings(global_config)
 
         #: This is the refer    ence to the config file which started our process. We need to later pass it to Notebook.
         settings["websauna.global_config"] = global_config
         self.global_config = global_config
 
         self.config = self.create_configurator(settings)
-
-        #: SQLAlchemy engine
-        self.engine = None
 
         #: Python module which provides Horus models
         self.user_models_module = None
@@ -49,6 +62,9 @@ class Initializer:
         self.celery = None
 
         self.settings = settings
+
+        #: Flag to tell if we need to do sanity check for redis sessiosn
+        self._has_redis_sessions = False
 
     def create_configurator(self, settings):
         """Create Pyramid Configurator instance."""
@@ -67,11 +83,37 @@ class Initializer:
         else:
             return int(cache_max_age)
 
+    def add_cache_buster(self, asset_spec:str):
+        """Adds configured cache busting capability to a given static assets.
+
+        You need to call this for every added ``config.add_static_view()``.
+
+        Override this to customize cache busting mechanism on your site. The default implementation uses ``PathSegmentMd5CacheBuster``.
+        """
+
+        try:
+            # Pyramid 1.6b3+
+            from pyramid.static import PathSegmentMd5CacheBuster
+            BusterClass = PathSegmentMd5CacheBuster
+        except ImportError:
+            # Pyramid 1.6b3
+            from pyramid.static import QueryStringCacheBuster
+            BusterClass = QueryStringCacheBuster
+
+        cachebust = asbool(self.settings.get("websauna.cachebust"))
+        if cachebust:
+            self.config.add_cache_buster(asset_spec, BusterClass())
+
     def configure_logging(self, settings):
         """Create and set Pyramid debug logger.
 
         Please note that most o the logging is configured through the configuration file and that should be the primary way to do it.
         """
+
+        # Extract logging configuration from INI
+        from websauna.utils.configincluder import setup_logging
+
+        setup_logging(self.global_config["__file__"])
 
         # Make sure we can target Pyramid router debug messages in logging configuration
         pyramid_debug_logger = logging.getLogger("pyramid_debug")
@@ -89,31 +131,20 @@ class Initializer:
         from websauna.system.user import schemas
         from websauna.system.user import auth
         from websauna.system.user import horus as horus_init
-        from websauna.system.model import DBSession
 
         # Tell horus which SQLAlchemy scoped session to use:
         registry = self.config.registry
-        registry.registerUtility(DBSession, IDBSession)
-
-        resolver = DottedNameResolver()
-        self.user_models_module = users_models = resolver.resolve(settings["websauna.user_models_module"])
-
-        # Mark activate user and group class
-        registry.registerUtility(users_models.User, IUserClass)
-        registry.registerUtility(users_models.Group, IGroupClass)
+        registry.registerUtility(None, IDBSession)
 
         # self.config.include("horus")
         horus_init.includeme(self.config)
 
-        self.config.scan_horus(users_models)
+        # self.config.scan_horus(users_models)
         self.config.registry.registerUtility(schemas.RegisterSchema, IRegisterSchema)
         self.config.registry.registerUtility(schemas.LoginSchema, ILoginSchema)
         self.config.registry.registerUtility(schemas.ResetPasswordSchema, IResetPasswordSchema)
 
         self.config.add_request_method(auth.get_user, 'user', reify=True)
-
-        # Pass the declarateive base for user models
-        return users_models.Base
 
     def configure_mailer(self, settings):
         """Configure outgoing email backend based on the INI settings."""
@@ -188,6 +219,7 @@ class Initializer:
         # Add OAuth 2 generic endpoint
 
         import authomatic
+        from websauna.system.user.interfaces import IAuthomatic, ISocialLoginMapper
 
         self.config.add_route('login_social', '/login/{provider_name}')
 
@@ -219,39 +251,38 @@ class Initializer:
             authomatic_config[login]["class_"] = resolver.resolve(xget(login, "class"))
 
             # Construct social login mapper
-            mapper_class = resolver.resolve(xget(login, "mapper"))
-            mapper = mapper_class(self.config.registry, login)
-            self.config.registry.registerUtility(mapper, ISocialLoginMapper, name=login)
+            mapper_class = xget(login, "mapper")
+            if mapper_class:
+                mapper_class = resolver.resolve(mapper_class)
+                mapper = mapper_class(self.config.registry, login)
+                self.config.registry.registerUtility(mapper, ISocialLoginMapper, name=login)
 
         # Store instance
         instance = authomatic.Authomatic(config=authomatic_config, secret=authomatic_secret)
         self.config.registry.registerUtility(instance, IAuthomatic)
 
-
     def configure_database(self, settings):
+        """Configure database.
+
+        Calls py:func:`websauna.system.model.meta.includeme`.
         """
-        :param settings: Any individual settings to override.
+        self.config.include(".model.meta")
 
-        :return: SQLEngine instance
-        """
-        from websauna.system.model import DBSession
-
-        settings = dictutil.combine(self.settings, settings)
-        # http://stackoverflow.com/questions/14783505/encoding-error-with-sqlalchemy-and-postgresql
-        engine = engine_from_config(settings, 'sqlalchemy.', connect_args={"options": "-c timezone=utc"}, client_encoding='utf8')
-        DBSession.configure(bind=engine)
-        return engine
-
-    def configure_instrumented_models(self, settings):
-        """Configure models from third party addons.
+    def configure_instrumented_models(self):
+        """Configure models from third party addons and dynamic SQLAlchemy fields which need access to the configuration.
 
         Third party addons might need references to configurable models which are not available at the import time. One of these models is user - you can supply your own user model. However third party addon models might want to build foreign key relationships to this model. Thus, ``configure_instrumented_models()`` is an initialization step which is called when database setup is half way there and you want to throw in some extra models in.
+
+        This exposes ``Configurator`` to SQLAlchemy through ``websauna.system.model.meta.Base.metadata.pyramid_config`` variable.
         """
 
         # Expose Pyramid configuration to classes
+        from websauna.system.model.meta import Base
         Base.metadata.pyramid_config = self.config
 
-    def configure_error_views(self, settings):
+    def configure_error_views(self):
+
+        settings = self.settings
 
         # Forbidden view overrides helpful auth debug error messages,
         # so pull in only when really needed
@@ -268,6 +299,10 @@ class Initializer:
         if "pyramid_debugtoolbar" not in aslist(settings["pyramid.includes"]):
             from websauna.system.core.views import internalservererror
             self.config.scan(internalservererror)
+
+        if settings.get("websauna.error_test_trigger", False):
+            from websauna.system.core.views import errortrigger
+            self.config.scan(errortrigger)
             self.config.add_route('error_trigger', '/error-trigger')
 
     def configure_root(self):
@@ -278,7 +313,7 @@ class Initializer:
         from websauna.system.core.root import Root
         self.config.set_root_factory(Root.root_factory)
 
-    def configure_views(self, settings):
+    def configure_views(self):
         from websauna.system.core.views import home
         self.config.add_route('home', '/')
         self.config.scan(home)
@@ -289,13 +324,15 @@ class Initializer:
         By default this is not configured and nothing is done.
         """
 
-    def configure_static(self, settings):
+    def configure_static(self):
         """Configure static asset serving and cache busting.
+
+        By default we serve only core Websauna assets. Override this to add more static asset declarations to your app.
 
         http://docs.pylonsproject.org/projects/pyramid/en/1.6-branch/narr/assets.html#static-assets-section
         """
-        cachebust = asbool(self.settings.get("websauna.cachebust"))
-        self.config.add_static_view('websauna-static', 'websauna.system:static', cachebust=cachebust)
+        self.config.add_static_view('websauna-static', 'websauna.system:static')
+        self.add_cache_buster("websauna.system:static/")
 
     def configure_sessions(self, settings, secrets):
         """Configure session storage."""
@@ -304,15 +341,10 @@ class Initializer:
 
         # TODO: Make more boilerplate here so that we pass secret in more sane way
         self.config.registry.settings["redis.sessions.secret"] = session_secret
-
         self.config.include("pyramid_redis_sessions")
 
-    def preconfigure_admin(self, settings):
-        """Create signleton Admin instance and store it in the registry."""
-        from websauna.system.admin import Admin
-        from websauna.system.admin.interfaces import IAdmin
-        _admin = Admin()
-        self.config.registry.registerUtility(_admin, IAdmin)
+        # Set a flag to perform Redis session check later and prevent web server start if Redis is down
+        self._has_redis_sessions = True
 
     def configure_admin(self, settings):
         """Configure admin ux.
@@ -321,23 +353,30 @@ class Initializer:
         """
 
         from websauna.system.admin import views
+        from websauna.system.admin import subscribers
+        from websauna.system.admin.admin import Admin
+        from websauna.system.admin.interfaces import IAdmin
+        from websauna.system.admin.interfaces import IAdmin
 
-        self.config.add_jinja2_search_path('websauna.system.admin:templates', name='.html')
-        self.config.add_jinja2_search_path('websauna.system.admin:templates', name='.txt')
+        # Register default Admin provider
+        config = self.config
+        config.registry.registerUtility(Admin, IAdmin)
 
-        self.config.add_route('admin_home', '/admin/', factory="websauna.system.admin.admin_root_factory")
-        self.config.add_route('admin', "/admin/*traverse", factory="websauna.system.admin.admin_root_factory")
+        # Set up model lookup
+        configure_model_admin(config)
 
-        self.config.add_panel('websauna.system.admin.views.default_model_admin_panel')
-        self.config.scan(views)
+        config.add_jinja2_search_path('websauna.system.admin:templates', name='.html')
+        config.add_jinja2_search_path('websauna.system.admin:templates', name='.txt')
+
+        config.add_route('admin_home', '/admin/', factory="websauna.system.admin.utils.get_admin")
+        config.add_route('admin', "/admin/*traverse", factory="websauna.system.admin.utils.get_admin")
+
+        config.add_panel('websauna.system.admin.views.default_model_admin_panel')
+        config.scan(views)
+        config.scan(subscribers)
 
         # Add templatecontext handler
-        from websauna.system.admin import templatecontext
-        templatecontext.includeme(self.config)
-
-    def preconfigure_user(self, settings):
-        # self.configure_horus(settings)
-        pass
+        config.include(".admin.templatecontext")
 
     def configure_forms(self, settings):
 
@@ -355,14 +394,47 @@ class Initializer:
         from websauna.system.crud import views
         self.config.scan(views)
 
+    def configure_user_models(self, settings):
+        """Plug in user models.
+
+        Connect chosen user model to base class.
+
+        Override this to have no-op user models.
+        """
+        from websauna.system.user import models
+        from websauna.system.model.meta import Base
+        from websauna.system.user.interfaces import IGroupClass, IUserClass
+        from horus.interfaces import IActivationClass
+
+        attach_model_to_base(models.User, Base)
+        attach_model_to_base(models.Group, Base)
+        attach_model_to_base(models.Activation, Base)
+        attach_model_to_base(models.UserGroup, Base)
+
+        # Mark active user and group class
+        registry = self.config.registry
+        registry.registerUtility(models.User, IUserClass)
+        registry.registerUtility(models.Group, IGroupClass)
+
+        # TODO: Get rid of Horus
+        registry.registerUtility(models.Activation, IActivationClass)
+
     def configure_user(self, settings, secrets):
         """Configure user model, sign in and sign up subsystem."""
         from websauna.system.user import views
         from horus.resources import UserFactory
 
-        self.configure_authentication(settings, secrets)
-        self.configure_authomatic(settings, secrets)
+        # Configure user models base package
+        # TODO: Get rid of Horus
         self.configure_horus(settings)
+
+        self.configure_user_models(settings)
+
+        # Configure authentication and
+        self.configure_authentication(settings, secrets)
+
+        # Configure social logins
+        self.configure_authomatic(settings, secrets)
 
         self.config.add_jinja2_search_path('websauna.system:user/templates', name='.html')
         self.config.add_jinja2_search_path('websauna.system:user/templates', name='.txt')
@@ -377,14 +449,10 @@ class Initializer:
         self.config.add_route('register', '/register')
         self.config.add_route('activate', '/activate/{user_id}/{code}', factory=UserFactory)
 
-
     def configure_user_admin(self, settings):
-        import websauna.system.user.admin
+        import websauna.system.user.admins
         import websauna.system.user.adminviews
-        from websauna.system.admin import Admin
-
-        _admin = Admin.get_admin(self.config.registry)
-        _admin.scan(self.config, websauna.system.user.admin)
+        self.config.scan(websauna.system.user.admins)
         self.config.scan(websauna.system.user.adminviews)
 
     def configure_notebook(self, settings):
@@ -394,13 +462,6 @@ class Initializer:
         self.config.add_route('shutdown_notebook', '/notebook/shutdown')
         self.config.add_route('notebook_proxy', '/notebook/*remainder')
         self.config.scan(websauna.system.notebook.views)
-
-        # Add admin menu entry
-        from websauna.system.admin import Admin
-        from websauna.system.admin import menu
-        admin = Admin.get_admin(self.config.registry)
-        entry = menu.RouteEntry("admin-notebook", label="Shell", icon="fa-terminal", route_name="admin_shell", condition=lambda entry, request:request.has_permission('shell'))
-        admin.get_quick_menu().add_entry(entry)
 
     def configure_tasks(self, settings):
         """Scan all Python modules with asynchoronou sna dperiodic tasks to be imported."""
@@ -439,24 +500,35 @@ class Initializer:
         self.config.registry.registerUtility(_secrets, secrets.ISecrets)
         return _secrets
 
-    def run(self, settings):
+    def configure_addons(self):
+        """Override this method to include Websauna addons for your app.
+
+        Websauna addons are created with ``websauna_addon`` scaffold.
+
+        By default do nothing.
+        """
+
+    def run(self):
         """Run the initialization and prepare Pyramid subsystems.
 
         This is the main entry for ramping up a Websauna application.
         We go through various subsystem inits.
         """
 
+        # TODO: Remove passing settings to methods as an argument
+        settings = self.settings
+
         _secrets = self.read_secrets(settings)
 
         self.configure_logging(settings)
 
-        self.preconfigure_user(settings)
-        self.preconfigure_admin(settings)
-        self.configure_forms(settings)
-
         # Serving
         self.configure_templates()
-        self.configure_static(settings)
+        self.configure_static()
+
+        # Forms
+        self.configure_forms(settings)
+        self.configure_crud(settings)
 
         # Email
         self.configure_mailer(settings)
@@ -467,30 +539,49 @@ class Initializer:
 
         # Core view and layout related
         self.configure_root()
-        self.configure_error_views(settings)
-        self.configure_views(settings)
+        self.configure_error_views()
+        self.configure_views()
         self.configure_panels(settings)
         self.configure_sitemap(settings)
+
+        # Website administration
+        self.configure_admin(settings)
 
         # Sessions and users
         self.configure_sessions(settings, _secrets)
         self.configure_user(settings, _secrets)
         self.configure_user_admin(settings)
-        self.configure_crud(settings)
 
-        # Website administration
-        self.configure_admin(settings)
         self.configure_notebook(settings)
 
-        self.configure_instrumented_models(settings)
-        self.engine = self.configure_database(settings)
+        # Configure addons before anything else, so we can override bits from addon, like template lookup paths, later easily
+        self.configure_addons()
+
+        # Database
+        # This must be run before configure_database() because SQLAlchemy will resolve @declared_attr and we must have config present by then
+        self.configure_instrumented_models()
+        self.configure_database(settings)
 
     def sanity_check(self):
         """Perform post-initialization sanity checks.
+
+        This is run on every startup to check that the database table schema matches our model definitions. If there are un-run migrations this will bail out and do not let the problem to escalate later.
         """
         from websauna.system.model import sanitycheck
-        if not sanitycheck.is_sane_database(Base, DBSession):
+        from websauna.system.model.meta import Base
+        from websauna.system.model.meta import create_dbsession
+        from websauna.system.core import redis
+
+        dbsession = create_dbsession(self.config.registry.settings)
+
+        if not sanitycheck.is_sane_database(Base, dbsession):
             raise SanityCheckFailed("The database sanity check failed. Check log for details.")
+
+        dbsession.close()
+
+        if self._has_redis_sessions:
+            if not redis.is_sane_redis(self.config):
+                raise SanityCheckFailed("Could not connect to Redis server.\nWebsauna is configured to use Redis server for session data.\nIt cannot start up without a running Redis server.\nPlease consult your operating system community how to install and start a Redis server.")
 
     def wrap_wsgi_app(self, app):
         """Perform any necessary WSGI application wrapping.
@@ -567,9 +658,8 @@ def get_init(global_config, settings, init_cls=None):
 def main(global_config, **settings):
     """Entry point for creating a Pyramid WSGI application."""
 
-    settings = IncludeAwareConfigParser.retrofit_settings(global_config)
-    init = Initializer(global_config, settings)
-    init.run(settings)
+    init = Initializer(global_config)
+    init.run()
 
     wsgi_app = init.make_wsgi_app()
 

@@ -111,7 +111,7 @@ class IncludeAwareConfigParser(configparser.SafeConfigParser):
         return {k:v for k,v in parser.items(section)}
 
 
-# Monkey-patched setup_logging()
+# Monkey-patched python.paster.setup_logging()
 def setup_logging(config_uri, fileConfig=fileConfig,
                   configparser=configparser):
     """
@@ -130,13 +130,8 @@ def setup_logging(config_uri, fileConfig=fileConfig,
     parser.read([path])
 
     if parser.has_section('loggers'):
-
         config_file = os.path.abspath(path)
-
-        return fileConfig(
-            parser,
-            dict(__file__=config_file, here=os.path.dirname(config_file))
-            )
+        return fileConfig(parser, dict(__file__=config_file, here=os.path.dirname(config_file)), disable_existing_loggers=False)
 
 
 def monkey_patch_paster_config_parser():

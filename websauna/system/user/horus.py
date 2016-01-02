@@ -42,12 +42,12 @@ def include_routes(config):
     #config.add_route('forgot_password', '/forgot_password')
     #config.add_route('reset_password', '/reset_password/{code}')
 
-    config.add_route('profile', '/profile/{user_id}',
-                     factory=UserFactory,
-                     traverse="/{user_id}")
-    config.add_route('edit_profile', '/profile/{user_id}/edit',
-                     factory=UserFactory,
-                     traverse="/{user_id}")
+    # config.add_route('profile', '/profile/{user_id}',
+    #                 factory=UserFactory,
+    #                 traverse="/{user_id}")
+    # config.add_route('edit_profile', '/profile/{user_id}/edit',
+    #                 factory=UserFactory,
+    #                 traverse="/{user_id}")
 
     # config.add_route('admin', '/admin')
     # config.add_route('admin_users_index', '/admin/users')

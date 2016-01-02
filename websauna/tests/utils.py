@@ -4,12 +4,8 @@ from decimal import Decimal
 from pyramid.registry import Registry
 from pyramid.session import signed_deserialize
 from pyramid_redis_sessions import RedisSession, get_default_connection
-from websauna.system.model import now
-from websauna.system.model import DBSession
-
 from selenium.webdriver.remote.webdriver import WebDriver
 from websauna.system.user.usermixin import check_empty_site_init
-
 #: The default test login name
 import transaction
 
@@ -19,21 +15,23 @@ EMAIL = "example@example.com"
 PASSWORD = "ToholamppiMadCowz585"
 
 
-def create_user(email=EMAIL, password=PASSWORD, admin=False):
+def create_user(dbsession, email=EMAIL, password=PASSWORD, admin=False):
+
     from websauna.system.user.models import User
     from websauna.system.user.models import Group
+
     user = User(email=email, password=password)
     user.user_registration_source = User.USER_MEDIA_DUMMY
-    DBSession.add(user)
-    DBSession.flush()
+    dbsession.add(user)
+    dbsession.flush()
     user.username = user.generate_username()
 
     assert user.can_login()
 
     # First user, make it admin
     if admin:
-        check_empty_site_init(user)
-        admin_grp = DBSession.query(Group).first()
+        check_empty_site_init(dbsession, user)
+        admin_grp = dbsession.query(Group).first()
         assert admin_grp
         user.groups.append(admin_grp)
         assert user.is_admin()
@@ -41,18 +39,16 @@ def create_user(email=EMAIL, password=PASSWORD, admin=False):
     return user
 
 
-def get_user(email=EMAIL):
+def get_user(dbsession, email=EMAIL):
     from websauna.system.user.models import User
-    return DBSession.query(User).filter_by(email=EMAIL).first()
+    return dbsession.query(User).filter_by(email=EMAIL).first()
 
 
-
-
-def create_logged_in_user(web_server, browser, admin=False):
+def create_logged_in_user(dbsession, web_server, browser, admin=False):
     """For a web browser test session, creates a new user and logs it in."""
 
     with transaction.manager:
-        create_user(admin=admin)
+        create_user(dbsession, admin=admin)
 
     b = browser
     b.visit("{}/{}".format(web_server, "login"))
@@ -101,12 +97,12 @@ def login(web_server, browser, email=EMAIL, password=PASSWORD):
     assert b.is_element_visible_by_css("#nav-logout")
 
 
-def get_session_from_webdriver(driver:WebDriver, registry:Registry) -> RedisSession:
+def get_session_from_webdriver(driver: WebDriver, registry: Registry) -> RedisSession:
     """Extract session cookie from a Selenium driver and fetch a matching pyramid_redis_sesssion data.
 
     Example::
 
-        def test_newsletter_referral(DBSession, web_server, browser, init):
+        def test_newsletter_referral(dbsession, web_server, browser, init):
             '''Referral is tracker for the newsletter subscription.'''
 
             b = browser
@@ -115,8 +111,8 @@ def get_session_from_webdriver(driver:WebDriver, registry:Registry) -> RedisSess
             with transaction.manager:
                 r = ReferralProgram()
                 r.name = "Foobar program"
-                DBSession.add(r)
-                DBSession.flush()
+                dbsession.add(r)
+                dbsession.flush()
                 ref_id, slug = r.id, r.slug
 
             # Inject referral data to the active session. We do this because it is very hard to spoof external links pointing to localhost test web server.
@@ -135,8 +131,8 @@ def get_session_from_webdriver(driver:WebDriver, registry:Registry) -> RedisSess
 
             # Check we get an entry
             with transaction.manager:
-                assert DBSession.query(NewsletterSubscriber).count() == 1
-                subscription = DBSession.query(NewsletterSubscriber).first()
+                assert dbsession.query(NewsletterSubscriber).count() == 1
+                subscription = dbsession.query(NewsletterSubscriber).first()
                 assert subscription.email == "foobar@example.com"
                 assert subscription.ip == "127.0.0.1"
                 assert subscription.referral_program_id == ref_id

@@ -10,8 +10,7 @@ from sqlalchemy import Integer
 from sqlalchemy.dialects.postgresql import JSONB
 
 from sqlalchemy import engine_from_config
-
-from websauna.system.model import DBSession
+from websauna.system.model.meta import create_dbsession
 from websauna.utils.jsonb import BadJSONData
 from websauna.utils.jsonb import BadStoredData
 from websauna.utils.jsonb import JSONBProperty
@@ -67,28 +66,18 @@ class TestJSON(unittest.TestCase):
 
     def setUp(self):
 
-        self.engine = engine_from_config(self.config, 'sqlalchemy.')
-
         # Create a threadh-local automatic session factory
-        self.session = DBSession
+        self.session = create_dbsession(self.config)
+        self.engine = self.session.get_bind()
 
         # Load Bitcoin models to play around with
-        Base.metadata.create_all(self.engine, tables=[TestModel.__table__, DefautDataTestModel.__table__])
-
-        self.connection = self.engine.connect()
-        self.transaction = self.connection.begin()
-        self.session.configure(bind=self.connection)
+        with transaction.manager:
+            Base.metadata.create_all(self.engine, tables=[TestModel.__table__, DefautDataTestModel.__table__])
 
     def tearDown(self):
 
-        # We need to perform commit here to see that the actual database does not burp on our JSON input
-        self.transaction.commit()
-
-        transaction = self.connection.begin()
-        Base.metadata.drop_all(self.engine)
-        transaction.commit()
-
-        self.session.remove()
+        with transaction.manager:
+            Base.metadata.drop_all(self.engine)
 
     def test_flat_property_int(self):
         """Set a flat JSON value."""
@@ -123,48 +112,48 @@ class TestJSON(unittest.TestCase):
     def test_write_read_persistent_nested(self):
         """Set nested JSON value and read it back from the database."""
 
-        val = 555
+        with transaction.manager:
+            val = 555
 
-        model = TestModel()
+            model = TestModel()
 
-        model.data = {"nested_dict": {}}
-        model.nested_property = val
+            model.data = {"nested_dict": {}}
+            model.nested_property = val
 
-        self.session.add(model)
-        self.transaction.commit()
+            self.session.add(model)
 
-        self.transaction = self.connection.begin()
-        model = self.session.query(TestModel).get(1)
-
-        self.assertEqual(model.nested_property, val)
+        with transaction.manager:
+            model = self.session.query(TestModel).get(1)
+            self.assertEqual(model.nested_property, val)
 
     def test_write_empty_field(self):
         """Create new instace, do not set the field, see it comes back as empty dict.."""
 
         model = TestModel()
-        self.session.add(model)
-        self.transaction.commit()
+        with transaction.manager:
+            self.session.add(model)
 
-        self.transaction = self.connection.begin()
-        model = self.session.query(TestModel).get(1)
 
-        self.assertEqual(model.data, {})
+        with transaction.manager:
+            model = self.session.query(TestModel).get(1)
+            self.assertEqual(model.data, {})
 
     def test_persistent_null(self):
         """See that if we manage to slip NULL data to persistent object we get friendly error."""
 
-        model = TestModel()
-        self.session.add(model)
-        self.transaction.commit()
+        with transaction.manager:
+            model = TestModel()
+            self.session.add(model)
 
-        self.transaction = self.connection.begin()
-        model = self.session.query(TestModel).get(1)
+        with transaction.manager:
 
-        # Emulate broken data
-        model.data = None
+            model = self.session.query(TestModel).get(1)
 
-        with self.assertRaises(BadStoredData):
-            model.nested_property = 1
+            # Emulate broken data
+            model.data = None
+
+            with self.assertRaises(BadStoredData):
+                model.nested_property = 1
 
     def test_datetime(self):
         """See that we serialize and deserialize datetimes correctly, including timezone info."""
@@ -187,18 +176,18 @@ class TestJSON(unittest.TestCase):
 
         val = None
 
-        model = TestModel()
-        model.date_time_property = val
+        with transaction.manager:
+            model = TestModel()
+            model.date_time_property = val
 
-        self.session.add(model)
-        self.transaction.commit()
+            self.session.add(model)
 
-        self.transaction = self.connection.begin()
-        model = self.session.query(TestModel).get(1)
+        with transaction.manager:
+            model = self.session.query(TestModel).get(1)
 
-        val2 = model.date_time_property
+            val2 = model.date_time_property
 
-        self.assertEqual(val, val2)
+            self.assertEqual(val, val2)
 
     def test_datetime_no_timezone(self):
         """Don't let naive datetimes slip through."""
@@ -228,13 +217,13 @@ class TestJSON(unittest.TestCase):
         -> this will invalidate the default value
         """
 
-        model = DefautDataTestModel()
-        model.default_value_1 = "xxx"
-        assert model.data == {"default_value_1": "xxx", "default_value_2": 2}
-        self.session.add(model)
-        self.transaction.commit()
+        with transaction.manager:
+            model = DefautDataTestModel()
+            model.default_value_1 = "xxx"
+            assert model.data == {"default_value_1": "xxx", "default_value_2": 2}
+            self.session.add(model)
 
-        self.transaction = self.connection.begin()
-        model = self.session.query(DefautDataTestModel).get(1)
-        assert model
-        assert model.default_value_2 == 2
+        with transaction.manager:
+            model = self.session.query(DefautDataTestModel).get(1)
+            assert model
+            assert model.default_value_2 == 2

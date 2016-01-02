@@ -1,41 +1,96 @@
-"""Default user models.
+"""Default user models."""
+import sqlalchemy as sa
+from sqlalchemy.ext.declarative import declared_attr
 
-Avoid importing this module directly. Instead use:
-
-    user_class = request.registry.queryUtility(IUserClass)
-
-"""
-
+from hem.text import pluralize
 from horus import models as horus_models
-
+from sqlalchemy.ext.declarative.base import _declarative_constructor
 from . import usermixin
-from websauna.system.model import Base
-
-#: TODO: How to handle the fact that Horus requires custom declarative base?
-# Base = declarative_base(cls=horus_models.BaseModel)
 
 
-# XXX: Fix upstream code - Horus uses harcoded table name in declarative attributes
-horus_models.UserMixin.__tablename__ = "users"
+class User(usermixin.UserMixin, horus_models.UserMixin):
 
-
-class User(usermixin.UserMixin, horus_models.UserMixin, horus_models.BaseModel, Base):
-
-    # In PSQL user is a reserved word
+    # In PSQL "user", the automatically generated table name, is a reserved word
     __tablename__ = "users"
 
+    __init__ = _declarative_constructor
 
-class Group(usermixin.GroupMixin, horus_models.GroupMixin, horus_models.BaseModel, Base):
-    pass
+    @property
+    def last_login_date(self):
+        # Our internal declaration which matches Horus way of saying the same thing
+        # TODO: Remove Horus as a dependency
+        return self.last_login_at
+
+    # Fix SAWarning: Unmanaged access of declarative attribute __tablename__ from non-mapped class ...
+    # Apparently one cannot refer to attributes from mixin classes.
+    @declared_attr
+    def activation_id(self):
+        return sa.Column(
+            sa.Integer,
+            sa.ForeignKey('%s.%s' % (
+                    Activation.__tablename__,
+                    self._idAttribute
+                )
+            )
+        )
 
 
-class UserGroup(horus_models.UserGroupMixin, horus_models.BaseModel, Base):
-    pass
+class Group(usermixin.GroupMixin, horus_models.GroupMixin):
+
+    __init__ = _declarative_constructor
+
+    # Fix SAWarning: Unmanaged access of declarative attribute __tablename__ from non-mapped class ...
+    @declared_attr
+    def users(self):
+        """Relationship for users belonging to this group"""
+        return sa.orm.relationship(
+            'User',
+            secondary=UserGroup.__tablename__,
+            # order_by='%s.user.username' % UserMixin.__tablename__,
+            passive_deletes=True,
+            passive_updates=True,
+            backref=pluralize(Group.__tablename__),
+        )
 
 
-class Activation(horus_models.ActivationMixin, horus_models.BaseModel, Base):
-    pass
+class UserGroup(horus_models.UserGroupMixin):
 
-# We don't want these attributes from the default horus's UserMixin
-# TODO: Patch upstream for more configurability here
-del User.last_login_date
+    __tablename__ = "usergroup"
+
+    # Default constructor
+    __init__ = _declarative_constructor
+
+    @declared_attr
+    def user_id(self):
+
+        # Fix table name for User table, Horus bugs out PSQL
+        return sa.Column(
+            sa.Integer,
+            sa.ForeignKey('%s.%s' % (User.__tablename__,
+                                     self._idAttribute),
+                          onupdate='CASCADE',
+                          ondelete='CASCADE'),
+        )
+
+    # Fix SAWarning: Unmanaged access of declarative attribute __tablename__ from non-mapped class ...
+    @declared_attr
+    def group_id(self):
+        return sa.Column(
+            sa.Integer,
+            sa.ForeignKey('%s.%s' % (
+                Group.__tablename__,
+                self._idAttribute)
+            )
+        )
+
+
+class Activation(horus_models.ActivationMixin):
+
+    __tablename__ = "activation"
+
+    # Default constructor
+    __init__ = _declarative_constructor
+
+
+
+

@@ -19,20 +19,25 @@ def internal_server_error(context, request):
 
         user = getattr(request, "user", None)
         user_context = {}
-        if user:
 
-            # Add additional user context to the logged exception
-            username = getattr(user, "friendly_name", None) or getattr(user, "username", None) or str(user)
-            email = getattr(user, "email", None)
-            user_context.update(dict(user=username, email=email))
+        try:
+            if user:
 
-        # All the session data
-        session = getattr(request, "session", None)
-        if session:
-            session = dict(session.items())
-            user_context.update(dict(session=session))
-        else:
-            user_context.update(dict(session="No session data available in interal_server_error()"))
+                # Add additional user context to the logged exception
+                username = getattr(user, "friendly_name", None) or getattr(user, "username", None) or str(user)
+                email = getattr(user, "email", None)
+                user_context.update(dict(user=username, email=email))
+
+            # All the session data
+            session = getattr(request, "session", None)
+            if session:
+                session = dict(session.items())
+                user_context.update(dict(session=session))
+            else:
+                user_context.update(dict(session="No session data available in internal_server_error()"))
+        except Exception as e:
+            logger.error("FAiled to Gather user and session data")
+            logger.exception(e)
 
         request.raven.user_context(user_context)
         request.raven.captureException()
@@ -47,6 +52,3 @@ def internal_server_error(context, request):
     return resp
 
 
-@view_config(route_name='error_trigger')
-def error_trigger(request):
-    raise RuntimeError("Test error.")

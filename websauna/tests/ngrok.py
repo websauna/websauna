@@ -39,7 +39,7 @@ class NgrokTunnel:
 
 
         @pytest.mark.serica
-        def test_serica_payment(web_server, browser, DBSession, init, ngrok_tunnel):
+        def test_serica_payment(web_server, browser, dbsession, init, ngrok_tunnel):
             '''Do a Serica payment and see it works.'''
 
     """

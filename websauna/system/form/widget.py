@@ -5,7 +5,6 @@ Mostly for high level integration.
 from colander import null, string_types
 import deform
 from deform.widget import _normalize_choices
-from websauna.system.model import DBSession
 
 
 class RelationshipCheckboxWidget(deform.widget.CheckboxChoiceWidget):
@@ -36,29 +35,35 @@ class RelationshipCheckboxWidget(deform.widget.CheckboxChoiceWidget):
         """
         return str(dict_["id"])
 
-    @property
-    def values(self):
-        query = self.get_query()
+    def get_values(self, request):
+        query = self.get_query(request)
         return [self.make_entry(obj) for obj in query.all()]
 
-    def get_query(self):
+    def get_query(self, request):
         """Get the query which populates all the available choices."""
         assert self.model, "No model set"
-        return DBSession.query(self.model)
+        dbsession = request.dbsession
+        return dbsession.query(self.model)
 
-    def get_objects(self, id_list):
+    def get_objects(self, request, id_list):
         """We get a list of ids from the form post. Convert them to saveable SQL objects.
 
         Override this if you use custom ids.
         """
-        query = self.get_query()
+        query = self.get_query(request)
         objects = query.filter(self.model.id.in_(id_list)).all()
         return objects
+
+    def get_request(self, field):
+        request = field.schema.bindings.get("request")
+        assert request, "RelationshipCheckboxWidget cannot be rendered unless it has schema.bind(request=request)"
+        return request
 
     def serialize(self, field, cstruct, **kw):
 
         # Assume cstruct is colanderalchemy dictify() result of relationshipfield
         # [{'id': '1', 'name': 'admin', 'description': <colander.null>, 'group_data': <colander.null>}]
+        request = self.get_request(field)
 
         if cstruct in (null, None):
             cstruct = ()
@@ -66,10 +71,9 @@ class RelationshipCheckboxWidget(deform.widget.CheckboxChoiceWidget):
         cstruct = [self.make_id(dict_) for dict_ in cstruct]
 
         readonly = kw.get('readonly', self.readonly)
-        values = kw.get('values', self.values)
+        values = kw.get('values', self.get_values(request))
 
         kw['values'] = _normalize_choices(values)
-
         template = readonly and self.readonly_template or self.template
         tmpl_values = self.get_template_values(field, cstruct, kw)
 
@@ -82,11 +86,13 @@ class RelationshipCheckboxWidget(deform.widget.CheckboxChoiceWidget):
 
     def deserialize(self, field, pstruct):
 
+        request = self.get_request(field)
+
         if pstruct is null:
             return null
         if isinstance(pstruct, string_types):
             return (pstruct,)
 
-        der = [self.fix_deserialize_type(obj) for obj in self.get_objects(pstruct)]
+        der = [self.fix_deserialize_type(obj) for obj in self.get_objects(request, pstruct)]
 
         return der

@@ -2,7 +2,6 @@ import transaction
 
 from websauna.tests.utils import create_logged_in_user
 from websauna.tests.utils import get_user
-from websauna.system.model import DBSession
 
 
 GROUP_NAME = "Sample Group"
@@ -12,7 +11,7 @@ def test_add_group(web_server, browser, dbsession):
     """Create a new group through admin interface."""
 
     b = browser
-    create_logged_in_user(web_server, browser, admin=True)
+    create_logged_in_user(dbsession, web_server, browser, admin=True)
 
     b.find_by_css("#nav-admin").click()
 
@@ -24,7 +23,7 @@ def test_add_group(web_server, browser, dbsession):
     assert b.is_text_present("Item added")
 
     # Check we appear in the list
-    b.visit("{}/admin/group/listing".format(web_server))
+    b.visit("{}/admin/models/group/listing".format(web_server))
 
     # The description appears in the listing
     assert b.is_text_present("Foobar")
@@ -37,12 +36,12 @@ def test_put_user_to_group(web_server, browser, dbsession):
 
     from websauna.system.user.models import Group
 
-    create_logged_in_user(web_server, browser, admin=True)
+    create_logged_in_user(dbsession, web_server, browser, admin=True)
 
     # Create a group where we
     with transaction.manager:
         g = Group(name=GROUP_NAME)
-        DBSession.add(g)
+        dbsession.add(g)
 
     b.find_by_css("#nav-admin").click()
     b.find_by_css("#btn-panel-list-user").click()
@@ -69,13 +68,13 @@ def test_user_group_choices_preserved_on_validation_error(web_server, browser, d
 
     from websauna.system.user.models import Group
 
-    create_logged_in_user(web_server, browser, admin=True)
+    create_logged_in_user(dbsession, web_server, browser, admin=True)
 
     # Create a group where we
     with transaction.manager:
         g = Group(name=GROUP_NAME)
-        DBSession.add(g)
-        u = get_user()
+        dbsession.add(g)
+        u = get_user(dbsession)
         u.groups.append(g)
 
     b.find_by_css("#nav-admin").click()
@@ -103,13 +102,13 @@ def test_remove_user_from_group(web_server, browser, dbsession):
 
     from websauna.system.user.models import Group
 
-    create_logged_in_user(web_server, browser, admin=True)
+    create_logged_in_user(dbsession, web_server, browser, admin=True)
 
     # Create a group where we
     with transaction.manager:
         g = Group(name=GROUP_NAME)
-        DBSession.add(g)
-        u = get_user()
+        dbsession.add(g)
+        u = get_user(dbsession)
         u.groups.append(g)
 
     b.find_by_css("#nav-admin").click()

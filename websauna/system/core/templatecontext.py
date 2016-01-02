@@ -1,28 +1,24 @@
 """Extra template variables."""
 import datetime
 import json
-from time import ctime as time_ctime
-from pyramid.config import Configurator
 
+from pyramid.config import Configurator
 from pyramid.events import BeforeRender
 from pyramid.renderers import render
-from pyramid.security import effective_principals
 from pyramid.settings import asbool
 from pyramid.threadlocal import get_current_request
-from websauna.system.admin import Admin
 
 from pytz import timezone
 
-from pyramid_jinja2 import IJinja2Environment
 
 from jinja2 import contextfilter
 from jinja2 import Markup
 
 from arrow import Arrow
-from websauna.system.compat import typing
+from websauna.compat import typing
 
 from websauna.utils import html
-from websauna.system.model import now
+from websauna.utils.time import now
 
 
 

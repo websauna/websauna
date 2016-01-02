@@ -96,7 +96,7 @@ class IncludeAwareConfigParser(configparser.SafeConfigParser):
 
     @classmethod
     def retrofit_settings(cls, global_config, section="app:main"):
-        """Update **settings dictionary given to WSGI application constructor by Paster to have included settings.
+        """Update settings dictionary given to WSGI application constructor by Paster to have included settings.
 
         :param global_config: global_config dict as given by Paster
 

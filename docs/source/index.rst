@@ -1,14 +1,11 @@
-.. Websauna documentation master file, created by
-   sphinx-quickstart on Sun Jun 28 21:46:46 2015.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Welcome to Websauna's documentation
 ===================================
 
-Welcome to Websauna, a Python web application framework for building consumer and community websites.
+Welcome to Websauna, a full stack Python web framework.
 
-Websauna is a "macro" Python framework for building websites up to 50M users. Its goal is to provide all the basic building elements of a site, from log in and sign up process, so developers can focus solving business application problems instead of dealing with issues common for all web applications. When you install Websauna, you have a fully functional website where you can start add in your custom functionality.
+.. note ::
+
+    This is a work in progress project and documentation. There is no official release yet.
 
 Narrative developer guide
 =========================
@@ -30,12 +27,15 @@ Narrative developer guide
     narrative/admin
     narrative/notebook
     narrative/mail
+    narrative/user
     narrative/tweens
     narrative/commands
+    narrative/javascript
     narrative/task
     narrative/testing
     narrative/develop
     narrative/docs
+    narrative/conventions
     narrative/troubleshooting
     narrative/glossary
 
@@ -45,6 +45,7 @@ Devops guide
 .. toctree::
     :maxdepth: 1
 
+    narrative/databaseops
     narrative/production
     narrative/wsgi
     narrative/sentry

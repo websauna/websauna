@@ -39,6 +39,11 @@ Automatic admin interface
 
 When you write a database model, you usually need to have the basic create-read-update-delete (CRUD) cycle for them. Websauna can automatically generate most of this administrative interface for you, minimizing the effort needed for writing repeative form handling tasks. Furthermore Websauna is not limited to one admin interface, but can have different admins available for different users, and tries to hard to make sure that admin views are extensible and flexible.
 
+IPython Notebook integration
+----------------------------
+
+Open a powerful IPython Notebook shell at your site with a single click. IPython is a popular tool in data analysis and scientific work. It provides powerful number crunching capabilities and graph plotting. Furthermore it can act as a modern shell for maintenance and one shot style tasks which are often performed from server Python prompt.
+
 Zero globals
 ------------
 
@@ -48,6 +53,11 @@ Security
 --------
 
 A special focus has been on making the framework secure and tolerate against human errors. The framework shields developers against TOP 10 OWASP vulnerabilities like SQL injection, cross site scripting and race conditions. Best practices exist for handling secrets like API tokens.
+
+Database management and migration
+---------------------------------
+
+Websauna provides tools for automatic and manual database migrations and backup. Migration scripts are package specific, making it possible to build non-monolithic applications with packages with independent life cycle.
 
 High quality documentation
 --------------------------

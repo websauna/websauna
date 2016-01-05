@@ -80,6 +80,7 @@ setup(
         'pyramid_deform',
         "pyramid_debugtoolbar",
         "pyramid_jinja2",
+        "pyramid_ipython",
 
         # Time handling
         "arrow",

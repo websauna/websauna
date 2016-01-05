@@ -7,51 +7,111 @@ Welcome to Websauna, a full stack Python web framework.
 
     This is a work in progress project and documentation. There is no official release yet.
 
-Narrative developer guide
-=========================
-
-.. toctree::
-    :maxdepth: 1
-
-    narrative/intro
-    narrative/comparison
-    narrative/architecture
-    narrative/config
-    narrative/database
-    narrative/transient
-    narrative/views
-    narrative/models
-    narrative/templatecontext
-    narrative/form
-    narrative/crud
-    narrative/admin
-    narrative/notebook
-    narrative/mail
-    narrative/user
-    narrative/tweens
-    narrative/commands
-    narrative/javascript
-    narrative/task
-    narrative/testing
-    narrative/develop
-    narrative/docs
-    narrative/conventions
-    narrative/troubleshooting
-    narrative/glossary
-
-Devops guide
-============
-
-.. toctree::
-    :maxdepth: 1
-
-    narrative/databaseops
-    narrative/production
-    narrative/wsgi
-    narrative/sentry
-
-API documentation
+Table of contents
 =================
+
+Introduction
+------------
+
+.. toctree::
+    :maxdepth: 1
+open
+    narrative/background/intro
+    narrative/background/comparison
+    narrative/background/architecture
+
+Getting started
+---------------
+
+First steps with Websauna.
+
+.. toctree::
+    :maxdepth: 1
+
+    tutorial/index
+
+Modelling, forms and data input
+-------------------------------
+
+How to get your data in to and out from a database.
+
+.. toctree::
+    :maxdepth: 1
+
+    narrative/manipulation/models
+    narrative/manipulation/database
+    narrative/manipulation/transient
+    narrative/manipulation/form
+    narrative/manipulation/crud
+    narrative/manipulation/admin
+
+Users and authentication
+------------------------
+
+.. toctree::
+    :maxdepth: 1
+
+    narrative/user/user
+
+Frontend
+--------
+
+.. toctree::
+    :maxdepth: 1
+
+    narrative/frontend/views
+    narrative/frontend/templatecontext
+    narrative/frontend/tweens
+    narrative/frontend/javascript
+
+Development and operations
+--------------------------
+
+.. toctree::
+    :maxdepth: 1
+
+    narrative/ops/production
+    narrative/ops/databaseops
+    narrative/ops/sentry
+
+Other
+-----
+
+.. toctree::
+    :maxdepth: 1
+
+    narrative/misc/task
+    narrative/misc/testing
+    narrative/misc/notebook
+    narrative/misc/mail
+
+Developing Websauna itself
+--------------------------
+
+.. toctree::
+    :maxdepth: 1
+
+    narrative/developing/develop
+    narrative/developing/docs
+    narrative/developing/conventions
+
+References
+==========
+
+Other
+-----
+
+.. toctree::
+    :maxdepth: 1
+
+    reference/config
+    reference/commands
+    reference/troubleshooting
+    glossary
+
+
+API
+---
 
 .. toctree::
     :maxdepth: 1
@@ -59,6 +119,7 @@ API documentation
     api/websauna.system
     api/websauna.utils
     api/websauna.tests
+
 
 Indices and tables
 ==================

@@ -1,4 +1,10 @@
+===============
+Troubleshooting
+===============
 
+This chapter contains common issues and how to diagnose them.
+
+..
 
 Database connection hangs
 -------------------------

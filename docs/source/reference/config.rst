@@ -23,6 +23,17 @@ Configuration variables
 
 The following variables are available
 
+.. _sqlalchemy.url:
+
+sqlalchemy.url
+--------------
+
+The connection string for the primary SQL database.
+
+Follows `SQLAlchemy engine configuration syntax <http://docs.sqlalchemy.org/en/latest/core/engines.html>`_.
+
+Default: ``postgresql://localhost/yourappname_dev`` (for :term:`development.ini`)
+
 websauna.site_url
 -----------------
 

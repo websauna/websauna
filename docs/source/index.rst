@@ -15,7 +15,7 @@ Introduction
 
 .. toctree::
     :maxdepth: 1
-open
+
     narrative/background/intro
     narrative/background/comparison
     narrative/background/architecture
@@ -60,6 +60,7 @@ Frontend
     :maxdepth: 1
 
     narrative/frontend/views
+    narrative/frontend/templates
     narrative/frontend/templatecontext
     narrative/frontend/tweens
     narrative/frontend/javascript

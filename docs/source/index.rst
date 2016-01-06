@@ -71,8 +71,9 @@ Development and operations
 .. toctree::
     :maxdepth: 1
 
+    narrative/ops/migrations
     narrative/ops/production
-    narrative/ops/databaseops
+    narrative/ops/backup
     narrative/ops/sentry
 
 Other

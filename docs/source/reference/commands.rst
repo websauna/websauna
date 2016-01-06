@@ -15,6 +15,8 @@ Example::
 
     ws-shell development.ini
 
+.. _ws-db-shell:
+
 ws-db-shell
 -----------
 

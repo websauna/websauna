@@ -39,8 +39,8 @@ If you need to change the default database name or its connection details you ca
 Creating migration scripts
 ==========================
 
-Websauna stores data in SQL databases in tables. When these tables are changed, the database must be instructed to perform the changes. Initially you will need the migration scripts to create database tables for user and groups of your website.
+Websauna stores data in SQL databases in tables. When these tables are changed, the database must be instructed to perform the changes. The change is recorded as a migration script which can repeatably run across several computers (coworkers, different servers). Initially you will need the migration scripts to create database tables for user and groups of your website.
 
-To do this::
+To do this we use :ref:`ws-alembic` command::
 
     TODO

@@ -1,6 +1,6 @@
-================
-Webauna tutorial
-================
+==========================================
+Developing your first Websauna application
+==========================================
 
 .. toctree::
     :maxdepth: 1

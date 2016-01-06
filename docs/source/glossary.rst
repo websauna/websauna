@@ -21,3 +21,6 @@ Glossary
    IPython Notebook
       A powerful browser based shell for a Python. Popular in scientific community and data analysis. See `IPython Notebook site <http://ipython.org/notebook.html>`_ for more information.
 
+   secrets
+      The secrets are passwords, API keys and other sensitive data which you want to avoid exposing.
+

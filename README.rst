@@ -1,89 +1,25 @@
-Websauna is a a Python web framework aimed for building consumer and community websites.
+Websauna is a full stack Python web framework aimed for building consumer and community websites.
 
-Installation
-============
+.. note ::
 
-OSX set up
-----------
+    This project does not have an official release yet and much things are still in motion.
 
-* Install git
-
-* `Install PostgreSQL from Homebrew <https://coderwall.com/p/1mni7w/install-postgresql-on-mountain-lion>`_
-
-* Create database::
-
-    createdb websauna
-
-* Initialize database tables::
-
-    initializedb development.ini
-
-Ubuntu prerequisites
----------------------
-
-* TODO
-
-Starting Python project
--------------------------
-
-* Create virtualenv::
-
-    cd websauna
-    virtualenv venv
-
-* Install Python packages::
-
-    pip install -r requirements.txt
-
-* Run the project::
-
-     pserve development.ini --reload
-
-Then navigate to `localhost:6543 <http://localhost:6543>`_ and you should see the front page.
-
-Setting up database
--------------------
-
-Usage
-=====
-
-Starting the website.
-
-Customization and overriding defaults
-=====================================
-
-To override any parts in ``websauna`` you can do the following.
-
-* Create a new Pyramid project
-
-* Include pip ``requirements.txt`` in your project, change/upgrade versions as needed
-
-* Copy-paste ``main.py``, ``development.ini`` from ``websauna``
-
-* Override necessary parts
-
-* Install your package in the development mode::
-
-    python setup.py develop
-
-Chosen trade offs
-=================
-
-Pyramid web framework provides very flexible configuration, but not many defaults components to go with. Thus, the following trade offs have been made with ``websauna``. The main goal of the project is to offer something that works out of the box, not maximum flexibility. So convenience has been chosen over configurability. To override any of these trade offs you might wish to simply fork this project or suggest something clever, so that the project still runs out of the box without going through too many hoops and loops.
-
-* Database is fixed to PostgreSQL
-
-* Cache is fixed to Redis
-
-* Database session management is fixed in ``models.py`` and not configurable
-
-* Template engine is fixed to Jinja 2
-
-* Test runner is fixed to ``py.test``.
-
-Inspiration
+What it is?
 ===========
 
-* https://gist.github.com/inklesspen/4504383
+Websauna gives you building blocks for creating scalable, state-of-the-art websites and services. The framework enables  efficient business problem solving, so that developers can maximize productivity from day zero. Websauna is suggestive and has default options on all parts of stack, so one can follow a red line to get the first release out quickly. On the other hand, Websauna does not enforce hard opinions and sacrifice flexibility, so that experienced developers can easily override parts and use more sophisticated components for specific needs.
 
-* http://docs.pylonsproject.org/docs/pyramid/en/latest/tutorials/wiki2/installation.html
+How it is done?
+===============
+
+Websauna achieves flexibility by keeping its own codebase minimal and not reinventing the wheel. Instead it provides a polished integration of the top packages of Python ecosystem like Pyramid web framework, SQLAlchemy object relationship mapper, Alembic migration scripts, IPython shell, Authomatic federated login, Jinja templating and py.test testing framework.
+
+When to use it?
+===============
+
+Websauna is focused on Internet facing sites where you have a public or private sign up process and administrative backend. It's sweet spots are custom business portals, software-as-a-service sites and consumer portals where out of the box software cannot satisfy your needs and you need to program moderate amount of business logic. A special focus is given for security, so that Websauna is a strong candidate for financial technology and eCommerce solutions.
+
+Documentation
+=============
+
+See ``docs`` folder - `make html`.

@@ -9,7 +9,11 @@ Welcome to Websauna, a full stack Python web framework for building consumer and
 What is it?
 ===========
 
-Websauna gives you building blocks for creating scalable, state-of-art websites and services. Websauna gives a framework for efficient business problem solving, so that developers can maximize their productivity from day zero. It has a default opinion on all parts of the software stack to have a red line what to follow to get the first version out. This is done without sacrificing the flexibility, so that experienced developers can chose more optimized components for their specific needs.
+Websauna gives you building blocks for creating scalable, state-of-the-art websites and services. The framework enables  efficient business problem solving, so that developers can maximize productivity from day zero. Websauna is suggestive and has default options on all parts of stack, so one can follow a red line to get the first release out quickly. On the other hand, Websauna does not enforce hard opinions and sacrifice flexibility, so that experienced developers can easily override parts and use more sophisticated components for specific needs.
+
+Websauna achieves flexibility by keeping its own codebase minimal and not reinventing the wheel. Instead it provides a polished integration of the top packages of Python ecosystem like :term:`Pyramid` web framework, :term:`SQLAlchemy` object relationship mapper, :term:`Alembic` migration scripts, :term:`IPython` shell, :term:`Authomatic` federated login, :term:`Jinja` templating and :term:`py.test` testing framework.
+
+Websauna is focused on Internet facing sites where you have a public or private sign up process and administrative backend. It's sweet spots are custom business portals, software-as-a-service sites and consumer portals. A special focus is given for security, so that Websauna is a strong candidate for financial technology and eCommerce solutions.
 
 Features
 ========
@@ -84,9 +88,11 @@ Design goals
 
 * **Integrate, not develop**: Websauna does not try to invent anything itself. It takes a set of components and best practices vetted by the best developers and makes them to easily adoptable package.
 
-* **Least resistance**: When compromises and choices between components are made, a path of least resistance is preferred. This usually means picking up a choice most developers feel comfortable with.
+* **Always a solution**: Make sure that persons armed with basic knowledge finds an answer to every of their question to get the first version of the site out.
 
-* **Always provide a solution**: Make sure that persons armed with basic knowledge finds an answer to every of their question to get the first version of the site out.
+* **Least resistance**: When compromises and choices between default components are made, a path of least resistance is preferred. This usually means picking up a choice most developers feel comfortable with.
+
+* **
 
 Default stack
 =============
@@ -96,7 +102,7 @@ Websauna suggests the following set of components to build the first version of 
 Backend
 -------
 
-* Python 3.5+
+* Python 3.4+
 
 * Pyramid web framework
 
@@ -111,13 +117,13 @@ Backend
 Frontend
 --------
 
-* Bootstrap CSS ja JS frontend framework
+* :term:`Bootstrap` CSS ja JS frontend framework
 
-* Jinja 2 templates
+* :term:`Jinja` templates
 
-* Deform form framework with Colander schemas
+* :term:`Deform` form framework
 
-* jQuery
+If you need something else
+==========================
 
-* FontAwesome icons
-
+If you are looking for a content management system check out Kotti CMS and Substance D. If you need for a stock eCommerce site check out Shopify.

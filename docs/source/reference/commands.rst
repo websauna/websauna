@@ -68,10 +68,15 @@ Then you can exit from pgcli::
 
     \q
 
+
+.. _ws-alembic:
+
 ws-alembic
 ----------
 
 Run Alembic SQLAlchemy database migrations.
+
+For more information see :doc:`migrations <../narrative/ops/databaseops>`.
 
 ws-dump-db
 ----------

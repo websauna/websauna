@@ -80,6 +80,7 @@ setup(
         'pyramid_deform',
         "pyramid_debugtoolbar",
         "pyramid_jinja2",
+        "ipython[notebook]<4",
         "pyramid_ipython",
 
         # Time handling

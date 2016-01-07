@@ -8,9 +8,10 @@ from splinter.driver import DriverAPI
 from websauna.tests.utils import create_user
 from websauna.tests.utils import EMAIL
 from websauna.tests.utils import PASSWORD
+from websauna.system import Initializer
 
 
-def test_login(web_server:str, browser:DriverAPI, dbsession:Session):
+def test_login(web_server:str, browser:DriverAPI, dbsession:Session, init:Initializer):
     """Login as a user to the site.
 
     This is a functional test. Prepare the test by creating one user in the database. Then try to login as this user by using Splinter test browser.
@@ -20,11 +21,13 @@ def test_login(web_server:str, browser:DriverAPI, dbsession:Session):
     :param browser: A Splinter web browser used to execute the tests. By default ``splinter.driver.webdriver.firefox.WebDriver``, but can be altered with py.test command line options for pytest-splinter.
 
     :param dbsession: Active SQLAlchemy database session for the test run.
+
+    :param init: Websauna Initializer which ramps up the environment with the default ``test.ini`` and exposes the test config.
     """
 
     with transaction.manager:
         # Create a dummy example@example.com user we test
-        create_user(dbsession, email=EMAIL, password=PASSWORD)
+        create_user(dbsession, init.config.registry, email=EMAIL, password=PASSWORD)
 
     # Direct Splinter browser to the website
     b = browser

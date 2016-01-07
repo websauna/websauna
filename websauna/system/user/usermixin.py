@@ -150,6 +150,9 @@ class GroupMixin:
     #: Assign the first user initially to this group
     DEFAULT_ADMIN_GROUP_NAME = "admin"
 
+    #: Publicly exposable ID of the group
+    uuid = Column(UUID(as_uuid=True), default=uuid4)
+
     #: When this group was created.
     created_at = Column(UTCDateTime, default=now)
 

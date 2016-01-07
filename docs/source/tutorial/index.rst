@@ -2,6 +2,11 @@
 Developing your first Websauna application
 ==========================================
 
+Welcome to Websauna tutorial. This tutorial tells you how to set up a Websauna based website.
+
+.. image:: images/welcome.png
+    :width: 640px
+
 .. toctree::
     :maxdepth: 1
 
@@ -9,3 +14,4 @@ Developing your first Websauna application
     tutorial_02
     tutorial_03
     tutorial_04
+    tutorial_05

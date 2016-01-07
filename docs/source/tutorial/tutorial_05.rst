@@ -22,6 +22,9 @@ Checking your site for the first time
 
 Point your web browser to `http://localhost:6543 <http://localhost:6543>`_.
 
+.. image:: images/welcome.png
+    :width: 640px
+
 Creating your admin user
 ------------------------
 
@@ -29,10 +32,21 @@ Creating your admin user
 
     This method highlights creating the initial site administrator user from the command line, using email and password. You can also configure any of social media logins (Facebook, Google) as described later in this tutorial. If your first login to the site comes through social media accounts the firstly logged in user becomes admin.
 
-On a terminal type::
+On a shell where your project virtual environment is activated type::
 
     ws-create-user myemail@example.com secret
 
 This will create a new user. Because this is the first user of the site the user becomes an administrator.
 
 Now you can log in as this user and you should see the site administration.
+
+.. image:: images/login.png
+    :width: 640px
+
+Exploring admin interface
+-------------------------
+
+Click *Admin* in the top navigation bar and you can access the administration interface. This is were all newly created models will become visible. More about this later.
+
+.. image:: images/admin.png
+    :width: 640px

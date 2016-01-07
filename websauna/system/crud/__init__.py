@@ -75,7 +75,7 @@ class CRUD(traverse.Resource):
         """Load object from the database for CRUD path for view/edit/delete."""
         raise NotImplementedError("Please use concrete subclass like websauna.syste.crud.sqlalchemy")
 
-    def get_object_url(self, request, obj, view_name=None):
+    def get_object_url(self, obj, view_name=None):
         """Get URL for view for an object inside this CRUD.
 
         ;param request: HTTP request instance
@@ -86,9 +86,9 @@ class CRUD(traverse.Resource):
         """
         res = self.wrap_to_resource(obj)
         if view_name:
-            return request.resource_url(res, view_name)
+            return self.request.resource_url(res, view_name)
         else:
-            return request.resource_url(res)
+            return self.request.resource_url(res)
 
     def __getitem__(self, path):
 

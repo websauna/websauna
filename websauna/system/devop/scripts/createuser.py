@@ -8,15 +8,12 @@ from websauna.system.user.utils import get_user_class, get_site_creator
 from websauna.utils.configincluder import \
     monkey_patch_paster_config_parser
 import transaction
-from collections import OrderedDict
-
-from IPython import embed
 
 from pyramid.paster import (
     setup_logging,
     )
 
-from websauna.system.model.meta import Base
+from websauna.utils.time import now
 
 
 def usage(argv):
@@ -38,20 +35,21 @@ def main(argv=sys.argv):
 
     request = init_websauna(config_uri)
 
-    User= get_user_class(request.registry)
+    User = get_user_class(request.registry)
     dbsession = request.dbsession
 
     with transaction.manager:
         u = User(email=argv[2], username=argv[2])
         u.password = argv[3]
         u.registration_source = "command_line"
+        u.activated_at = now()
         dbsession.add(u)
         dbsession.flush()
 
         site_creator = get_site_creator(request.registry)
         site_creator.init_empty_site(dbsession, u)
 
-        print("Created user #{}: {}".format(u.id, u.email))
+        print("Created user #{}: {}, admin: {}".format(u.id, u.email, u.is_admin()))
 
 
 if __name__ == "__main__":

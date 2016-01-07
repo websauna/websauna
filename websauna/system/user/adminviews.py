@@ -1,7 +1,7 @@
 import colander
 import deform
 from pyramid.view import view_config, view_defaults
-from websauna.system.admin.utils import get_model_admin_for_sqlalchemy_object
+from websauna.system.admin.utils import get_model_admin_for_sqlalchemy_object, get_admin_url_for_sqlalchemy_object
 from websauna.viewconfig import view_overrides
 from .admins import UserAdmin
 from .admins import GroupAdmin
@@ -15,7 +15,7 @@ from websauna.system.user.utils import get_group_class
 
 
 @panel_config(name='admin_panel', context=UserAdmin, renderer='admin/user_panel.html')
-def default_model_admin_panel(context, request):
+def user_admin_panel(context, request):
     """Admin panel for Users."""
 
     dbsession = request.dbsession
@@ -27,7 +27,7 @@ def default_model_admin_panel(context, request):
     title = model_admin.title
     count = dbsession.query(model).count()
     latest_user = dbsession.query(model).order_by(model.id.desc()).first()
-    latest_user_url = get_model_admin_for_sqlalchemy_object(admin, latest_user)
+    latest_user_url = get_admin_url_for_sqlalchemy_object(admin, latest_user)
 
     return locals()
 
@@ -68,13 +68,13 @@ class UserShow(admin_views.Show):
                 "created_at",
                 "updated_at",
                 "username",
+                colander.SchemaNode(colander.String(), name='uuid'),
                 colander.SchemaNode(colander.String(), name='full_name'),
                 "email",
                 "last_login_at",
                 "last_login_ip",
                 colander.SchemaNode(colander.String(), name="registration_source", missing=None),
                 colander.SchemaNode(colander.String(), name="social"),
-                #colander.SchemaNode(Groups(), name="groups"),
                 "groups",
                 ]
 

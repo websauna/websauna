@@ -128,6 +128,19 @@ Example::
 
     Using ws-sync-db is command is not recommended outside testing and prototyping. If you edit your models ws-sync-db doesn't know what to do and you need to drop your tables and data and start over. To have repeatable changes to your databases, use ws-alembic command instead.
 
+ws-create-user
+--------------
+
+Create a new site user. If this user is the first user of the site the user becomes an administrator.
+
+.. note ::
+
+    Recommended only to be used on a local development site. For a production sites for the first user do a normal email sign up.
+
+Example::
+
+    ws-create-user development.ini myemail@example.com mypassword
+
 Advanced
 --------
 

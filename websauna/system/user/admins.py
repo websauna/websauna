@@ -1,4 +1,5 @@
 from websauna.system.admin.modeladmin import ModelAdmin, model_admin
+from websauna.system.crud.mapper import Base64UUIDMapper
 from websauna.system.user.models import User, Group
 
 
@@ -11,6 +12,8 @@ class UserAdmin(ModelAdmin):
     singular_name = "user"
     plural_name = "users"
     model = User
+
+    mapper = Base64UUIDMapper()
 
     class Resource(ModelAdmin.Resource):
 
@@ -26,6 +29,8 @@ class GroupAdmin(ModelAdmin):
     singular_name = "group"
     plural_name = "groups"
     model = Group
+
+    mapper = Base64UUIDMapper()
 
     class Resource(ModelAdmin.Resource):
         pass

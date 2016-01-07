@@ -1,0 +1,3 @@
+<p class="form-control-static" id="${oid|field.oid}">
+  ${cstruct} <small>(${slug})</small>
+</p>

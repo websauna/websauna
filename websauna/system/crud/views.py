@@ -1,28 +1,22 @@
-"""
-
-collanderalchemy: colanderalchemy.readthedocs.org/en/latest/
-
-"""
+"""Default CRUD views."""
 import colander
-from collections import OrderedDict
+
 from pyramid.httpexceptions import HTTPFound
 from pyramid.renderers import render
 from pyramid.request import Request
 from pyramid.view import view_config
+from sqlalchemy.orm import Query
 
 from websauna.compat import typing
 
 import deform
 
 from websauna.system.core import messages
-from websauna.system.form.colander import PropertyAwareSQLAlchemySchemaNode
+from websauna.system.form.field import DefaultFieldMapper
 
 from . import sqlalchemy, Resource
 from . import paginator
 from . import CRUD
-
-
-
 
 
 class ResourceButton:
@@ -134,18 +128,18 @@ class Listing(CRUDView):
     def get_model(self) -> object:
         return self.context.get_model()
 
-    def get_query(self):
+    def get_query(self) -> Query:
         """Get SQLAlchemy query used in this CRUD listing.
 
         This can include filtering e.g. request user, crud parameters, so on.
         """
         return self.context.get_query()
 
-    def get_count(self, query):
+    def get_count(self, query:Query):
         """Calculate total item count based on query."""
         return query.count()
 
-    def order_query(self, query):
+    def order_query(self, query:Query):
         """Sort the query."""
         return query
 
@@ -203,10 +197,13 @@ class FormView(CRUDView):
     #: If the child class is not overriding the rendering loop, point this to a template which provides the page frame and ``crud_content`` block.
     base_template = None
 
-    #: List of SQLAlchemy and JSONProperty field names automatically mapped to a form
+    #: List of included model fields which are mapped to form fields for this view
     includes = ["id",]
 
-    def __init__(self, context, request):
+    #: Field mapper defines how form fields are generated from the SQLAlchemy model. For more information see py:mod:`websauna.system.crud.field`.
+    field_mapper = DefaultFieldMapper()
+
+    def __init__(self, context:Resource, request:Request):
         """
         :param context: Instance of ``traverse.Resource()`` or its subclasses
         :param request: HTTP request
@@ -214,7 +211,7 @@ class FormView(CRUDView):
         self.context = context
         self.request = request
 
-    def create_form(self, buttons=()):
+    def create_form(self, buttons=()) -> deform.Form:
         """Automatically create a Deform form based on the underlying SQLALchemy model.
 
         We read ``self.includes`` for field names and colander.SchemaNode objects which should appear in the form.
@@ -225,23 +222,26 @@ class FormView(CRUDView):
         """
         model = self.get_model()
         includes = self.includes
-        schema = PropertyAwareSQLAlchemySchemaNode(model, includes=includes)
+
+        schema = self.field_mapper.map(self.request, self.context, model, includes)
+
         self.customize_schema(schema)
         schema = self.bind_schema(schema)
         form = deform.Form(schema, buttons=buttons)
         return form
 
-    def bind_schema(self, schema):
+    def bind_schema(self, schema:colander.Schema) -> colander.Schema:
         """Initialize Colander field dynamic default values. By default, don't do anything.
         By default pass ``request`` and ``context`` to schema.
         """
         return schema.bind(request=self.request, context=self.context)
 
-    def get_crud(self):
+    def get_crud(self) -> CRUD:
         """Get CRUD manager object for this view."""
         return self.context.__parent__
 
-    def get_model(self):
+    def get_model(self) -> type:
+        """Get SQLAlchemy model we are managing."""
         return self.get_crud().get_model()
 
     def get_object(self):
@@ -252,7 +252,7 @@ class FormView(CRUDView):
         """Get human-readable title for for template page title."""
         return "#{}".format(self.get_object().id)
 
-    def customize_schema(self, schema):
+    def customize_schema(self, schema:colander.Schema):
         """After Colander schema is automatically generated from the SQLAlchemy model, edit it in-place for fine-tuning.
 
         Override this in your view subclass for schema customizations.

@@ -22,12 +22,9 @@ def usage(argv):
 
 def main(argv=sys.argv):
 
-    monkey_patch_paster_config_parser()
-
     if len(argv) < 2:
         usage(argv)
     config_uri = argv[1]
-    setup_logging(config_uri)
 
     request = init_websauna(config_uri)
     with transaction.manager:

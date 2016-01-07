@@ -1,9 +1,12 @@
 Command line commands
 =====================
 
-All command line commands take ``ini`` settings as their first argument.
+Most Websauna commands take the configuration file, like :term:`development.ini`, as their first argument. The command will be different depending on if you run it on development, staging or production environment.
 
 .. contents:: :local:
+
+Available commands
+==================
 
 ws-shell
 --------
@@ -139,9 +142,21 @@ Create a new site user. If this user is the first user of the site the user beco
 
 Example::
 
-    ws-create-user development.ini myemail@example.com mypassword
+    ws-create-user development.ini myemail@example.com
+
+.. note ::
+
+    It is possible to give password as the third command line argument, but this is not recommended because the password is recorded to your shell history.
 
 Advanced
---------
+========
+
+Command registry
+----------------
 
 Command line commands are registered in ``setup.py`` and scripts reside in :py:mod:`websauna.system.devop.scripts`.
+
+Creating your own commands
+--------------------------
+
+For examples see e.g. :py:mod:`websauna.system.devop.scripts.createuser` and :py:mod:`websauna.system.devop.cmdline`.

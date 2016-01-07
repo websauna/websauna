@@ -1,3 +1,5 @@
+"""Highly modified colanderalchemy core."""
+
 import inspect
 import logging
 import itertools
@@ -22,7 +24,6 @@ from sqlalchemy import (Boolean,
                         Numeric,
                         Time)
 import sqlalchemy
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.schema import (FetchedValue, ColumnDefault, Column)
 from sqlalchemy.orm import (ColumnProperty, RelationshipProperty)
 
@@ -31,7 +32,31 @@ log = logger = logging.getLogger(__name__)
 
 
 class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
-    """Allow forming of JSON'ed properties besides SQL Alchemy fields."""
+    """ColanderAlchemy mapepr with some extensions.
+
+    Allow automatically map of JSON'ed properties besides SQL Alchemy columns.
+
+    Allow ``type_overrides``.
+
+    .. note ::
+
+        The original function is the most well written horrifying piece of Python code I have seen. The author has good intentions and has build a fantastic extension mechanism which is mostly useless for us. Furthermore the original code functions are so long that they are very fragile to change via subclassing. Overriding a colander type for SQLAlchemy column type was impossible and we patch our own extension mechanism in here.
+
+        TODO: Resolve the issue with the colanderalchemy author politically correct way. What we are doing now is just a temporary 0.1 solution.
+    """
+
+    def __init__(self, class_, includes=None, excludes=None, overrides=None, unknown='ignore', type_overrides=None, **kw):
+        """
+        :param includes:
+        :param overrides:
+        :param unknown:
+        :param type_overrides: callable(name, column, column_type)
+        :param kw:
+        :return:
+        """
+        assert type_overrides, "Always provide type_overrides, otherwise this crap doesn't work when these nodes get nested"
+        self.type_overrides = type_overrides
+        super(PropertyAwareSQLAlchemySchemaNode, self).__init__(class_, includes, excludes, overrides, unknown)
 
     def dictify(self, obj):
         """Extended to handle JSON properties."""
@@ -156,9 +181,10 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
         name = prop.key
         kwargs = dict(name=name)
         column = prop.columns[0]
+
         typedecorator_overrides = getattr(column.type,
                                           self.ca_class_key, {}).copy()
-        print("colanderalchemy ", prop, typedecorator_overrides)
+        # print("colanderalchemy ", prop, typedecorator_overrides)
 
         declarative_overrides = column.info.get(self.sqla_info_key, {}).copy()
         self.declarative_overrides[name] = declarative_overrides.copy()
@@ -198,6 +224,12 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
         declarative_type = declarative_overrides.pop('typ', None)
         typedecorator_type = typedecorator_overrides.pop('typ', None)
 
+        if self.type_overrides is not None:
+            type_overrides_type, type_overrides_kwargs = self.type_overrides(self, name, column, column_type)
+        else:
+            type_overrides_type = None
+            type_overrides_kwargs = {}
+
         if imperative_type is not None:
             if hasattr(imperative_type, '__call__'):
                 type_ = imperative_type()
@@ -220,6 +252,14 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
             else:
                 type_ = typedecorator_type
             log.debug('Column %s: type overridden via TypeDecorator: %s.',
+                      name, type_)
+
+        elif type_overrides_type is not None:
+            if hasattr(type_overrides_type, '__call__'):
+                type_ = type_overrides_type()
+            else:
+                type_ = type_overrides_type
+            log.debug('Column %s: type overridden via type_overrides: %s.',
                       name, type_)
 
         elif isinstance(column_type, Boolean):
@@ -250,11 +290,8 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
 
         elif isinstance(column_type, Time):
             type_ = colander.Time()
-
-        elif isinstance(column_type, JSONB):
-            type_ = colander.String()
-
         else:
+            import pdb ; pdb.set_trace()
             raise NotImplementedError(
                 'Not able to derive a colander type from sqlalchemy '
                 'type: %s  Please explicitly provide a colander '
@@ -321,6 +358,7 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
             # it if it's missing and let the database generate it
             kwargs["missing"] = drop
 
+        kwargs.update(type_overrides_kwargs)
         kwargs.update(typedecorator_overrides)
         kwargs.update(declarative_overrides)
         kwargs.update(overrides)
@@ -442,7 +480,8 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
                                     includes=includes,
                                     excludes=excludes,
                                     overrides=rel_overrides,
-                                    missing=missing)
+                                    missing=missing,
+                                    type_overrides=self.type_overrides)
 
         if prop.uselist:
             node = SchemaNode(Sequence(), node, **kwargs)
@@ -461,3 +500,15 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
 
         result = super(PropertyAwareSQLAlchemySchemaNode, self).deserialize(cstruct)
         return result
+
+    def clone(self):
+        cloned = self.__class__(self.class_,
+                                self.includes,
+                                self.excludes,
+                                self.overrides,
+                                self.unknown,
+                                self.type_overrides,
+                                **self.kwargs)
+        cloned.__dict__.update(self.__dict__)
+        cloned.children = [node.clone() for node in self.children]
+        return cloned

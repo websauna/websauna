@@ -1,6 +1,8 @@
 import transaction
+from websauna.system.user.models import User
 
-from websauna.tests.utils import create_user, create_logged_in_user
+from websauna.tests.utils import create_logged_in_user
+from websauna.utils.slug import uuid_to_slug
 
 
 def test_view_user_details(browser, web_server, init, dbsession):
@@ -16,3 +18,8 @@ def test_view_user_details(browser, web_server, init, dbsession):
 
     # TODO: Use CSS selector
     assert b.is_text_present("example@example.com")
+
+    with transaction.manager:
+        # Check that we show the user uuid slug on the page correctly
+        u = dbsession.query(User).first()
+        assert b.is_text_present(uuid_to_slug(u.uuid))

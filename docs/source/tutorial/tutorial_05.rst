@@ -34,9 +34,9 @@ Creating your admin user
 
 On a shell where your project virtual environment is activated type::
 
-    ws-create-user myemail@example.com secret
+    ws-create-user myemail@example.com
 
-This will create a new user. Because this is the first user of the site the user becomes an administrator.
+This will prompt you to give a password for the new user. Because this is the first user of the site the user becomes an administrator.
 
 Now you can log in as this user and you should see the site administration.
 

@@ -20,15 +20,13 @@ def main(argv=sys.argv):
 
     if len(argv) < 2:
         usage(argv)
-    config_uri = argv[1]
-    options = parse_vars(argv[2:])
-    setup_logging(config_uri)
 
-    bootstrap_env = bootstrap(config_uri, options=dict(sanity_check=False))
-    url = bootstrap_env["registry"].settings.get("sqlalchemy.url")
+    config_uri = argv[1]
 
     # Print out the connection URL with the password masked out
     request = init_websauna(config_uri)
+    url = request.registry.settings.get("sqlalchemy.url")
+
     engine = request.dbsession.get_bind()
     print("Connecting to {}".format(engine))
 

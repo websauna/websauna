@@ -65,15 +65,15 @@ class UserShow(admin_views.Show):
     """Show one user."""
 
     includes = ["id",
+                "uuid",
                 "created_at",
                 "updated_at",
                 "username",
-                colander.SchemaNode(colander.String(), name='uuid'),
                 colander.SchemaNode(colander.String(), name='full_name'),
                 "email",
                 "last_login_at",
                 "last_login_ip",
-                colander.SchemaNode(colander.String(), name="registration_source", missing=None),
+                colander.SchemaNode(colander.String(), name="registration_source", missing=colander.drop),
                 colander.SchemaNode(colander.String(), name="social"),
                 "groups",
                 ]

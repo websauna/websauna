@@ -2,6 +2,11 @@
 import abc
 
 from websauna.utils import slug
+from websauna.utils.slug import SlugDecodeError
+
+
+class CannotMapException(Exception):
+    """We could not extract id from an object."""
 
 
 class Mapper(abc.ABC):
@@ -51,6 +56,10 @@ class IdMapper(Mapper):
             self.is_id = is_id
 
     def get_path_from_object(self, obj):
+
+        if not hasattr(obj, self.mapping_attribute):
+            raise CannotMapException("Could not find attribute {} on object {}. The default behavior is to look for attribute/column uuid. If you need to change this behavior define mapper in your CRUD class.", self.mapping_attribute, obj)
+
         return self.transform_to_path(getattr(obj, self.mapping_attribute))
 
     def get_id_from_path(self, path):
@@ -78,6 +87,6 @@ class Base64UUIDMapper(IdMapper):
         try:
             slug.slug_to_uuid(val)
             return True
-        except ValueError:
+        except SlugDecodeError:
             # bytes is not 16-char string
             return False

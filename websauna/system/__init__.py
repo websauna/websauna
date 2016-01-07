@@ -189,7 +189,7 @@ class Initializer:
         self.config.include("websauna.system.core.templatecontext")
 
         # Make Deform widgets aware of our widget template paths
-        configure_zpt_renderer(["websauna:system/form/templates/deform"])
+        configure_zpt_renderer(["websauna.system:form/templates/deform"])
 
         # Add core templates to the search path
         self.config.add_jinja2_search_path('websauna.system:core/templates', name='.html')

@@ -13,6 +13,7 @@ branch_labels = ${repr(branch_labels)}
 depends_on = ${repr(depends_on)}
 
 import datetime
+import websauna.system.model.columns
 
 from alembic import op
 import sqlalchemy as sa

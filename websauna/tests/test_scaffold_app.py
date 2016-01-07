@@ -100,13 +100,12 @@ def test_migration(app_scaffold, dev_db):
     """Create an application, add a model and see if migrations are run."""
 
     with replace_file(os.path.join(app_scaffold, "myapp", "myapp", "models.py"), MODELS_PY):
-        execute_venv_command("cd myapp && ws-alembic -c development.ini revision --autogenerate -m 'Added MyModel'", app_scaffold)
-        execute_venv_command("cd myapp && ws-alembic -c development.ini upgrade head", app_scaffold)
+        execute_venv_command("cd myapp && ws-alembic -x packages=all -c development.ini revision --autogenerate -m 'Added MyModel'", app_scaffold)
+        execute_venv_command("cd myapp && ws-alembic -x packages=all -c development.ini upgrade head", app_scaffold)
 
         # Assert we got migration script for mymodel
         files = os.listdir(os.path.join(app_scaffold, "myapp", "alembic", "versions"))
         assert any("added_mymodel.py" in f for f in files), "Got files {}".format(files)
-
 
 
 def test_app_sanity_check_fail(app_scaffold, dev_db):

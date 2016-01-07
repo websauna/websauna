@@ -11,27 +11,28 @@ Run::
 
     pserve development.ini --reload
 
+The web server keeps running until
+
+* It fails to reload due to syntax error in edited code
+
+* You terminate it with CTRL + C
+
 Checking your site for the first time
 -------------------------------------
 
 Point your web browser to `http://localhost:6543 <http://localhost:6543>`_.
 
-Logging in as admin
--------------------
+Creating your admin user
+------------------------
 
-The first user who logs into to the site will become the site administrator. Below is an example how you can do it with email sign up. If you wish to use federated authentication (Facebook, Google) you can set it up as instructed in this tutorial later on.
+.. note ::
 
-To sign up on your local site
+    This method highlights creating the initial site administrator user from the command line, using email and password. You can also configure any of social media logins (Facebook, Google) as described later in this tutorial. If your first login to the site comes through social media accounts the firstly logged in user becomes admin.
 
-* Open your development site
+On a terminal type::
 
-* Go to sign up link
+    ws-create-user myemail@example.com secret
 
-* Sign up with your email address.
+This will create a new user. Because this is the first user of the site the user becomes an administrator.
 
-* There is no actual outgoing activation email. Websauna development site (:term:`development.ini`) has been configured to write outgoing emails to your terminal, instead of sending out actual emails. Look your terminal and find the activation link.
-
-Example piece of printed email with activation link highlighted:
-
-
-
+Now you can log in as this user and you should see the site administration.

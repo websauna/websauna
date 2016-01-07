@@ -138,6 +138,7 @@ setup(
             'ws-tweens=websauna.system.devop.scripts.tweens:main',
             'ws-alembic=websauna.system.devop.scripts.alembic:main',
             'ws-dump-db=websauna.system.devop.scripts.dumpdb:main',
+            'ws-create-user=websauna.system.devop.scripts.createuser:main',
         ],
 
         'paste.app_factory': [

@@ -119,6 +119,33 @@ def test_dump_db(app_scaffold, dev_db):
     execute_venv_command("cd myapp && ws-dump-db development.ini", app_scaffold)
 
 
+def test_create_user(app_scaffold, dev_db, browser):
+    """Test creating user from command line and logging in as this user."""
+
+    execute_venv_command("ws-sync-db development.ini", app_scaffold, cd_folder="myapp")
+
+    execute_venv_command("ws-create-user development.ini mikko@example.com secret", app_scaffold, cd_folder="myapp")
+
+    execute_venv_command("pserve development.ini --pid-file=test_pserve.pid", app_scaffold, wait_and_see=3.0, cd_folder="myapp")
+
+    try:
+
+        # Make sure we get some sensible output from the server
+        b  = browser
+        b.visit("http://localhost:6543/login")
+
+        # See our scaffold home page loads and demo text is there
+        b.fill("username", "mikko@example.com")
+        b.fill("password", "secret")
+        b.find_by_name("Log_in").click()
+
+        assert b.is_element_present_by_css("#nav-admin")
+
+    finally:
+        execute_venv_command("cd myapp && pserve development.ini --stop-daemon --pid-file=test_pserve.pid", app_scaffold)
+
+
+
 def test_tweens(app_scaffold, dev_db):
     """Test tweens command."""
 

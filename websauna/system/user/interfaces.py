@@ -16,3 +16,7 @@ class IAuthomatic(Interface):
 
 class ISocialLoginMapper(Interface):
     """Named marker interface to look up social login mappers."""
+
+
+class ISiteCreator(Interface):
+    """Utility that is responsible to create the initial site."""

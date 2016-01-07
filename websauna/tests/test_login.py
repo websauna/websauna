@@ -9,11 +9,11 @@ def get_user(dbsession):
     return dbsession.query(User).get(1)
 
 
-def test_login(web_server, browser, dbsession):
+def test_login(web_server, browser, dbsession, init):
     """Login an user."""
 
     with transaction.manager:
-        create_user(dbsession)
+        create_user(dbsession, init.config.registry)
 
     b = browser
     b.visit(web_server)
@@ -30,11 +30,11 @@ def test_login(web_server, browser, dbsession):
     assert b.is_element_visible_by_css("#nav-logout")
 
 
-def test_login_inactive(web_server, browser, dbsession):
+def test_login_inactive(web_server, browser, dbsession, init):
     """Login disabled user account."""
 
     with transaction.manager:
-        create_user(dbsession)
+        create_user(dbsession, init.config.registry)
 
     with transaction.manager:
         user = get_user(dbsession)
@@ -56,11 +56,11 @@ def test_login_inactive(web_server, browser, dbsession):
     assert b.is_text_present("Account log in disabled.")
 
 
-def test_logout(web_server, browser, dbsession):
+def test_logout(web_server, browser, dbsession, init):
     """Log out."""
 
     with transaction.manager:
-        create_user(dbsession)
+        create_user(dbsession, init.config.registry)
 
     b = browser
     b.visit("{}/{}".format(web_server, "login"))
@@ -80,11 +80,11 @@ def test_logout(web_server, browser, dbsession):
     assert b.is_element_visible_by_css("#login-form")
 
 
-def test_last_login_ip(web_server, browser, dbsession):
+def test_last_login_ip(web_server, browser, dbsession, init):
     """Record last log in IP correctly."""
 
     with transaction.manager:
-        create_user(dbsession)
+        create_user(dbsession, init.config.registry)
 
     with transaction.manager:
         user = get_user(dbsession)
@@ -106,11 +106,11 @@ def test_last_login_ip(web_server, browser, dbsession):
         assert user.last_login_ip == "127.0.0.1"
 
 
-def test_forget_password(web_server, browser, dbsession):
+def test_forget_password(web_server, browser, dbsession, init):
     """Reset password by email."""
 
     with transaction.manager:
-        user = create_user(dbsession)
+        user = create_user(dbsession, init.config.registry)
 
     b = browser
     b.visit(web_server)

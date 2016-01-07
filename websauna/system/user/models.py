@@ -1,14 +1,25 @@
-"""Default user models."""
+"""Default user models.
+
+.. note ::
+
+    Horus dependencies will be killed in the future. Do not rely on them.
+
+"""
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.ext.declarative.base import _declarative_constructor
 
 from hem.text import pluralize
 from horus import models as horus_models
-from sqlalchemy.ext.declarative.base import _declarative_constructor
+
 from . import usermixin
 
 
 class User(usermixin.UserMixin, horus_models.UserMixin):
+    """The default user implementation for Websauna.
+
+    This is a concrete implementation of SQLAlchemy model.
+    """
 
     # In PSQL "user", the automatically generated table name, is a reserved word
     __tablename__ = "users"
@@ -85,6 +96,7 @@ class UserGroup(horus_models.UserGroupMixin):
 
 
 class Activation(horus_models.ActivationMixin):
+    """The default implementation of user email activation token."""
 
     __tablename__ = "activation"
 

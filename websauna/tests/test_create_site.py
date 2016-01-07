@@ -1,8 +1,8 @@
 import transaction
 
-from websauna.system.user.usermixin import check_empty_site_init
 from websauna.system.user.models import User
 from websauna.system.user.models import Group
+from websauna.system.user.utils import get_site_creator
 
 
 def test_virgin_init_admin(init, dbsession):
@@ -13,7 +13,9 @@ def test_virgin_init_admin(init, dbsession):
         dbsession.add(u)
         dbsession.flush()
         assert not u.is_admin()
-        check_empty_site_init(dbsession, u)
+
+        site_creator = get_site_creator(init.config.registry)
+        site_creator.init_empty_site(dbsession, u)
 
     with transaction.manager:
         u = dbsession.query(User).get(1)

@@ -1,6 +1,9 @@
-import datetime
+"""User login and sign up handling views.
+
+This is code is blasphemy and will be replaced with something more sane in the future versions. I suggest you just copy-paste this and do from the scratch for your project.
+"""
+
 from authomatic.core import LoginResult
-from pyramid.request import Request
 
 from pyramid.view import view_config
 from pyramid.url import route_url
@@ -15,14 +18,10 @@ from pyramid.renderers import render_to_response
 from pyramid.response import Response
 
 from pyramid_mailer import get_mailer
-from pyramid_mailer.message import Message
 
 import deform
-import deform.widget as w
-import colander as c
 
 from hem.db import get_session
-from hem.schemas import CSRFSchema
 
 from horus.interfaces import IUserClass
 from horus.interfaces import IActivationClass
@@ -49,13 +48,16 @@ from horus import views as horus_views
 from horus.views import get_config_route
 
 from authomatic.adapters import WebObAdapter
+from websauna.system.http import Request
 
 from websauna.system.mail import send_templated_mail
+from websauna.utils.slug import uuid_to_slug, slug_to_uuid
+from websauna.utils.time import now
 
 from . import usermixin
 from . import events
 from websauna.system.user.social import NotSatisfiedWithData
-from websauna.system.user.utils import get_authomatic, get_social_login_mapper, get_user_class
+from websauna.system.user.utils import get_authomatic, get_social_login_mapper, get_user_class, get_site_creator
 from websauna.system.core import messages
 
 
@@ -68,7 +70,7 @@ def create_activation(request, user):
 
     assert user.id
     user.username = user.generate_username()
-    user.registration_source = user.USER_MEDIA_EMAIL
+    user.registration_source = "email"
 
     db = get_session(request)
     Activation = request.registry.getUtility(IActivationClass)
@@ -79,17 +81,16 @@ def create_activation(request, user):
 
     db.flush()
 
-    # TODO Create a hook for the app to give us body and subject!
+    # TODO Create a hook for this, don't assume create_activation() call
     # TODO We don't need pystache just for this!
     context = {
-        'link': request.route_url('activate', user_id=user.id,
-                                  code=user.activation.code)
+        'link': request.route_url('activate', user_id=uuid_to_slug(user.uuid), code=user.activation.code)
     }
 
     send_templated_mail(request, [user.email], "login/email/activate", context)
 
-    # XXX: Move this to an event
-    usermixin.check_empty_site_init(request.dbsession, user)
+    site_creator = get_site_creator(request.registry)
+    site_creator.check_empty_site_init(request.dbsession, user)
 
 
 def authenticated(request:Request, user:UserMixin, location:str=None) -> HTTPFound:
@@ -126,7 +127,7 @@ def authenticated(request:Request, user:UserMixin, location:str=None) -> HTTPFou
         request.registry.notify(e)
 
     # Update user security details
-    user.last_login_at = datetime.datetime.utcnow()
+    user.last_login_at = now()
     user.last_login_ip = request.client_addr
 
     if not location:
@@ -209,20 +210,22 @@ class RegisterController(horus_views.RegisterController):
 
     @view_config(route_name='activate')
     def activate(self):
+        """View to activate user after clicking email link."""
+
         code = self.request.matchdict.get('code', None)
         user_id = self.request.matchdict.get('user_id', None)
-
+        User = get_user_class(self.request.registry)
         activation = self.Activation.get_by_code(self.request, code)
 
         if activation:
-            user = self.User.get_by_id(self.request, user_id)
+            user_uuid = slug_to_uuid(user_id)
+            user = self.request.dbsession.query(User).filter_by(uuid=user_uuid).first()
 
-            if user.activation != activation:
+            if not user or (user.activation != activation):
                 return HTTPNotFound()
 
             if user:
                 self.db.delete(activation)
-                # self.db.add(user)  # not necessary
                 self.db.flush()
 
                 if self.login_after_activation:
@@ -230,6 +233,7 @@ class RegisterController(horus_views.RegisterController):
                 else:
                     self.request.registry.notify(RegistrationActivatedEvent(self.request, user, activation))
                     return HTTPFound(location=self.after_activate_url)
+
         return HTTPNotFound()
 
 

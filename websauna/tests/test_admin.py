@@ -1,15 +1,16 @@
 import transaction
+from websauna.system.user.utils import get_site_creator
 
-from websauna.system.user.usermixin import init_empty_site
 from websauna.tests.utils import create_user, EMAIL, PASSWORD
 
 
-def test_enter_admin(web_server, browser, dbsession):
+def test_enter_admin(web_server, browser, dbsession, init):
     """The first user can open the admin page."""
 
     with transaction.manager:
-        u = create_user(dbsession)
-        init_empty_site(dbsession, u)
+        u = create_user(dbsession, init.config.registry)
+        site_creator = get_site_creator(init.config.registry)
+        site_creator.init_empty_site(dbsession, u)
         assert u.is_admin()
 
     b = browser
@@ -25,15 +26,14 @@ def test_enter_admin(web_server, browser, dbsession):
     assert b.is_element_visible_by_css("#admin-main")
 
 
-def test_non_admin_user_denied(web_server, browser, dbsession):
+def test_non_admin_user_denied(web_server, browser, dbsession, init):
     """The second user should not see admin link nor get to the admin page."""
 
     with transaction.manager:
-        u = create_user(dbsession)
-        init_empty_site(dbsession, u)
+        u = create_user(dbsession, init.config.registry, admin=True)
         assert u.is_admin()
 
-        u = create_user(dbsession, email="example2@example.com")
+        u = create_user(dbsession, init.config.registry, email="example2@example.com")
         assert not u.is_admin()
 
     b = browser

@@ -1,13 +1,18 @@
 import time
-import os
-from decimal import Decimal
+
 from pyramid.registry import Registry
 from pyramid.session import signed_deserialize
 from pyramid_redis_sessions import RedisSession, get_default_connection
 from selenium.webdriver.remote.webdriver import WebDriver
-from websauna.system.user.usermixin import check_empty_site_init
+
 #: The default test login name
 import transaction
+from splinter.driver import DriverAPI
+from sqlalchemy.orm import Session
+from websauna.system.user.utils import get_site_creator
+from websauna.system.user.models import User
+
+from websauna.compat.typing import Callable
 
 EMAIL = "example@example.com"
 
@@ -15,13 +20,14 @@ EMAIL = "example@example.com"
 PASSWORD = "ToholamppiMadCowz585"
 
 
-def create_user(dbsession, email=EMAIL, password=PASSWORD, admin=False):
+def create_user(dbsession:Session, registry:Registry, email:str=EMAIL, password:str=PASSWORD, admin:bool=False) -> User:
+    """A helper function to create normal and admin users for tests.
 
-    from websauna.system.user.models import User
-    from websauna.system.user.models import Group
+    :param admin: If True run :py:class:`websauna.system.user.usermixin.SiteCreator` login and set the user to admin group.
+    """
 
     user = User(email=email, password=password)
-    user.user_registration_source = User.USER_MEDIA_DUMMY
+    user.user_registration_source = "dummy"
     dbsession.add(user)
     dbsession.flush()
     user.username = user.generate_username()
@@ -30,25 +36,21 @@ def create_user(dbsession, email=EMAIL, password=PASSWORD, admin=False):
 
     # First user, make it admin
     if admin:
-        check_empty_site_init(dbsession, user)
-        admin_grp = dbsession.query(Group).first()
-        assert admin_grp
-        user.groups.append(admin_grp)
-        assert user.is_admin()
+        site_creator = get_site_creator(registry)
+        site_creator.init_empty_site(dbsession, user)
 
     return user
 
 
-def get_user(dbsession, email=EMAIL):
-    from websauna.system.user.models import User
-    return dbsession.query(User).filter_by(email=EMAIL).first()
-
-
-def create_logged_in_user(dbsession, web_server, browser, admin=False):
+def create_logged_in_user(dbsession:Session, registry:Registry, web_server:str, browser:DriverAPI, admin:bool=False):
     """For a web browser test session, creates a new user and logs it in."""
 
+    # Catch some common argument misordering issues
+    assert isinstance(registry, Registry)
+    assert isinstance(web_server, str)
+
     with transaction.manager:
-        create_user(dbsession, admin=admin)
+        create_user(dbsession, registry, admin=admin)
 
     b = browser
     b.visit("{}/{}".format(web_server, "login"))
@@ -63,10 +65,12 @@ def create_logged_in_user(dbsession, web_server, browser, admin=False):
     assert b.is_element_visible_by_css("#nav-logout")
 
 
-def wait_until(callback, expected, deadline=1.0, poll_period=0.05):
+def wait_until(callback:Callable, expected:object, deadline=1.0, poll_period=0.05):
     """A helper function to wait until a variable value is set (in another thread).
 
-    :param callback: Callable which we expect to return True
+    This is useful for communicating between Selenium test driver and test runner main thread.
+
+    :param callback: Callable which we expect to return to ``expected`` value.
     :param deadline: Seconds how long we are going to wait max
     :param poll_period: Sleep period between check attemps
     :return: The final value of callback
@@ -81,7 +85,7 @@ def wait_until(callback, expected, deadline=1.0, poll_period=0.05):
     raise AssertionError("Callback {} did not return in expected value {} within {} seconds".format(callback, expected, deadline))
 
 
-def login(web_server, browser, email=EMAIL, password=PASSWORD):
+def login(web_server:str, browser:DriverAPI, email=EMAIL, password=PASSWORD):
     """Login user to the website through the test browser.
 
     """

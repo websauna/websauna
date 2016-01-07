@@ -1,6 +1,6 @@
 from authomatic import Authomatic
 
-from websauna.system.user.interfaces import IGroupClass, IUserClass, IAuthomatic, ISocialLoginMapper
+from websauna.system.user.interfaces import IGroupClass, IUserClass, IAuthomatic, ISocialLoginMapper, ISiteCreator
 
 
 def get_user_class(registry) -> IUserClass:
@@ -11,6 +11,11 @@ def get_user_class(registry) -> IUserClass:
 def get_group_class(registry) -> IGroupClass:
     group_class = registry.queryUtility(IGroupClass)
     return group_class
+
+
+def get_site_creator(registry) -> ISiteCreator:
+    site_creator = registry.queryUtility(ISiteCreator)
+    return site_creator
 
 
 def get_authomatic(registry) -> Authomatic:

@@ -1,3 +1,5 @@
+from websauna.utils.slug import uuid_to_slug
+
 EMAIL = "example@example.com"
 PASSWORD = "ToholamppiMadCowz585"
 
@@ -35,7 +37,7 @@ def test_register_email(web_server, browser, dbsession):
     user = get_user(dbsession)
     assert user.activation.code
 
-    activation_link = "{}/activate/{}/{}".format(web_server, user.id, user.activation.code)
+    activation_link = "{}/activate/{}/{}".format(web_server, uuid_to_slug(user.uuid), user.activation.code)
 
     b.visit(activation_link)
 

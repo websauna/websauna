@@ -397,13 +397,12 @@ class Initializer:
     def configure_user_models(self, settings):
         """Plug in user models.
 
-        Connect chosen user model to base class.
-
-        Override this to have no-op user models.
+        Connect chosen user model to SQLAlchemy model Base. Also set up :py:class:`websauna.system.user.usermixin.SiteCreator` logic - what happens when the first user logs in.
         """
         from websauna.system.user import models
         from websauna.system.model.meta import Base
-        from websauna.system.user.interfaces import IGroupClass, IUserClass
+        from websauna.system.user.interfaces import IGroupClass, IUserClass, ISiteCreator
+        from websauna.system.user.usermixin import SiteCreator
         from horus.interfaces import IActivationClass
 
         attach_model_to_base(models.User, Base)
@@ -415,6 +414,9 @@ class Initializer:
         registry = self.config.registry
         registry.registerUtility(models.User, IUserClass)
         registry.registerUtility(models.Group, IGroupClass)
+
+        site_creator = SiteCreator()
+        registry.registerUtility(site_creator, ISiteCreator)
 
         # TODO: Get rid of Horus
         registry.registerUtility(models.Activation, IActivationClass)

@@ -1,26 +1,23 @@
+from uuid import uuid4
+
+from pyramid.registry import Registry
 from sqlalchemy import inspection
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.dialects.postgresql import INET
-from sqlalchemy import DateTime
 from sqlalchemy import Column
 from sqlalchemy import String
 from sqlalchemy import Boolean
-from sqlalchemy import Integer
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.ext.mutable import MutableDict
+from sqlalchemy.orm.session import Session
 
 import colander
 
+from websauna.system.model.columns import UTCDateTime
+from websauna.system.user.utils import get_group_class
 from websauna.utils.time import now
-from datetime import timezone
 from websauna.utils.jsonb import JSONBProperty
 
-from backports import typing
 
-
-#: Initialze user_data JSONB structure with these fields
+#: Initialze user_data JSONB structure with these fields on new User
 DEFAULT_USER_DATA = {
     "full_name": None,
 
@@ -40,26 +37,15 @@ DEFAULT_USER_DATA = {
 # UserMixin.__tablename__ = "users"
 
 
+
+
 class UserMixin:
     """A user who signs up with email or with email from social media.
 
-    TODO: Make user user.id is not exposed anywhere e.g. in email activation links.
+    This mixin provides the default required columns for user model in Websauna.
+
+    The user contains normal columns and then ``user_data`` JSON field where properties and non-structured data can be easily added without migrations. This is especially handy to store incoming OAuth fields from social networks. Think Facebook login data and user details.
     """
-
-    #: A test user
-    USER_MEDIA_DUMMY = "dummy"
-
-    #: Self sign up
-    USER_MEDIA_EMAIL = "email"
-
-    #: User signed up with Facebook
-    USER_MEDIA_FACEBOOK = "facebook"
-
-    #: User signed up with Github
-    USER_MEDIA_GITHUB = "github"
-
-    #: Admin group name
-    GROUP_ADMIN = "admin"
 
     #: Though not displayed on the site, the concept of "username" is still preversed. If the site needs to have username (think Instragram, Twitter) the user is free to choose this username after the sign up. Username is null until the initial user activation is completed after db.flush() in create_activation().
     username = Column(String(256), nullable=True, unique=True)
@@ -71,19 +57,22 @@ class UserMixin:
     salt = Column(String(256), nullable=True)
 
     #: When this account was created
-    created_at = Column(DateTime(timezone=timezone.utc), default=now)
+    created_at = Column(UTCDateTime, default=now)
 
     #: When the account data was updated last time
-    updated_at = Column(DateTime(timezone=timezone.utc), onupdate=now)
+    updated_at = Column(UTCDateTime, onupdate=now)
+
+    #: Publicly exposable ID of the user
+    uuid = Column(UUID(as_uuid=True), default=uuid4)
 
     #: When this user was activated: email confirmed or first social login
-    activated_at = Column(DateTime(timezone=timezone.utc), nullable=True)
+    activated_at = Column(UTCDateTime, nullable=True)
 
     #: Is this user account enabled. The support can disable the user account in the case of suspected malicious activity.
     enabled = Column(Boolean, default=True)
 
     #: When this user accessed the system last time. None if the user has never logged in (only activation email sent). Information stored for the security audits.
-    last_login_at = Column(DateTime(timezone=timezone.utc), nullable=True)
+    last_login_at = Column(UTCDateTime, nullable=True)
 
     #: From which IP address did this user log in from. If this IP is null the user has never logged in (only activation email sent). Information stored for the security audits. It is also useful for identifying the source country of users e.g. for localized versions.
     last_login_ip = Column(INET, nullable=True,
@@ -92,30 +81,29 @@ class UserMixin:
                     }},
             )
 
-    #: When this user changed the password for the last time. The value is null if the user comes from social networks. Information stored for the security audits.
-    last_password_change_at = Column(DateTime, nullable=True)
-
-    #: Store all user related settings in this expandable field.
-    #: TODO: Make this fully mutation trackable JSON http://variable-scope.com/posts/mutation-tracking-in-nested-json-structures-using-sqlalchemy
+    #: Misc. user data as a bag of JSON. Do not access directly, but use JSONBProperties below
     user_data = Column(JSONB, default=DEFAULT_USER_DATA)
+
+    #: When this user changed the password for the last time. The value is null if the user comes from social networks. Information stored for the security audits.
+    last_password_change_at = Column(UTCDateTime, nullable=True)
 
     #: Full name of the user (if given)
     full_name = JSONBProperty("user_data", "/full_name")
 
-    #: How this user signed up to the site. May include string like "email", "facebook"
+    #: How this user signed up to the site. May include string like "email", "facebook" or "dummy". Up to the application to use this field. Default social media logins and email sign up set this.
     registration_source = JSONBProperty("user_data", "/registration_source", graceful=None)
 
     #: Social media data of the user as a dict keyed by user media
     social = JSONBProperty("user_data", "/social")
 
-    #: Is this the first login the user manages to do to our system. Use this information to redirect to special help landing page.
+    #: Is this the first login the user manages to do to our system. If this flag is set the user has not logged in to the system before and you can give warm welcoming experience.
     first_login = JSONBProperty("user_data", "/first_login")
 
     @property
     def friendly_name(self):
         """How we present the user's name to the user itself.
 
-        Pick one of 1) full name 2) username if set 3) email.
+        Picks one of 1) full name if set 2) username if set 3) email.
         """
         full_name = self.full_name
         if full_name:
@@ -137,7 +125,6 @@ class UserMixin:
 
     def can_login(self):
         """Is this user allowed to login."""
-
         # TODO: is_active defined in Horus
         return self.enabled and self.is_activated
 
@@ -154,50 +141,67 @@ class UserMixin:
 
         TODO: This is very suboptimal, wasted database cycles, etc. Change this.
         """
-        return self.is_in_group(self.GROUP_ADMIN)
+        return self.is_in_group(GroupMixin.DEFAULT_ADMIN_GROUP_NAME)
 
 
 class GroupMixin:
+    """Basic fields for Websauna default group model."""
+
+    #: Assign the first user initially to this group
+    DEFAULT_ADMIN_GROUP_NAME = "admin"
+
     #: When this group was created.
-    created_at = Column(DateTime(timezone=timezone.utc), default=now)
+    created_at = Column(UTCDateTime, default=now)
 
     #: When the group was updated last time. Please note that this does not concern group membership, only desription updates.
-    updated_at = Column(DateTime(timezone=timezone.utc), onupdate=now)
+    updated_at = Column(UTCDateTime, onupdate=now)
 
     #: Extra JSON data to be stored with this group
-    group_data = Column(JSONB, default={})
+    group_data = Column(JSONB, default=dict)
 
 
-def init_empty_site(dbsession, user):
-    """When the first user signs up build the admin groups and make the user member of it.
+class SiteCreator:
+    """Component responsible for setting up an empty site on first login.
 
-    Make the first member of the site to be admin and superuser.
+    The site creator is run by the activation of the first user. This either happens¨
+
+    * When the activation email is sent to the first user
+
+    * When the first user logs through social media account
+
     """
 
-    # Try to reflect related group class based on User model
-    i = inspection.inspect(user.__class__)
-    Group = i.relationships["groups"].mapper.entity
+    def init_empty_site(self, dbsession:Session, user:UserMixin):
+        """When the first user signs up build the admin groups and make the user member of it.
 
-    # Do we already have any groups... if we do we probably don'¨t want to init again
-    if dbsession.query(Group).count() > 0:
-        return
+        Make the first member of the site to be admin and superuser.
+        """
 
-    g = Group(name=user.GROUP_ADMIN)
-    dbsession.add(g)
+        # Try to reflect related group class based on User model
+        i = inspection.inspect(user.__class__)
+        Group = i.relationships["groups"].mapper.entity
 
-    g.users.append(user)
+        # Do we already have any groups... if we do we probably don'¨t want to init again
+        if dbsession.query(Group).count() > 0:
+            return
+
+        g = Group(name=Group.DEFAULT_ADMIN_GROUP_NAME)
+        dbsession.add(g)
+
+        g.users.append(user)
 
 
-def check_empty_site_init(dbsession, user):
-    """Call after user creation to see if this user is the first user and should get initial admin rights."""
+    def check_empty_site_init(self, dbsession:Session, user:UserMixin):
+        """Call after user creation to see if this user is the first user and should get initial admin rights."""
 
-    assert user.id, "Please flush your db"
+        assert user.id, "Please flush your db"
 
-    # Try to reflect related group class based on User model
-    i = inspection.inspect(user.__class__)
-    Group = i.relationships["groups"].mapper.entity
+        # Try to reflect related group class based on User model
+        i = inspection.inspect(user.__class__)
+        Group = i.relationships["groups"].mapper.entity
 
-    if dbsession.query(Group).count() > 0:
-        return
+        # If we already have groups admin group must be there
+        if dbsession.query(Group).count() > 0:
+            return
 
-    init_empty_site(dbsession, user)
+        self.init_empty_site(dbsession, user)

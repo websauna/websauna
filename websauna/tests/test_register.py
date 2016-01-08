@@ -45,7 +45,7 @@ def test_register_email(web_server, browser, dbsession):
 
     b.fill("username", EMAIL)
     b.fill("password", PASSWORD)
-    b.find_by_name("Log_in").click()
+    b.find_by_name("login_email").click()
 
     # After login we see a profile link to our profile
     assert b.is_element_visible_by_css("#nav-logout")

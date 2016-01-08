@@ -58,10 +58,13 @@
                     </li>
 
                     <li>
-                        <a id="nav-logout" href="{{'logout'|route_url}}">
-                            <i class="fa fa-sign-out"></i>
-                            Log out
-                        </a>
+                          <form method="POST" action="{{'logout'|route_url}}">
+                            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                            <button id="nav-logout" class="btn btn-link">
+                              <i class="fa fa-sign-out"></i>
+                              Log out
+                            </button>
+                          </form>
                     </li>
                 {% else %}
                     <li>

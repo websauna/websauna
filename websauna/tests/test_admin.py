@@ -18,7 +18,7 @@ def test_enter_admin(web_server, browser, dbsession, init):
 
     b.fill("username", EMAIL)
     b.fill("password", PASSWORD)
-    b.find_by_name("Log_in").click()
+    b.find_by_name("login_email").click()
 
     assert b.is_element_visible_by_css("#nav-admin")
     b.find_by_css("#nav-admin").click()
@@ -41,7 +41,7 @@ def test_non_admin_user_denied(web_server, browser, dbsession, init):
 
     b.fill("username", "example2@example.com")
     b.fill("password", PASSWORD)
-    b.find_by_name("Log_in").click()
+    b.find_by_name("login_email").click()
 
     assert not b.is_element_visible_by_css("#nav-admin")
 

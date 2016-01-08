@@ -59,7 +59,7 @@ def create_logged_in_user(dbsession:Session, registry:Registry, web_server:str, 
 
     b.fill("username", email)
     b.fill("password", password)
-    b.find_by_name("Log_in").click()
+    b.find_by_name("login_email").click()
 
     # After login we log out link to confirm login has succeeded
     assert b.is_element_visible_by_css("#nav-logout")
@@ -97,7 +97,7 @@ def login(web_server:str, browser:DriverAPI, email=EMAIL, password=PASSWORD):
 
     b.fill("password", password)
 
-    b.find_by_name("Log_in").click()
+    b.find_by_name("login_email").click()
     assert b.is_element_visible_by_css("#nav-logout")
 
 
@@ -163,3 +163,8 @@ def get_session_from_webdriver(driver: WebDriver, registry: Registry) -> RedisSe
     session = RedisSession(redis, session_id, new=False, new_session=None)
 
     return session
+
+def logout(web_server:str, browser:DriverAPI):
+    """Log out the current user from the test browser."""
+    browser.find_by_css("#nav-logout").click()
+    assert browser.is_element_present_by_css("#msg-logged-out")

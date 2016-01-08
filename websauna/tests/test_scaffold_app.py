@@ -137,7 +137,7 @@ def test_create_user(app_scaffold, dev_db, browser):
         # See our scaffold home page loads and demo text is there
         b.fill("username", "mikko@example.com")
         b.fill("password", "secret")
-        b.find_by_name("Log_in").click()
+        b.find_by_name("login_email").click()
 
         assert b.is_element_present_by_css("#nav-admin")
 

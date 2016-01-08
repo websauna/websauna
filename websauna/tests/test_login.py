@@ -24,7 +24,7 @@ def test_login(web_server, browser, dbsession, init):
 
     b.fill("username", EMAIL)
     b.fill("password", PASSWORD)
-    b.find_by_name("Log_in").click()
+    b.find_by_name("login_email").click()
 
     # After login we see a profile link to our profile
     assert b.is_element_visible_by_css("#nav-logout")
@@ -48,7 +48,7 @@ def test_login_inactive(web_server, browser, dbsession, init):
 
     b.fill("username", EMAIL)
     b.fill("password", PASSWORD)
-    b.find_by_name("Log_in").click()
+    b.find_by_name("login_email").click()
 
     # After login we see a profile link to our profile
     assert not b.is_element_visible_by_css("#nav-logout")
@@ -69,7 +69,7 @@ def test_logout(web_server, browser, dbsession, init):
 
     b.fill("username", EMAIL)
     b.fill("password", PASSWORD)
-    b.find_by_name("Log_in").click()
+    b.find_by_name("login_email").click()
 
     b.find_by_css("#nav-logout").click()
 
@@ -99,7 +99,7 @@ def test_last_login_ip(web_server, browser, dbsession, init):
 
     b.fill("username", EMAIL)
     b.fill("password", PASSWORD)
-    b.find_by_name("Log_in").click()
+    b.find_by_name("login_email").click()
 
     with transaction.manager:
         user = get_user(dbsession)
@@ -143,7 +143,7 @@ def test_forget_password(web_server, browser, dbsession, init):
 
     b.fill("username", EMAIL)
     b.fill("password", "yyy")
-    b.find_by_name("Log_in").click()
+    b.find_by_name("login_email").click()
 
     assert b.is_element_visible_by_css("#nav-logout")
 

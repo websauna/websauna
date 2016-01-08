@@ -24,11 +24,6 @@ def get_user(user_id, request:Request) -> User:
                # User account disabled while in mid-session
                return None
 
-            session_created_at = request.session["created_at"]
-            if not user.is_valid_session(session_created_at):
-                # Session invalidated because authentication details change
-                return None
-
         return user
 
     return None

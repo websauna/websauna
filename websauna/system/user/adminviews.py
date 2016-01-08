@@ -2,11 +2,13 @@
 
 import colander
 import deform
+
 from pyramid.httpexceptions import HTTPFound
-from pyramid.view import view_config, view_defaults
-from websauna.system.admin.utils import get_model_admin_for_sqlalchemy_object, get_admin_url_for_sqlalchemy_object
+from pyramid.view import view_config
+from websauna.system.admin.utils import get_admin_url_for_sqlalchemy_object
 from websauna.system.core import messages
 from websauna.system.crud.views import TraverseLinkButton
+from websauna.system.user.models import User
 from websauna.viewconfig import view_overrides
 from .admins import UserAdmin
 from .admins import GroupAdmin
@@ -147,16 +149,12 @@ class UserSetPassword(admin_views.Edit):
         colander.SchemaNode(colander.String(), name='password', widget=deform.widget.CheckedPasswordWidget(css_class="password-widget")),
     ]
 
+    def save_changes(self, form:deform.Form, appstruct:dict, obj:User):
+        super(UserSetPassword, self).save_changes(form, appstruct, obj)
+        obj.trigger_auth_sensitive_operation()
+
     def do_success(self):
-        """Called after the save (objectify) has succeeded.
-
-        :return: HTTPResponse
-        """
-        messages.add(self.request, kind="success", msg="Password changed.")
-
-        user = self.get_object()
-        user.trigger_auth_sensitive_operation()
-
+        messages.add(self.request, kind="success", msg="Password changed.", msg_id="msg-password-changed")
         # Redirect back to view page after edit page has succeeded
         return HTTPFound(self.request.resource_url(self.context, "show"))
 

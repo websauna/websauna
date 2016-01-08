@@ -4,6 +4,7 @@ This is code is blasphemy and will be replaced with something more sane in the f
 """
 
 from authomatic.core import LoginResult
+from pyramid.session import check_csrf_token
 
 from pyramid.view import view_config
 from pyramid.url import route_url
@@ -265,7 +266,7 @@ class AuthController(horus_views.AuthController):
         )
 
         # XXX: Bootstrap classes leak into Deform here
-        login_button = deform.Button(name="Log in", title="Login with email", css_class="btn-lg btn-block")
+        login_button = deform.Button(name="login_email", title="Login with email", css_class="btn-lg btn-block")
         self.form = form(self.schema, buttons=(login_button,))
 
         # If the form is embedded on other pages force it go to right HTTP POST endpoint
@@ -350,8 +351,13 @@ class AuthController(horus_views.AuthController):
 
     @view_config(permission='authenticated', route_name='logout')
     def logout(self):
-        return super(AuthController, self).logout()
-
+        # Don't allow <img src="http://server/logout">
+        assert self.request.method == "POST"
+        check_csrf_token(self.request)
+        self.request.session.invalidate()
+        messages.add(self.request, msg="You are now logged out.", kind="success", msg_id="msg-logged-out")
+        headers = forget(self.request)
+        return HTTPFound(location=self.logout_redirect_view, headers=headers)
 
 
 class ForgotPasswordController(horus_views.ForgotPasswordController):

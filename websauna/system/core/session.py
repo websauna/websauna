@@ -20,9 +20,10 @@ def set_creation_time_aware_session_factory(config):
 
     session_factory = session_factory_from_settings(settings)
 
-    def create_session(secret):
-        session = session_factory(secret)
-        session["created_at"] = now()
+    def create_session(request):
+        session = session_factory(request)
+        if "created_at" not in session:
+            session["created_at"] = now()
         return session
 
     config.set_session_factory(create_session)

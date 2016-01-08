@@ -124,8 +124,6 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
         mapper = self.inspector
         context = mapper.class_() if context is None else context
 
-        print("Objectifying ", dict_)
-
         # If our schema and widgets wants pass us back full objects instead of theri dictified versions, let them pass through
         if sqlalchemy.inspect(dict_, raiseerr=False) is not None:
             return dict_
@@ -136,16 +134,10 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
             return orig
 
         for attr in dict_:
-            if hasattr(context, attr) and JSONBProperty.is_json_property(context, attr):
-                # TODO: Nested or sequences not supported
-                value = dict_[attr]
-                setattr(context, attr, value)
-            elif mapper.has_property(attr):
+            if mapper.has_property(attr):
                 prop = mapper.get_property(attr)
                 if hasattr(prop, 'mapper'):
                     cls = prop.mapper.class_
-
-                    print("Mapper Objectifying ", prop, attr, context)
 
                     if prop.uselist:
                         # Sequence of objects
@@ -161,6 +153,11 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
                          #  value to be placed on an SQLAlchemy object
                          #  so we translate it into `None`.
                          value = None
+                setattr(context, attr, value)
+            elif hasattr(context, attr):
+                # Set any properties on the object which are not SQLAlchemy column based.
+                # These are JSONBProperty like user_data and password on the user model (actual column is called _password, but we mangle the password has before pushing it through)
+                value = dict_[attr]
                 setattr(context, attr, value)
             else:
                 # Ignore attributes if they are not mapped

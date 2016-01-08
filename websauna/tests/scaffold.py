@@ -76,7 +76,7 @@ def execute_venv_command(cmdline, folder, timeout=5.0, wait_and_see=None, assert
 
     cmdline = ". {}/venv/bin/activate ; {} {}".format(folder, cd_cmd, cmdline)
 
-    print("Executing {} in {}".format(cmdline, folder))
+    # print("Executing {} in {}".format(cmdline, folder))
 
     worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=folder, shell=True)
 

@@ -121,13 +121,15 @@ class Initializer:
         """Configure user and group SQLAlchemy models, login and sign up views."""
 
         # Avoid importing horus if not needed as it will bring in its own SQLAlchemy models and dirties our SQLAlchemy initialization
+
+        # TODO: This will be removed
+
         from hem.interfaces import IDBSession
         from horus.interfaces import IRegisterSchema
         from horus.interfaces import ILoginSchema
         from horus import IResetPasswordSchema
         from websauna.system.user.interfaces import IUserClass, IGroupClass
         from websauna.system.user import schemas
-        from websauna.system.user import auth
         from websauna.system.user import horus as horus_init
 
         # Tell horus which SQLAlchemy scoped session to use:
@@ -197,6 +199,7 @@ class Initializer:
 
         For more information see Pyramid auth documentation.
         """
+        import pyramid.tweens
         from websauna.system.auth.policy import SessionAuthenticationPolicy
         from websauna.system.auth.authentication import find_groups
         from websauna.system.auth.authentication import get_request_user
@@ -208,6 +211,8 @@ class Initializer:
         self.config.set_authorization_policy(authz_policy)
 
         self.config.add_request_method(get_request_user, 'user', reify=True)
+
+        self.config.add_tween("websauna.system.auth.tweens.SessionInvalidationTweenFactory", over=pyramid.tweens.MAIN)
 
     def configure_panels(self, settings):
         self.config.include('pyramid_layout')

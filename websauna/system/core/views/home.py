@@ -8,9 +8,6 @@ def home(request):
 
     You should really never see this is, as this view should be only active during Websauna test run and dev server.
     """
-    admin = get_admin(request)
-    import pdb ; pdb.set_trace()
-    request.has_permission('view', context=admin)
     return {}
 
 

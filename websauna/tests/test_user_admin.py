@@ -2,7 +2,7 @@ import pytest
 import transaction
 from websauna.system.user.models import User
 
-from websauna.tests.utils import create_logged_in_user, create_user
+from websauna.tests.utils import create_logged_in_user, create_user, logout
 from websauna.utils.slug import uuid_to_slug
 
 
@@ -49,10 +49,17 @@ def test_add_user(browser, web_server, init, dbsession):
     b.fill("password-confirm", "secret")
     b.find_by_name("add").click()
 
-    import pdb ; pdb.set_trace()
-
     # TODO: Convert to CSS based test
     assert b.is_text_present("Item added.")
+
+    logout(web_server, b)
+
+    b.visit(web_server + "/login")
+    b.fill("username", "test2@example.com")
+    b.fill("password", "secret")
+    b.find_by_name("login_email").click()
+
+    assert b.is_element_visible_by_css("#msg-you-are-logged-in")
 
 
 def test_add_user_password_mismatch(browser, web_server, init, dbsession):
@@ -88,7 +95,7 @@ def test_set_password(browser, victim_browser, web_server, init, dbsession):
     b2 = victim_browser
 
     create_logged_in_user(dbsession, init.config.registry, web_server, browser, admin=True)
-    create_logged_in_user(dbsession, init.config.registry, web_server, b2, email="victim@example.com")
+    create_logged_in_user(dbsession, init.config.registry, web_server, b2, email="victim@example.com", password="secret")
 
     b.find_by_css("#nav-admin").click()
     b.find_by_css("#latest-user-shortcut").click()
@@ -96,14 +103,21 @@ def test_set_password(browser, victim_browser, web_server, init, dbsession):
 
     b.fill("password", "new-secret")
     b.fill("password-confirm", "new-secret")
+    b.find_by_name("save").click()
+
+    assert b.is_element_visible_by_css("#msg-password-changed")
 
     # Victim browser should have now logged out
     b2.visit(web_server)
-    assert b.is_element_visible_by_css("#nav-sign-in")
+    assert b2.is_element_visible_by_css("#msg-session-invalidated")
+    assert b2.is_element_visible_by_css("#nav-sign-in")
 
     # See that we can log in with the new password
     b2.visit(web_server + "/login")
     b2.fill("username", "victim@example.com")
-    b2.fill("password", "new-password")
-    b2.find_by_name("Log_in").click()
+    b2.fill("password", "new-secret")
+    b2.find_by_name("login_email").click()
+
+    assert b2.is_element_visible_by_css("#msg-you-are-logged-in")
+
 

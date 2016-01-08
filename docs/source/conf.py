@@ -35,6 +35,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
     'sphinx_autodoc_typehints',
+    'pyramid_autodoc',
 #    'autoapi.extension',
 ]
 
@@ -294,7 +295,26 @@ texinfo_documents = [
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
+# Looks for objects in external projects
+intersphinx_mapping = {
+    'colander': ('http://docs.pylonsproject.org/projects/colander/en/latest', None),
+    'cookbook': ('http://docs.pylonsproject.org/projects/pyramid-cookbook/en/latest/', None),
+    'deform': ('http://docs.pylonsproject.org/projects/deform/en/latest', None),
+    'jinja2': ('http://docs.pylonsproject.org/projects/pyramid-jinja2/en/latest/', None),
+    'pylonswebframework': ('http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/', None),
+    'python': ('http://docs.python.org/3', None),
+    'sqla': ('http://docs.sqlalchemy.org/en/latest', None),
+    'tm': ('http://docs.pylonsproject.org/projects/pyramid_tm/en/latest/',         None),
+    'toolbar':         ('http://docs.pylonsproject.org/projects/pyramid-debugtoolbar/en/latest', None),
+    'tstring': ('http://docs.pylonsproject.org/projects/translationstring/en/latest', None),
+    'tutorials': ('http://docs.pylonsproject.org/projects/pyramid-tutorials/en/latest/', None),
+    'venusian': ('http://docs.pylonsproject.org/projects/venusian/en/latest', None),
+    'webob': ('http://docs.webob.org/en/latest', None),
+    'webtest': ('http://webtest.pythonpaste.org/en/latest', None),
+    'who': ('http://repozewho.readthedocs.org/en/latest', None),
+    'zcml': ('http://docs.pylonsproject.org/projects/pyramid-zcml/en/latest', None),
+    'zcomponent': ('http://docs.zope.org/zope.component', None),
+}
 
 
 

@@ -7,7 +7,7 @@ import subprocess
 
 from pyramid.threadlocal import get_current_registry
 from pyramid.path import AssetResolver
-from websauna.utils.exportenv import create_settings_env
+from websauna.system.devop.exportenv import create_settings_env
 import stat
 
 

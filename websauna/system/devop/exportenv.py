@@ -8,7 +8,7 @@ from sqlalchemy.engine.url import make_url
 def create_settings_env(registry):
     """Create os.environ where have exported all settings and secrets.
 
-    This is used for subprocess to create a child processes which are aware of our settings.  All dots are replaced with underscores. The exported environment varible is either prefixed with ``main``  or ``secret`. The exported environment variables are uppercased. Parent process environment variables are automatically inherited.
+    This is used for subprocess to create a child processes which are aware of our settings.  All dots are replaced with underscores. The exported environment varible is either prefixed with ``main``  or ``secret``. The exported environment variables are uppercased. Parent process environment variables are automatically inherited.
 
     The environment will look like::
 

@@ -2,37 +2,116 @@
 Configuration
 =============
 
-Websauna uses `INI-based configuration files <https://en.wikipedia.org/wiki/INI_file>`_, stemming from Paste and Pyramid legacy. Each command line command or WSGI web application launch module takes one of these INI files as an input. INI file tells
+Websauna uses `INI-based configuration files <https://en.wikipedia.org/wiki/INI_file>`_, from Paste and Pyramid legacy. To avoid copy-pasted configuration settings
 
 Configuration structure
 =======================
 
 Websauna INI configuration files are extensible. You can include base INI configuration files in your settings file from file system and other Python packages.
 
-Websauna package defines three configuration files which you should use
+The default app scaffold drops five files specific to your app
+
+* ``base.ini``
+
+* ``development.ini``
+
+* ``test.ini``
+
+* ``staging.ini``
+
+* ``production.ini``
+
+All these files extend Websauna base configuration files using the configuration inclusion mechhanism explained below.
+
+All files can have corresponding :term:`secrets` INI file which does not go to the version control and must be hand placed around.
+
+.. _base.ini:
+
+base.ini
+--------
+
+This is the base for all configuration files. It should not be used standalone, but it is base for all settings.
+
+* Set up loggers
+
+* Set up core settings like Jinja 2 templating
+
+* Set up default websauna configuration variables
+
+See :download:`base.ini <../../../development.ini>`.
+
+development.ini
+---------------
+
+This a the configuration file for running the local development server
+
+* No outgoing email
+
+* Celery jobs are executed eagerly, no need to run Celery process
+
+* No backups
+
+* Development databases
+
+* Enable all Pyramid debug options.
+
+* Enable :term:`pyramid_debugtoolbar`.
+
+See :download:`development.ini <../../../development.ini>`.
+
+test.ini
+--------
+
+Settings for running unit tests
+
+* No outgoing email
+
+* Test database
+
+* Jinja templates in strict mode (raise exception on missing template variable)
+
+See :download:`development.ini <../../../test.ini>`.
+
+production.ini
+--------------
+
+Settings for runnign Websauna on production server.
+
+* Mail out
+
+* Production database
+
+* No debugging
+
+* Cached static files
+
+See :download:`production.ini <../../../production.ini>`.
+
+staging.ini
+-----------
+
+Same as `production.ini`, but with staging secrets, so that you can use different API credentials for a staging server and production server.
+
+See :download:`staging.ini <../../../staging.ini>`.
+
+secrets
+-------
+
+All INI files have a corresponding secrets pair (``development-secrets.ini``, ``production-secrets.ini``). Websauna app :term:`scaffold` places these files to :term:`.gitignore`, so that you cannot accidentally put potentially confidential information to a version control.
 
 Configuration inclusion
 =======================
 
+For examples see any INI file produced by :term:`scaffold`.
+
 .. note ::
 
-    Configuraiton inclusion system will be phased out in the future versions to be replaced with more generic configuration solution.
+    Configuraition inclusion system will be phased out in the future versions to be replaced with more generic configuration solution.
 
-Configuration variables
-=======================
+Websauna configuration variables
+================================
 
 The following variables are available
-
-.. _sqlalchemy.url:
-
-sqlalchemy.url
---------------
-
-The connection string for the primary SQL database.
-
-Follows `SQLAlchemy engine configuration syntax <http://docs.sqlalchemy.org/en/latest/core/engines.html>`_.
-
-Default: ``postgresql://localhost/yourappname_dev`` (for :term:`development.ini`)
 
 websauna.site_url
 -----------------
@@ -153,7 +232,6 @@ Default: ``true``
 
 For more information see :py:mod:`websauna.system.model.sqlalchemyutcdatetime`.
 
-
 websauna.allowed_hosts
 ----------------------
 
@@ -168,7 +246,6 @@ Set this to list of your production domain names::
         upload.libertymusicstore.net
 
 Default: ``localhost``.
-
 
 websauna.error_test_trigger
 ---------------------------
@@ -188,17 +265,47 @@ This is used by ``web_server`` py.test test fixture.
 
 Default: ``8521``.
 
-Configuration variables from other packages
-===========================================
+.. _celery-config:
 
-* Paste
+Configuration from other packages
 
-* Alembic
+Celery
+------
 
-* pyramid_redis
+Websauna uses :term:`pyramid_celery` which allows you to put :term:`Celery` configuration variables to a INI file.
 
-* sqlalchemy
+For example see Websauna base.ini. `For more information see Celert configuration <http://docs.celeryproject.org/en/latest/configuration.html>`_.
 
-* Python logging
+Alembic
+-------
 
-* `pyramid_notebook <https://bitbucket.org/miohtama/pyramid_notebook>`_
+`See Alembic <http://alembic.readthedocs.org/en/latest/tutorial.html#editing-the-ini-file>`_.
+
+pyramid_redis
+-------------
+
+`See pyramid_redis <http://pyramid-redis-sessions.readthedocs.org/en/latest/gettingstarted.html>`_.
+
+sqlalchemy
+----------
+
+.. _sqlalchemy.url:
+
+sqlalchemy.url
+++++++++++++++
+
+The connection string for the primary SQL database.
+
+Follows `SQLAlchemy engine configuration syntax <http://docs.sqlalchemy.org/en/latest/core/engines.html>`_.
+
+Default: ``postgresql://localhost/yourappname_dev`` (for :term:`development.ini`)
+
+Python logging
+--------------
+
+`See Python guide <http://docs.python-guide.org/en/latest/writing/logging/#example-configuration-via-an-ini-file>`_.
+
+pyramid_notebook
+----------------
+
+`See pyramid_notebook <https://bitbucket.org/miohtama/pyramid_notebook>`_.

@@ -2,7 +2,7 @@
 
 We provide UUID to Base64 encoded string and back coding.
 
-.. warn ::
+.. note ::
 
     The internal implemtation is subject to change to more efficient encoding. It is not recommended to use these as persistent URLs.
 """

@@ -2,12 +2,20 @@
 Transient data
 ==============
 
+.. contents:: :local:
+
 Introduction
 ============
 
-In the context of Websauna transient data means data
+In the context of Websauna transient data primarly means
 
-* Which might not be around forever
+* Visitor session data (authentication, shopping carts, etc.)
+
+* Cache
+
+Furthermore transient data properties are along the lines of
+
+* Which might not be around forever - does not satisfy ACID guarantees
 
 * Might be cache-like data
 
@@ -21,14 +29,57 @@ In the context of Websauna transient data means data
 
 The stack component for managing transient data in Websauna is Redis.
 
-Introduction to Redis
-=====================
+Using session data
+==================
 
-TODO
+Session data is available for both logged in and anonymous users. Examples::
 
-Managing Redis database
-=======================
+    request.session["my_key"] = "value"  # Set a session value
 
-* Use ``redis-cli`` tool or Python shell to explore the contents of Redis database
+    print(request.session["my_key"])  # Get a session value
 
-* The default backup script dumps Redis database for backing up
+    print(request.session.get("my_key")  # Get a session value, defaults to None if not yet set
+
+See also :doc:`flash messages <../misc/messages>`_.
+
+For more information see `Sessions in Pyramid <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/sessions.html>`_.
+
+Default Redis behavior
+======================
+
+By default, Websauna uses :term:`Redis` for transient data storage.
+
+Redis database mappings
+-----------------------
+
+Redis database *1* is configured for local development/staging/production session and cache data.
+
+Redis database *3* is configured for local development/staging/production Celery jobs.
+
+Redis database *14* is configured for unit test session data.
+
+Redis database *15* is configured for unit test Celery jobs.
+
+See :ref:`Celery config <celery-config>` for more information.
+
+Configuration
+=============
+
+Redis settings can be found in :ref:`base.ini` and `test.ini`.
+
+Accessing Redis
+===============
+
+Getting a hold a Redis client can be done with :py:func:`websauna.system.core.get_redis` call.
+
+Exploring Redis database
+========================
+
+If you want to explore Redis database you can use ``redis-cli`` command line tool or Python shell (:ref:`notebook` :ref:`ws-shell`) to explore the contents of Redis database
+
+Backup
+======
+
+The default :doc:`backup <../ops/backup>` script backs up Redis database by dumping it.
+
+

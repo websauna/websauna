@@ -12,7 +12,7 @@ from pyramid.threadlocal import get_current_registry
 logger = logging.getLogger(__name__)
 
 
-def get_redis(registry:Registry=None, url:str=None, redis_client=StrictRedis, **redis_options):
+def get_redis(registry:Registry=None, url:str=None, redis_client=StrictRedis, **redis_options) -> StrictRedis:
     """Get a connection to Redis.
 
     Compatible with *pyramid_redis_session*, see https://github.com/ericrasmussen/pyramid_redis_sessions/blob/master/pyramid_redis_sessions/connection.py
@@ -20,29 +20,22 @@ def get_redis(registry:Registry=None, url:str=None, redis_client=StrictRedis, **
     Default Redis connection handler. Once a connection is established it is
     cached in ``registry``.
 
+    HTTP example:
+
+        from websauna.system.core.redis import get_redis
+        redis = get_redis(request.registry)
+
     Shell example::
 
         from websauna.system.core.redis import get_redis
         redis = get_redis(registry)
-
         print(redis.keys())
 
-    Parameters:
+    :registry: Pyramid registry containing current Redis connection configuration
 
-    ``registry`` Pyramid registry
+    :param url: An optional connection string that will be passed straight to `StrictRedis.from_url`. The connection string should be in the form redis://username:password@localhost:6379/0. If not given use the default from settings.
 
-
-    ``url``
-    An optional connection string that will be passed straight to
-    `StrictRedis.from_url`. The connection string should be in the form:
-        redis://username:password@localhost:6379/0
-
-    ``settings``
-    A dict of keyword args to be passed straight to `StrictRedis`
-
-    Returns:
-
-    An instance of `StrictRedis`
+    :param redis_options: A dict of keyword args to be passed straight to `StrictRedis`
     """
 
     if registry is None:

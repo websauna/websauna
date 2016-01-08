@@ -123,7 +123,7 @@ setup(
     # for example:
     # $ pip install -e .[dev,test]
     extras_require={
-        'dev': ['check-manifest', 'Sphinx', 'sphinx-autoapi', 'setuptools_git', 'zest.releaser', 'sphinx-autodoc-typehints'],
+        'dev': ['check-manifest', 'Sphinx', 'sphinx-autoapi', 'setuptools_git', 'zest.releaser', 'sphinx-autodoc-typehints', 'pyramid_autodoc'],
         'test': ['pytest', 'coverage', 'webtest', 'pytest-splinter'],
     },
 

@@ -18,3 +18,8 @@ Rendering
 =========
 
 Flash messages are rendered by ``site/messages.html``. After rendering the flash message queue is cleared.
+
+More information
+================
+
+See `flash messages in Pyramid documentation <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/sessions.html#flash-messages>`_.

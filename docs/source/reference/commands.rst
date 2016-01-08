@@ -19,11 +19,12 @@ Example::
 
 This is a wrapped around Pyramid `pserve <http://docs.pylonsproject.org/projects/pyramid/en/latest/pscripts/pserve.html?highlight=pserve>`_ command.
 
+.. _ws-shell:
+
 ws-shell
 --------
 
-Open `IPython terminal shell <https://github.com/dbcli/pgcli>`_ prompt for your application.
-This also imports all your configured models by default, creates initial database session, so you are good to go to manipulate your application.
+Open `IPython terminal shell <http://ipython.readthedocs.org/en/stable/index.html>`_ prompt for interactive Python session with your application. It imports all your configured models by default, creates initial database session, so you are good to go to manipulate your application.
 
 Example::
 

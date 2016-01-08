@@ -1,5 +1,7 @@
 from uuid import uuid4
 
+import datetime
+
 from pyramid.registry import Registry
 from sqlalchemy import inspection
 from sqlalchemy.dialects.postgresql import JSONB, UUID
@@ -84,8 +86,8 @@ class UserMixin:
     #: Misc. user data as a bag of JSON. Do not access directly, but use JSONBProperties below
     user_data = Column(JSONB, default=DEFAULT_USER_DATA)
 
-    #: When this user changed the password for the last time. The value is null if the user comes from social networks. Information stored for the security audits.
-    last_password_change_at = Column(UTCDateTime, nullable=True)
+    #: Store when this user changed the password or authentication details. Updating this value causes the system to drop all sessions which were created before this moment. E.g. you will kick out all old sessions on a password or email change.
+    last_auth_sensitive_operation_at = Column(UTCDateTime, nullable=True, default=now)
 
     #: Full name of the user (if given)
     full_name = JSONBProperty("user_data", "/full_name")
@@ -142,6 +144,14 @@ class UserMixin:
         TODO: This is very suboptimal, wasted database cycles, etc. Change this.
         """
         return self.is_in_group(GroupMixin.DEFAULT_ADMIN_GROUP_NAME)
+
+    def is_valid_session(self, session_created_at:datetime.datetime) -> bool:
+        """Check if the current session is still valid for this user."""
+        return self.last_auth_sensitive_operation_at <= session_created_at
+
+    def trigger_auth_sensitive_operation(self):
+        """Note that the authentication details for this user have changed and we should no longer respect old sessions."""
+        self.last_auth_sensitive_operation_at = now()
 
 
 class GroupMixin:

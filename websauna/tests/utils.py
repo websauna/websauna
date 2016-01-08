@@ -42,23 +42,23 @@ def create_user(dbsession:Session, registry:Registry, email:str=EMAIL, password:
     return user
 
 
-def create_logged_in_user(dbsession:Session, registry:Registry, web_server:str, browser:DriverAPI, admin:bool=False):
-    """For a web browser test session, creates a new user and logs it in."""
+def create_logged_in_user(dbsession:Session, registry:Registry, web_server:str, browser:DriverAPI, admin:bool=False, email:str=EMAIL, password:str=PASSWORD):
+    """For a web browser test session, creates a new user and log it in inside the test browser."""
 
     # Catch some common argument misordering issues
     assert isinstance(registry, Registry)
     assert isinstance(web_server, str)
 
     with transaction.manager:
-        create_user(dbsession, registry, admin=admin)
+        create_user(dbsession, registry, admin=admin, email=email, password=password)
 
     b = browser
     b.visit("{}/{}".format(web_server, "login"))
 
     assert b.is_element_visible_by_css("#login-form")
 
-    b.fill("username", EMAIL)
-    b.fill("password", PASSWORD)
+    b.fill("username", email)
+    b.fill("password", password)
     b.find_by_name("Log_in").click()
 
     # After login we log out link to confirm login has succeeded

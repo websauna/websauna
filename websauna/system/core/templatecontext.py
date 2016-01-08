@@ -258,7 +258,6 @@ def includeme(config):
 
     config.add_subscriber(on_before_render, BeforeRender)
 
-
     include_filter(config, "friendly_time", friendly_time)
     include_filter(config, "datetime", filter_datetime)
     include_filter(config, "escape_js", escape_js)

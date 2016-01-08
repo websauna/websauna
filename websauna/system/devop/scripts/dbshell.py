@@ -1,11 +1,9 @@
 """Run pgcli shell on the configured database."""
 import os
 import sys
-from pyramid.paster import bootstrap
+
 from websauna.system.devop.cmdline import init_websauna
 from websauna.utils.configincluder import monkey_patch_paster_config_parser
-from pyramid.paster import setup_logging
-from pyramid.scripts.common import parse_vars
 
 
 def usage(argv):

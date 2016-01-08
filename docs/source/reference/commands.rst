@@ -8,6 +8,17 @@ Most Websauna commands take the configuration file, like :term:`development.ini`
 Available commands
 ==================
 
+ws-pserve
+---------
+
+Run a development web server on your local computer.
+
+Example::
+
+    ws-pserve development.ini --reload
+
+This is a wrapped around Pyramid `pserve <http://docs.pylonsproject.org/projects/pyramid/en/latest/pscripts/pserve.html?highlight=pserve>`_ command.
+
 ws-shell
 --------
 

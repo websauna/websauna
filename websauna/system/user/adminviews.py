@@ -1,7 +1,12 @@
+"""CRUD views for user and group management."""
+
 import colander
 import deform
+from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config, view_defaults
 from websauna.system.admin.utils import get_model_admin_for_sqlalchemy_object, get_admin_url_for_sqlalchemy_object
+from websauna.system.core import messages
+from websauna.system.crud.views import TraverseLinkButton
 from websauna.viewconfig import view_overrides
 from .admins import UserAdmin
 from .admins import GroupAdmin
@@ -12,6 +17,13 @@ from websauna.system.admin import views as admin_views
 
 from websauna.system.form.widget import RelationshipCheckboxWidget
 from websauna.system.user.utils import get_group_class
+
+
+
+class GroupWidget(RelationshipCheckboxWidget):
+    """Specialized widget for selecting user groups."""
+    def make_entry(self, obj):
+        return (obj.id, obj.name)
 
 
 @panel_config(name='admin_panel', context=UserAdmin, renderer='admin/user_panel.html')
@@ -53,16 +65,10 @@ class UserListing(admin_views.Listing):
         return super(UserListing, self).listing()
 
 
-
-
-class GroupWidget(RelationshipCheckboxWidget):
-
-    def make_entry(self, obj):
-        return (obj.id, obj.name)
-
-
 class UserShow(admin_views.Show):
     """Show one user."""
+
+    resource_buttons = admin_views.Show.resource_buttons + [TraverseLinkButton(id="set-password", name="Set password", view_name="set-password")]
 
     includes = ["id",
                 "uuid",
@@ -90,10 +96,6 @@ class UserShow(admin_views.Show):
         return super(UserShow, self).show()
 
 
-class Groups(colander.SequenceSchema):
-    pass
-
-
 class UserEdit(admin_views.Edit):
     """Show one user."""
 
@@ -119,11 +121,48 @@ class UserEdit(admin_views.Edit):
 
 @view_overrides(context=UserAdmin)
 class UserAdd(admin_views.Add):
+    """CRUD add part for creating new users."""
 
     includes = [
         "username",
-        "email"
+        "email",
+        "full_name",
+        colander.SchemaNode(colander.String(), name='password', widget=deform.widget.CheckedPasswordWidget(css_class="password-widget")),
+        "groups"
     ]
+
+    def customize_schema(self, schema):
+        group_model = get_group_class(self.request.registry)
+        schema["groups"].widget = GroupWidget(model=group_model, dictify=schema.dictify)
+        schema["groups"].missing = []
+
+
+class UserSetPassword(admin_views.Edit):
+    """Set the user password.
+
+    Use the CRUD edit form with one field to set the user password.
+    """
+
+    includes = [
+        colander.SchemaNode(colander.String(), name='password', widget=deform.widget.CheckedPasswordWidget(css_class="password-widget")),
+    ]
+
+    def do_success(self):
+        """Called after the save (objectify) has succeeded.
+
+        :return: HTTPResponse
+        """
+        messages.add(self.request, kind="success", msg="Password changed.")
+
+        user = self.get_object()
+        user.trigger_auth_sensitive_operation()
+
+        # Redirect back to view page after edit page has succeeded
+        return HTTPFound(self.request.resource_url(self.context, "show"))
+
+    @view_config(context=UserAdmin.Resource, route_name="admin", name="set-password", renderer="crud/edit.html", permission='edit')
+    def set_password(self):
+        return super(admin_views.Edit, self).edit()
 
 
 @view_overrides(context=GroupAdmin)

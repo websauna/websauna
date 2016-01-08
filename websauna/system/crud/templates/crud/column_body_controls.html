@@ -2,19 +2,15 @@
     <div class="pull-right">
 
         {% if request.has_permission("view", instance) %}
-            <a href="{{ instance|model_url('show') }}" class="btn btn-default btn-crud-listing-show">
+            <a href="{{ instance|model_url('show') }}" class="btn-crud-listing-show">
                 Show
             </a>
         {% endif %}
 
         {% if request.has_permission("edit", instance) %}
-            <a href="{{ instance|model_url('edit') }}" class="btn btn-default btn-crud-listing-edit">
+            <a href="{{ instance|model_url('edit') }}" class="btn-crud-listing-edit">
                 Edit
             </a>
         {% endif %}
-
-        <a class="btn btn-default crud-column-body-delete">
-            Delete
-        </a>
     </div>
 </td>

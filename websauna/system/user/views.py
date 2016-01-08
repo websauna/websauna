@@ -120,7 +120,7 @@ def authenticated(request:Request, user:UserMixin, location:str=None) -> HTTPFou
         raise RuntimeError("Got authenticated() request for disabled user - should not happen")
 
     headers = remember(request, user.id)
-    assert headers, "Authentication backend did not give us any session headers"
+    # assert headers, "Authentication backend did not give us any session headers"
 
     if not user.last_login_at:
         e = events.FirstLogin(request, user)

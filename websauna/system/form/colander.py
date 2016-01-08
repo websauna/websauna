@@ -136,7 +136,7 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
             return orig
 
         for attr in dict_:
-            if JSONBProperty.is_json_property(context, attr):
+            if hasattr(context, attr) and JSONBProperty.is_json_property(context, attr):
                 # TODO: Nested or sequences not supported
                 value = dict_[attr]
                 setattr(context, attr, value)

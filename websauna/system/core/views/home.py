@@ -1,34 +1,17 @@
 from pyramid.view import view_config
-
-
-# @view_config(route_name='xhome', renderer='templates/site/home.html')
-# def xhome(request):
-#     try:
-#         one = DBSession.query(MyModel).filter(MyModel.name == 'one').first()
-#     except DBAPIError:
-#         return Response(conn_err_msg, content_type='text/plain', status_int=500)
-#     return {'one': one, 'project': '{{project}}'}
+from websauna.system.admin.utils import get_admin
 
 
 @view_config(route_name='home', renderer='core/home.html')
 def home(request):
-    return {'one': "one", 'project': '{{project}}'}
+    """The default home view of Websauna.
 
+    You should really never see this is, as this view should be only active during Websauna test run and dev server.
+    """
+    admin = get_admin(request)
+    import pdb ; pdb.set_trace()
+    request.has_permission('view', context=admin)
+    return {}
 
-conn_err_msg = """\
-Pyramid is having a problem using your SQL database.  The problem
-might be caused by one of the following things:
-
-1.  You may need to run the "initialize_{{project}}_db" script
-    to initialize your database tables.  Check your virtual
-    environment's "bin" directory for this script and try to run it.
-
-2.  Your database server may not be running.  Check that the
-    database server referred to by the "sqlalchemy.url" setting in
-    your "development.ini" file is running.
-
-After you fix the problem, please restart the Pyramid application to
-try it again.
-"""
 
 

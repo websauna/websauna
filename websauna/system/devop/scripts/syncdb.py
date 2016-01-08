@@ -1,16 +1,13 @@
+from websauna.utils.configincluder import monkey_patch_paster_config_parser
+monkey_patch_paster_config_parser()
+
 import os
 import sys
 
 import transaction
-from websauna.utils.configincluder import monkey_patch_paster_config_parser
+
 from websauna.system.devop.cmdline import init_websauna
 from websauna.system.model.meta import Base
-
-monkey_patch_paster_config_parser()
-
-from pyramid.paster import setup_logging
-
-from pyramid.scripts.common import parse_vars
 
 
 def usage(argv):

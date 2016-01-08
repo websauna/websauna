@@ -1,0 +1,1 @@
+"""Websauna core view logic like 404 and 500. The default site templates. Basic website mechanisms like flash messages and breadcrumbs."""

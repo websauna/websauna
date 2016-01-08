@@ -86,6 +86,7 @@ Other
     narrative/misc/testing
     narrative/misc/notebook
     narrative/misc/mail
+    narrative/misc/messages
 
 Developing Websauna itself
 --------------------------

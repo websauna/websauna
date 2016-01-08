@@ -112,3 +112,5 @@ class FriendlyUUIDWidget(deform.widget.TextInputWidget):
         values.update(kw)
         values.pop('template', None)
         return values
+
+

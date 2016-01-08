@@ -1,9 +1,24 @@
 """Helper functions to initializer Websauna framework for command line applications."""
+import os
+from logging.config import fileConfig
 
 from pyramid import scripting
-from pyramid.paster import bootstrap, setup_logging
+from pyramid.paster import bootstrap, setup_logging, _getpathsec
 from websauna.system.http import Request
-from websauna.utils.configincluder import monkey_patch_paster_config_parser
+from websauna.utils.configincluder import monkey_patch_paster_config_parser, IncludeAwareConfigParser
+
+
+def setup_logging(config_uri):
+    """Include-aware Python logging setup from INI config file.
+    """
+    path, _ = _getpathsec(config_uri, None)
+    parser = IncludeAwareConfigParser()
+    parser.read([path])
+
+    if parser.has_section('loggers'):
+        config_file = os.path.abspath(path)
+        defaults = dict(parser, here=os.path.dirname(config_file))
+        return fileConfig(parser, defaults)
 
 
 def init_websauna(config_uri) -> Request:

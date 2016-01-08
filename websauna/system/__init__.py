@@ -3,8 +3,6 @@ import logging
 import os
 
 from pyramid.config import Configurator
-from pyramid.authentication import AuthTktAuthenticationPolicy
-from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.interfaces import IDebugLogger
 from pyramid.path import DottedNameResolver
 from pyramid.settings import aslist
@@ -144,8 +142,6 @@ class Initializer:
         self.config.registry.registerUtility(schemas.LoginSchema, ILoginSchema)
         self.config.registry.registerUtility(schemas.ResetPasswordSchema, IResetPasswordSchema)
 
-        self.config.add_request_method(auth.get_user, 'user', reify=True)
-
     def configure_mailer(self, settings):
         """Configure outgoing email backend based on the INI settings."""
 
@@ -197,14 +193,21 @@ class Initializer:
         self.config.add_jinja2_search_path('websauna.system:core/templates', name='.xml')
 
     def configure_authentication(self, settings, secrets):
+        """Set up authentication and authorization policies.
 
-        from websauna.system.user import auth
+        For more information see Pyramid auth documentation.
+        """
+        from websauna.system.auth.policy import SessionAuthenticationPolicy
+        from websauna.system.auth.authentication import find_groups
+        from websauna.system.auth.authentication import get_request_user
+        from pyramid.authorization import ACLAuthorizationPolicy
 
-        # Security policies
-        authn_policy = AuthTktAuthenticationPolicy(secrets['authentication.secret'], callback=auth.find_groups, hashalg='sha512')
+        authn_policy = SessionAuthenticationPolicy(callback=find_groups)
         authz_policy = ACLAuthorizationPolicy()
         self.config.set_authentication_policy(authn_policy)
         self.config.set_authorization_policy(authz_policy)
+
+        self.config.add_request_method(get_request_user, 'user', reify=True)
 
     def configure_panels(self, settings):
         self.config.include('pyramid_layout')
@@ -337,6 +340,8 @@ class Initializer:
     def configure_sessions(self, settings, secrets):
         """Configure session storage."""
 
+        from websauna.system.core.session import set_creation_time_aware_session_factory
+
         session_secret = secrets["session.secret"]
 
         # TODO: Make more boilerplate here so that we pass secret in more sane way
@@ -345,6 +350,8 @@ class Initializer:
 
         # Set a flag to perform Redis session check later and prevent web server start if Redis is down
         self._has_redis_sessions = True
+
+        set_creation_time_aware_session_factory(self.config)
 
     def configure_admin(self, settings):
         """Configure admin ux.

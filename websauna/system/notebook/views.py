@@ -9,25 +9,21 @@ from websauna.system.model.meta import Base
 
 #: Include our database session in notebook so it is easy to query stuff right away from the prompt
 SCRIPT = """
-from websauna.system.model import DBSession
+dbsession = request.dbsession
 """
 
 
 GREETING="""
-* **DBSession** - SQLAlchemy database session
+* **dbsession** - SQLAlchemy database session
 """
 
 
-@view_config(route_name="notebook_proxy", permission="shell")
-def notebook_proxy(request):
-    """Proxy IPython Notebook requests to the upstream server."""
-    return _notebook_proxy(request, request.user.username)
+def launch_context_sensitive_shell(request, extra_script="", extra_greeting=""):
+    """Launch a IPython Notebook.
 
-
-@view_config(route_name="admin_shell", permission="shell")
-def admin_shell(request):
-    """Open admin shell with default parameters for the user."""
-    # Make sure we have a logged in user
+    :param extra_script: Extra script executed on the launch of this notebook
+    :param extra_greeting: Extra text in the greeting Markdown for this launch
+    """
     nb = {}
 
     # Pass around the Pyramid configuration we used to start this application
@@ -43,7 +39,23 @@ def admin_shell(request):
     #: Include all our SQLAlchemy models in the notebook variables
     startup.include_sqlalchemy_models(nb, Base)
 
+    startup.add_script(nb, extra_script)
+    startup.add_greeting(nb, extra_greeting)
+
     return launch_notebook(request, request.user.username, notebook_context=nb)
+
+
+@view_config(route_name="notebook_proxy", permission="shell")
+def notebook_proxy(request):
+    """Proxy IPython Notebook requests to the upstream server."""
+    return _notebook_proxy(request, request.user.username)
+
+
+@view_config(route_name="admin_shell", permission="shell")
+def admin_shell(request):
+    """Open admin shell with default parameters for the user."""
+    # Make sure we have a logged in user
+    return launch_websauna_shell(request)
 
 
 @view_config(route_name="shutdown_notebook", permission="shell")

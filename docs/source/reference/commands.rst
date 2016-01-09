@@ -8,6 +8,8 @@ Most Websauna commands take the configuration file, like :term:`development.ini`
 Available commands
 ==================
 
+.. _ws-pserve::
+
 ws-pserve
 ---------
 

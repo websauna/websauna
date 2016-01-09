@@ -36,26 +36,3 @@ def get_request_user(request:Request) -> User:
     return get_user(user_id, request) if user_id else None
 
 
-def find_groups(userid:int, request:Request):
-    """Get applied groups and other for the user"""
-
-    dbsession = request.dbsession
-
-    user_class = get_user_class(request.registry)
-
-    # Read superuser names from the config
-    superusers = aslist(request.registry.settings.get("websauna.superusers"))
-
-    user = dbsession.query(user_class).get(userid)
-    if user:
-        if user.can_login():
-            principals = ['group:{}'.format(g.name) for g in user.groups]
-
-        # Allow superuser permission
-        if user.username in superusers or user.email in superusers:
-            principals.append("superuser:superuser")
-
-        return principals
-
-    # User not found, user disabled
-    return None

@@ -31,6 +31,7 @@ class Admin(traverse.Resource):
         (Allow, 'group:admin', 'add'),
         (Allow, 'group:admin', 'view'),
         (Allow, 'group:admin', 'edit'),
+        (Allow, 'superuser:supseruser', 'shell'),
     ]
 
     def __init__(self, request):

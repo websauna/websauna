@@ -7,7 +7,8 @@ from websauna.system.admin.modeladmin import ModelAdmin, ModelAdminRoot
 from websauna.system.admin.utils import get_admin
 from websauna.system.crud import views as crud_views
 from websauna.system.crud import listing
-
+from websauna.system.crud.views import TraverseLinkButton
+from websauna.system.notebook.views import launch_context_sensitive_shell
 
 from websauna.utils.panel import render_panel
 
@@ -64,15 +65,37 @@ class Listing(crud_views.Listing):
         return super(Listing, self).listing()
 
 
-
 class Show(crud_views.Show):
     """Default show view for model admin."""
     base_template = "admin/base.html"
+
+    resource_buttons = [
+        TraverseLinkButton(id="edit", name="Edit", view_name="edit", permission="edit"),
+        TraverseLinkButton(id="shell", name="Shell", view_name="shell", permission="shell", tooltip="Open IPython Notebook shell and have this item prepopulated in obj variable."),
+    ]
 
     @view_config(context=ModelAdmin.Resource, name="show", renderer="crud/show.html", route_name="admin", permission='view')
     def show(self):
         # We override this method just to define admin route_name traversing
         return super(Show, self).show()
+
+
+class Shell:
+    """Notebook shell opener.
+
+    Prepolate shell with this object through dbsession query.
+    """
+
+    def __init__(self, context, request):
+        self.request = request
+        self.context = context
+
+    @view_config(context=ModelAdmin.Resource, name="shell", route_name="admin", permission='shell')
+    def shell(self):
+        obj = self.context.get_object()
+        extra_script = "obj = dbsession.query({}).get({})".format(obj.__class__.__name__, obj.id)
+        extra_greeting = "* **obj** {}".format(self.context.get_title())
+        return launch_context_sensitive_shell(self.request, extra_script, extra_greeting)
 
 
 class Edit(crud_views.Edit):

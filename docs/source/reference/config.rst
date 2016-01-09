@@ -113,14 +113,18 @@ Websauna configuration variables
 
 The following variables are available
 
-websauna.site_url
------------------
+.. _websauna.admin_as_superuser
 
-Where this site is running. When serving web pages, this value is not accessed, as ``request.route_url()`` and similar methods rely on the HTTP headers coming from the web server.
+websauna.admin_as_superuser
+---------------------------
 
-The value is mostly used when running tasks and command line scripts.
+All members in admin group are also superusers.
 
-Default: No default, must be set.
+.. note ::
+
+    It is only safe to enable this settings on your local computer. Never enable this in an environment which can be accessed over Internet.
+
+Default: ``True`` in :ref:`development.ini`, ``False`` otherwise.
 
 websauna.cachebust
 ------------------
@@ -145,6 +149,8 @@ websauna.cache_max_age
 How long *Expires* header is set for served static assets.
 
 Default: ``None`` (zero) seconds. In production configuration this is overridden to 3600 seconds.
+
+.. _websauna.superuser
 
 websauna.superuser
 ------------------
@@ -255,6 +261,15 @@ If set enable a view at path ``/error-trigger`` that generates a runtime error.
 You can use this view to generate an error and see that your logging and error monitoring system functions correctly.
 
 Default: ``False``.
+
+websauna.site_url
+-----------------
+
+Where this site is running. When serving web pages, this value is not accessed, as ``request.route_url()`` and similar methods rely on the HTTP headers coming from the web server.
+
+The value is mostly used when running tasks and command line scripts.
+
+Default: No default, must be set.
 
 websauna.test_web_server_port
 -----------------------------

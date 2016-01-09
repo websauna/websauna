@@ -201,11 +201,11 @@ class Initializer:
         """
         import pyramid.tweens
         from websauna.system.auth.policy import SessionAuthenticationPolicy
-        from websauna.system.auth.authentication import find_groups
+        from websauna.system.auth.principals import resolve_principals
         from websauna.system.auth.authentication import get_request_user
         from pyramid.authorization import ACLAuthorizationPolicy
 
-        authn_policy = SessionAuthenticationPolicy(callback=find_groups)
+        authn_policy = SessionAuthenticationPolicy(callback=resolve_principals)
         authz_policy = ACLAuthorizationPolicy()
         self.config.set_authentication_policy(authn_policy)
         self.config.set_authorization_policy(authz_policy)

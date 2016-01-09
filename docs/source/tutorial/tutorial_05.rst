@@ -2,14 +2,14 @@
 Local development server
 ========================
 
-Local development server is a web server running on your computer when you edit your application source code. It reflects changes in Python and template files back instantly. :term:`Pyramid` web framework provides :term:`pserve` command for this.
+Local development server is a web server running on your computer when you edit your application source code. It reflects changes in Python and template files back instantly. :term:`Pyramid` web framework provides :ref:`ws-pserve` command for this.
 
 Starting a local web development server
 ---------------------------------------
 
 Run::
 
-    pserve development.ini --reload
+    ws-pserve development.ini --reload
 
 The web server keeps running until
 

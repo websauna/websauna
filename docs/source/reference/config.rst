@@ -113,7 +113,7 @@ Websauna configuration variables
 
 The following variables are available
 
-.. _websauna.admin_as_superuser
+.. _websauna.admin_as_superuser:
 
 websauna.admin_as_superuser
 ---------------------------
@@ -125,6 +125,8 @@ All members in admin group are also superusers.
     It is only safe to enable this settings on your local computer. Never enable this in an environment which can be accessed over Internet.
 
 Default: ``True`` in :ref:`development.ini`, ``False`` otherwise.
+
+See also :ref:`websauna.superuser`.
 
 websauna.cachebust
 ------------------
@@ -149,27 +151,6 @@ websauna.cache_max_age
 How long *Expires* header is set for served static assets.
 
 Default: ``None`` (zero) seconds. In production configuration this is overridden to 3600 seconds.
-
-.. _websauna.superuser
-
-websauna.superuser
-------------------
-
-List of superuser emails or usernames. Add your username on this list to make it super user.
-
-Example::
-
-    websauna.superuser =
-        admin
-        mikko@example.com
-
-.. warning::
-
-    Superuser permission allows executing arbitrary code on the server.
-
-More information
-
-* See :doc:`Notebook documentation <./notebook>`
 
 websauna.global_config
 ----------------------
@@ -218,6 +199,26 @@ In which case your secrets INI would contain::
         consumer_secret = yyy
         ...
 
+.. _websauna.superuser
+
+websauna.superuser
+------------------
+
+List of superuser emails or usernames. Add your username on this list to make it super user.
+
+Example::
+
+    websauna.superuser =
+        admin
+        mikko@example.com
+
+.. warning::
+
+    Superuser permission allows executing arbitrary code on the server.
+
+More information
+
+* See :doc:`Notebook documentation <./notebook>`
 
 websauna.force_utc_on_columns
 -----------------------------

@@ -41,6 +41,7 @@ How to get your data in to and out from a database.
     narrative/manipulation/models
     narrative/manipulation/database
     narrative/manipulation/transient
+    narrative/manipulation/json
     narrative/manipulation/form
     narrative/manipulation/crud
     narrative/manipulation/admin
@@ -87,6 +88,8 @@ Other
     narrative/misc/notebook
     narrative/misc/mail
     narrative/misc/messages
+    narrative/misc/shellwrapper
+    narrative/misc/scaffolds
 
 Developing Websauna itself
 --------------------------
@@ -119,9 +122,12 @@ API
 .. toctree::
     :maxdepth: 1
 
+    api/websauna
     api/websauna.system
     api/websauna.utils
     api/websauna.tests
+    api/websauna.scaffold
+    api/websauna.compat
 
 
 Indices and tables

@@ -1,4 +1,4 @@
-"""Scaffold template definitions."""
+"""Provide scaffolds for different Websauna projects."""
 import binascii
 import os
 

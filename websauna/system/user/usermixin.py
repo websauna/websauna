@@ -2,7 +2,6 @@ from uuid import uuid4
 
 import datetime
 
-from pyramid.registry import Registry
 from sqlalchemy import inspection
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.dialects.postgresql import INET
@@ -14,7 +13,6 @@ from sqlalchemy.orm.session import Session
 import colander
 
 from websauna.system.model.columns import UTCDateTime
-from websauna.system.user.utils import get_group_class
 from websauna.utils.time import now
 from websauna.utils.jsonb import JSONBProperty
 
@@ -33,12 +31,6 @@ DEFAULT_USER_DATA = {
         # Each of the social media login data imported here as it goes through SocialLoginMapper.import_social_media_user()
     }
 }
-
-
-# TODO: "user" is reserved name on PSQL. File an issue against Horus.
-# UserMixin.__tablename__ = "users"
-
-
 
 
 class UserMixin:
@@ -77,11 +69,7 @@ class UserMixin:
     last_login_at = Column(UTCDateTime, nullable=True)
 
     #: From which IP address did this user log in from. If this IP is null the user has never logged in (only activation email sent). Information stored for the security audits. It is also useful for identifying the source country of users e.g. for localized versions.
-    last_login_ip = Column(INET, nullable=True,
-              info={'colanderalchemy': {
-                        'typ': colander.String(),
-                    }},
-            )
+    last_login_ip = Column(INET, nullable=True)
 
     #: Misc. user data as a bag of JSON. Do not access directly, but use JSONBProperties below
     user_data = Column(JSONB, default=DEFAULT_USER_DATA)
@@ -148,10 +136,6 @@ class UserMixin:
     def is_valid_session(self, session_created_at:datetime.datetime) -> bool:
         """Check if the current session is still valid for this user."""
         return self.last_auth_sensitive_operation_at <= session_created_at
-
-    def trigger_auth_sensitive_operation(self):
-        """Note that the authentication details for this user have changed and we should no longer respect old sessions."""
-        self.last_auth_sensitive_operation_at = now()
 
 
 class GroupMixin:

@@ -19,7 +19,7 @@ from websauna.system.admin import views as admin_views
 
 from websauna.system.form.widget import RelationshipCheckboxWidget
 from websauna.system.user.utils import get_group_class
-
+from . import events
 
 
 class GroupWidget(RelationshipCheckboxWidget):
@@ -151,7 +151,10 @@ class UserSetPassword(admin_views.Edit):
 
     def save_changes(self, form:deform.Form, appstruct:dict, obj:User):
         super(UserSetPassword, self).save_changes(form, appstruct, obj)
-        obj.trigger_auth_sensitive_operation()
+
+        # Notify session to drop this user
+        e = events.UserAuthSensitiveOperation(self.request, obj, "password_change")
+        self.request.registry.notify(e)
 
     def do_success(self):
         messages.add(self.request, kind="success", msg="Password changed.", msg_id="msg-password-changed")

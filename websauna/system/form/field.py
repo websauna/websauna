@@ -6,7 +6,7 @@ import colander
 import deform
 from abc import ABC, abstractmethod
 from sqlalchemy import Column
-from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID, JSONB
+from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID, JSONB, INET
 from sqlalchemy.sql.type_api import TypeEngine
 from websauna.system.crud import Resource
 from websauna.system.form.colander import PropertyAwareSQLAlchemySchemaNode
@@ -52,6 +52,8 @@ class DefaultFieldMapper(ColumnToFieldMapper):
         if isinstance(column_type, PostgreSQLUUID):
             return UUID(), dict(missing=colander.drop, widget=FriendlyUUIDWidget(readonly=True))
         elif isinstance(column_type, JSONB):
+            return colander.String(), {}
+        elif isinstance(column_type, INET):
             return colander.String(), {}
         else:
             # Default mapping / unknown

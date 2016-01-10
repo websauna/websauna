@@ -214,6 +214,10 @@ class Initializer:
 
         self.config.add_tween("websauna.system.auth.tweens.SessionInvalidationTweenFactory", over=pyramid.tweens.MAIN)
 
+        # Grab incoming auth details changed events
+        from websauna.system.auth import subscribers
+        self.config.scan(subscribers)
+
     def configure_panels(self, settings):
         self.config.include('pyramid_layout')
 

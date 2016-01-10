@@ -19,4 +19,5 @@ pip freeze > /tmp/wheelhouse-venv/requirements.txt
 # websauna 0.0 development not available, remove from freeze
 echo "$(grep -v "websauna" /tmp/wheelhouse-venv/requirements.txt)" >/tmp/wheelhouse-venv/requirements.txt
 # sed -i '/websauna/d' /tmp/wheelhouse-venv/requirements.txt
+# Needed for Daemonocle
 pip wheel --extra-index-url https://pypi.fury.io/uzQ6egqLUi1bcfHJehXv/miohtama/ -r /tmp/wheelhouse-venv/requirements.txt

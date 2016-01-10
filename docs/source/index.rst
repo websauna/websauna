@@ -53,6 +53,7 @@ Users and authentication
     :maxdepth: 1
 
     narrative/user/user
+    narrative/user/auth
 
 Frontend
 --------
@@ -88,6 +89,7 @@ Other
     narrative/misc/notebook
     narrative/misc/mail
     narrative/misc/messages
+    narrative/misc/events
     narrative/misc/shellwrapper
     narrative/misc/scaffolds
 

@@ -39,8 +39,8 @@
                         </li>
                     {% endif %}
 
-                    {% if admin %}
-                        {% if request.has_permission('view', context=admin) %}
+                    {% if request.admin %}
+                        {% if request.has_permission('view', context=request.admin) %}
                             <li>
                                 <a id="nav-admin" href="{{'admin_home'|route_url}}">
                                     <i class="fa fa-wrench"></i>

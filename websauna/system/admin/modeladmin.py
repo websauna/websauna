@@ -11,9 +11,6 @@ from websauna.system.crud.sqlalchemy import Resource as AlchemyResource
 
 
 # We enforce some best practices to readable URL names of model admins. This is an arbitrary choice of the author.
-from websauna.system.model.interfaces import IModel
-from zope.interface import classImplements
-
 ALLOWED_TRAVERSE_ID_CHARACTERS = string.ascii_lowercase + string.digits + "-"
 
 

@@ -1,3 +1,5 @@
+"""Jinja template filters used in admin UI."""
+
 from pyramid.renderers import render
 from pyramid.threadlocal import get_current_request
 
@@ -8,7 +10,7 @@ from websauna.system.core.breadcrumbs import get_breadcrumb
 
 @contextfilter
 def admin_breadcrumbs(jinja_ctx, context, **kw):
-    """Render admin breadcrumbs."""
+    """Render admin interface top breadcrumbs bar."""
 
     if not context:
         return ""

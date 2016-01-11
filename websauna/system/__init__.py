@@ -392,6 +392,7 @@ class Initializer:
         config.scan(views)
         config.scan(subscribers)
 
+        # Add request.admin variable
         self.config.add_request_method(get_admin, 'admin', reify=True)
 
     def configure_forms(self, settings):

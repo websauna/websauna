@@ -1,6 +1,7 @@
 from pyramid.interfaces import ISession
 from pyramid.registry import Registry
 from pyramid.request import Request as _Request
+from sqlalchemy.orm import Session
 from websauna.system.admin.admin import Admin
 from websauna.system.user.models import User
 
@@ -29,10 +30,12 @@ class Request(_Request):
 
     """
 
-    def __type_hinting__(self, user:Optional[User], session:ISession, admin:Admin, registry:Registry):
+    def __type_hinting__(self, user:Optional[User], dbsession:Session, session:ISession, admin:Admin, registry:Registry):
         """A dummy helper function to tell IDEs about reify'ed variables.
 
         :param user: The logged in user. None if the visitor is anonymous.
+
+        :param dbsession: Current active SQLAlchemy session
 
         :param session: Session data for anonymous and logged in users.
 
@@ -41,6 +44,7 @@ class Request(_Request):
         :param registry: Pyramid registry's. E.g. :py:attr:`pyramid.registry.Registry.settings` for reading settings and :py:meth:`pyramid.registry.Registry.notify` for sending events.
         """
         self.user = user
+        self.dbsession = dbsession
         self.session = session
         self.admin = admin
         self.registry = registry

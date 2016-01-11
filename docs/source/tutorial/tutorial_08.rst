@@ -22,9 +22,9 @@ Once you are in the shell, explore the model :term:`SQLAlchemy` API:
 
 .. note ::
 
-    You can use TAB key for autocompleting variable names. Just type few letters and hit tab and notebook will fill it for you.
+    You can use TAB key for autocompleting variable names in IPython Notebook. Just type few letters and hit tab and notebook will fill it for you.
 
-::
+.. code-block:: pycon
 
     # No questions are in the system yet.
     >>> dbsession.query(Question).all()
@@ -120,6 +120,8 @@ Note these are normal Python methods. Let’s add a custom method, just for demo
         # ...
 
 Save the changes. Restart your :term:`notebook` session by shutting it down and starting again.
+
+.. code-block:: pycon
 
     # Make sure our __repr__() addition worked.
     >>> dbsession.query(Question).all()

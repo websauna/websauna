@@ -1,7 +1,7 @@
 """Admin URL endpoints for user and group management."""
 
 from websauna.system.admin.modeladmin import ModelAdmin, model_admin
-from websauna.system.crud.mapper import Base64UUIDMapper
+from websauna.system.crud.urlmapper import Base64UUIDMapper
 from websauna.system.user.models import User, Group
 
 

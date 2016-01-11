@@ -2,7 +2,7 @@ from pyramid.events import subscriber
 from websauna.system.admin import menu
 from websauna.system.admin.events import AdminConstruction
 from websauna.system.admin.modeladmin import ModelAdminRoot
-from websauna.system.core.traverse import Resource
+from websauna.system.core.traversal import Resource
 
 
 @subscriber(AdminConstruction)

@@ -1,11 +1,12 @@
-"""CRUD based on SQLAlchemy and Deform."""
-from abc import abstractmethod, abstractproperty
-from websauna.system.core import traverse
+"""CRUD based on SQLAlchemy, Deform and Pyramid traversal."""
 
-from . import mapper
+from abc import abstractmethod
+from websauna.system.core.traversal import Resource as _Resource
+
+from .urlmapper import Base64UUIDMapper
 
 
-class Resource(traverse.Resource):
+class Resource(_Resource):
     """One object in CRUD traversing.
 
     Maps the raw database object under CRUD view/edit/delete control to traverse path.
@@ -43,7 +44,7 @@ class Resource(traverse.Resource):
         return self.get_path()
 
 
-class CRUD(traverse.Resource):
+class CRUD(_Resource):
     """Define create-read-update-delete interface for an model.
 
     We use Pyramid traversing to get automatic ACL permission support for operations. As long given CRUD resource parts define __acl__ attribute, permissions are respected automatically.
@@ -64,14 +65,16 @@ class CRUD(traverse.Resource):
     # How the model is referred in templates. e.g. "User"
     title = "xx"
 
+    # TODO: This is inperfect directly copied from Django - many languages have more plural forms than two. Fix when i18n lands
     #: Helper noun used in the default placeholder texts
     singular_name = "item"
 
+    # TODO: This is inperfect directly copied from Django - many languages have more plural forms than two. Fix when i18n lands
     #: Helper noun used in the default placeholder texts
     plural_name = "items"
 
-    #: Mapper defines how objects are mapped to URL space. The default mapper assumes models have attribute ``uuid`` which is base64 encoded to URL. You can change this to :py:class:`websauna.system.crud.mapper.IdMapper` if you instead to want to use ``id`` as a running counter primary column in URLs. This is not recommended in security wise, though.
-    mapper = mapper.Base64UUIDMapper()
+    #: Mapper defines how objects are mapped to URL space. The default mapper assumes models have attribute ``uuid`` which is base64 encoded to URL. You can change this to :py:class:`websauna.system.crud.urlmapper.IdMapper` if you instead to want to use ``id`` as a running counter primary column in URLs. This is not recommended in security wise, though.
+    mapper = Base64UUIDMapper()
 
     def make_resource(self, obj) -> Resource:
         """Take raw model instance and wrap it to Resource for traversing.

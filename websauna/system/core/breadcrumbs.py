@@ -1,7 +1,7 @@
 from pyramid.request import Request
 from websauna.compat import typing
 from websauna.system.core.interfaces import IRoot
-from websauna.system.core.traverse import Resource
+from websauna.system.core.traversal import Resource
 from zope.interface import Interface
 
 

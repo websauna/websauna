@@ -1,5 +1,5 @@
 from websauna.system.admin.interfaces import IAdmin
-from websauna.system.core.traverse import Resource
+from websauna.system.core.traversal import Resource
 from websauna.system.model.meta import Base
 
 

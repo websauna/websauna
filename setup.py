@@ -1,7 +1,9 @@
+import sys
 from setuptools import setup, find_packages
-
 from codecs import open
 from os import path
+
+assert sys.version_info >= (3,4), "Websauna needs Python 3.4 or newer, you have {}".format(sys.version_info)
 
 here = path.abspath(path.dirname(__file__))
 

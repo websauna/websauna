@@ -46,6 +46,27 @@ How to get your data in to and out from a database.
     narrative/manipulation/crud
     narrative/manipulation/admin
 
+HTTP and routing
+----------------
+
+.. toctree::
+    :maxdepth: 1
+
+    narrative/frontend/request
+    narrative/frontend/views
+    narrative/frontend/traversal
+
+Frontend
+--------
+
+.. toctree::
+    :maxdepth: 1
+
+    narrative/frontend/templates
+    narrative/frontend/templatecontext
+    narrative/frontend/tweens
+    narrative/frontend/javascript
+
 Users and authentication
 ------------------------
 
@@ -54,19 +75,6 @@ Users and authentication
 
     narrative/user/user
     narrative/user/auth
-
-Frontend
---------
-
-.. toctree::
-    :maxdepth: 1
-
-    narrative/frontend/request
-    narrative/frontend/views
-    narrative/frontend/templates
-    narrative/frontend/templatecontext
-    narrative/frontend/tweens
-    narrative/frontend/javascript
 
 Development and operations
 --------------------------

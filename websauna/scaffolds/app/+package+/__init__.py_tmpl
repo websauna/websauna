@@ -38,6 +38,16 @@ class Initializer(websauna.system.Initializer):
         from . import models
         self.config.scan(models)
 
+    def configure_model_admins(self):
+        """Register the models of this application."""
+
+        # Call parent which registers user and group admins
+        super(Initializer, self).configure_model_admins()
+
+        # Scan our admins
+        from . import admins
+        self.config.scan(admins)
+
     def run(self):
         super(Initializer, self).run()
 

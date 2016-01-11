@@ -5,14 +5,13 @@ from pyramid.security import Allow
 from websauna.system.admin import menu
 from websauna.system.admin.events import AdminConstruction
 from websauna.system.admin.interfaces import IAdmin
-from websauna.system.core import traverse
 from websauna.system.core.root import Root
-from websauna.system.core.traverse import Resource
+from websauna.system.core.traversal import Resource
 from zope.interface import implementer
 
 
 @implementer(IAdmin)
-class Admin(traverse.Resource):
+class Admin(Resource):
     """Admin interface main object.
 
     Presents /admin part of the URL. Manages model admin registrations and discovery. Provides helper functions to map SQLAlchemy objects to their admin URLs.

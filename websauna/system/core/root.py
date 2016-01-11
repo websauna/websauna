@@ -1,6 +1,6 @@
 from pyramid.security import Authenticated, Allow
 from websauna.system.core.interfaces import IRoot
-from websauna.system.core.traverse import Resource
+from websauna.system.core.traversal import Resource
 from zope.interface import implementer
 
 

@@ -13,7 +13,7 @@ from websauna.compat import typing
 import deform
 
 from websauna.system.core import messages
-from websauna.system.form.field import DefaultFieldMapper
+from websauna.system.form.fieldmapper import DefaultFieldMapper
 
 from . import sqlalchemy, Resource
 from . import paginator
@@ -407,7 +407,7 @@ class Add(FormView):
         model = self.get_model()
         return model()
 
-    def save_object(self, obj):
+    def add_object(self, obj):
         """Flush newly created object to persist storage."""
         dbsession = self.context.get_dbsession()
         dbsession.add(obj)
@@ -427,8 +427,6 @@ class Add(FormView):
 
         title = current_view_name = self.get_title()
 
-        resource_buttons = self.get_resource_buttons()
-
         if "add" in self.request.POST:
 
             controls = self.request.POST.items()
@@ -445,7 +443,7 @@ class Add(FormView):
                 form.schema.objectify(appstruct, obj)
 
                 # We do not need to explicitly call save() or commit() as we are using Zope transaction manager
-                self.save_object(obj)
+                self.add_object(obj)
 
                 messages.add(self.request, kind="success", msg="Item added.")
 

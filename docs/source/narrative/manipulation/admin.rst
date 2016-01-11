@@ -15,6 +15,11 @@ The default Websauna admin interface
 
 * registers SQLAlchemy models and has CRUD forms automatically generated form them
 
+Admin URL breakdown
+===================
+
+Below is a sample breakdown of admin traversal of one item.
+
 Creating an admin view
 ======================
 

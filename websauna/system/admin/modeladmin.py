@@ -5,7 +5,7 @@ import venusian
 from pyramid.interfaces import IRequest
 from websauna.system.admin.interfaces import IModelAdmin, IAdmin
 from websauna.compat import typing
-from websauna.system.core.traverse import Resource
+from websauna.system.core.traversal import Resource
 from websauna.system.crud.sqlalchemy import CRUD as CRUD
 from websauna.system.crud.sqlalchemy import Resource as AlchemyResource
 

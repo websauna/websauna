@@ -1,4 +1,8 @@
 """Websauna framework initialization."""
+import sys
+
+assert sys.version_info >= (3,4), "Websauna needs Python 3.4 or newer"
+
 import logging
 import os
 
@@ -478,7 +482,7 @@ class Initializer:
         self.config.add_route('register', '/register')
         self.config.add_route('activate', '/activate/{user_id}/{code}', factory=UserFactory)
 
-    def configure_user_admin(self, settings):
+    def configure_model_admins(self):
         import websauna.system.user.admins
         import websauna.system.user.adminviews
         self.config.scan(websauna.system.user.admins)
@@ -579,7 +583,7 @@ class Initializer:
         # Sessions and users
         self.configure_sessions(settings, _secrets)
         self.configure_user(settings, _secrets)
-        self.configure_user_admin(settings)
+        self.configure_model_admins()
 
         self.configure_notebook(settings)
 

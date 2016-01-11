@@ -3,7 +3,7 @@
 Also encapsulate :term:`colanderalchemy` so that we don't need to directly expose it in the case we want to get rid of it later.
 """
 import colander
-import deform
+
 from abc import ABC, abstractmethod
 from sqlalchemy import Column
 from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID, JSONB, INET
@@ -16,6 +16,7 @@ from websauna.system.http import Request
 from websauna.compat.typing import List
 from websauna.compat.typing import Tuple
 
+from . import fields
 
 class ColumnToFieldMapper(ABC):
     """A helper class to map a SQLAlchemy model to Colander/Deform form."""
@@ -50,7 +51,7 @@ class DefaultFieldMapper(ColumnToFieldMapper):
 
     def map_column(self, node:colander.SchemaNode, name:str, column:Column, column_type:TypeEngine) -> Tuple[colander.SchemaType, dict]:
         if isinstance(column_type, PostgreSQLUUID):
-            return UUID(), dict(missing=colander.drop, widget=FriendlyUUIDWidget(readonly=True))
+            return fields.UUID(), dict(missing=colander.drop, widget=FriendlyUUIDWidget(readonly=True))
         elif isinstance(column_type, JSONB):
             return colander.String(), {}
         elif isinstance(column_type, INET):
@@ -64,9 +65,3 @@ class DefaultFieldMapper(ColumnToFieldMapper):
         return schema
 
 
-class UUID(colander.String):
-    """UUID mapping for Colander."""
-
-    def serialize(self, node, appstruct):
-        # Assume widgets can handle raw UUID object
-        return appstruct

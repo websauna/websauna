@@ -6,7 +6,7 @@ from websauna.compat.typing import List
 
 from pyramid.renderers import render
 from pyramid.request import Request
-from websauna.system.core.traverse import Resource
+from websauna.system.core.traversal import Resource
 
 
 class Menu:

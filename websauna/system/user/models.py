@@ -1,4 +1,4 @@
-"""Default user models.
+"""Default user model implementations..
 
 .. note ::
 

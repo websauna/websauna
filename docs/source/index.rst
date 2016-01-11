@@ -61,6 +61,7 @@ Frontend
 .. toctree::
     :maxdepth: 1
 
+    narrative/frontend/request
     narrative/frontend/views
     narrative/frontend/templates
     narrative/frontend/templatecontext
@@ -130,6 +131,7 @@ API
     api/websauna.tests
     api/websauna.scaffold
     api/websauna.compat
+    api/tomb_route
 
 
 Indices and tables

@@ -1,6 +1,8 @@
 """User login and sign up handling views.
 
-This is code is blasphemy and will be replaced with something more sane in the future versions. I suggest you just copy-paste this and do from the scratch for your project.
+.. note::
+
+    This is code is blasphemy and will be replaced with something more sane in the future versions. I suggest you just copy-paste this and do from the scratch for your project.
 """
 
 from authomatic.core import LoginResult
@@ -40,11 +42,9 @@ from horus.interfaces import IProfileSchema
 from horus.events import NewRegistrationEvent
 from horus.events import RegistrationActivatedEvent
 from horus.events import PasswordResetEvent
-from horus.events import ProfileUpdatedEvent
 from horus.lib import FlashMessage
 from horus.models import _, UserMixin
 from horus.exceptions import AuthenticationFailure
-from horus.httpexceptions import HTTPBadRequest
 from horus import views as horus_views
 from horus.views import get_config_route
 
@@ -55,7 +55,6 @@ from websauna.system.mail import send_templated_mail
 from websauna.utils.slug import uuid_to_slug, slug_to_uuid
 from websauna.utils.time import now
 
-from . import usermixin
 from . import events
 from websauna.system.user.social import NotSatisfiedWithData
 from websauna.system.user.utils import get_authomatic, get_social_login_mapper, get_user_class, get_site_creator
@@ -292,7 +291,7 @@ class AuthController(horus_views.AuthController):
                 _('Your account is not active, please check your e-mail.'))
 
         if not user.can_login():
-            raise AuthenticationFailure(_('Account log in disabled.'))
+            raise AuthenticationFailure(_('This user account cannot log in at the moment.'))
 
         return user
 
@@ -323,7 +322,10 @@ class AuthController(horus_views.AuthController):
                 user = self.check_credentials(username, password)
                 assert user.password
             except AuthenticationFailure as e:
-                FlashMessage(self.request, str(e), kind='error')
+
+                # Tell user they cannot login at the moment
+                messages.add(self.request, msg=str(e), msg_id="msg-authentication-failure", kind="error")
+
                 return {
                     'form': self.form.render(appstruct=captured),
                     'errors': [e],

@@ -30,32 +30,6 @@ def test_login(web_server, browser, dbsession, init):
     assert b.is_element_visible_by_css("#nav-logout")
 
 
-def test_login_inactive(web_server, browser, dbsession, init):
-    """Login disabled user account."""
-
-    with transaction.manager:
-        create_user(dbsession, init.config.registry)
-
-    with transaction.manager:
-        user = get_user(dbsession)
-        user.enabled = False
-        assert not user.can_login()
-
-    b = browser
-    b.visit("{}/{}".format(web_server, "login"))
-
-    assert b.is_element_visible_by_css("#login-form")
-
-    b.fill("username", EMAIL)
-    b.fill("password", PASSWORD)
-    b.find_by_name("login_email").click()
-
-    # After login we see a profile link to our profile
-    assert not b.is_element_visible_by_css("#nav-logout")
-
-    assert b.is_text_present("Account log in disabled.")
-
-
 def test_logout(web_server, browser, dbsession, init):
     """Log out."""
 
@@ -110,7 +84,7 @@ def test_forget_password(web_server, browser, dbsession, init):
     """Reset password by email."""
 
     with transaction.manager:
-        user = create_user(dbsession, init.config.registry)
+        create_user(dbsession, init.config.registry)
 
     b = browser
     b.visit(web_server)

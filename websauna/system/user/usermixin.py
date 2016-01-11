@@ -1,3 +1,8 @@
+"""User model base definitios.
+
+We provide abstract user base which does not plug itself in to any SQLAlchemy tables to give creater flexibility for the application.
+"""
+
 from uuid import uuid4
 
 import datetime
@@ -9,8 +14,6 @@ from sqlalchemy import Column
 from sqlalchemy import String
 from sqlalchemy import Boolean
 from sqlalchemy.orm.session import Session
-
-import colander
 
 from websauna.system.model.columns import UTCDateTime
 from websauna.utils.time import now
@@ -186,7 +189,6 @@ class SiteCreator:
         dbsession.add(g)
 
         g.users.append(user)
-
 
     def check_empty_site_init(self, dbsession:Session, user:UserMixin):
         """Call after user creation to see if this user is the first user and should get initial admin rights."""

@@ -4,6 +4,7 @@ import colander
 from pyramid.httpexceptions import HTTPFound
 from pyramid.renderers import render
 from pyramid.request import Request
+from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy.orm import Query
 
@@ -323,17 +324,14 @@ class Edit(FormView):
     def bind_schema(self, schema):
         return schema.bind(obj=self.context.get_object(), request=self.request, context=self.context)
 
-    def do_success(self):
-        """Called after the save (objectify) has succeeded.
-
-        :return: HTTPResponse
-        """
-        messages.add(self.request, kind="success", msg="Changes saved.")
+    def do_success(self) -> Response:
+        """Called after the save (objectify) has succeeded."""
+        messages.add(self.request, kind="success", msg="Changes saved.", msg_id="msg-changes-saved")
 
         # Redirect back to view page after edit page has succeeded
         return HTTPFound(self.request.resource_url(self.context, "show"))
 
-    def do_cancel(self):
+    def do_cancel(self) -> Response:
         """Called when user presses the cancel button.
 
         :return: HTTPResponse

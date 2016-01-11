@@ -32,7 +32,7 @@ class UserAuthSensitiveOperation:
 
     def __init__(self, request:Request, user:User, kind:str):
         """
-        :param kind: What kind of operation triggered this event. Free to application to choose. E.g. "password_change", "email_change".
+        :param kind: What kind of operation triggered this event. Free to application to choose. E.g. "password_change", "email_change", "username_change", "enabled_change".
         :return:
         """
         self.request = request

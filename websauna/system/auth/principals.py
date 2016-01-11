@@ -29,9 +29,9 @@ def resolve_principals(userid:int, request:Request) -> Optional[List[str]]:
     admin_as_superuser = asbool(settings.get("websauna.admin_as_superuser", False))
 
     user = dbsession.query(user_class).get(userid)
-    if user:
-        if user.can_login():
-            principals = ['group:{}'.format(g.name) for g in user.groups]
+    if user and user.can_login():
+
+        principals = ['group:{}'.format(g.name) for g in user.groups]
 
         # Allow superuser permission
         if user.username in superusers or user.email in superusers or (admin_as_superuser and "group:admin" in principals):

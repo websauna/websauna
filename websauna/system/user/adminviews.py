@@ -74,6 +74,7 @@ class UserShow(admin_views.Show):
 
     includes = ["id",
                 "uuid",
+                "enabled",
                 "created_at",
                 "updated_at",
                 "username",
@@ -102,11 +103,32 @@ class UserEdit(admin_views.Edit):
     """Show one user."""
 
     includes = admin_views.Edit.includes + [
+                "enabled",
                 colander.SchemaNode(colander.String(), name='username'),  # Make username required field
                 colander.SchemaNode(colander.String(), name='full_name', missing=""),
                 "email",
                 "groups"
                 ]
+
+    def save_changes(self, form:deform.Form, appstruct:dict, user:User):
+        """Save the user edit and reflect if we need to drop user session."""
+        enabled_changes = appstruct["enabled"] != user.enabled
+        email_changes = appstruct["email"] != user.email
+        username_changes = appstruct["username"] != user.username
+
+        super(UserEdit, self).save_changes(form, appstruct, user)
+
+        # Notify authentication system to drop all sessions for this user
+        e = None
+        if enabled_changes:
+            e = events.UserAuthSensitiveOperation(self.request, user, "enabled_change")
+        elif email_changes:
+            e = events.UserAuthSensitiveOperation(self.request, user, "email_change")
+        elif username_changes:
+            e = events.UserAuthSensitiveOperation(self.request, user, "username_change")
+
+        if e:
+            self.request.registry.notify(e)
 
     def get_title(self):
         return "{} #{}".format(self.get_object().friendly_name, self.get_object().id)

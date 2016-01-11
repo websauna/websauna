@@ -1,5 +1,6 @@
 import pytest
 import transaction
+from splinter.driver import DriverAPI
 from websauna.system.user.models import User
 
 from websauna.tests.utils import create_logged_in_user, create_user, logout
@@ -59,7 +60,7 @@ def test_add_user(browser, web_server, init, dbsession):
     b.fill("password", "secret")
     b.find_by_name("login_email").click()
 
-    assert b.is_element_visible_by_css("#msg-you-are-logged-in")
+    assert b.is_element_present_by_css("#msg-you-are-logged-in")
 
 
 def test_add_user_password_mismatch(browser, web_server, init, dbsession):
@@ -105,12 +106,12 @@ def test_set_password(browser, victim_browser, web_server, init, dbsession):
     b.fill("password-confirm", "new-secret")
     b.find_by_name("save").click()
 
-    assert b.is_element_visible_by_css("#msg-password-changed")
+    assert b.is_element_present_by_css("#msg-password-changed")
 
     # Victim browser should have now logged out
     b2.visit(web_server)
-    assert b2.is_element_visible_by_css("#msg-session-invalidated")
-    assert b2.is_element_visible_by_css("#nav-sign-in")
+    assert b2.is_element_present_by_css("#msg-session-invalidated")
+    assert b2.is_element_present_by_css("#nav-sign-in")
 
     # See that we can log in with the new password
     b2.visit(web_server + "/login")
@@ -118,6 +119,85 @@ def test_set_password(browser, victim_browser, web_server, init, dbsession):
     b2.fill("password", "new-secret")
     b2.find_by_name("login_email").click()
 
-    assert b2.is_element_visible_by_css("#msg-you-are-logged-in")
+    assert b2.is_element_present_by_css("#msg-you-are-logged-in")
 
 
+def test_set_email(browser, victim_browser, web_server, init, dbsession):
+    """Setting email resets user session and user can log in again."""
+
+    b = browser
+    b2 = victim_browser
+
+    create_logged_in_user(dbsession, init.config.registry, web_server, browser, admin=True)
+    create_logged_in_user(dbsession, init.config.registry, web_server, b2, email="victim@example.com", password="secret")
+
+    b.find_by_css("#nav-admin").click()
+    b.find_by_css("#latest-user-shortcut").click()
+    b.find_by_css("#btn-crud-edit").click()
+
+    b.fill("email", "victim2@example.com")
+    b.find_by_name("save").click()
+
+    assert b.is_element_present_by_css("#msg-changes-saved")
+
+    # Victim browser should have now logged out
+    b2.visit(web_server)
+    assert b2.is_element_present_by_css("#msg-session-invalidated")
+    assert b2.is_element_present_by_css("#nav-sign-in")
+
+    # See that we can log in with the new password
+    b2.visit(web_server + "/login")
+    b2.fill("username", "victim2@example.com")
+    b2.fill("password", "secret")
+    b2.find_by_name("login_email").click()
+
+    assert b2.is_element_present_by_css("#msg-you-are-logged-in")
+
+
+def test_set_enabled(browser:DriverAPI, victim_browser, web_server, init, dbsession):
+    """Setting enabled resets user session. User can log after the account has been re-enabled."""
+    b = browser
+    b2 = victim_browser
+
+    create_logged_in_user(dbsession, init.config.registry, web_server, browser, admin=True)
+    create_logged_in_user(dbsession, init.config.registry, web_server, b2, email="victim@example.com", password="secret")
+
+    b.find_by_css("#nav-admin").click()
+    b.find_by_css("#latest-user-shortcut").click()
+    b.find_by_css("#btn-crud-edit").click()
+
+    b.find_by_name("enabled").click()  # Turns off
+    b.find_by_name("save").click()
+    assert b.is_element_present_by_css("#msg-changes-saved")
+
+    # Victim browser should have now logged out
+    b2.visit(web_server)
+
+    # We do not get session invalidated message this time, because request.user does not resolve for disabled user at all and middleware cannot distinct between anonymous and disabled user
+    # assert b2.is_element_present_by_css("#msg-session-invalidated")
+    assert b2.is_element_present_by_css("#nav-sign-in")
+
+    # See that we cannot login on disabled user
+    b2.visit(web_server + "/login")
+    b2.fill("username", "victim@example.com")
+    b2.fill("password", "secret")
+    b2.find_by_name("login_email").click()
+    assert b2.is_element_present_by_css("#msg-authentication-failure")
+
+    # Re-enable the use
+    b.find_by_css("#btn-crud-edit").click()
+    b.find_by_name("enabled").click()  # Turns on
+    b.find_by_name("save").click()
+    assert b.is_element_present_by_css("#msg-changes-saved")
+
+    # User can log in again
+
+    # We get this message in wrong phase, but it's not really big deal as manual user deactivation should not be that common
+    b2.visit(web_server)
+    assert b2.is_element_present_by_css("#msg-session-invalidated")
+
+    b2.visit(web_server + "/login")
+    b2.fill("username", "victim@example.com")
+    b2.fill("password", "secret")
+    b2.find_by_name("login_email").click()
+    assert b2.is_element_present_by_css("#msg-you-are-logged-in")

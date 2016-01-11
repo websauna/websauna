@@ -4,7 +4,7 @@ from websauna.system.model.meta import Base
 
 
 def get_admin(request) -> IAdmin:
-    """Get hold of admin singleton."""
+    """Get hold of the default site admin interface root object."""
     admin_class = request.registry.queryUtility(IAdmin)
     return admin_class(request)
 

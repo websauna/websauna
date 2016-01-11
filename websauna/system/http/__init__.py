@@ -4,6 +4,8 @@ from pyramid.request import Request as _Request
 from websauna.system.admin.admin import Admin
 from websauna.system.user.models import User
 
+from websauna.compat.typing import Optional
+
 
 class Request(_Request):
     """HTTP request class.
@@ -27,8 +29,17 @@ class Request(_Request):
 
     """
 
-    def __type_hinting__(self, user:User, session:ISession, admin:Admin, registry:Registry):
-        """A dummy helper function to tell IDEs about reify'ed variables."""
+    def __type_hinting__(self, user:Optional[User], session:ISession, admin:Admin, registry:Registry):
+        """A dummy helper function to tell IDEs about reify'ed variables.
+
+        :param user: The logged in user. None if the visitor is anonymous.
+
+        :param session: Session data for anonymous and logged in users.
+
+        :param admin: The default admin interface of the site. Note that the site can have several admin interfaces for different purposes.
+
+        :param registry: Pyramid registry's. E.g. :py:attr:`pyramid.registry.Registry.settings` for reading settings and :py:meth:`pyramid.registry.Registry.notify` for sending events.
+        """
         self.user = user
         self.session = session
         self.admin = admin

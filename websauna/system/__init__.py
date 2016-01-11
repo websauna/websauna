@@ -373,6 +373,7 @@ class Initializer:
         from websauna.system.admin.admin import Admin
         from websauna.system.admin.interfaces import IAdmin
         from websauna.system.admin.interfaces import IAdmin
+        from websauna.system.admin.utils import get_admin
 
         # Register default Admin provider
         config = self.config
@@ -391,8 +392,7 @@ class Initializer:
         config.scan(views)
         config.scan(subscribers)
 
-        # Add templatecontext handler
-        config.include(".admin.templatecontext")
+        self.config.add_request_method(get_admin, 'admin', reify=True)
 
     def configure_forms(self, settings):
 

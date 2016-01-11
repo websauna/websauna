@@ -8,6 +8,7 @@ from pyramid.view import view_config
 from websauna.system.admin.utils import get_admin_url_for_sqlalchemy_object
 from websauna.system.core import messages
 from websauna.system.crud.views import TraverseLinkButton
+from websauna.system.form.fieldmapper import EditMode
 from websauna.system.user.models import User
 from websauna.viewconfig import view_overrides
 from .admins import UserAdmin
@@ -152,10 +153,15 @@ class UserAdd(admin_views.Add):
         "email",
         "full_name",
         colander.SchemaNode(colander.String(), name='password', widget=deform.widget.CheckedPasswordWidget(css_class="password-widget")),
-        "groups"
+        "groups",
     ]
 
+    def get_form(self):
+        # TODO: Still not sure how handle nested values on the automatically generated add form. But here we need it for groups to appear
+        return self.create_form(EditMode.add, buttons=("add", "cancel",), nested=True)
+
     def customize_schema(self, schema):
+        # TODO: Still unsure if there will be autogeneration of relatinships on add form, this may change
         group_model = get_group_class(self.request.registry)
         schema["groups"].widget = GroupWidget(model=group_model, dictify=schema.dictify)
         schema["groups"].missing = []

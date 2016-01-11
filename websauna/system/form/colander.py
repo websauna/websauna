@@ -1,10 +1,16 @@
-"""Highly modified colanderalchemy core."""
+"""Highly modified colanderalchemy core.
+
+.. note ::
+
+    This is a temporary solution and will be replaced with something cleaner after working with the upstream author.
+
+"""
 
 import inspect
 import logging
 import itertools
 import colander
-from colanderalchemy.schema import SQLAlchemySchemaNode
+from colanderalchemy.schema import SQLAlchemySchemaNode, _creation_order
 from websauna.utils.jsonb import JSONBProperty
 
 import colander
@@ -31,6 +37,15 @@ from sqlalchemy.orm import (ColumnProperty, RelationshipProperty)
 log = logger = logging.getLogger(__name__)
 
 
+class TypeOverridesHandling(Enum):
+
+    #: Return value from type_overrides signaling that this column should not appear on the form
+    drop = 1
+
+    #: Type overrides don't want to deal with this column let it proceed as is
+    unknown = 2
+
+
 class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
     """ColanderAlchemy mapepr with some extensions.
 
@@ -45,7 +60,7 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
         TODO: Resolve the issue with the colanderalchemy author politically correct way. What we are doing now is just a temporary 0.1 solution.
     """
 
-    def __init__(self, class_, includes=None, excludes=None, overrides=None, unknown='ignore', type_overrides=None, **kw):
+    def __init__(self, class_, includes=None, excludes=None, overrides=None, unknown='ignore', nested=False, type_overrides=None, **kw):
         """
         :param includes:
         :param overrides:
@@ -55,8 +70,73 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
         :return:
         """
         assert type_overrides, "Always provide type_overrides, otherwise this crap doesn't work when these nodes get nested"
+
+        self.inspector = inspect(class_)
+        kwargs = kw.copy()
+
+        # Obtain configuration specific from the mapped class
+        kwargs.update(getattr(self.inspector.class_, self.ca_class_key, {}))
+        unknown = kwargs.pop('unknown', unknown)
+
+        # The default type of this SchemaNode is Mapping.
+        super(SQLAlchemySchemaNode, self).__init__(Mapping(unknown), **kwargs)
+        self.class_ = class_
+        self.includes = includes or {}
+        self.excludes = excludes or {}
+        self.overrides = overrides or {}
+        self.unknown = unknown
+        self.declarative_overrides = {}
+        self.kwargs = kwargs or {}
         self.type_overrides = type_overrides
-        super(PropertyAwareSQLAlchemySchemaNode, self).__init__(class_, includes, excludes, overrides, unknown)
+        self.nested = nested
+        self.add_nodes(self.includes, self.excludes, self.overrides, nested)
+
+    def add_nodes(self, includes, excludes, overrides, nested):
+
+        if set(excludes) & set(includes):
+            msg = 'excludes and includes are mutually exclusive.'
+            raise ValueError(msg)
+
+        properties = sorted(self.inspector.attrs, key=_creation_order)
+        # sorted to maintain the order in which the attributes
+        # are defined
+        for name in includes or [item.key for item in properties]:
+            prop = self.inspector.attrs.get(name, name)
+
+            if name in excludes or (includes and name not in includes):
+                log.debug('Attribute %s skipped imperatively', name)
+                continue
+
+            name_overrides_copy = overrides.get(name, {}).copy()
+
+            if (isinstance(prop, ColumnProperty)
+                    and isinstance(prop.columns[0], Column)):
+                node = self.get_schema_from_column(
+                    prop,
+                    name_overrides_copy
+                )
+            elif isinstance(prop, RelationshipProperty):
+
+                if not nested:
+                    log.debug('Attribute %s skipped because not recursing to nested', name)
+                    continue
+
+                node = self.get_schema_from_relationship(
+                    prop,
+                    name_overrides_copy
+                )
+            elif isinstance(prop, colander.SchemaNode):
+                node = prop
+            else:
+                log.debug(
+                    'Attribute %s skipped due to not being '
+                    'a ColumnProperty or RelationshipProperty',
+                    name
+                )
+                continue
+
+            if node is not None:
+                self.add(node)
 
     def dictify(self, obj):
         """Extended to handle JSON properties."""
@@ -222,7 +302,19 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
         typedecorator_type = typedecorator_overrides.pop('typ', None)
 
         if self.type_overrides is not None:
+
             type_overrides_type, type_overrides_kwargs = self.type_overrides(self, name, column, column_type)
+
+            if type_overrides_type == TypeOverridesHandling.drop:
+                # This column should not appear on the form
+                log.debug('Column %s: dropped by type overrides callback', name)
+                return None
+
+            elif type_overrides_type == TypeOverridesHandling.unknown:
+                # type overrides callback doesn't know about this column
+                type_overrides_type = None
+                type_overrides_kwargs = {}
+
         else:
             type_overrides_type = None
             type_overrides_kwargs = {}
@@ -232,8 +324,7 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
                 type_ = imperative_type()
             else:
                 type_ = imperative_type
-            log.debug('Column %s: type overridden imperatively: %s.',
-                      name, type_)
+            log.debug('Column %s: type overridden imperatively: %s.', name, type_)
 
         elif declarative_type is not None:
             if hasattr(declarative_type, '__call__'):
@@ -288,7 +379,6 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
         elif isinstance(column_type, Time):
             type_ = colander.Time()
         else:
-            import pdb ; pdb.set_trace()
             raise NotImplementedError(
                 'Not able to derive a colander type from sqlalchemy '
                 'type: %s  Please explicitly provide a colander '
@@ -504,6 +594,7 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
                                 self.excludes,
                                 self.overrides,
                                 self.unknown,
+                                self.nested,
                                 self.type_overrides,
                                 **self.kwargs)
         cloned.__dict__.update(self.__dict__)

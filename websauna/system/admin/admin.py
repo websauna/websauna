@@ -1,13 +1,13 @@
 """Default admin root implementation."""
-import sys
 
+from zope.interface import implementer
 from pyramid.security import Allow
+
 from websauna.system.admin import menu
 from websauna.system.admin.events import AdminConstruction
 from websauna.system.admin.interfaces import IAdmin
 from websauna.system.core.root import Root
 from websauna.system.core.traversal import Resource
-from zope.interface import implementer
 
 
 @implementer(IAdmin)
@@ -112,8 +112,4 @@ class Admin(Resource):
         """Traverse to individual model admins by the model name."""
         child = self.children[name]
         return child
-
-
-
-
 

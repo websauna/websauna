@@ -96,6 +96,9 @@ Glossary
     secrets
         The secrets are passwords, API keys and other sensitive data which you want to avoid exposing.
 
+    Sentry
+        Sentry is the modern error logging and aggregation platform for production servers. It allows you easily set alerts when errors start appear in :term:`production`. `More information <https://docs.getsentry.com/hosted/>`__.
+
     session fixation
         Session Fixation is an attack that permits an attacker to hijack a valid user session. The attack explores a limitation in the way the web application manages the session ID, more specifically the vulnerable web application. When authenticating a user, it doesn’t assign a new session ID, making it possible to use an existent session ID. `More information <https://www.owasp.org/index.php/Session_fixation>`__.
 

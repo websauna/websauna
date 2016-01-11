@@ -101,6 +101,7 @@ Other
     narrative/misc/events
     narrative/misc/shellwrapper
     narrative/misc/scaffolds
+    narrative/misc/logging
 
 Developing Websauna itself
 --------------------------

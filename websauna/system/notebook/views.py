@@ -10,11 +10,15 @@ from websauna.system.model.meta import Base
 #: Include our database session in notebook so it is easy to query stuff right away from the prompt
 SCRIPT = """
 dbsession = request.dbsession
+from websauna.utils.time import now
+import sqlalchemy
 """
 
 
 GREETING="""
+* **sqlalchemy** - sqlachemy module
 * **dbsession** - SQLAlchemy database session
+* **now()** - UTC time as timezone aware datetime object
 """
 
 

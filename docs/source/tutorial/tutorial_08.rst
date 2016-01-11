@@ -127,7 +127,7 @@ Save the changes. Restart your :term:`notebook` session by shutting it down and 
 
     # SQLAlchemy provides a rich database lookup API
 
-    # Use get() to get one object by primary key
+    # Use get() as a shorthand method to get one object by primary key
     >>> dbsession.query(Question).get(1)
     #1: What's up?
 
@@ -139,71 +139,74 @@ Save the changes. Restart your :term:`notebook` session by shutting it down and 
     >>> dbsession.query(Question).filter(Question.id==1).first()
     #1: What's up?
 
-    >>> Question.objects.filter(question_text__startswith='What')
-    [<Question: What's up?>]
+    # Text matching query with SQLAlchemy's like()
+    >>> dbsession.query(Question).filter(Question.question_text.like('What%')).all()
+    [#1: What's up?]
 
     # Get the question that was published this year.
-    >>> from django.utils import timezone
-    >>> current_year = timezone.now().year
-    >>> Question.objects.get(pub_date__year=current_year)
-    <Question: What's up?>
+    >>> dbsession.query(Question).filter(sqlalchemy.extract('year', Question.published_at) == now().year).all()
+    [#1: What's up?]
 
-    # Request an ID that doesn't exist, this will raise an exception.
-    >>> Question.objects.get(id=2)
+    # Request an ID that doesn't exist by get() returns None
+    >>> dbsession.query(Question).get(2)
+
+    # If we want to raise an exception when the row does
+    # not exist we can use
+    >>> dbsession.query(Question).filter(id=2).one()
     Traceback (most recent call last):
         ...
-    DoesNotExist: Question matching query does not exist.
-
-    # Lookup by a primary key is the most common case, so Django provides a
-    # shortcut for primary-key exact lookups.
-    # The following is identical to Question.objects.get(id=1).
-    >>> Question.objects.get(pk=1)
-    <Question: What's up?>
+    NoResultFound: No row was found for one()
 
     # Make sure our custom method worked.
-    >>> q = Question.objects.get(pk=1)
-    >>> q.was_published_recently()
+    >>> q = dbsession.query(Question).get(1)
+    >>> q.is_recent()
     True
 
     # Give the Question a couple of Choices. The create call constructs a new
     # Choice object, does the INSERT statement, adds the choice to the set
-    # of available choices and returns the new Choice object. Django creates
+    # of available choices and returns the new Choice object. SQLAlchemy creates
     # a set to hold the "other side" of a ForeignKey relation
     # (e.g. a question's choice) which can be accessed via the API.
-    >>> q = Question.objects.get(pk=1)
+    >>> q = dbsession.query(Question).get(1)
 
     # Display any choices from the related object set -- none so far.
-    >>> q.choice_set.all()
+    >>> q.choices
     []
 
     # Create three choices.
-    >>> q.choice_set.create(choice_text='Not much', votes=0)
-    <Choice: Not much>
-    >>> q.choice_set.create(choice_text='The sky', votes=0)
-    <Choice: The sky>
-    >>> c = q.choice_set.create(choice_text='Just hacking again', votes=0)
+    >>> q.choices.append(Choice(choice_text='Not much', votes=0))
+    >>> q.choices.append(Choice(choice_text='The sky', votes=0))
+    >>> c = Choice(choice_text='Just hacking again', votes=0)
+    >>> q.choices.append(c)
 
     # Choice objects have API access to their related Question objects.
     >>> c.question
-    <Question: What's up?>
+    #1: What's up?
 
     # And vice versa: Question objects get access to Choice objects.
-    >>> q.choice_set.all()
-    [<Choice: Not much>, <Choice: The sky>, <Choice: Just hacking again>]
-    >>> q.choice_set.count()
+    >>> q.choices
+    [#None: Not much, #None: The sky, #None: Just hacking again]
+
+    # Let's flush the database to get ids for our choices
+    >>> dbsession.flush()
+    >>> q.choices
+    [#1: Not much, #2: The sky, #3: Just hacking again]
+
+    >>> len(q.choices)
     3
 
-    # The API automatically follows relationships as far as you need.
-    # Use double underscores to separate relationships.
-    # This works as many levels deep as you want; there's no limit.
-    # Find all Choices for any question whose pub_date is in this year
-    # (reusing the 'current_year' variable we created above).
-    >>> Choice.objects.filter(question__pub_date__year=current_year)
-    [<Choice: Not much>, <Choice: The sky>, <Choice: Just hacking again>]
+    # Let's save this everything to database
+    >>> transaction.commit()
 
-    # Let's delete one of the choices. Use delete() for that.
-    >>> c = q.choice_set.filter(choice_text__startswith='Just hacking')
-    >>> c.delete()
+    # Using SQLAlchemy's join() we can do queries which span across relatinships.
+    # Below get all choices for questions made this year.
+    >>> dbsession.query(Choice).join(Question).filter(sqlalchemy.extract('year', Question.published_at) == now().year).all()
+    [#1: Not much, #2: The sky, #3: Just hacking again]
+
+    # Let's delete one of the choices. Use dbsession.delete() for that.
+    >>> c = dbsession.query(Choice).filter_by(choice_text='Just hacking again').first()
+    >>> dbsession.delete(c)
+    >>> transaction.commit()
 
 More information
 ================

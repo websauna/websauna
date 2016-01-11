@@ -55,7 +55,7 @@ def notebook_proxy(request):
 def admin_shell(request):
     """Open admin shell with default parameters for the user."""
     # Make sure we have a logged in user
-    return launch_websauna_shell(request)
+    return launch_context_sensitive_shell(request)
 
 
 @view_config(route_name="shutdown_notebook", permission="shell")

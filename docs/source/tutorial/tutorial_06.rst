@@ -6,6 +6,8 @@ Websauna offers integrated :doc:`IPython Notebook shell <../narrative/misc/noteb
 
 Here we show how to enter to the IPython Notebook and create additional user through Python shell.
 
+The notebook shell will be extensively used in the following chapter of this tutorial.
+
 Enter notebook
 --------------
 
@@ -22,7 +24,7 @@ In this tutorial we are going to use the latter way. Go to admin and click your 
     Firing up the shell takes some seconds as IPython Notebook is heavyish.
 
 .. image:: images/enter_notebook.png
-    :width: 640pxc
+    :width: 640px
 
 Using shell
 -----------
@@ -32,7 +34,7 @@ Let's change the name of your user through shell.
 Shell exposes the current admin item as ``obj`` variable as shown in the shell instructions.
 
 .. image:: images/notebook.png
-    :width: 640pxc
+    :width: 640px
 
 Type in shell (you can use TAB key for autocomplete variable names and functions)::
 
@@ -44,7 +46,7 @@ Press ALT + Enter to execute the current contents of the cell in notebook. There
 The latter line is important, because unlike when processing HTTP requests, in shell transactions are not automatically committed. For more information this you can read :doc:`database documentation chapter <../narrative/manipulation/database>`_.
 
 .. image:: images/notebook_changes.png
-    :width: 640pxc
+    :width: 640px
 
 Exit notebook
 -------------
@@ -52,5 +54,5 @@ Exit notebook
 You can shut down the notebook by pressing *[ shutdown ]* link in the top. Now navigate back to your user in admin. You see its name has been updated.
 
 .. image:: images/updated_user.png
-    :width: 640pxc
+    :width: 640px
 

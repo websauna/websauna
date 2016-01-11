@@ -22,7 +22,7 @@ The default local development database name is ``myapp_dev`` where ``myapp`` is 
 Creating database on OSX
 -------------------------
 
-To create a database on Homewbrew / OSX::
+To create a database on Homewbrew / OSX use ``createdb`` PostgreSQL command::
 
     createdb myapp_dev
 
@@ -38,6 +38,10 @@ If you need to change the default database name or its connection details you ca
 
 Creating migration scripts
 ==========================
+
+.. note ::
+
+    This will be covered later in detail.
 
 Websauna stores data in SQL databases in tables. When these tables are changed, the database must be instructed to perform the changes. The change is recorded as a migration script which can repeatably run across several computers (coworkers, different servers). Initially you will need the migration scripts to create database tables for user and groups of your website.
 

@@ -162,6 +162,7 @@ from sqlalchemy import Integer
 
 
 class MyModel(Base):
+    __tablename__ = "mymodel"
     id = Column(Integer, autoincrement=True, primary_key=True)
 
 """

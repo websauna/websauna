@@ -411,7 +411,16 @@ class Initializer:
         from websauna.system.crud import views
         self.config.scan(views)
 
-    def configure_user_models(self, settings):
+    def configure_models(self):
+        """Configure all models from your application.
+
+        Import related model modules and scan them.
+
+        Importing anything with :py:class:`websauna.system.model.meta.Base` base class registers this model to an SQLAlchemy model registry for migrations.
+        """
+        pass
+
+    def configure_user_models(self):
         """Plug in user models.
 
         Connect chosen user model to SQLAlchemy model Base. Also set up :py:class:`websauna.system.user.usermixin.SiteCreator` logic - what happens when the first user logs in.
@@ -447,7 +456,8 @@ class Initializer:
         # TODO: Get rid of Horus
         self.configure_horus(settings)
 
-        self.configure_user_models(settings)
+        self.configure_models()
+        self.configure_user_models()
 
         # Configure authentication and
         self.configure_authentication(settings, secrets)

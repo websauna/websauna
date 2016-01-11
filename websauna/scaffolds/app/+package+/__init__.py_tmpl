@@ -33,6 +33,11 @@ class Initializer(websauna.system.Initializer):
         from . import views
         self.config.scan(views)
 
+    def configure_models(self):
+        """Register the models of this application."""
+        from . import models
+        self.config.scan(models)
+
     def run(self):
         super(Initializer, self).run()
 

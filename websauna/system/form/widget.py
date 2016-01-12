@@ -11,7 +11,9 @@ from websauna.utils.slug import uuid_to_slug
 class RelationshipCheckboxWidget(deform.widget.CheckboxChoiceWidget):
     """Choose a group of relationships.
 
-    TODO: This is a hack using the default ColanderAlchemy dictify() format which dumps the whole object in relationship as dictionary for us. We are only interested in the relationship object ids. Fix this so that Colander schema can give us list of ids, or even SQLAlchemy model instances themselves.
+    .. note ::
+
+        TODO: This widget needs to die. This is a hack using the default ColanderAlchemy dictify() format which dumps the whole object in relationship as dictionary for us. We are only interested in the relationship object ids. Fix this so that Colander schema can give us list of ids, or even SQLAlchemy model instances themselves.
     """
 
     #: The model which we are using as the base for the queries
@@ -52,7 +54,11 @@ class RelationshipCheckboxWidget(deform.widget.CheckboxChoiceWidget):
         Override this if you use custom ids.
         """
         query = self.get_query(request)
-        objects = query.filter(self.model.id.in_(id_list)).all()
+        if id_list:
+            objects = query.filter(self.model.id.in_(id_list)).all()
+        else:
+            objects = []
+
         return objects
 
     def get_request(self, field):

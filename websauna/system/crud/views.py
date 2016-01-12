@@ -15,6 +15,7 @@ import deform
 
 from websauna.system.core import messages
 from websauna.system.form.fieldmapper import DefaultFieldMapper, EditMode
+from websauna.system.form.resourceregistry import ResourceRegistry
 
 from . import sqlalchemy, Resource
 from . import paginator
@@ -232,7 +233,10 @@ class FormView(CRUDView):
 
         self.customize_schema(schema)
         schema = self.bind_schema(schema)
-        form = deform.Form(schema, buttons=buttons)
+
+        # Create the form instance using the default resource registry
+        form = deform.Form(schema, buttons=buttons, resource_registry=ResourceRegistry())
+
         return form
 
     @abstractmethod
@@ -269,7 +273,14 @@ class FormView(CRUDView):
 
         Override this in your view subclass for schema customizations.
         """
-        return
+        pass
+
+    def pull_in_widget_resources(self, form:deform.Form):
+        """Include widget JS and CSS on the page.
+
+        Call this as the last thing before returning template context variables from your view.
+        """
+        form.resource_registry.pull_in_resources(self.request, form)
 
 
 class Show(FormView):
@@ -299,6 +310,8 @@ class Show(FormView):
         crud = self.get_crud()
 
         title = current_view_name = self.get_title()
+
+        self.pull_in_widget_resources(form)
 
         return dict(form=rendered_form, context=self.context, obj=obj, title=title, crud=crud, base_template=base_template, resource_buttons=resource_buttons)
 
@@ -392,6 +405,8 @@ class Edit(FormView):
             appstruct = form.schema.dictify(obj)
             rendered_form = form.render(appstruct)
 
+        self.pull_in_widget_resources(form)
+
         return dict(form=rendered_form, context=self.context, obj=obj, title=title, crud=crud, base_template=base_template, resource_buttons=self.get_resource_buttons())
 
 
@@ -474,6 +489,8 @@ class Add(FormView):
         else:
             # Render initial form view with populated values
             rendered_form = form.render()
+
+        self.pull_in_widget_resources(form)
 
         return dict(form=rendered_form, context=self.context, title=title, crud=crud, base_template=base_template, resource_buttons=self.get_resource_buttons())
 

@@ -3,6 +3,7 @@ from pyramid.registry import Registry
 from pyramid.request import Request as _Request
 from sqlalchemy.orm import Session
 from websauna.system.admin.admin import Admin
+from websauna.system.core.render import OnDemandResourceRenderer
 from websauna.system.user.models import User
 
 from websauna.compat.typing import Optional
@@ -30,7 +31,7 @@ class Request(_Request):
 
     """
 
-    def __type_hinting__(self, user:Optional[User], dbsession:Session, session:ISession, admin:Admin, registry:Registry):
+    def __type_hinting__(self, user:Optional[User], dbsession:Session, session:ISession, admin:Admin, registry:Registry, on_demand_resource_renderer:OnDemandResourceRenderer):
         """A dummy helper function to tell IDEs about reify'ed variables.
 
         :param user: The logged in user. None if the visitor is anonymous.
@@ -42,9 +43,12 @@ class Request(_Request):
         :param admin: The default admin interface of the site. Note that the site can have several admin interfaces for different purposes.
 
         :param registry: Pyramid registry's. E.g. :py:attr:`pyramid.registry.Registry.settings` for reading settings and :py:meth:`pyramid.registry.Registry.notify` for sending events.
+
+        :param on_demand_resource_renderer: Manage JS and CSS files which widgets want to pull on the page dynamically
         """
         self.user = user
         self.dbsession = dbsession
         self.session = session
         self.admin = admin
         self.registry = registry
+        self.on_demand_resource_renderer = on_demand_resource_renderer

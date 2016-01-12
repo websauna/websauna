@@ -15,6 +15,12 @@
         {% include "site/css.html" %}
     {% endblock %}
 
+    {% block head_script %}
+        {% if is_js_in_head %}
+          {% include "site/javascript.html" %}
+        {% endif %}
+    {% endblock %}
+
     {% block extra_head %}
         {# Pages can register their page specific CSS/JS here #}
     {% endblock %}
@@ -61,13 +67,15 @@
         {% endblock body_end %}
 
         {# script is shared site JavaScript #}
-        {% block script %}
-            {% include "site/javascript.html" %}
-        {% endblock script %}
+        {% block body_end_script %}
+            {% if not is_js_in_head %}
+              {% include "site/javascript.html" %}
+            {% endif %}
+        {% endblock body_end_script %}
 
         {# custom_script is page specific JavaScript #}
-        {% block custom_script %}
-        {% endblock custom_script %}
+        {% block extra_body_end %}
+        {% endblock extra_body_end %}
 
     {% endblock body %}
 

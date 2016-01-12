@@ -106,6 +106,16 @@ class Initializer:
         if cachebust:
             self.config.add_cache_buster(asset_spec, BusterClass())
 
+    def add_static(self, name, path):
+        """Include a path in static assets and configures cache busting for it.
+
+        This does not only include the static resources in the routing, but sets the default cache busting policy for them in the :term:`production` environment.
+
+        See :py:meth:`pyramid.config.Configurator.add_static_view` and :py:meth:`websauna.system.Initializer.add_cache_buster`
+        """
+        self.config.add_static_view(name, path)
+        self.add_cache_buster(path)
+
     def configure_logging(self, settings):
         """Create and set Pyramid debug logger.
 
@@ -177,6 +187,7 @@ class Initializer:
 
     def configure_templates(self):
         from websauna.system.core import templatecontext
+        from websauna.system.core.render import get_on_demand_resource_renderer
 
         # Jinja 2 templates as .html files
         self.config.include('pyramid_jinja2')
@@ -190,13 +201,13 @@ class Initializer:
 
         self.config.include("websauna.system.core.templatecontext")
 
-        # Make Deform widgets aware of our widget template paths
-        configure_zpt_renderer(["websauna.system:form/templates/deform"])
-
         # Add core templates to the search path
         self.config.add_jinja2_search_path('websauna.system:core/templates', name='.html')
         self.config.add_jinja2_search_path('websauna.system:core/templates', name='.txt')
         self.config.add_jinja2_search_path('websauna.system:core/templates', name='.xml')
+
+        # Add the default resource registry for Deform
+        self.config.add_request_method(get_on_demand_resource_renderer, 'on_demand_resource_renderer', reify=True)
 
     def configure_authentication(self, settings, secrets):
         """Set up authentication and authorization policies.
@@ -347,8 +358,7 @@ class Initializer:
 
         http://docs.pylonsproject.org/projects/pyramid/en/1.6-branch/narr/assets.html#static-assets-section
         """
-        self.config.add_static_view('websauna-static', 'websauna.system:static')
-        self.add_cache_buster("websauna.system:static/")
+        self.add_static('websauna-static', 'websauna.system:static')
 
     def configure_sessions(self, settings, secrets):
         """Configure session storage."""
@@ -399,11 +409,18 @@ class Initializer:
         # Add request.admin variable
         self.config.add_request_method(get_admin, 'admin', reify=True)
 
-    def configure_forms(self, settings):
+    def configure_forms(self):
+        """Configure subsystems for rendering Deform forms."""
 
         # Add custom SQLAlchemy <-> Deform type mapping
         # Importing is enough to trigger SQLAlchemy override
         from websauna.system.form import types
+
+        # Make Deform widgets aware of our widget template paths
+        configure_zpt_renderer(["websauna.system:form/templates/deform"])
+
+        # Include Deform JS and CSS to static serving
+        self.add_static('deform-static', 'deform:static')
 
     def configure_crud(self, settings):
         """CRUD templates and views."""
@@ -560,7 +577,7 @@ class Initializer:
         self.configure_static()
 
         # Forms
-        self.configure_forms(settings)
+        self.configure_forms()
         self.configure_crud(settings)
 
         # Email

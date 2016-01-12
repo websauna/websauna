@@ -1,5 +1,7 @@
-def test_internal_server_error(web_server, browser):
+def test_internal_server_error(customized_web_server, browser):
     """When things go KABOOM show a friendly error page."""
+
+    web_server = customized_web_server({"websauna.log_internal_server_error": False})
 
     b = browser
     b.visit("{}/error-trigger".format(web_server))

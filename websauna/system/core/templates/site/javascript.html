@@ -1,3 +1,14 @@
+{# Load jQuery and Bootstrap JS. Check request.resource_registry for any pending JS requires.
+
+Override this if you want your JS to appear on every page of the site.
+#}
+
 <script src="{{ 'websauna.system:static/jquery-2.0.3.min.js'|static_url }}"></script>
 <script src="{{ 'websauna.system:static/bootstrap.min.js'|static_url }}"></script>
 
+{# Pull JS for widgets #}
+{% if request.on_demand_resource_renderer %}
+  {% for js_url in request.on_demand_resource_renderer.get_resources("js") %}
+    <script src="{{ js_url }}"></script>
+  {% endfor %}
+{% endif %}

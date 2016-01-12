@@ -268,6 +268,15 @@ You can use this view to generate an error and see that your logging and error m
 
 Default: ``False``.
 
+websauna.log_internal_server_error
+----------------------------------
+
+When the user is being served 500 internal server error (:py:func:`websauna.system.core.views.internalservererror.internal_server_error`) send the error traceback to standard Python ``logger``.
+
+Disabling this is most useful for testing where you do not want to see tracebacks polluting your log output.
+
+Default: ``True``
+
 websauna.site_url
 -----------------
 

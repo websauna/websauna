@@ -42,7 +42,8 @@ def internal_server_error(context, request):
         request.raven.user_context(user_context)
         request.raven.captureException()
 
-    logger.exception(context)
+    if request.registry.settings.get("websauna.log_internal_server_error", True):
+        logger.exception(context)
 
     # The template rendering opens a new transaction which is not rolled back by Pyramid transaction machinery, because we are in a very special view. This tranaction will cause the tests to hang as the open transaction blocks Base.drop_all() in PostgreSQL. Here we have careful instructions to roll back any pending transaction by hand.
     html = render('core/internalservererror.html', {}, request=request)

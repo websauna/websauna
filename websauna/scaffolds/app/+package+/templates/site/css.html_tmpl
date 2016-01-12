@@ -8,3 +8,10 @@
 
 {# Include {{package}} package theme #}
 <link rel="stylesheet" href="{[ '{{package}}:static/theme.css'|static_url ]}">
+
+{# Include CSS for widgets #}
+{% if request.on_demand_resource_renderer %}
+  {% for css_url in request.on_demand_resource_renderer.get_resources("css") %}
+    <link rel="stylesheet" href="{[ css_url ]}"></link>
+  {% endfor %}
+{% endif %}

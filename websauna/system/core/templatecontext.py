@@ -233,17 +233,14 @@ def includeme(config):
     # True if this is production set up - can be used in templates to change/hide texts
     site_production = asbool(config.registry.settings.get("websauna.site_production"))
 
-    #: The default site timezone - can be used in templates to translate UTC timetamps
+    #: The default site timezone - can be used in templates to translate UTC timetamps to local time
     site_timezone = asbool(config.registry.settings.get("websauna.site_timezone", "UTC"))
 
-    #: Skip CSS in templates in functional test runs to speed them up. This flag is set by py.test fixture.
-    testing_skip_css = asbool(config.registry.settings.get("websauna.testing_skip_css", False))
-
-    #: Skip JS in templates loading in functional test runs to speed them up. This flag is set by py.test fixture.
-    testing_skip_js = asbool(config.registry.settings.get("websauna.testing_skip_js", False))
-
     def on_before_render(event):
-        # Augment Pyramid template renderers with these extra variables
+        # Augment Pyramid template renderers with these extra variables and deal with JS placement
+
+        request = event["request"]
+
         event['site_name'] = site_name
         event['site_url'] = site_url
         event['site_author'] = site_author
@@ -253,8 +250,13 @@ def includeme(config):
         event['site_production'] = site_production
         event['site_timezone'] = site_timezone
 
-        event['testing_skip_css'] = testing_skip_css
-        event['testing_skip_js'] = testing_skip_css
+        # Determine placement of JS
+        on_demand_resource_renderer = getattr(request, "on_demand_resource_renderer")
+        if on_demand_resource_renderer:
+            event['is_js_in_head'] = on_demand_resource_renderer.is_js_in_head(request)
+            event['on_demand_resource_renderer'] = on_demand_resource_renderer
+        else:
+            event['is_js_in_head'] = True
 
     config.add_subscriber(on_before_render, BeforeRender)
 

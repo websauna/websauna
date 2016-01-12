@@ -1,0 +1,36 @@
+
+
+<div i18n:domain="deform"
+      tal:omit-tag=""
+      tal:define="oid oid|field.oid;
+                  name name|field.name;
+                  css_class css_class|field.widget.css_class;
+                  style style|field.widget.style;">
+  ${field.start_mapping()}
+  <div class="row row-paddingless">
+    <div class="input-group col-xs-6">
+      <span class="input-group-addon" i18n:translate="">Date</span>
+      <input type="text" name="date" value="${date}"
+             class="span2 form-control ${css_class or ''} hasDatepicker"
+             tal:attributes="style style"
+             id="${oid}-date"/>
+    </div>
+    <div class="input-group col-xs-6">
+      <span class="input-group-addon" i18n:translate="">Time</span>
+      <input type="text" name="time" value="${time}"
+             class="span2 form-control ${css_class or ''} hasDatepicker"
+             tal:attributes="style style"
+             id="${oid}-time"/>
+    </div>
+  </div>
+  ${field.end_mapping()}
+  <script type="text/javascript">
+   deform.addCallback(
+     '${oid}',
+     function(oid) {
+       $('#' + oid + '-date').pickadate(${date_options_json});
+       $('#' + oid + '-time').pickatime(${time_options_json});
+     }
+   );
+  </script>
+</div>

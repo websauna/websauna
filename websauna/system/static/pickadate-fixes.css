@@ -1,0 +1,10 @@
+/* CSS for Deform 2 pickadate widget */
+
+.row-paddingless {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+input.hasDatepicker.form-control[readonly] {
+    background: #fff;
+}

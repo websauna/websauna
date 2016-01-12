@@ -72,7 +72,8 @@ class DefaultFieldMapper(ColumnToFieldMapper):
         # Never add primary keys
         # NOTE: TODO: We need to preserve ids because of nesting mechanism and groupedit widget wants it id
         if column.primary_key:
-            if mode == EditMode.add:
+            # TODO: Looks like column.autoincrement is set True by default, so we cannot use it here
+            if mode in (EditMode.edit, EditMode.add):
                 return TypeOverridesHandling.drop, {}
 
         if isinstance(column_type, PostgreSQLUUID):

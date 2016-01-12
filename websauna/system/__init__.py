@@ -415,12 +415,18 @@ class Initializer:
         # Add custom SQLAlchemy <-> Deform type mapping
         # Importing is enough to trigger SQLAlchemy override
         from websauna.system.form import types
+        from websauna.system.form.resources import DefaultFormResources
+        from websauna.system.form.interfaces import IFormResources
 
         # Make Deform widgets aware of our widget template paths
         configure_zpt_renderer(["websauna.system:form/templates/deform"])
 
         # Include Deform JS and CSS to static serving
         self.add_static('deform-static', 'deform:static')
+
+        # Overrides for Deform 2 stock JS and CSS
+        default_form_resources = DefaultFormResources()
+        self.config.registry.registerUtility(default_form_resources, IFormResources)
 
     def configure_crud(self, settings):
         """CRUD templates and views."""

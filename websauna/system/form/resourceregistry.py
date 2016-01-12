@@ -1,6 +1,7 @@
 """Deform's resource_registry mechanism to allow widgets to include CSS and JS on the page."""
 from deform import Form
 from deform.widget import ResourceRegistry as _ResourceRegistry
+from websauna.system.form.interfaces import IFormResources
 from websauna.system.http import Request
 
 
@@ -23,6 +24,11 @@ class ResourceRegistry(_ResourceRegistry):
 
     * https://developers.google.com/web/fundamentals/performance/critical-rendering-path/adding-interactivity-with-javascript#parser-blocking-vs-asynchronous-javascript
     """
+
+    def __init__(self, request):
+        # Load default resoucres from configuration
+        form_resources = request.registry.getUtility(IFormResources)
+        self.registry = form_resources.get_default_resources().copy()
 
     def pull_in_resources(self, request: Request, form: Form):
         """Add resources CSS and JS resources from Deform form to a Websauna rendering loop."""

@@ -48,13 +48,10 @@ def validate_unique_user_email(node, value, **kwargs):
         raise c.Invalid(node, "Email address already taken")
 
 
-def deserialize_groups(node, kw):
-    """Convert incoming (uuid,) list to sequence of Group instances."""
-    import pdb ; pdb.set_trace()
-
-
 class GroupSet(UUIDModelSet):
     """A set of Group objects referred by their uuid."""
+
+    label_column = "name"
 
     def get_model(self, node):
         request = node.bindings["request"]

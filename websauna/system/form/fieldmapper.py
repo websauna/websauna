@@ -13,7 +13,7 @@ from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID, JSONB, INET
 from sqlalchemy.sql.type_api import TypeEngine
 from websauna.system.crud import Resource
 from websauna.system.form.colander import PropertyAwareSQLAlchemySchemaNode, TypeOverridesHandling
-from websauna.system.form.widget import FriendlyUUIDWidget
+from websauna.system.form.widgets import FriendlyUUIDWidget
 from websauna.system.http import Request
 
 from websauna.compat.typing import List

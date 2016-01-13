@@ -288,7 +288,7 @@ class Initializer:
         instance = authomatic.Authomatic(config=authomatic_config, secret=authomatic_secret)
         self.config.registry.registerUtility(instance, IAuthomatic)
 
-    def configure_database(self, settings):
+    def configure_database(self):
         """Configure database.
 
         Calls py:func:`websauna.system.model.meta.includeme`.
@@ -414,7 +414,6 @@ class Initializer:
 
         # Add custom SQLAlchemy <-> Deform type mapping
         # Importing is enough to trigger SQLAlchemy override
-        from websauna.system.form import types
         from websauna.system.form.resources import DefaultFormResources
         from websauna.system.form.interfaces import IFormResources
 
@@ -511,7 +510,7 @@ class Initializer:
         self.config.scan(websauna.system.user.admins)
         self.config.scan(websauna.system.user.adminviews)
 
-    def configure_notebook(self, settings):
+    def configure_notebook(self):
         """Setup pyramid_notebook integration."""
         import websauna.system.notebook.views
         self.config.add_route('admin_shell', '/notebook/admin-shell')
@@ -608,7 +607,7 @@ class Initializer:
         self.configure_user(settings, _secrets)
         self.configure_model_admins()
 
-        self.configure_notebook(settings)
+        self.configure_notebook()
 
         # Configure addons before anything else, so we can override bits from addon, like template lookup paths, later easily
         self.configure_addons()
@@ -616,7 +615,7 @@ class Initializer:
         # Database
         # This must be run before configure_database() because SQLAlchemy will resolve @declared_attr and we must have config present by then
         self.configure_instrumented_models()
-        self.configure_database(settings)
+        self.configure_database()
 
     def sanity_check(self):
         """Perform post-initialization sanity checks.

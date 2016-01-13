@@ -12,24 +12,16 @@ from websauna.system.admin.utils import get_admin_url_for_sqlalchemy_object
 from websauna.system.core import messages
 from websauna.system.crud.views import TraverseLinkButton
 from websauna.system.form.fieldmapper import EditMode
-from websauna.system.form.fields import TuplifiedModelSequenceSchema, defer_widget_values
+from websauna.system.form.fields import defer_widget_values
 from websauna.system.user.models import User
-from websauna.system.user.schemas import group_vocabulary, deserialize_groups, GroupSet, validate_unique_user_email
+from websauna.system.user.schemas import group_vocabulary, GroupSet, validate_unique_user_email
 from websauna.viewconfig import view_overrides
 from websauna.system.crud import listing
 from websauna.system.admin import views as admin_views
-from websauna.system.form.widget import RelationshipCheckboxWidget
-from websauna.system.user.utils import get_group_class
 
 from .admins import UserAdmin
 from .admins import GroupAdmin
 from . import events
-
-
-class GroupWidget(RelationshipCheckboxWidget):
-    """Specialized widget for selecting user groups."""
-    def make_entry(self, obj):
-        return (obj.id, obj.name)
 
 
 @panel_config(name='admin_panel', context=UserAdmin, renderer='admin/user_panel.html')
@@ -88,15 +80,11 @@ class UserShow(admin_views.Show):
                 "last_login_ip",
                 colander.SchemaNode(colander.String(), name="registration_source", missing=colander.drop),
                 colander.SchemaNode(colander.String(), name="social"),
-                "groups",
+                colander.SchemaNode(GroupSet(), name="groups", widget=defer_widget_values(deform.widget.CheckboxChoiceWidget, group_vocabulary, css_class="groups"))
                 ]
 
     def get_title(self):
         return "{} #{}".format(self.get_object().friendly_name, self.get_object().id)
-
-    def customize_schema(self, schema):
-        group_model = get_group_class(self.request.registry)
-        schema["groups"].widget = GroupWidget(model=group_model)
 
     @view_config(context=UserAdmin.Resource, route_name="admin", name="show", renderer="crud/show.html", permission='view')
     def show(self):
@@ -111,7 +99,7 @@ class UserEdit(admin_views.Edit):
                 colander.SchemaNode(colander.String(), name='username'),  # Make username required field
                 colander.SchemaNode(colander.String(), name='full_name', missing=""),
                 "email",
-                colander.SchemaNode(colander.Sequence(), name="groups", missing=[])
+                colander.SchemaNode(GroupSet(), name="groups", widget=defer_widget_values(deform.widget.CheckboxChoiceWidget, group_vocabulary, css_class="groups"))
                 ]
 
     def save_changes(self, form:deform.Form, appstruct:dict, user:User):
@@ -145,6 +133,8 @@ class UserEdit(admin_views.Edit):
 @view_overrides(context=UserAdmin)
 class UserAdd(admin_views.Add):
     """CRUD add part for creating new users."""
+
+    #: TODO: Not sure how we should manage with explicit username - it's not used for login so no need to have a point to ask
 
     includes = [
         # "username", --- usernames are never exposed anymore

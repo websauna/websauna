@@ -9,7 +9,7 @@ from websauna.compat.typing import List
 from websauna.compat.typing import Tuple
 from websauna.compat.typing import Union
 from websauna.compat.typing import Callable
-from websauna.utils.slug import slug_to_uuid
+from websauna.utils.slug import slug_to_uuid, uuid_to_slug
 
 
 def convert_query_to_tuples(query: Query, first_column: Union[str, Callable], second_column: Union[str, Callable]) -> List[Tuple]:
@@ -32,23 +32,40 @@ def convert_query_to_tuples(query: Query, first_column: Union[str, Callable], se
     return [(first_column_getter(item), second_column_getter(item)) for item in query]
 
 
-class ModelItem(colander.SchemaNode):
-    pass
-
-
-
 class ModelSetResultList(list):
     """Mark that the result is through SQLAlchemy query."""
 
 
 class ModelSet(colander.Set):
-    """Presents set of chosen SQLAlchemy models instances."""
+    """Presents set of chosen SQLAlchemy models instances.
+
+    This automatically turns SQLAlchemy objects to (id, label) tuples, so that they can be referred in various widgets (select, checkbox).
+    """
 
     #: Point this to the model this set is supposed to query
     model = None
 
     #: Name of the column on the model we use to fetch objects using IN query
-    match_column_name = None
+    match_column = None
+
+    #: Name of the column which provides label or such for items in sequence
+    label_column = None
+
+    def serialize(self, node, appstruct):
+
+        assert self.match_column, "match_column not configured"
+        assert self.label_column, "label_column not configured"
+
+        if appstruct is colander.null:
+            return colander.null
+
+        values = self.preprocess_appstruct_values(node, appstruct)
+        return values
+
+    def convert_to_id(self, item):
+        id = getattr(item, self.match_column)
+        value = getattr(item, self.label_column)
+        return (id, value)
 
     def deserialize_set_to_models(self, node, cstruct):
         dbsession = self.get_dbsession(node)
@@ -69,10 +86,15 @@ class ModelSet(colander.Set):
         """
         return cstruct
 
+    def preprocess_appstruct_values(self, node: colander.SchemaNode, appstruct: set) -> List[str]:
+        """Convert items to appstruct ids.
+        """
+        return [getattr(i, self.label_column) for i in appstruct]
+
     def get_match_column(self, node: colander.SchemaNode, model:type) -> Column:
         """Get the column we are filtering out."""
-        assert self.match_column_name, "match_column_name undefined"
-        return getattr(model, self.match_column_name)
+        assert self.match_column, "match_column undefined"
+        return getattr(model, self.match_column)
 
     def query_items(self, node: colander.SchemaNode, dbsession: Session, model: type, match_column: Column, values: set) -> List[object]:
         """Query the actual model to get the concrete SQLAlchemy objects."""
@@ -98,9 +120,15 @@ class ModelSet(colander.Set):
 class UUIDModelSet(ModelSet):
     """A set of SQLAlchemy objects queried by base64 encoded UUID value."""
 
-    match_column_name = "uuid"
+    match_column = "uuid"
 
     def preprocess_cstruct_values(self, node, cstruct):
         """Parse incoming form values to Python objects if needed.
         """
         return [slug_to_uuid(v) for v in cstruct]
+
+    def preprocess_appstruct_values(self, node: colander.SchemaNode, appstruct: set) -> List[str]:
+        """Convert items to appstruct ids.
+        """
+        return [uuid_to_slug(getattr(i, self.match_column)) for i in appstruct]
+

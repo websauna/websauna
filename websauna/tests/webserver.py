@@ -1,11 +1,14 @@
 """py.test fixtures for spinning up a WSGI server for functional test run."""
 
+import logging
+import pytest
 from pyramid.router import Router
 from webtest.http import StopableWSGIServer
 
-import pytest
+from websauna.compat import typing
 
-from backports import typing
+
+logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope='session')
@@ -33,7 +36,7 @@ def web_server(request, app:Router) -> str:
 
 
 
-_customized_web_server_port = 8522
+_customized_web_server_port = 8523
 
 
 @pytest.fixture()
@@ -143,6 +146,9 @@ def customized_web_server(request, app:Router) -> typing.Callable:
         app.registry.settings.update(overrides)
 
         host_base = "http://localhost:{}".format(_customized_web_server_port)
+
+        logger.debug("Opening a test web server at %s", host_base)
+
         server = StopableWSGIServer.create(app, host="localhost", port=_customized_web_server_port)
         server.wait()
 

@@ -38,7 +38,9 @@ This is the base for all configuration files. It should not be used standalone, 
 
 * Set up default websauna configuration variables
 
-See :download:`base.ini <../../../development.ini>`.
+See :download:`base.ini <../../../base.ini>`.
+
+.. _development.ini:
 
 development.ini
 ---------------
@@ -59,6 +61,8 @@ This a the configuration file for running the local development server
 
 See :download:`development.ini <../../../development.ini>`.
 
+.. _test.ini:
+
 test.ini
 --------
 
@@ -71,6 +75,8 @@ Settings for running unit tests
 * Jinja templates in strict mode (raise exception on missing template variable)
 
 See :download:`development.ini <../../../test.ini>`.
+
+.. _production.ini:
 
 production.ini
 --------------
@@ -87,12 +93,16 @@ Settings for runnign Websauna on production server.
 
 See :download:`production.ini <../../../production.ini>`.
 
+.. _staging.ini:
+
 staging.ini
 -----------
 
 Same as `production.ini`, but with staging secrets, so that you can use different API credentials for a staging server and production server.
 
 See :download:`staging.ini <../../../staging.ini>`.
+
+.. _secrets:
 
 secrets
 -------
@@ -277,6 +287,25 @@ Disabling this is most useful for testing where you do not want to see traceback
 
 Default: ``True``
 
+.. _websauna.mailer:
+
+websauna.mailer
+---------------
+
+Choose the mail backend class.
+
+Available options
+
+* ``websauna.system.mail.mailer.StdoutMailer`` - dump email to stdout. Default in :term:`development`.
+
+* ``mail`` - use the SMTP configured for pyramid_mailer. Default in :term:`production`.
+
+* ``pyramid_mailer.mailer.DummyMailer`` - No any kind of mail out. Default in :term:`testing`.
+
+See also :py:meth:`websauna.system.Initializer.configure_mail`.
+
+See also :ref:`pyramid_mailer` for configuring the actual mail server details.
+
 websauna.site_url
 -----------------
 
@@ -315,6 +344,13 @@ pyramid_redis
 -------------
 
 `See pyramid_redis <http://pyramid-redis-sessions.readthedocs.org/en/latest/gettingstarted.html>`_.
+
+pyramid_mailer
+--------------
+
+`See pyramid_mailer configuration <http://docs.pylonsproject.org/projects/pyramid-mailer/en/latest/#configuration>`_.
+
+Also see :ref:`websauna.mailer`.
 
 sqlalchemy
 ----------

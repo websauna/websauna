@@ -11,7 +11,7 @@ import logging
 import itertools
 import colander
 from colanderalchemy.schema import SQLAlchemySchemaNode, _creation_order
-from websauna.system.form.sqlalchemy import ModelSetResultList
+from websauna.system.form.sqlalchemy import ModelSetResultList, ModelSet
 from websauna.utils.jsonb import JSONBProperty
 
 import colander
@@ -156,9 +156,17 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
                     value = getattr(obj, name)
 
             except AttributeError:
+
+
                 try:
+                    # Classic colanderalchemy
                     prop = getattr(self.inspector.relationships, name)
-                    if prop.uselist:
+
+                    # We know this node is good to pass through as is, don't try to dictify subitems
+                    if isinstance(node.typ, ModelSet):
+                        value = getattr(obj, name)
+
+                    elif prop.uselist:
                         value = [self[name].children[0].dictify(o)
                                  for o in getattr(obj, name)]
                     else:

@@ -2,7 +2,7 @@ import transaction
 
 from websauna.system.user.models import User
 from websauna.tests.utils import create_logged_in_user
-
+from websauna.utils.slug import uuid_to_slug
 
 GROUP_NAME = "Sample Group"
 
@@ -46,13 +46,15 @@ def test_put_user_to_group(web_server, browser, dbsession, init):
     with transaction.manager:
         g = Group(name=GROUP_NAME)
         dbsession.add(g)
+        dbsession.flush()
+        group_uuid = uuid_to_slug(g.uuid)
 
     b.find_by_css("#nav-admin").click()
     b.find_by_css("#btn-panel-list-user").click()
     b.find_by_css(".crud-row-1 .btn-crud-listing-edit").click()
 
     # Check the group checkbox. We could put some more specific classes for controls here.
-    b.find_by_css("input[type='checkbox'][value='2']").click()
+    b.find_by_css("input[type='checkbox'][value='{}']".format(group_uuid)).click()
     b.find_by_name("save").click()
 
     assert b.is_text_present("Changes saved")
@@ -80,13 +82,15 @@ def test_user_group_choices_preserved_on_validation_error(web_server, init, brow
         dbsession.add(g)
         u = get_user(dbsession)
         u.groups.append(g)
+        dbsession.flush()
+        group_uuid = uuid_to_slug(g.uuid)
 
     b.find_by_css("#nav-admin").click()
     b.find_by_css("#btn-panel-list-user").click()
     b.find_by_css(".crud-row-1 .btn-crud-listing-edit").click()
 
     # We are in group 2 initially, assert checkbox is checked
-    assert b.find_by_css("input[type='checkbox'][value='2'][checked='True']")
+    assert b.find_by_css("input[type='checkbox'][value='{}'][checked='True']".format(group_uuid))
 
     # Do validation error by leaving username empty
     b.fill("username", "")
@@ -94,9 +98,9 @@ def test_user_group_choices_preserved_on_validation_error(web_server, init, brow
     assert b.is_text_present("There was a problem")
 
     # Both group checkboxes should be still selected
-    assert b.find_by_css("input[type='checkbox'][value='1'][checked='True']")
-    assert b.find_by_css("input[type='checkbox'][value='2'][checked='True']")
-
+    with transaction.manager:
+        for g in dbsession.query(Group).all():
+            assert b.find_by_css("input[type='checkbox'][value='{}'][checked='True']".format(uuid_to_slug(g.uuid)))
 
 
 def test_remove_user_from_group(web_server, init, browser, dbsession):
@@ -114,13 +118,15 @@ def test_remove_user_from_group(web_server, init, browser, dbsession):
         dbsession.add(g)
         u = get_user(dbsession)
         u.groups.append(g)
+        dbsession.flush()
+        group_uuid = uuid_to_slug(g.uuid)
 
     b.find_by_css("#nav-admin").click()
     b.find_by_css("#btn-panel-list-user").click()
     b.find_by_css(".crud-row-1 .btn-crud-listing-edit").click()
 
     # Check the group checkbox. We could put some more specific classes for controls here.
-    b.find_by_css("input[type='checkbox'][value='2']").click()
+    b.find_by_css("input[type='checkbox'][value='{}']".format(group_uuid)).click()
     b.find_by_name("save").click()
 
     assert b.is_text_present("Changes saved")

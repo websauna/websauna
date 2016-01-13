@@ -2,24 +2,27 @@
 
 import colander
 import deform
+from pyramid_layout.panel import panel_config
+
 
 from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
+
 from websauna.system.admin.utils import get_admin_url_for_sqlalchemy_object
 from websauna.system.core import messages
 from websauna.system.crud.views import TraverseLinkButton
 from websauna.system.form.fieldmapper import EditMode
+from websauna.system.form.fields import TuplifiedModelSequenceSchema, defer_widget_values
 from websauna.system.user.models import User
+from websauna.system.user.schemas import group_vocabulary, deserialize_groups, GroupSet, validate_unique_user_email
 from websauna.viewconfig import view_overrides
-from .admins import UserAdmin
-from .admins import GroupAdmin
-
-from pyramid_layout.panel import panel_config
 from websauna.system.crud import listing
 from websauna.system.admin import views as admin_views
-
 from websauna.system.form.widget import RelationshipCheckboxWidget
 from websauna.system.user.utils import get_group_class
+
+from .admins import UserAdmin
+from .admins import GroupAdmin
 from . import events
 
 
@@ -108,7 +111,7 @@ class UserEdit(admin_views.Edit):
                 colander.SchemaNode(colander.String(), name='username'),  # Make username required field
                 colander.SchemaNode(colander.String(), name='full_name', missing=""),
                 "email",
-                "groups"
+                colander.SchemaNode(colander.Sequence(), name="groups", missing=[])
                 ]
 
     def save_changes(self, form:deform.Form, appstruct:dict, user:User):
@@ -138,33 +141,28 @@ class UserEdit(admin_views.Edit):
     def edit(self):
         return super(UserEdit, self).edit()
 
-    def customize_schema(self, schema):
-        group_model = get_group_class(self.request.registry)
-        schema["groups"].widget = GroupWidget(model=group_model, dictify=schema.dictify)
-        schema["groups"].missing = []
-
 
 @view_overrides(context=UserAdmin)
 class UserAdd(admin_views.Add):
     """CRUD add part for creating new users."""
 
     includes = [
-        "username",
-        "email",
+        # "username", --- usernames are never exposed anymore
+        colander.SchemaNode(colander.String(), name="email", validator=validate_unique_user_email),
         "full_name",
         colander.SchemaNode(colander.String(), name='password', widget=deform.widget.CheckedPasswordWidget(css_class="password-widget")),
-        "groups",
+        colander.SchemaNode(GroupSet(), name="groups", widget=defer_widget_values(deform.widget.CheckboxChoiceWidget, group_vocabulary, css_class="groups"))
     ]
 
     def get_form(self):
         # TODO: Still not sure how handle nested values on the automatically generated add form. But here we need it for groups to appear
         return self.create_form(EditMode.add, buttons=("add", "cancel",), nested=True)
 
-    def customize_schema(self, schema):
-        # TODO: Still unsure if there will be autogeneration of relatinships on add form, this may change
-        group_model = get_group_class(self.request.registry)
-        schema["groups"].widget = GroupWidget(model=group_model, dictify=schema.dictify)
-        schema["groups"].missing = []
+    # def customize_schema(self, schema):
+    #    # TODO: Still unsure if there will be autogeneration of relatinships on add form, this may change
+    #    group_model = get_group_class(self.request.registry)
+    #    schema["groups"].widget = GroupWidget(model=group_model, dictify=schema.dictify)
+    #    schema["groups"].missing = []
 
 
 class UserSetPassword(admin_views.Edit):

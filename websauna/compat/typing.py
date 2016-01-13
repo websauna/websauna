@@ -1,6 +1,6 @@
 import sys
 
-if sys.version_info >= (3, 5):
+try:
     from typing import  *
-else:
+except ImportError:
     from backports.typing import *

@@ -44,14 +44,14 @@ def test_add_user(browser, web_server, init, dbsession):
 
     b.find_by_css("#btn-panel-add-user").click()
 
-    b.fill("username", "test2")
+    # b.fill("username", "test2")
     b.fill("email", "test2@example.com")
     b.fill("password", "secret")
     b.fill("password-confirm", "secret")
     b.find_by_name("add").click()
 
     # TODO: Convert to CSS based test
-    assert b.is_text_present("Item added.")
+    assert b.is_element_present_by_css("#msg-item-added")
 
     logout(web_server, b)
 
@@ -74,7 +74,7 @@ def test_add_user_password_mismatch(browser, web_server, init, dbsession):
 
     b.find_by_css("#btn-panel-add-user").click()
 
-    b.fill("username", "test2")
+    # b.fill("username", "test2")
     b.fill("email", "test2@example.com")
     b.fill("password", "secret")
     b.fill("password-confirm", "faied")
@@ -82,6 +82,55 @@ def test_add_user_password_mismatch(browser, web_server, init, dbsession):
 
     # TODO: Convert to CSS based test
     assert b.is_text_present("Password did not match confirm")
+
+
+def test_add_user_existing_email(browser, web_server, init, dbsession):
+    """Add a user but there already exists one with the same email."""
+
+    with transaction.manager:
+        create_user(dbsession, init.config.registry, email="test2@example.com")
+
+    b = browser
+
+    create_logged_in_user(dbsession, init.config.registry, web_server, browser, admin=True)
+
+    b.find_by_css("#nav-admin").click()
+
+    b.find_by_css("#btn-panel-add-user").click()
+
+    # b.fill("username", "test2")
+    b.fill("email", "test2@example.com")
+    b.fill("password", "secret")
+    b.fill("password-confirm", "secret")
+    b.find_by_name("add").click()
+
+    assert b.is_element_present_by_css("#error-deformField1")  # Email address already taken
+
+
+def test_add_user_with_group(browser, web_server, init, dbsession):
+    """Add a user and directly assign a group."""
+    b = browser
+
+    create_logged_in_user(dbsession, init.config.registry, web_server, browser, admin=True)
+
+    b.find_by_css("#nav-admin").click()
+
+    b.find_by_css("#btn-panel-add-user").click()
+
+    # b.fill("username", "test2")
+    b.fill("email", "test2@example.com")
+    b.fill("password", "secret")
+    b.fill("password-confirm", "secret")
+
+    # TODO: Make sure checkbox widget gets proper css classes
+    b.find_by_css("input[type='checkbox']")[0].click()
+    b.find_by_name("add").click()
+
+    assert b.is_element_present_by_css("#msg-item-added")
+
+    with transaction.manager:
+        u = dbsession.query(User).get(2)
+        assert len(u.groups) == 1
 
 
 def test_set_password(browser, victim_browser, web_server, init, dbsession):

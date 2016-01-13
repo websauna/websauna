@@ -215,6 +215,14 @@ class FormView(CRUDView):
         self.context = context
         self.request = request
 
+    def bind_schema(self, schema: colander.Schema) -> colander.Schema:
+        """Bind extra arguments to colander schema, so that validators and other deferred things can use them.
+
+        By default we pass ``self.request`` and ``self.context``
+        """
+        import pdb ; pdb.set_trace()
+        return schema.bind(request=self.request, context=self.context)
+
     def create_form(self, mode:EditMode, buttons=(), nested=None) -> deform.Form:
         """Automatically create a Deform form based on the underlying SQLALchemy model.
 
@@ -224,7 +232,7 @@ class FormView(CRUDView):
 
         :param buttons: Passed to Deform as form buttons
 
-        :param nested: Recurse to SQLAlchemy relationships and try to build widgets and subforms for them
+        :param nested: Recurse to SQLAlchemy relationships and try to build widgets and subforms for them. TODO: This is likely to go away.
         """
         model = self.get_model()
         includes = self.includes
@@ -232,6 +240,7 @@ class FormView(CRUDView):
         schema = self.field_mapper.map(mode, self.request, self.context, model, includes, nested=nested)
 
         self.customize_schema(schema)
+
         schema = self.bind_schema(schema)
 
         # Create the form instance using the default resource registry
@@ -435,6 +444,15 @@ class Add(FormView):
         dbsession.add(obj)
         dbsession.flush()
 
+    def do_success(self, resource: Resource):
+        """Finish action after saving new object.
+
+        Usually returns HTTP redirect to the next view.
+        """
+        messages.add(self.request, kind="success", msg="Item added.", msg_id="msg-item-added")
+        # Redirect back to view page after edit page has succeeded
+        return HTTPFound(self.request.resource_url(resource, "show"))
+
     @view_config(context=sqlalchemy.CRUD, name="add", renderer="crud/add.html", permission='add')
     def add(self):
         """View for showing an individual object."""
@@ -467,12 +485,9 @@ class Add(FormView):
                 # We do not need to explicitly call save() or commit() as we are using Zope transaction manager
                 self.add_object(obj)
 
-                messages.add(self.request, kind="success", msg="Item added.")
-
                 resource = crud.wrap_to_resource(obj)
 
-                # Redirect back to view page after edit page has succeeded
-                return HTTPFound(self.request.resource_url(resource, "show"))
+                return self.do_success(resource)
 
             except deform.ValidationFailure as e:
                 # Whoops, bad things happened, render form with validation errors

@@ -11,6 +11,7 @@ import logging
 import itertools
 import colander
 from colanderalchemy.schema import SQLAlchemySchemaNode, _creation_order
+from websauna.system.form.sqlalchemy import ModelSetResultList
 from websauna.utils.jsonb import JSONBProperty
 
 import colander
@@ -60,12 +61,13 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
         TODO: Resolve the issue with the colanderalchemy author politically correct way. What we are doing now is just a temporary 0.1 solution.
     """
 
-    def __init__(self, class_, includes=None, excludes=None, overrides=None, unknown='ignore', nested=False, type_overrides=None, **kw):
+    def __init__(self, class_, includes=None, excludes=None, overrides=None, unknown='ignore', nested=False, type_overrides=None, automatic_relationships=False, **kw):
         """
         :param includes:
         :param overrides:
         :param unknown:
         :param type_overrides: callable(name, column, column_type)
+        :param automatic_relationships: Only follow relationships if they are on include list
         :param kw:
         :return:
         """
@@ -89,6 +91,7 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
         self.kwargs = kwargs or {}
         self.type_overrides = type_overrides
         self.nested = nested
+        self.automatic_relationships = automatic_relationships
         self.add_nodes(self.includes, self.excludes, self.overrides, nested)
 
     def add_nodes(self, includes, excludes, overrides, nested):
@@ -216,13 +219,19 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
         for attr in dict_:
             if mapper.has_property(attr):
                 prop = mapper.get_property(attr)
+
                 if hasattr(prop, 'mapper'):
                     cls = prop.mapper.class_
 
                     if prop.uselist:
                         # Sequence of objects
-                        value = [self[attr].children[0].objectify(obj)
-                                 for obj in dict_[attr]]
+
+                        if isinstance(dict_[attr], ModelSetResultList):
+                            value = dict_[attr]
+                        else:
+                            # Try to map incoming colander items back to SQL items
+                            value = [self[attr].children[0].objectify(obj)
+                                     for obj in dict_[attr]]
                     else:
                         # Single object
                         value = self[attr].objectify(dict_[attr])
@@ -504,6 +513,12 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
         else:
             includes = None
 
+        # TODO: Utmost piece of garbage here
+        if not self.automatic_relationships:
+            if name not in (self.includes or ()):
+                log.debug("Does not construct relationship for %s unless explicitly included", name)
+                return None
+
         key = 'excludes'
         imperative_excludes = overrides.pop(key, None)
         declarative_excludes = declarative_overrides.pop(key, None)
@@ -596,6 +611,7 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
                                 self.unknown,
                                 self.nested,
                                 self.type_overrides,
+                                self.automatic_relationships,
                                 **self.kwargs)
         cloned.__dict__.update(self.__dict__)
         cloned.children = [node.clone() for node in self.children]

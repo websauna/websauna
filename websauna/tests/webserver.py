@@ -137,13 +137,14 @@ def customized_web_server(request, app:Router) -> typing.Callable:
     :return: A factory callable you can use to spawn a web server. Pass test.ini overrides as dict to this function.
     '''
 
-    def customized_web_server_inner(overrides:dict) -> str:
+    def customized_web_server_inner(overrides:dict =None) -> str:
 
         global _customized_web_server_port
 
         old_settings = app.registry.settings.copy()
 
-        app.registry.settings.update(overrides)
+        if overrides:
+            app.registry.settings.update(overrides)
 
         host_base = "http://localhost:{}".format(_customized_web_server_port)
 

@@ -8,6 +8,7 @@ import os
 import pyramid.testing
 import pytest
 import transaction
+from pyramid.router import Router
 
 from sqlalchemy.orm.session import Session
 
@@ -85,6 +86,31 @@ def init(request, app):
     return app.initializer
 
 
+def custom_dbsession(request, app: Router, transaction_manager=transaction.manager) -> Session:
+    from websauna.system.model.meta import Base
+
+    dbsession = create_dbsession(app.initializer.config.registry.settings, manager=transaction_manager)
+    engine = dbsession.get_bind()
+
+    with transaction.manager:
+        Base.metadata.drop_all(engine)
+        Base.metadata.create_all(engine)
+
+    def teardown():
+        # There might be open transactions in the database. They will block DROP ALL and thus the tests would end up in a deadlock. Thus, we clean up all connections we know about.
+        # XXX: Fix this shit
+
+        with transaction.manager:
+            Base.metadata.drop_all(engine)
+
+        dbsession.close()
+
+    request.addfinalizer(teardown)
+
+    return dbsession
+
+
+
 @pytest.fixture()
 def dbsession(request, app) -> Session:
     """Create a test database and database session.
@@ -114,28 +140,7 @@ def dbsession(request, app) -> Session:
 
     :return: A SQLAlchemy session instance you can use to query database.
     """
-
-    from websauna.system.model.meta import Base
-
-    dbsession = create_dbsession(app.initializer.config.registry.settings)
-    engine = dbsession.get_bind()
-
-    with transaction.manager:
-        Base.metadata.drop_all(engine)
-        Base.metadata.create_all(engine)
-
-    def teardown():
-        # There might be open transactions in the database. They will block DROP ALL and thus the tests would end up in a deadlock. Thus, we clean up all connections we know about.
-        # XXX: Fix this shit
-
-        with transaction.manager:
-            Base.metadata.drop_all(engine)
-
-        dbsession.close()
-
-    request.addfinalizer(teardown)
-
-    return dbsession
+    return custom_dbsession(request, app)
 
 
 @pytest.fixture()

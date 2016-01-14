@@ -74,8 +74,6 @@ def create_dbsession(settings, manager=transaction.manager) -> Session:
     """
 
     dbmaker = get_dbmaker(get_engine(settings))
-
-    manager = transaction.manager
     dbsession = get_session(manager, dbmaker)
     return dbsession
 

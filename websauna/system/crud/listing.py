@@ -1,12 +1,5 @@
-
-class Table:
-    """Describe table columns to a CRUD listing view."""
-
-    def __init__(self, columns=[]):
-        self.columns = columns
-
-    def get_columns(self):
-        return self.columns
+from websauna.compat.typing import Optional
+from websauna.compat.typing import List
 
 
 class Column:
@@ -147,4 +140,15 @@ class FriendlyTimeColumn(Column):
         super(FriendlyTimeColumn, self).__init__(id=id, name=name, navigate_view_name=navigate_view_name, header_template=header_template, body_template=body_template)
 
 
+class Table:
+    """Describe table columns to a CRUD listing view."""
 
+    def __init__(self, columns: Optional[List[Column]] =None):
+        """
+        :param columns: List of columns to used to render the list view
+        :return:
+        """
+        self.columns = columns or []
+
+    def get_columns(self):
+        return self.columns

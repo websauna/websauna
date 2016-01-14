@@ -244,7 +244,6 @@ class FormView(CRUDView):
 
         # Create the form instance using the default resource registry
         form = deform.Form(schema, buttons=buttons, resource_registry=ResourceRegistry(self.request))
-
         return form
 
     @abstractmethod

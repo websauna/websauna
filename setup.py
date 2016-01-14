@@ -150,6 +150,7 @@ setup(
 
             # Scheduler auomated test suite entry point
             'scheduler_test=websauna.tests.test_scheduler:main',
+            'tutorial_test=websauna.tests.tutorial:main',
         ],
 
         'pyramid.scaffold': [

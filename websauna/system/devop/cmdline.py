@@ -37,6 +37,10 @@ def init_websauna(config_uri) -> Request:
     assert initializer is not None, "Configuration did not yield to Websauna application with Initializer set up"
 
     pyramid_env = scripting.prepare(registry=app.initializer.config.registry)
+    request = pyramid_env["request"]
+
+    # Export application object for testing
+    request.app = app
 
     return pyramid_env["request"]
 

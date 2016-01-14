@@ -220,7 +220,6 @@ class FormView(CRUDView):
 
         By default we pass ``self.request`` and ``self.context``
         """
-        import pdb ; pdb.set_trace()
         return schema.bind(request=self.request, context=self.context)
 
     def create_form(self, mode:EditMode, buttons=(), nested=None) -> deform.Form:
@@ -426,11 +425,11 @@ class Add(FormView):
     def get_form(self):
         return self.create_form(EditMode.add, buttons=("add", "cancel",))
 
-    def get_crud(self):
+    def get_crud(self) -> CRUD:
         """Get CRUD manager object for this view."""
         return self.context
 
-    def get_model(self):
+    def get_model(self) -> type:
         return self.get_crud().get_model()
 
     def create_object(self):

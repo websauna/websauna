@@ -35,6 +35,8 @@ Start the web server or let it reload itself. Now you should see *Question* and 
 
 You can add new questions.
 
+
+
 You can add new choices. For the choice you can choose the appropriate question from dropdown.
 
 .. note ::

@@ -8,9 +8,8 @@ from deform.widget import _normalize_choices
 from websauna.utils.slug import uuid_to_slug
 
 
-
 class FriendlyUUIDWidget(deform.widget.TextInputWidget):
-    """Display both UUID and base64 encoded form of it.
+    """Display both UUID and base64 encoded string of a stored UUID value.
 
     For :py:class:`websauna.form.field.UUID` Colander type.
     """

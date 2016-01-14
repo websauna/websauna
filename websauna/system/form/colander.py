@@ -11,7 +11,7 @@ import logging
 import itertools
 import colander
 from colanderalchemy.schema import SQLAlchemySchemaNode, _creation_order
-from websauna.system.form.sqlalchemy import ModelSetResultList, ModelSet
+from websauna.system.form.sqlalchemy import ModelSetResultList, ModelSet, ModelSchemaType
 from websauna.utils.jsonb import JSONBProperty
 
 import colander
@@ -61,7 +61,7 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
         TODO: Resolve the issue with the colanderalchemy author politically correct way. What we are doing now is just a temporary 0.1 solution.
     """
 
-    def __init__(self, class_, includes=None, excludes=None, overrides=None, unknown='ignore', nested=False, type_overrides=None, automatic_relationships=False, **kw):
+    def __init__(self, class_, includes=None, excludes=None, overrides=None, unknown='ignore', nested=False, type_overrides=None, relationship_overrides=None, automatic_relationships=False, **kw):
         """
         :param includes:
         :param overrides:
@@ -90,6 +90,7 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
         self.declarative_overrides = {}
         self.kwargs = kwargs or {}
         self.type_overrides = type_overrides
+        self.relationship_overrides = relationship_overrides
         self.nested = nested
         self.automatic_relationships = automatic_relationships
         self.add_nodes(self.includes, self.excludes, self.overrides, nested)
@@ -163,7 +164,7 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
                     prop = getattr(self.inspector.relationships, name)
 
                     # We know this node is good to pass through as is, don't try to dictify subitems
-                    if isinstance(node.typ, ModelSet):
+                    if isinstance(node.typ, ModelSchemaType):
                         value = getattr(obj, name)
 
                     elif prop.uselist:
@@ -219,30 +220,34 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
         if sqlalchemy.inspect(dict_, raiseerr=False) is not None:
             return dict_
 
-        marker = object()
-        orig = dict_.get("_orig", marker)
-        if orig is not marker:
-            return orig
-
         for attr in dict_:
             if mapper.has_property(attr):
                 prop = mapper.get_property(attr)
 
                 if hasattr(prop, 'mapper'):
                     cls = prop.mapper.class_
+                    value = dict_[attr]
 
                     if prop.uselist:
                         # Sequence of objects
 
-                        if isinstance(dict_[attr], ModelSetResultList):
-                            value = dict_[attr]
+
+                        if isinstance(value, ModelSetResultList):
+                            # We know we do not need to try to convert these
+                            pass
                         else:
                             # Try to map incoming colander items back to SQL items
                             value = [self[attr].children[0].objectify(obj)
                                      for obj in dict_[attr]]
                     else:
-                        # Single object
-                        value = self[attr].objectify(dict_[attr])
+
+                        if hasattr(value, "__tablename__"):
+                            # Raw SQLAlchemy object - do not try to convert
+                            pass
+                        else:
+                            # Single object
+                            if value:
+                                value = self[attr].objectify(value)
                 else:
                      value = dict_[attr]
                      if value is colander.null:
@@ -521,11 +526,22 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
         else:
             includes = None
 
-        # TODO: Utmost piece of garbage here
+        # TODO: Utmost piece of garbage here.. remove this
         if not self.automatic_relationships:
             if name not in (self.includes or ()):
                 log.debug("Does not construct relationship for %s unless explicitly included", name)
                 return None
+
+        if self.relationship_overrides:
+
+            result = self.relationship_overrides(self, name, prop, class_)
+            if result == TypeOverridesHandling.drop:
+                return None
+            elif result == TypeOverridesHandling.unknown:
+                pass
+            else:
+                assert isinstance(result, colander.SchemaNode)
+                return result
 
         key = 'excludes'
         imperative_excludes = overrides.pop(key, None)
@@ -591,7 +607,8 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
                                     excludes=excludes,
                                     overrides=rel_overrides,
                                     missing=missing,
-                                    type_overrides=self.type_overrides)
+                                    type_overrides=self.type_overrides,
+                                    relationship_overrides=self.relationship_overrides)
 
         if prop.uselist:
             node = SchemaNode(Sequence(), node, **kwargs)
@@ -599,17 +616,6 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
         node.name = name
 
         return node
-
-    def deserialize(self, cstruct):
-
-        # Pass-through of real SQL alchemy objects, as generated by widget deserialize()
-        marker = object()
-        orig = cstruct.get("_orig", marker)
-        if orig is not marker:
-            return orig
-
-        result = super(PropertyAwareSQLAlchemySchemaNode, self).deserialize(cstruct)
-        return result
 
     def clone(self):
         cloned = self.__class__(self.class_,
@@ -619,6 +625,7 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
                                 self.unknown,
                                 self.nested,
                                 self.type_overrides,
+                                self.relationship_overrides,
                                 self.automatic_relationships,
                                 **self.kwargs)
         cloned.__dict__.update(self.__dict__)

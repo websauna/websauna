@@ -5,7 +5,7 @@ CRUD
 Introduction
 ============
 
-CRUD stands for create-read-update-delete. It's the basic usage pattern in every web application dealing with any data. You add data, you come later to edit it. In the context of Websauna, CRUD is the abstract subsystem used to generate forms.
+Websauna comes with :term:`CRUD` stands for create-read-update-delete. It's the basic usage pattern in every web application dealing with any data. You add data, you come later to edit it. In the context of Websauna, CRUD is the abstract subsystem used to generate forms.
 
 CRUD forms the base of the model admin user interface, but it can be used standalone. For example, you can create user specific listings under user profile e.g. "My purchases".
 

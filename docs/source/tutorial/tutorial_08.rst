@@ -75,7 +75,7 @@ Once you are in the shell, explore the model :term:`SQLAlchemy` API:
     >>> dbsession.query(Question).all()
     [<myapp.models.Question at 0x10e3ef400>]
 
-Wait a minute. <myapp.models.Question at 0x10e3ef400> is, utterly, an unhelpful representation of this object. Let’s fix that by editing the Question model and adding a `__repr__()` method to both Question and Choice. Python's ``__repr__()`` is the string presentation of the object for shells and debuggers::
+Wait a minute. ``<myapp.models.Question at 0x10e3ef400>`` is, utterly, an unhelpful representation of this object. Let’s fix that by editing the Question model and adding a `__repr__()` method to both Question and Choice. Python's ``__repr__()`` is the string presentation of the object for shells and debuggers. We also add ``__str()__`` which is later used by admin web interface::
 
     class Question(Base):
 
@@ -84,13 +84,23 @@ Wait a minute. <myapp.models.Question at 0x10e3ef400> is, utterly, an unhelpful 
         def __repr__(self):
             return "#{}: {}".format(self.id, self.question_text)
 
+        def __str__(self):
+            """Python default and admin UI string presentation."""
+            return self.question_text
+
 
     class Choice(Base):
 
         # ...
 
         def __repr__(self):
+            """Shell and debugger presentation."""
             return "#{}: {}".format(self.id, self.choice_text)
+
+        def __str__(self):
+            """Python default and admin UI string presentation."""
+            return self.choice_text
+
 
 Note these are normal Python methods. Let’s add a custom method, just for demonstration. We update imports with ``datetime`` and ``now`` and add another method to the model body::
 

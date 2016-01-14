@@ -5,27 +5,66 @@ CRUD
 Introduction
 ============
 
-Websauna comes with :term:`CRUD` stands for create-read-update-delete. It's the basic usage pattern in every web application dealing with any data. You add data, you come later to edit it. In the context of Websauna, CRUD is the abstract subsystem used to generate forms.
+Websauna comes with :term:`CRUD`. CRUD is designed for :term:`SQLAlchemy models`, but can be storage mechanism agnostics and you can use with any arbitrary persistency mechanism. CRUD supports :ref:`form autogeneration`, so that a CRUD UI can be generated automatically for your model. CRUD is extensively used by :term:`admin`, but you can as well roll it standalone.
 
-CRUD forms the base of the model admin user interface, but it can be used standalone. For example, you can create user specific listings under user profile e.g. "My purchases".
+CRUD elements
+=============
 
-Websauna CRUD is designed to be storage mechanism agnostics - it works with SQLAlchemy models, as well as with Redis, or anything you feed for it.
+CRUD consists of basic views which are
 
-Putting together CRUD
-=====================
+* Listing view
 
-Here is an example how to put together a simple CRUD.
+* Add object
 
-Object id mapping
-=================
+* Show object
 
-CRUD provides translation of object ids to URL paths and vice versa.
+* Edit object
 
-* You can use integer primary key numbers as the object ids
+* Delet object
 
-* You can use UUIDs for sensitive data
+CRUD controller is :ref:`traversal` based as thus can be plugged in to any part of the site without a hardcoded URL configuration.
 
-This is handled by settings the mapper attribute of CRUD.
+You need do
+
+* Declare one subclass of `websauna.system.crud.CRUD` which servers the entry point into your CRUD
+
+* This class must contain inner class of subclass of `websauna.system.crud.CRUD.Resource` which wraps raw SQLAlchemy object to traversable URLs
+
+After this you can override any of the views by subclassing the base view and customizing it for your purposes.
+
+For example here is an URL from the tutorial::
+
+    http://localhost:6543/admin/models/choice/zYkpKEkpSvq02tPjL_ko8Q/show
+
+Below is how CRUD is formed. It consists of four :term:`resources <resource>`(see :py:class`websauna.system.core.traversal.Resource`) and one :term:`view`.
+
+* ``admin`` is the default admin interface root of the site, see :py:class:`websauna.system.admin.admin.Admin`
+
+* ``admin`` contains ``models`` path under which all CRUDs for models registered for admin are. This is presented by :py:class:`websauna.system.admin.modeladmin.ModelAdminRoot`
+
+* ``choices`` is a CRUD root for Choices :term:`SQLAlchemy` :term:`model`. It is presented by ``myapp.admins.Choice`` which is a subclass of ``websauna.system.admin.modeladmin.ModelAdmin`` which in turn is subclass of :py:class:`websauna.system.crud.sqlalchemy.CRUD` which is the subclass of abstract CRUD implementation :py:class:`websauna.system.crud.CRUD`
+
+* ``zYkpKEkpSvq02tPjL_ko8Q`` is the base64 encoded ::term:`UUID` (see :py:func:`websauna.system.utils.slug.uuid_to_slug`) of the ``myapp.admins.Choice`` we are currently manipulating. It resolves to ``myapp.admins.Choice.Resource`` class which is the subclass of :py:class:`websauna.system.crud.sqlachemy.Resource``. This resource wraps one SQLAlchemy object to URL traversing by giving it ``__parent__`` pointer and ``__name__`` string. URL to SQLAlchemy item mapping is done by :py:class:`websauna.system.crud.urlmapper.Base64UUIDMapper`.
+
+* ``show`` is the :term:`view` name. Views are picked against the context they are registered. Here the context is ``myapp.admins.Choice.Resource``. It maps to :py:class:`websauna.system.admin.views.Show`, subclass of :py:class:`websauna.system.crud.views.Show`.
+
+* View processing starts when Pyramid router calls :py:meth:`websauna.system.crud.views.Show.show`.
+
+URL mapping
+-----------
+
+CRUD provides translation of SQLAlchemy object ids to URL paths and vice versa.
+
+* :py:class:`websauna.system.crud.urlmapper.Base64UUIDMapper` is recommended as it generates non-guessable URLs. It reads :term:`UUID` attribute from model and constructs Base64 encoded string of it.
+
+* :py:class:`websauna.system.crud.urlmapper.IdMapper` can be used if you want to have primary keys directly in URLs.
+
+* The behavior can be configured by setting :py:attr:`websauna.system.crud.CRUD.mapper` for your CRUD class.
+
+Form schema
+-----------
+
+CRUD supports
 
 Listing view
 ============
@@ -106,3 +145,9 @@ You can add these buttons yourself. Example:
             TraverseLinkButton(id="sms-user", name="Send SMS", view_name="sms-user"),
             TraverseLinkButton(id="license", name="Medical license", view_name="license")
         ]
+
+
+More info
+=========
+
+See :py:mod:`websauna.system.user.adminviews` for CRUD used in the user and groups admin.

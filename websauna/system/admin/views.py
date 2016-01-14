@@ -50,7 +50,8 @@ class Listing(crud_views.Listing):
 
     table = listing.Table(
         columns = [
-            listing.Column("id", "Id",),
+            listing.Column(id="id", name="Id",),
+            listing.StringPresentationColumn(id="value", name="Value"),
             listing.ControlsColumn()
         ]
     )

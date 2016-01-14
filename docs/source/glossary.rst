@@ -22,9 +22,8 @@ Glossary
       Celery a task queue for Python with focus on real-time processing, while also supporting task scheduling. `More info <http://celery.readthedocs.org/>`__.
 
     CRUD
-        In computer programming, create, read, update and delete, sometimes called SCRUD with an "S" for Search, are the four basic functions of persistent storage.
+        In computer programming, create, read, update and delete, sometimes called SCRUD with an "S" for Search, are the four basic functions of persistent storage. :doc:`Read about CRUD in Websauna <../narrative/manipulation/crud>`.
         `More info <https://en.wikipedia.org/wiki/Create,_read,_update_and_delete>`__.
-
 
     development
         Development is the stage of the deployment when the developer is locally working on the code on a local machine. See :ref:`development.ini`.

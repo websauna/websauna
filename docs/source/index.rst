@@ -45,6 +45,7 @@ How to get your data in to and out from a database.
     narrative/manipulation/form
     narrative/manipulation/crud
     narrative/manipulation/admin
+    narrative/manipulation/auto
 
 HTTP and routing
 ----------------

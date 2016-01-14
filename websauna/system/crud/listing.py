@@ -106,6 +106,31 @@ class Column:
         return request.resource_url(target)
 
 
+class StringPresentationColumn(Column):
+    """Renders the default string presentation of the object.
+
+    You can change the stringify method::
+
+        StringPresentationColumn(formatter=my_func)
+
+    where my_func is callable::
+
+        my_func(value)
+    """
+
+    def __init__(self, **kwargs):
+        self.formatter = kwargs.pop("formatter", str)
+        super(StringPresentationColumn, self).__init__(**kwargs)
+
+    def get_value(self, obj):
+        """Extract value from the object for this column.
+
+        Called in listing body.
+        """
+        val = str(obj)
+        return self.formatter(val)
+
+
 class ControlsColumn(Column):
     """Render View / Edit / Delete buttons."""
     def __init__(self, id="controls", name="Actions", header_template="crud/column_header_controls.html", body_template="crud/column_body_controls.html"):

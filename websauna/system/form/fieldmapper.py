@@ -22,6 +22,7 @@ from websauna.system.http import Request
 
 from websauna.compat.typing import List
 from websauna.compat.typing import Tuple
+from websauna.compat.typing import Optional
 
 from . import fields
 
@@ -156,7 +157,15 @@ class DefaultFieldMapper(ColumnToFieldMapper):
             # Default mapping / unknown, let the parent handle
             return TypeOverridesHandling.unknown, {}
 
-    def map(self, mode:EditMode, request:Request, context:Resource, model:type, includes:List, nested=None) -> colander.SchemaNode:
+    def map(self, mode: EditMode, request: Request, context: Optional[Resource], model: type, includes: List, nested=None) -> colander.SchemaNode:
+        """
+        :param mode: What kind of form is this - show, add, edit
+        :param request: HTTP request
+        :param context: Current traversing context or None
+        :param model: The model for which we generate schema
+        :param includes: List of column, relationship and property names or ``colander.SchemaNode(name=name) instances to be included on the form.
+        :param nested: Going away
+        """
 
         def _map_column(node, name, column, column_type):
             return self.map_column(mode, request, node, model, name, column, column_type)

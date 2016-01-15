@@ -1,7 +1,8 @@
 from pyramid.httpexceptions import HTTPFound, HTTPMovedPermanently
 from slugify import slugify
-from websauna.system.core.simpleroute import add_simple_route
 import venusian
+
+from websauna.system.core.simpleroute import add_simple_route
 
 
 def redirect_view(path:str, new_path:str=None, new_route:str=None, status_code:int=302, name:str=None):
@@ -14,11 +15,11 @@ def redirect_view(path:str, new_path:str=None, new_route:str=None, status_code:i
     Example usage::
 
         # Product no longer available
-        _cannabis_party_box = redirect_view("/can   nabis-party-box", new_route="home", status_code=301)
-        _cannabis_redirect_box = redirect_view("/cannabis-extract-box", new_route="home", status_code=301)
+        _redirect = redirect_view("/old-page", new_route="home", status_code=301)
+        _redirect2 = redirect_view("/old-page-2", new_route="home", status_code=301)
 
         # SEO optimized path
-        _strains = redirect_view("/strains", new_route="strains", status_code=301)
+        _seo_redirect = redirect_view("/old-path-name", new_route="new_route_name", status_code=301)
 
     TODO:
 
@@ -57,7 +58,6 @@ def redirect_view(path:str, new_path:str=None, new_route:str=None, status_code:i
             return HTTPMovedPermanently(mapped_path)
         else:
             raise RuntimeError("Unsupported redirect code {}", status_code)
-
 
     def callback(scanner, _name, wrapped):
         """Register a view; called on config.scan"""

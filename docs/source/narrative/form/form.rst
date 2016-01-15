@@ -102,6 +102,52 @@ Then the template ``myapp/my_form.html``::
     {% endblock content %}
 
 
+Creating forms imperatively - data-driven forms
+-----------------------------------------------
+
+Colander schemas do not need to be fixed - you can construct them run-time. Here is an example which creates a main form with multiple subforms (rating, feedback text) for each item in the database::
+
+    @simple_route("/review/{delivery_uuid}", route_name="review_public", renderer='views/review.html', append_slash=False)
+    def review(request, delivery_uuid):
+        """Let user to leave a product for delivery.
+
+        One delivery can contain several product. Each product has Review SQL object instance generated at the time of creation. This form will let review
+
+        """
+        delivery_uuid = slug_to_uuid(delivery_uuid)
+        delivery = DBSession.query(models.Delivery).filter_by(uuid=delivery_uuid).first()
+
+        # No reason to enter here before the shipment is done
+        assert delivery.delivery_status == "delivered"
+
+        # Create form serialized form of all items in this delivery
+        reviews = [serialize_review(r) for r in delivery.reviews]
+        assert len(reviews) >= 0
+
+        # Dynamically (imperatively) construct a schema where we have N rating subschemas, for each we leave star rating 1-5 and comment. Each of the items is mapped through UUID.
+        rating = colander.Schema(name="single_rating", widget=ReviewFrameWidget())
+
+        # Hidden info we use in the page rendering and mapping POST back to DB items
+        rating.add(colander.SchemaNode(colander.String(), name="uuid", missing=colander.null, widget=deform.widget.HiddenWidget()))
+        rating.add(colander.SchemaNode(colander.String(), name="name", missing=colander.null, widget=deform.widget.HiddenWidget()))
+
+        rating.add(colander.SchemaNode(colander.Int(), name="rating", missing=colander.null, validator=colander.Range(0, 5), widget=deform.widget.HiddenWidget(css_class="rating")))
+        rating.add(colander.SchemaNode(colander.String(), name="comment", validator=colander.Length(max=4096), missing="", widget=deform.widget.TextAreaWidget(cols=40, rows=5, template="comment_textarea")))
+        ratings = colander.SchemaNode(colander.Sequence(), rating, name="ratings", default=reviews, widget=SimpleSequenceWidget())
+
+        schema = CSRFSchema(widget=deform.widget.FormWidget(item_template="item_template_chromeless"))
+
+        # Bind schema to request so CSRF token value is filled for the current session
+        schema = schema.bind(request=request)
+
+        schema.add(ratings)
+
+        form = deform.Form(schema, buttons=("submit", "skip"))
+
+.. note ::
+
+    TODO: Parts of the example are old - for example there is no longer global DBSession.
+
 Dynamically manipulating widgets
 --------------------------------
 

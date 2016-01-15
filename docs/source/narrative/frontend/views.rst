@@ -2,6 +2,8 @@
 Views
 =====
 
+.. contents:: :local:
+
 Introduction
 ============
 
@@ -47,14 +49,18 @@ For more information see
 
 * :py:func:`websauna.system.core.route.simple_route`
 
-Imperative route and declarative view config
---------------------------------------------
+Imperative route and view config
+--------------------------------
 
 See
 
 * :py:meth:`pyramid.configurator.Configurator.add_view`
 
 * :py:meth:`pyramid.configurator.Configurator.add_route`
+
+Examples
+
+* :py:meth:`websauna.system.Initializer.configure_notebook`
 
 Context sensitive views
 -----------------------
@@ -110,3 +116,38 @@ To make sure the user is logged in when accessing the view use pseudopermission 
 
     @simple_route("/affiliate", route_name="affiliate", renderer="views/affiliate.html", append_slash=False, permission="authenticated")
     def affiliate_program(request):
+
+
+Stock views
+===========
+
+Some special views Websauna provides out of the box.
+
+HTTP 404 Not Found
+------------------
+
+Configured in :py:meth:`websauna.system.Initializer.configure_error_views`. Implemented in :py:meth:`websauna.system.core.notfound`.
+
+
+HTTP 403 Forbidden
+------------------
+
+Configured in :py:meth:`websauna.system.Initializer.configure_error_views`. Implemented in :py:mod:`websauna.system.core.forbidden`.
+
+
+HTTP 500 internal server error
+------------------------------
+
+Configured in :py:meth:`websauna.system.Initializer.configure_error_views`. Implemented in :py:mod:`websauna.system.core.internalservererror`.
+
+Error test view
+---------------
+
+This is a test view which raises a runtime error if you access it through ``/error-trigger``.
+
+Configured in :py:meth:`websauna.system.Initializer.configure_error_views`. Implemented in :py:mod:`websauna.system.core.errortrigger`.
+
+Shorthand redirect
+==================
+
+You can add quick redirects in Python modules with :py:func:`websauna.system.core.redirect.redirect_view`.

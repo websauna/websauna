@@ -20,12 +20,6 @@ Session in a HTTP request
 Session in a command line application
 +++++++++++++++++++++++++++++++++++++
 
-You can get a access to the database session through a :py:class:`websauna.system.Initializer` instance exposed through a constructed WSGI application::
+You can get a access to the database session through a :py:class:`websauna.system.Initializer` instance exposed through a constructed WSGI application:
 
-
-
-Session in a task
-+++++++++++++++++
-
-asas
-
+    TODO

@@ -15,6 +15,9 @@ Glossary
     Alembic
        A migration script tool for :term:`SQLAlchemy`. `More info <http://alembic.readthedocs.org/>`__.
 
+    Authomatic
+        Authomatic is a framework agnostic library for Python web applications with a minimalistic but powerful interface which simplifies authentication of users by third party providers like Facebook or Twitter through standards like OAuth and OpenID. `More info <http://peterhudec.github.io/authomatic/>`__.
+
     Bootstrap
         Bootstrap is the most popular HTML, CSS, and JS framework for developing responsive, mobile first projects on the web. `More informatin <http://getbootstrap.com/>`__.
 
@@ -58,6 +61,12 @@ Glossary
     Initializer
         Initializer is the main entry point of your Websauna application. It is a class responsible for ramping up and integrating various subsystems. For more information see :py:class:`websauna.system.Initializer`.
 
+    IPython
+        Next generation read–eval–print loop engine for Python and other programming languages. See `IPython Notebook site <http://ipython.org/notebook.html>`__ for more information. See also :term:`IPython Notebook`.
+
+    IPython Notebook
+        A powerful browser based shell for a Python. Popular in scientific community and data analysis. See `IPython Notebook site <http://ipython.org/notebook.html>`__ for more information.
+
     Jinja
         Jinja2 is a modern and designer-friendly templating language for Python, modelled after Django’s templates. It is fast, widely used and secure with the optional sandboxed template execution environment. `Read more <http://jinja.pocoo.org/docs/dev//>`__.
 
@@ -75,6 +84,9 @@ Glossary
 
     notebook
         This refers to :term:`IPython Notebook`. More specifically, in the context of Websauna, the :doc:`the IPython Notebook shell you can open through the website <../narrative/misc/notebook>`.
+
+    OAuth
+        OAuth is an open standard for authorization, commonly used as a way for Internet users to log into third party websites using their Microsoft, Google, Facebook or Twitter accounts without exposing their password. `More information <https://en.wikipedia.org/wiki/OAuth>`__.
 
     Optimistic concurrency control
         Optimistic concurrency control (OCC) is a concurrency control method applied to transactional systems such as relational database management systems and software transactional memory. OCC assumes that multiple transactions can frequently complete without interfering with each other. While running, transactions use data resources without acquiring locks on those resources. Before committing, each transaction verifies that no other transaction has modified the data it has read. If the check reveals conflicting modifications, the committing transaction rolls back and can be restarted. `More information <https://en.wikipedia.org/wiki/Optimistic_concurrency_control>`__.
@@ -100,11 +112,11 @@ Glossary
     pyramid_debugtoolbar
         A package to collect and show various debug and diagnose information from a local Pyramid development server. `More info <http://docs.pylonsproject.org/projects/pyramid-debugtoolbar/en/latest/>`__.
 
-    IPython
-        Next generation read–eval–print loop engine for Python and other programming languages. See `IPython Notebook site <http://ipython.org/notebook.html>`__ for more information. See also :term:`IPython Notebook`.
+    pyramid_notebook
+        Open :term:`IPython Notebook` directly from :term:`Pyramid` website. `More info <https://pypi.python.org/pypi/pyramid-notebook/>`__.
 
-    IPython Notebook
-        A powerful browser based shell for a Python. Popular in scientific community and data analysis. See `IPython Notebook site <http://ipython.org/notebook.html>`__ for more information.
+    pytest
+        pytest is a mature full-featured Python testing tool that provides easy no-boilerplate testing, scales from simple unit to complex functional testing and integrates with other testing methods and tools. `More information <https://en.wikipedia.org/wiki/Deployment_environment#Production>`__.
 
     PostgreSQL
         The world's most advanced open source database. PostgreSQL is a powerful, open source object-relational database system. It has more than 15 years of active development and a proven architecture that has earned it a strong reputation for reliability, data integrity, and correctness. `More information <http://postgresql.org/>`__.

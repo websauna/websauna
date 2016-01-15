@@ -75,7 +75,13 @@ Getting a hold a Redis client can be done with :py:func:`websauna.system.core.ge
 Exploring Redis database
 ========================
 
-If you want to explore Redis database you can use ``redis-cli`` command line tool or Python shell (:ref:`notebook` :ref:`ws-shell`) to explore the contents of Redis database
+If you want to explore Redis database you can use
+
+* ``redis-cli`` command line tool
+
+* On site (:doc:`notebook <../misc/notebook>`
+
+* :ref:`ws-shell` command line shell
 
 Backup
 ======

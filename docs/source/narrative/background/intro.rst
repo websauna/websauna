@@ -11,7 +11,7 @@ What is it?
 
 Websauna gives you building blocks for creating scalable, state-of-the-art websites and services. The framework enables  efficient business problem solving, so that developers can maximize productivity from day zero. Websauna is suggestive and has default options on all parts of stack, so one can follow a red line to get the first release out quickly. On the other hand, Websauna does not enforce hard opinions and sacrifice flexibility, so that experienced developers can easily override parts and use more sophisticated components for specific needs.
 
-Websauna achieves flexibility by keeping its own codebase minimal and not reinventing the wheel. Instead it provides a polished integration of the top packages of Python ecosystem like :term:`Pyramid` web framework, :term:`SQLAlchemy` object relationship mapper, :term:`Alembic` migration scripts, :term:`IPython` shell, :term:`Authomatic` federated login, :term:`Jinja` templating and :term:`py.test` testing framework.
+Websauna achieves flexibility by keeping its own codebase minimal and not reinventing the wheel. Instead it provides a polished integration of the top packages of Python ecosystem like :term:`Pyramid` web framework, :term:`SQLAlchemy` object relationship mapper, :term:`Alembic` migration scripts, :term:`IPython` shell, :term:`Authomatic` federated login, :term:`Jinja` templating and :term:`pytest` testing framework.
 
 Websauna is focused on Internet facing sites where you have a public or private sign up process and administrative backend. It's sweet spots are custom business portals, software-as-a-service sites and consumer portals. A special focus is given for security, so that Websauna is a strong candidate for financial technology and eCommerce solutions.
 

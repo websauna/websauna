@@ -71,7 +71,7 @@ Spin up your development web server. Make sure you are siged out. Go to *Sign in
 .. image:: images/login_with_facebook.png
     :width: 640px
 
-Press *Login with Facebook* and a warning appears::
+Press *Login with Facebook* and a warning appears:
 
 .. image:: images/facebook_warning.png
     :width: 640px
@@ -86,6 +86,6 @@ If your Facebook account uses the same email as you gave earlier for ``ws-create
 More information
 ================
 
-Read :doc:`Websauna OAuth documentation <../../narrative/user/social>`.
+Read :doc:`Websauna OAuth documentation <../../../narrative/user/oauth>`.
 
 

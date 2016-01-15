@@ -5,7 +5,7 @@ CRUD
 Introduction
 ============
 
-Websauna comes with :term:`CRUD`. CRUD is designed for :term:`SQLAlchemy models`, but can be storage mechanism agnostics and you can use with any arbitrary persistency mechanism. CRUD supports :ref:`form autogeneration`, so that a CRUD UI can be generated automatically for your model. CRUD is extensively used by :term:`admin`, but you can as well roll it standalone.
+Websauna comes with :term:`CRUD`. CRUD is designed for :term:`SQLAlchemy` models, but can be storage mechanism agnostics and you can use with any arbitrary persistency mechanism. CRUD supports :doc:`form autogeneration <../forms/autoform>`, so that a CRUD UI can be generated automatically for your model. CRUD is extensively used by :term:`admin`, but you can as well roll it standalone.
 
 CRUD elements
 =============
@@ -22,7 +22,7 @@ CRUD consists of basic views which are
 
 * Delet object
 
-CRUD controller is :ref:`traversal` based as thus can be plugged in to any part of the site without a hardcoded URL configuration.
+CRUD controller is :term:`traversal` based as thus can be plugged in to any part of the site without a hardcoded URL configuration.
 
 You need do
 
@@ -36,7 +36,7 @@ For example here is an URL from the tutorial::
 
     http://localhost:6543/admin/models/choice/zYkpKEkpSvq02tPjL_ko8Q/show
 
-Below is how CRUD is formed. It consists of four :term:`resources <resource>`(see :py:class`websauna.system.core.traversal.Resource`) and one :term:`view`.
+Below is how CRUD is formed. It consists of four :term:`resource` classes (see :py:class`websauna.system.core.traversal.Resource`) and one :term:`view`.
 
 * ``admin`` is the default admin interface root of the site, see :py:class:`websauna.system.admin.admin.Admin`
 

@@ -304,7 +304,7 @@ Available options
 
 See also :py:meth:`websauna.system.Initializer.configure_mail`.
 
-See also :ref:`pyramid_mailer` for configuring the actual mail server details.
+See also below ``pyramid_mailer`` for configuring the actual mail server details.
 
 websauna.site_url
 -----------------

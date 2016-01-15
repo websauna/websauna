@@ -25,7 +25,7 @@ Creating an admin view
 
 Below is instructions how to create your own admin views. We use a view called *phone order* as an example.
 
-Create a Pyramid traversal view and register it against Admin context. First we create a stub ``phoneorder.py`::
+Create a Pyramid traversal view and register it against Admin context. First we create a stub ``phoneorder.py``::
 
     from pyramid.view import view_config
 

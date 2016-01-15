@@ -19,7 +19,25 @@ from websauna.compat import typing
 
 from websauna.utils import html
 from websauna.utils.time import now
+from websauna.utils import slug
 
+
+@contextfilter
+def uuid_to_slug(jinja_ctx, context, **kw):
+    """Convert UUID object to a base64 encoded slug.
+
+    Example::
+
+        {% for question in latest_question_list %}
+            <li>
+              <a href="{{ route_url('details', question.uuid|uuid_to_slug) }}">
+                {{ question.question_text }}
+              </a>
+            </li>
+        {% endfor %}
+
+    """
+    return slug.uuid_to_slug(context)
 
 
 @contextfilter
@@ -260,6 +278,7 @@ def includeme(config):
 
     config.add_subscriber(on_before_render, BeforeRender)
 
+    include_filter(config, "uuid_to_slug", uuid_to_slug)
     include_filter(config, "friendly_time", friendly_time)
     include_filter(config, "datetime", filter_datetime)
     include_filter(config, "escape_js", escape_js)

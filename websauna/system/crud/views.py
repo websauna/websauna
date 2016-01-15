@@ -7,6 +7,7 @@ from pyramid.renderers import render
 from pyramid.request import Request
 from pyramid.response import Response
 from pyramid.view import view_config
+from pyramid_deform import CSRFSchema
 from sqlalchemy.orm import Query
 
 from websauna.compat import typing
@@ -14,6 +15,7 @@ from websauna.compat import typing
 import deform
 
 from websauna.system.core import messages
+from websauna.system.form.csrf import add_csrf
 from websauna.system.form.fieldmapper import DefaultFieldMapper, EditMode
 from websauna.system.form.resourceregistry import ResourceRegistry
 
@@ -237,6 +239,9 @@ class FormView(CRUDView):
         includes = self.includes
 
         schema = self.field_mapper.map(mode, self.request, self.context, model, includes, nested=nested)
+
+        # Make sure we have CSRF token
+        add_csrf(schema)
 
         self.customize_schema(schema)
 

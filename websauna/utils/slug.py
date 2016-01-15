@@ -4,7 +4,11 @@ We provide UUID to Base64 encoded string and back coding.
 
 .. note ::
 
-    The internal implemtation is subject to change to more efficient encoding. It is not recommended to use these as persistent URLs.
+    The internal implementation is subject to change to more efficient encoding. It is not recommended to use these as persistent URLs.
+
+More info about slugs
+
+* http://stackoverflow.com/questions/427102/what-is-a-slug-in-django
 """
 
 import uuid
@@ -17,10 +21,14 @@ class SlugDecodeError(Exception):
     """Raised when you pass invalid b64 slug data."""
 
 
-def uuid_to_slug(uuid_:uuid.UUID) -> str:
+def uuid_to_slug(uuid_: uuid.UUID) -> str:
     """Create a URL slug from UUID.
 
     Courtesy of MJ: # http://stackoverflow.com/a/12270917/315168
+
+    .. note ::
+
+        Slugs are supposed to be human readable. We are stretching that definition here a bit.
 
     :param uuid_: UUID object
     """

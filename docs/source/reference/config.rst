@@ -171,7 +171,7 @@ This is a reference to ``global_config`` object which is used to initialize Pyra
 
 
 
-.. websauna.sanity_check:
+.. _websauna.sanity_check:
 
 websauna.sanity_check
 ---------------------
@@ -214,7 +214,7 @@ In which case your secrets INI would contain::
         consumer_secret = yyy
         ...
 
-.. _websauna.superuser
+.. _websauna.superuser:
 
 websauna.superuser
 ------------------
@@ -233,7 +233,7 @@ Example::
 
 More information
 
-* See :doc:`Notebook documentation <./notebook>`
+* See :doc:`Notebook documentation <../narrative/misc/notebook>`
 
 websauna.force_utc_on_columns
 -----------------------------
@@ -344,6 +344,8 @@ pyramid_redis
 -------------
 
 `See pyramid_redis <http://pyramid-redis-sessions.readthedocs.org/en/latest/gettingstarted.html>`_.
+
+.. _pyramid.mailer:
 
 pyramid_mailer
 --------------

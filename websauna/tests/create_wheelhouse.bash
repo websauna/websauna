@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Create wheelhouse cache to speed up test_scaffold runs
-#
+# Create wheelhouse cache to speed up test_scaffold runs.
+# Builds a wheelhouse folder containing al dependencies.
 #
 
 set -e

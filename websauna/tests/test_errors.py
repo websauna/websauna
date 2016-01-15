@@ -1,3 +1,11 @@
+SPOOF_CSRF_JS = """
+(function() {
+console.log('Preparing CSRF spoofing');
+$("input[name='csrf_token']").val("xxx");
+console.log("Finished geospoofing");
+})();
+"""
+
 def test_internal_server_error(customized_web_server, browser):
     """When things go KABOOM show a friendly error page."""
 
@@ -26,3 +34,20 @@ def test_forbidden(web_server, browser):
     b.visit("{}/admin/".format(web_server))
 
     assert b.is_element_visible_by_css("#forbidden")
+
+
+def test_csrf_fail(web_server, browser):
+    """Bad CSRF token shoud give us an error page."""
+
+    b = browser
+    b.visit(web_server + "/login")
+    b.fill("username", "x")
+    b.fill("password", "y")
+
+    b.evaluate_script(SPOOF_CSRF_JS.replace("\n", " "))
+
+    b.find_by_name("login_email").click()
+    assert b.title == "400 Bad CSRF Token"  # TODO: Firefox specific?
+
+
+

@@ -33,7 +33,7 @@ class Question(Base):
     published_at = Column(UTCDateTime, default=None)
 
     #: Relationship mapping between question and choice
-    choices = relationship("Choice", back_populates="question")
+    choices = relationship("Choice", back_populates="question", lazy="dynamic")
 
     def is_recent(self):
         return self.published_at >= now() - datetime.timedelta(days=1)

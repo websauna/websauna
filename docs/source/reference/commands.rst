@@ -8,7 +8,7 @@ Most Websauna commands take the configuration file, like :term:`development.ini`
 Available commands
 ==================
 
-.. _ws-pserve::
+.. _ws-pserve:
 
 ws-pserve
 ---------
@@ -95,7 +95,7 @@ ws-alembic
 
 Run Alembic SQLAlchemy database migrations.
 
-For more information see :doc:`migrations <../narrative/ops/databaseops>`.
+For more information see :doc:`migrations <../narrative/ops/migrations>`.
 
 ws-dump-db
 ----------

@@ -81,24 +81,34 @@ Then the template ``sample_form.html``::
 Cross-site request forgery checking
 ===================================
 
-Cross-site request forgery is a mechanism to prevent malicious sites stealing and manipulating your user data.
+Cross-site request forgery (:term:`CSRF`)  is a mechanism to prevent malicious sites stealing and manipulating your user data.
 
-Using form classes
+Websauna enables CSRF protection to all views by default. This is done by :py:meth:`websauna.system.Initializer.configure_forms` which enables :py:class:`websauna.system.core.tweens.EnforcedCSRFCheck` tween.
+
+Deform forms
+------------
+
+Always subclass your form schema from :py:class:`pyramid_deform.CSRFSchema`.
+
+Example::
+
+    pass
+
+Hand-written forms
 ------------------
 
-TODO
+Include ``csrf_token` in `<form>`::
+
+    <form method="POST">
+        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+        <button type="submit" name="confirm">Confirm</button>
+    </form>
+
 
 Checking manually
 -----------------
 
-If you are processing HTTP POST submissions without using any framework you can do the following to ensure CSRF protection.
-
-Include ``csrf_token` in `<form>`::
-
-        <form method="POST">
-            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <button type="submit" name="confirm">Confirm</button>
-        </form>
+If you want to process HTTP POST submissions without the automatic check you can check it manually.
 
 Check the token in your view handling form submission::
 

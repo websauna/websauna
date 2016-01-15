@@ -1,12 +1,10 @@
 """Test form autogeneration and CRUD."""
 import os
 import pytest
-from pyramid.paster import bootstrap
 from splinter.driver import DriverAPI
 import transaction
 
 from websauna.system.devop.cmdline import init_websauna
-from websauna.tests.conftest import custom_dbsession
 from websauna.tests.utils import create_logged_in_user
 from websauna.tests.webserver import customized_web_server
 from websauna.utils.slug import uuid_to_slug, slug_to_uuid

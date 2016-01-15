@@ -40,6 +40,9 @@ Open ``models.py`` and add::
         #: When this question was published
         published_at = Column(UTCDateTime, default=None)
 
+        #: Relationship mapping between question and choice
+        choices = relationship("Choice", back_populates="question", lazy="dynamic")
+
 
     class Choice(Base):
 
@@ -114,4 +117,4 @@ Like earlier, you can pop up :ref:`ws-db-shell` command to see that new tables a
 More information
 ================
 
-See :doc:`models documentation <../narrative/manipulation/models>`.
+See :doc:`models documentation <../narrative/modelling/models>`.

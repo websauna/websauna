@@ -1,6 +1,6 @@
-=======
-Testing
-=======
+=============
+Writing tests
+=============
 
 Testing patterns
 ================

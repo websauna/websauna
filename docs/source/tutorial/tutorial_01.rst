@@ -1,6 +1,6 @@
-=====================
-Prerequired knowledge
-=====================
+==================
+Required knowledge
+==================
 
 To be able to develop web applications with Websauna you need know
 
@@ -17,3 +17,8 @@ To be able to develop web applications with Websauna you need know
 .. note ::
 
     Currently Websauna is not tested on Microsoft Windows platforms. This doesn't mean it doesn't work, but none of the authors are able to support it and documentation does not cover Microsoft Windows.
+
+Credits
+=======
+
+This tutorial shamelessly copy-pastes Django tutorial (BSD licensed).

@@ -1,13 +1,15 @@
 """Websauna framework initialization."""
 import sys
 
+from websauna.system.core.csrf import csrf_mapper_factory
+
 assert sys.version_info >= (3,4), "Websauna needs Python 3.4 or newer"
 
 import logging
 import os
 
 from pyramid.config import Configurator
-from pyramid.interfaces import IDebugLogger
+from pyramid.interfaces import IDebugLogger, IViewMapperFactory
 from pyramid.path import DottedNameResolver
 from pyramid.settings import aslist
 from pyramid.settings import asbool
@@ -412,8 +414,8 @@ class Initializer:
     def configure_forms(self):
         """Configure subsystems for rendering Deform forms."""
 
-        # Add custom SQLAlchemy <-> Deform type mapping
-        # Importing is enough to trigger SQLAlchemy override
+        import pyramid.tweens
+        from pyramid.config.views import DefaultViewMapper
         from websauna.system.form.resources import DefaultFormResources
         from websauna.system.form.interfaces import IFormResources
 
@@ -426,6 +428,12 @@ class Initializer:
         # Overrides for Deform 2 stock JS and CSS
         default_form_resources = DefaultFormResources()
         self.config.registry.registerUtility(default_form_resources, IFormResources)
+
+        # Configure CSRF protection
+        mapper = self.config.registry.queryUtility(IViewMapperFactory)
+        if mapper is None:
+            mapper = DefaultViewMapper
+        self.config.set_view_mapper(csrf_mapper_factory(mapper))
 
     def configure_crud(self, settings):
         """CRUD templates and views."""

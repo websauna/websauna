@@ -30,22 +30,21 @@ First steps with Websauna.
 
     tutorial/index
 
-Modelling, forms and data input
--------------------------------
+Modelling and data
+------------------
 
 How to get your data in to and out from a database.
 
 .. toctree::
     :maxdepth: 1
 
-    narrative/manipulation/models
-    narrative/manipulation/database
-    narrative/manipulation/transient
-    narrative/manipulation/json
-    narrative/manipulation/form
-    narrative/manipulation/crud
-    narrative/manipulation/admin
-    narrative/manipulation/auto
+    narrative/modelling/models
+    narrative/modelling/columns
+    narrative/modelling/database
+    narrative/modelling/transient
+    narrative/modelling/json
+    narrative/modelling/crud
+    narrative/modelling/admin
 
 HTTP and routing
 ----------------
@@ -56,6 +55,15 @@ HTTP and routing
     narrative/frontend/request
     narrative/frontend/views
     narrative/frontend/traversal
+
+Forms
+------
+
+.. toctree::
+    :maxdepth: 1
+
+    narrative/form/form
+    narrative/form/autoform
 
 Frontend
 --------
@@ -77,6 +85,16 @@ Users and authentication
     narrative/user/user
     narrative/user/auth
 
+Testing
+-------
+
+.. toctree::
+    :maxdepth: 1
+
+    narrative/testing/preface
+    narrative/testing/writing
+
+
 Development and operations
 --------------------------
 
@@ -95,7 +113,6 @@ Other
     :maxdepth: 1
 
     narrative/misc/task
-    narrative/misc/testing
     narrative/misc/notebook
     narrative/misc/mail
     narrative/misc/messages
@@ -139,7 +156,7 @@ API
     api/websauna.system
     api/websauna.utils
     api/websauna.tests
-    api/websauna.scaffold
+    api/websauna.scaffolds
     api/websauna.compat
     api/tomb_route
 

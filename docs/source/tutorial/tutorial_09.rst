@@ -2,7 +2,7 @@
 Introducing admin
 =================
 
-Websauna provides automated :doc:`admin interface <../narrative/manipulation/admin` for managing your data.
+Websauna provides automated :doc:`admin interface <../narrative/modelling/admin>` for managing your data.
 
 Generating admin sites for your staff or clients to add, change, and delete content is tedious work that doesn’t require much creativity. For that reason, Websauna mostly automates creation of admin interfaces for models.
 
@@ -33,13 +33,17 @@ Start the web server or let it reload itself. Now you should see *Question* and 
 .. image:: images/question_admin.png
     :width: 640px
 
-You can add new questions.
+For example, you can edit the questions.
 
-
+.. image:: images/edit_question.png
+    :width: 640px
 
 You can add new choices. For the choice you can choose the appropriate question from dropdown.
 
+.. image:: images/add_choice.png
+    :width: 640px
+
 .. note ::
 
-    TODO: In the alpha versions we do not yet have ability to choices inline on the question page.
+    TODO: Currently there is not possibility to add and edit question choices inline from the question page. This will change in the future versions.
 

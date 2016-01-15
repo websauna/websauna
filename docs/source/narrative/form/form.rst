@@ -2,6 +2,8 @@
 Forms
 =====
 
+.. contents:: :local:
+
 Introduction
 ============
 
@@ -160,5 +162,23 @@ The widget parameters can be manipulated after constructing the form instance. E
         form["additional_driver_information"].widget.css_class = "wide-field"
 
 
+Validation
+----------
+
+Here is an example data-driven validator::
+
+    import colander
+    from pyramid_deform import CSRFSchema
+
+    def validate_unique_user_email(node, value, **kwargs):
+    """Make sure we cannot enter the same username twice."""
+
+        request = node.bindings["request"]
+        dbsession = request.dbsession
+        User = get_user_class(request.registry)
+        if dbsession.query(User).filter_by(email=value).first():
+            raise colander.Invalid(node, "Email address already taken")
 
 
+    class MySchema(CSRFSchema):
+        email = colander.SchemaNode(colander.String(), validator=validate_unique_user_email)

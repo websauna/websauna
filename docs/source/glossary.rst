@@ -9,6 +9,9 @@ Glossary
     ACID
         In computer science, ACID (Atomicity, Consistency, Isolation, Durability) is a set of properties that guarantee that database transactions are processed reliably. `More info <https://en.wikipedia.org/wiki/ACID>`__.
 
+    admin
+        The admin section of a Websauna site. Logged in users with admin privileges can go to this section and see and edit all the site data. :doc:`Read Websauna admin documentation <../narrative/modelling/admin>`_.
+
     Alembic
        A migration script tool for :term:`SQLAlchemy`. `More info <http://alembic.readthedocs.org/>`__.
 
@@ -33,6 +36,9 @@ Glossary
 
     CSS
         Cascading Style Sheets (CSS) is a style sheet language used for describing the presentation of a document written in a markup language. It's most often used to set the visual style of web pages and user interfaces written in HTML and XHTML. `More info <https://en.wikipedia.org/wiki/Cascading_Style_Sheets>`__.
+
+    deform
+        A form framework suggested by Websauna. :doc:`Read Websauna form documentation <../narrative/form/form>`. `See widget samples <http://demo.substanced.net/deformdemo/>`_. `More info <http://deform.readthedocs.org/en/latest/>`__.
 
     development
         Development is the stage of the deployment when the developer is locally working on the code on a local machine. See :ref:`development.ini`.
@@ -67,6 +73,9 @@ Glossary
     notebook
         This refers to :term:`IPython Notebook`. More specifically, in the context of Websauna, the :doc:`the IPython Notebook shell you can open through the website <../narrative/misc/notebook>`.
 
+    Optimistic concurrency control
+        Optimistic concurrency control (OCC) is a concurrency control method applied to transactional systems such as relational database management systems and software transactional memory. OCC assumes that multiple transactions can frequently complete without interfering with each other. While running, transactions use data resources without acquiring locks on those resources. Before committing, each transaction verifies that no other transaction has modified the data it has read. If the check reveals conflicting modifications, the committing transaction rolls back and can be restarted. `More information <https://en.wikipedia.org/wiki/Optimistic_concurrency_control>`__.
+
     Paste
       A Python framework for building web applications on the top of `WSGI protocol <https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface>`__. See `Paste documentation <https://pypi.python.org/pypi/Paste>`__ .
 
@@ -100,6 +109,9 @@ Glossary
     production
         The production environment is also known as live, particularly for servers, as it is the environment that users directly interact with. :doc:`Websauna production configuration <../reference/config>`. `More information <https://en.wikipedia.org/wiki/Deployment_environment#Production>`__.
 
+    race condition
+        A race condition or race hazard is the behavior of an electronic, software or other system where the output is dependent on the sequence or timing of other uncontrollable events. It becomes a bug when events do not happen in the order the programmer intended. The term originates with the idea of two signals racing each other to influence the output first. `More information <https://en.wikipedia.org/wiki/Race_condition>`__.
+
     Redis
         Redis is an open source (BSD licensed), in-memory data structure store, used as database, cache and message broker. It supports data structures such as strings, hashes, lists, sets, sorted sets with range queries, bitmaps, hyperloglogs and geospatial indexes with radius queries. `More information <http://redis.io/>`__.
 
@@ -132,6 +144,9 @@ Glossary
         SQLAlchemy enables effortless SQL data manipulation from Python programming.
 
         SQLAlchemy is the Python SQL toolkit and Object Relational Mapper that gives application developers the full power and flexibility of SQL. It provides a full suite of well known enterprise-level persistence patterns, designed for efficient and high-performing database access, adapted into a simple and Pythonic domain language. `More information <http://www.sqlalchemy.org/>`__.
+
+    Splinter
+        Splinter is an open source tool for testing web applications using Python. It lets you automate browser actions, such as visiting URLs and interacting with their items. `More information <http://splinter.readthedocs.org/>`__.
 
     staging
         Staging site, in website design, is a website used to assemble, test and review its newer versions before it is moved into production. This phase follows the development phase. The staging phase of the software life-cycle is often tested in an environment (hardware and software) that mirrors that of the production environment. :doc:`Websauna staging configuration <../reference/config>`. `More information <https://en.wikipedia.org/wiki/Staging_site>`__.

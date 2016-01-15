@@ -4,11 +4,10 @@ Writing a form
 
 We're continuing the Web-poll application and will focus on simple form processing and cutting down our code.
 
-Writing a simple form
-=====================
+.. contents:: :local:
 
-Write a simple form
-===================
+Creating form template
+======================
 
 Let's update our poll detail template ``myapp/detail.html`` from the last
 chapter, so that the template contains an HTML ``<form>`` element:
@@ -31,12 +30,6 @@ chapter, so that the template contains an HTML ``<form>`` element:
         {% if error_message %}
           <div class="alert alert-danger">
             {{ error_message }}
-          </div>
-        {% endif %}
-
-        {% if success_message %}
-          <div class="alert alert-success">
-            {{ success_message }}
           </div>
         {% endif %}
 
@@ -97,40 +90,46 @@ A quick rundown:
 
 * We add some basic :term:`CSS` styling and format form widgets according to :term`Bootstrap` style guide
 
+Writing form handler
+====================
+
 Now, let's create a Websauna view that handles the submitted data and does
-something with it. Earlier our implementation of the ``defail()`` function only viewed the results. Let's
+something with it. Earlier our implementation of the ``detail()`` function only viewed the results. Let's
 create a version which also allows process the votes. Edit the following to ``myapp/views.py``:
 
-.. code-block::
+.. code-block:: python
 
     # ...
+    from pyramid.httpexceptions import
     from pyramid.session import check_csrf_token
     from websauna.utils.slug import slug_to_uuid
-
+    from websauna.utils.slug import uuid_to_slug
+    from websauna.system.core import messages
     # ...
 
     @simple_route("/questions/{question_uuid}", route_name="detail", renderer="myapp/detail.html", custom_predicates=(decode_uuid,))
-def detail(request: Request, question_uuid: UUID):
-    question = request.dbsession.query(Question).filter_by(uuid=question_uuid).first()
-    if not question:
-        raise HTTPNotFound()
-
-    if request.method == "POST":
-
+    def detail(request: Request, question_uuid: UUID):
         question = request.dbsession.query(Question).filter_by(uuid=question_uuid).first()
         if not question:
             raise HTTPNotFound()
 
-        if "choice" in request.POST:
-            # Extracts the form choice and turn it to UUID object
-            chosen_uuid = slug_to_uuid(request.POST['choice'])
-            selected_choice = question.choices.filter_by(uuid=chosen_uuid).first()
-            selected_choice.votes += 1
-            success_message = "Thank you for your vote"
-        else:
-            error_message = "You did not select any choice."
+        if request.method == "POST":
 
-    return locals()
+            question = request.dbsession.query(Question).filter_by(uuid=question_uuid).first()
+            if not question:
+                raise HTTPNotFound()
+
+            if "choice" in request.POST:
+                # Extracts the form choice and turn it to UUID object
+                chosen_uuid = slug_to_uuid(request.POST['choice'])
+                selected_choice = question.choices.filter_by(uuid=chosen_uuid).first()
+                selected_choice.votes += 1
+                messages.add(request, msg="Thank you for your vote", kind="success")
+                return HTTPFound(request.route_url("results", question_uuid=uuid_to_slug(question.uuid)))
+            else:
+                error_message = "You did not select any choice."
+
+        return locals()
 
 This code includes a few things we haven't covered yet in this tutorial:
 
@@ -143,14 +142,62 @@ This code includes a few things we haven't covered yet in this tutorial:
   but we're explicitly using POST in our code, to ensure that data is only
   altered via a POST call.
 
-* We check if the choice is present in the form and skip to ``error_message` if a visitor submits an empty form
+* We check if the choice is present in the form and skip to ``error_message`` if a visitor submits an empty form
 
-* We incrementing the choice count on a successful submit
+* We increment the vote count of a choice on a successful submit. We add a success message to the :doc:`flash message stack <../narrative/misc/messages>` which is a displayed on the results page after redirect.
 
 .. note ::
 
     **Why there is no save()?**
 
-    Websauna uses an optimistic concurrency control strategy with atomic requests (see :term:`ACID`).
+    Websauna uses an :term:`optimistic concurrency control` strategy with atomic requests (see :term:`ACID`).
     :term:`SQLAlchemy` has a :term:`state management` mechanism. If the HTTP request succesfully completes without exception, all changes you have made to model attributes are automatically committed to the database.
 
+    Optimistic concurrency control automatically protects your application against a :term`race condition`.
+
+.. note ::
+
+    **A form framework reduces your workload**
+
+    In real life you rarely need to write forms by hand in Websauna. Here we do it for practice. Instead you want to use a :term:`Deform` form framework. Deform comes with dozens widgets and validators, as writing all HTML and validation code for complex forms would be a massive effort. Furthermore forms :doc:`can be automatically generated from the SQLAlchemy models <../narrative/form/autoform>` like admin interface does.
+
+Showing results
+===============
+
+Let's start by creating a ``myapp/results.html`` template:
+
+.. code-block:: html+jinja
+
+    {% extends "site/base.html" %}
+
+    {% block content %}
+      <h1>{{ question.question_text }}</h1>
+
+      <ul>
+        {% for choice in choices %}
+            <ol>{{ choice.choice_text }} -- {{ choice.votes }} votes</ol>
+        {% endfor %}
+      </ul>
+
+      <a href="{{ 'detail'|route_url(question_uuid=question.uuid|uuid_to_slug) }}">Vote again?</a>
+    {% endblock %}
+
+
+Then let's modify our ``results`` view function::
+
+    # ...
+    from myapp.models import Choice
+    # ...
+
+    @simple_route("/questions/{question_uuid}/results", route_name="results", renderer="myapp/results.html", custom_predicates=(decode_uuid,))
+    def results(request: Request, question_uuid: UUID):
+        question = request.dbsession.query(Question).filter_by(uuid=question_uuid).first()
+        if not question:
+            raise HTTPNotFound()
+        choices = question.choices.order_by(Choice.votes.desc())
+        return locals()
+
+Now we can the answer we all have been waiting for:
+
+.. image:: images/question_results.png
+    :width: 640px

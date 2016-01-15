@@ -21,3 +21,5 @@ Welcome to Websauna tutorial. This tutorial tells you how to set up a Websauna b
     tutorial_09
     tutorial_10
     tutorial_11
+    tutorial_12
+

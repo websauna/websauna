@@ -37,6 +37,9 @@ pip install --extra-index-url https://pypi.fury.io/uzQ6egqLUi1bcfHJehXv/miohtama
 
 # Create PostgreSQL database for the tests
 # http://docs.drone.io/databases.html - no IF NOT EXISTS for psql
+
+export OLD_POSTGRESQL=1
+
 set +e
 psql -c 'CREATE DATABASE websauna_test;' -U postgres
 set -e
@@ -52,7 +55,7 @@ export COVERAGE_PROCESS_START=$PWD/.coveragerc
 # Run tests using py.test test runner. We set timeout, so that if a test gets stuck it doesn't hang the run.
 # We also print 10 slowest tests.
 echo "Running tests"
-py.test --splinter-webdriver=firefox --splinter-make-screenshot-on-failure=true --ini=droneio.ini --timeout=200 --durations=10 $PROJECT_NAME --cov-report xml --cov websauna --cov-config .coveragerc
+py.test --splinter-webdriver=firefox --splinter-make-screenshot-on-failure=true --ini=droneio.ini --timeout=200 --durations=10 --cov-report xml --cov websauna --cov-config .coveragerc $PROJECT_NAME
 echo "Done with tests"
 
 # Upload coverage report to codecov

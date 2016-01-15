@@ -23,3 +23,20 @@ Session in a command line application
 You can get a access to the database session through a :py:class:`websauna.system.Initializer` instance exposed through a constructed WSGI application:
 
     TODO
+
+PostgreSQL specific
+===================
+
+The default :py:class:`websauna.system.user.usermixin` uses the following column types might not be available on other database systems
+
+* :py:class:`sqlalchemy.dialects.postgresql.JSONB` (can be downgraded to :py:class:`sqlalchemy.dialects.postgresql.JSON` for older PostgreSQL version compatibility)
+
+* :py:class:`sqlalchemy.dialects.postgresql.INET` - IPv4 and IPv6 addresses
+
+* :py:class:`sqlalchemy.dialects.postgresql.UUID` - IPv4 and IPv6 addresses
+
+At the moment
+
+* Either Websauna must be patched with emulation layer for these columns for other database systems. It should be relative easy to emulate these with text columns and custom SQLAlchemy types
+
+* Use your custom user model without these fields

@@ -52,18 +52,14 @@ def ini_settings(request) -> dict:
 
 
 @pytest.fixture(scope='session')
-def app(request, ini_settings, **settings_overrides):
+def app(request, ini_settings: dict, **settings_overrides) -> Router:
     """Initialize WSGI application from INI file given on the command line.
-
-    TODO: This can be run only once per testing session, as SQLAlchemy does some stupid shit on import, leaks globals and if you run it again it doesn't work. E.g. trying to manually call ``app()`` twice::
-
-         Class <class 'websauna.referral.models.ReferralProgram'> already has been instrumented declaratively
 
     :param settings_overrides: Override specific settings for the test case.
 
     :return: WSGI application instance as created by ``Initializer.make_wsgi_app()``. You can access the Initializer instance itself as ``app.initializer``.
     """
-    if not getattr(request.config.option, "ini", None):
+    if not "_ini_file" in ini_settings:
         raise RuntimeError("You need to give --ini test.ini command line option to py.test to find our test settings")
 
     data = bootstrap(ini_settings["_ini_file"])

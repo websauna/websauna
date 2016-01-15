@@ -8,7 +8,7 @@ from uuid import uuid4
 import datetime
 
 from sqlalchemy import inspection
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.dialects.postgresql import INET
 from sqlalchemy import Column
 from sqlalchemy import String
@@ -19,6 +19,7 @@ from websauna.system.model.columns import UTCDateTime
 from websauna.utils.time import now
 from websauna.utils.jsonb import JSONBProperty
 
+from websauna.system.model.json import JSONB
 
 #: Initialze user_data JSONB structure with these fields on new User
 DEFAULT_USER_DATA = {

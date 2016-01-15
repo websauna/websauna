@@ -13,7 +13,7 @@
 set -e
 
 # Set this flag if you want to debug output from the bash execution
-# set -x
+set -x
 
 # This is the name of the project and also name of the Python package
 PROJECT_NAME=websauna
@@ -23,15 +23,15 @@ CHECKOUT_HOME=/home/ubuntu/src/bitbucket.org/miohtama/$PROJECT_NAME
 # Need to upgrade to Python 3.5, at the writing of this drone.io only offers Python 3.3
 sudo add-apt-repository ppa:fkrull/deadsnakes > /dev/null 2>&1
 sudo apt-get -qq update > /dev/null 2>&1
-sudo apt-get -qq install python3.5-dev > /dev/null 2>&1
+sudo apt-get -qq install python3.5-dev
 
-# Creteat test virtualenv
-python3.5 -m venv venv
+# Creteat test virtualenv - we need to upgrade pip and virtualenv to good enough versions
+sudo pip install -U pip virtualenv
+virtualenv -p python3.5 venv
 . venv/bin/activate
 
 # Make sure pip itself is up to date
 echo "Installing requirements"
-pip install -U --quiet pip
 # --extra-index-url -> a custom daemonocle release, waiting the upstream author for a release
 pip install -e --extra-index-url https://pypi.fury.io/uzQ6egqLUi1bcfHJehXv/miohtama/  ".[test]"
 
@@ -53,7 +53,7 @@ echo "Done with tests"
 # Upload coverage report to codecov
 codecov --token=$CODECOV_TOK
 
-# Show versions if the tests passed
+# Show package versions to build output if all tests passed
 pip freeze
 
 

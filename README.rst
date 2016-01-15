@@ -4,6 +4,37 @@ Websauna is a full stack Python web framework aimed for building consumer and co
 
     This project does not have an official release yet and much things are still in motion.
 
+
+.. |ci| image:: https://drone.io/bitbucket.org/miohtama/websauna/status.png
+    :target: https://drone.io/bitbucket.org/miohtama/websauna/latest
+
+.. |cov| image:: https://codecov.io/bitbucket/miohtama/websauna/coverage.svg?branch=master
+    :target: https://codecov.io/bitbucket/miohtama/websauna?branch=master
+
+.. |downloads| image:: https://img.shields.io/pypi/dm/websauna.svg
+    :target: https://pypi.python.org/pypi/websauna/
+    :alt: Downloads
+
+.. |latest| image:: https://img.shields.io/pypi/v/websauna.svg
+    :target: https://pypi.python.org/pypi/websauna/
+    :alt: Latest Version
+
+.. |license| image:: https://img.shields.io/pypi/l/websauna.svg
+    :target: https://pypi.python.org/pypi/websauna/
+    :alt: License
+
+.. |versions| image:: https://img.shields.io/pypi/pyversions/websauna.svg
+    :target: https://pypi.python.org/pypi/websauna/
+    :alt: Supported Python versions
+
++-----------+-----------+
+| |cov|     ||downloads||
++-----------+-----------+
+| |ci|      | |license| |
++-----------+-----------+
+| |versions|| |latest|  |
++-----------+-----------+
+
 What it is?
 ===========
 

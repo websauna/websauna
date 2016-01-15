@@ -162,7 +162,7 @@ API
     api/websauna.tests
     api/websauna.scaffolds
     api/websauna.compat
-    api/tomb_route
+    api/websauna.viewconfig
 
 
 Indices and tables

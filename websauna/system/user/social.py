@@ -4,11 +4,11 @@ from authomatic.core import LoginResult
 from pyramid.registry import Registry
 from pyramid.request import Request
 from sqlalchemy.orm.attributes import flag_modified
+from websauna.system.user.utils import get_site_creator
 
 from websauna.utils.time import now
-from websauna.system.user import usermixin
 from websauna.system.user.interfaces import IUserClass, ISocialLoginMapper
-from zope.interface import implements, implementer
+from zope.interface import implementer
 
 
 class NotSatisfiedWithData(Exception):
@@ -33,10 +33,11 @@ class SocialLoginMapper(ABC):
         self.provider_id = provider_id
         self.registry = registry
 
-    def prepare_new_site(self, dbsession, user):
+    def prepare_new_site(self, registry, dbsession, user):
         """If this is the first user on the site, initialize groups and give this user admin permissions."""
         # XXX: Move this to an event
-        usermixin.check_empty_site_init(dbsession, user)
+        site_creator = get_site_creator(registry)
+        site_creator.init_empty_site(dbsession, user)
 
     @abstractmethod
     def capture_social_media_user(self, request:Request, result:LoginResult) -> IUserClass:
@@ -122,7 +123,7 @@ class EmailSocialLoginMapper(SocialLoginMapper):
             self.update_first_login_social_data(user, imported_data)
             user.first_login = True
 
-            self.prepare_new_site(dbsession, user)
+            self.prepare_new_site(request.registry, dbsession, user)
         else:
             user.first_login = False
 
@@ -172,7 +173,7 @@ class FacebookMapper(EmailSocialLoginMapper):
 
         # Facebook specific Authomatic call to fetch more user data from the Facebook provider
         # https://github.com/peterhudec/authomatic/issues/112
-        result.user.provider.user_info_url = 'https://graph.facebook.com/me?fields=id,email,name,first_name,last_name,address,gender,hometown,link,timezone,verified,website,locale,languages'
+        #result.user.provider.user_info_url = 'https://graph.facebook.com/me?fields=id,email,name,first_name,last_name,address,gender,hometown,link,timezone,verified,website,locale,languages'
         result.user.update()
 
         # Make user Facebook user looks somewhat legit

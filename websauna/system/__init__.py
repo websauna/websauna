@@ -1,4 +1,4 @@
-"""Websauna framework initialization."""
+"""Websauna framework initialization routine."""
 import sys
 
 from websauna.system.core.csrf import csrf_mapper_factory
@@ -238,17 +238,23 @@ class Initializer:
     def configure_panels(self, settings):
         self.config.include('pyramid_layout')
 
-    def configure_authomatic(self, settings, secrets):
-        """Configure Authomatic social logins.
+    def configure_federated_login(self):
+        """Configure federated authentication (OAuth).
+
+        Set up Authomatic login services.
 
         Read enabled logins from the configuration file.
 
         Read consumer secrets from a secrets.ini.
         """
-        # Add OAuth 2 generic endpoint
+
+        # TODO: Refactor this functions, not clean
 
         import authomatic
         from websauna.system.user.interfaces import IAuthomatic, ISocialLoginMapper
+
+        settings = self.settings
+        secrets = self.secrets
 
         self.config.add_route('login_social', '/login/{provider_name}')
 
@@ -287,7 +293,11 @@ class Initializer:
                 self.config.registry.registerUtility(mapper, ISocialLoginMapper, name=login)
 
         # Store instance
-        instance = authomatic.Authomatic(config=authomatic_config, secret=authomatic_secret)
+
+        # Pass explicitly a logger so that we can control the log level
+        logger = logging.getLogger("authomatic")
+
+        instance = authomatic.Authomatic(config=authomatic_config, secret=authomatic_secret, logger=logger)
         self.config.registry.registerUtility(instance, IAuthomatic)
 
     def configure_database(self):
@@ -497,7 +507,7 @@ class Initializer:
         self.configure_authentication(settings, secrets)
 
         # Configure social logins
-        self.configure_authomatic(settings, secrets)
+        self.configure_federated_login()
 
         self.config.add_jinja2_search_path('websauna.system:user/templates', name='.html')
         self.config.add_jinja2_search_path('websauna.system:user/templates', name='.txt')
@@ -547,13 +557,15 @@ class Initializer:
 
         self.celery = websauna.system.task.celery.celery_app
 
-    def read_secrets(self, settings):
+    def read_secrets(self) -> dict:
         """Read secrets configuration file.
 
         Stores API keys, such.
         """
         # Secret configuration diretives
         from websauna.system.core import secrets
+
+        settings = self.settings
 
         secrets_file = settings.get("websauna.secrets_file")
         if not secrets_file:
@@ -581,7 +593,7 @@ class Initializer:
         # TODO: Remove passing settings to methods as an argument
         settings = self.settings
 
-        _secrets = self.read_secrets(settings)
+        self.secrets = self.read_secrets()
 
         self.configure_logging(settings)
 
@@ -611,8 +623,8 @@ class Initializer:
         self.configure_admin(settings)
 
         # Sessions and users
-        self.configure_sessions(settings, _secrets)
-        self.configure_user(settings, _secrets)
+        self.configure_sessions(settings, self.secrets)
+        self.configure_user(settings, self.secrets)
         self.configure_model_admins()
 
         self.configure_notebook()

@@ -142,6 +142,7 @@ setup(
             'ws-alembic=websauna.system.devop.scripts.alembic:main',
             'ws-dump-db=websauna.system.devop.scripts.dumpdb:main',
             'ws-create-user=websauna.system.devop.scripts.createuser:main',
+            'ws-celery=websauna.system.devop.scripts.celery:main',
             'ws-pserve=websauna.system.devop.scripts.pserve:main',
         ],
 

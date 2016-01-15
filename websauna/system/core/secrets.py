@@ -58,7 +58,7 @@ def resolve(uri):
 
 
 
-def read_ini_secrets(secrets_file):
+def read_ini_secrets(secrets_file) -> dict:
     """Read plaintext .INI file to pick up secrets.
 
     Dummy secrets handler which does not have encryption. Reads INI file. Creates dictionary keys in format [ini section name].[ini key name] = value.

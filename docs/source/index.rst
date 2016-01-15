@@ -87,6 +87,7 @@ Users and authentication
 
     narrative/user/user
     narrative/user/auth
+    narrative/user/social
 
 Testing
 -------

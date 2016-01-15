@@ -21,6 +21,13 @@ Example::
 
 This is a wrapped around Pyramid `pserve <http://docs.pylonsproject.org/projects/pyramid/en/latest/pscripts/pserve.html?highlight=pserve>`_ command.
 
+.. _ws-celery:
+
+ws-celery
+---------
+
+A wrapper command for `celery command <http://docs.celeryproject.org/en/latest/userguide/monitoring.html?highlight=command#workers>`_, supporting config inclusion mechanism.
+
 .. _ws-shell:
 
 ws-shell

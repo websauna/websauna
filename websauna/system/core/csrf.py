@@ -22,6 +22,7 @@ import urllib.parse
 
 from pyramid.httpexceptions import HTTPForbidden, HTTPMethodNotAllowed
 from pyramid.session import check_csrf_token
+from websauna.system.http import Request
 
 from websauna.system.http.header import add_vary
 
@@ -62,7 +63,13 @@ def csrf_protect(view_or_scope):
         return inner
 
 
-def _check_csrf(request):
+def _check_csrf(request: Request):
+    """The default CSRF protection mechanism.
+
+    For all state changing HTTP requests (POST) force a CSRF check unless view is whitelisted with :py:func:`websauna.system.core.csrf.csrf_exempt` decorator.
+
+    :raises: InvalidCSRF
+    """
     # Assume that anything not defined as 'safe' by RFC2616 needs protection
     if request.method not in {"GET", "HEAD", "OPTIONS", "TRACE"}:
         # Determine if this request has set itself so that it should be

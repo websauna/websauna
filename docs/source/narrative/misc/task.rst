@@ -2,7 +2,7 @@
 Tasks - delayed and scheduled tasks
 ===================================
 
-Websauna uses *Celery* for
+Websauna uses :term:`Celery` for
 
 * Running scheduled tasks e.g. backups
 
@@ -46,15 +46,15 @@ Running Celery
 
 Celery needs to run to process the tasks. Below is an example how to run Celery on your development installation.
 
-Launch scripts for these are installed to your virtualenv ``bin`` folder when you install Websauna.
+Use :ref:`ws-celery` command to run Celery.
 
 To launch a Celery worker do::
 
-    celery worker -A websauna.system.task.celery.celery_app --ini development.ini
+    ws-celery worker -A websauna.system.task.celery.celery_app --ini development.ini
 
 To launch a Celery beat do::
 
-    celery beat -A websauna.system.task.celery.celery_app --ini development.ini
+    ws-celery beat -A websauna.system.task.celery.celery_app --ini development.ini
 
 Scheduled tasks
 ===============
@@ -79,13 +79,12 @@ Here is an example task for calling API and storing the results in Redis. In you
 
 
     @celery.task(name="update_conversion_rates", base=TransactionalTask)
-    def update_btc_rate():
+    def update_btc_rate(request):
         logger.info("Fetching currency conversion rates from API to Redis")
 
         # Get a hold of Pyramid registry
-        registry = get_current_registry()
 
-        redis = get_redis(registry)
+        redis = get_redis(request.registry)
         converter = RedisConverter(redis)
         converter.update()
 
@@ -116,21 +115,47 @@ Delayed tasks are functions which are not executed immediately, but after a cert
 
 Below is an example which calls third party API (Twilio SMS out) - you don't want to block page render if the third party API fails or is delayed. The API is HTTP based, so calling it adds great amount of milliseconds on the request processing. The task also adds some extra delay and the SMS is not shoot up right away - it can be delayed hour or two after the user completes an order.
 
+Example of deferring a task executing outside HTTP request processing::
+
+    from websauna.system.task.celery import celery_app as celery
+    from websauna.system.task import TransactionalTask
+
+    @celery.task(base=TransactionalTask)
+    def send_review_sms_notification(request, delivery_id):
+
+        # TODO: Convert global dbsession to request.dbsession
+        dbsession = request.dbsession
+        delivery = dbsession.query(models.Delivery).get(delivery_id)
+        customer = delivery.customer
+
+        review_url = request.route_url("review_public", delivery_uuid=uuid_to_slug(delivery.uuid))
+        sms.send_templated_sms_to_user(request, customer, "drive/sms/review.txt", locals())
+
+Then you can call this in your view::
+
+    def my_virew(request):
+        delivery = request.dbsession.query(Delivery).get(1)
+        send_review_sms_notification.apply_async(args=(request, delivery.id,))
+
+
 Transactional task
 ------------------
+
+Transaction task happens in one database :term:`transaction`
 
 See :py:class:`websauna.system.task.TransactionalTask`.
 
 Non-transactional task
 ----------------------
 
-See :py:class:`websauna.system.task.RequestAwareTask`.
+If you wish to have control over transactional boundaries yourself, see :py:class:`websauna.system.task.RequestAwareTask`.
 
 Eager execution in development and testing
 ------------------------------------------
 
 When testing one might not ramp full Celery environment.
 
+See :ref:`Celery config <celery-config>` for more details.
 
 Configuring Celery to start with supervisor
 ===========================================
@@ -140,7 +165,7 @@ Below is a supervisor configuration Ansible template for starting the two proces
 .. code-block:: ini
 
     [program:celerybeat]
-    command={{deploy_location}}/venv/bin/celery beat -A websauna.system.task.celery.celery_app --ini {{deploy_location}}/{{ site_id }}.ini --loglevel=debug
+    command={{deploy_location}}/venv/bin/ws-celery beat -A websauna.system.task.celery.celery_app --ini {{deploy_location}}/{{ site_id }}.ini --loglevel=debug
     stderr_logfile={{ deploy_location }}/logs/celery-beat.log
     directory={{ deploy_location }}
     numprocs=1
@@ -150,7 +175,7 @@ Below is a supervisor configuration Ansible template for starting the two proces
     stopwaitsecs=600
 
     [program:celeryworker]
-    command={{deploy_location}}/venv/bin/celery worker -A websauna.system.task.celery.celery_app --ini {{deploy_location}}/{{ site_id }}.ini --loglevel=debug
+    command={{deploy_location}}/venv/bin/ws-celery worker -A websauna.system.task.celery.celery_app --ini {{deploy_location}}/{{ site_id }}.ini --loglevel=debug
     stderr_logfile={{ deploy_location }}/logs/celery-worker.log
     directory={{ deploy_location }}
     autostart=true
@@ -198,7 +223,7 @@ First stop worker.
 
 Then start worker locally attacted to the terminal with --purge and it will drop all the messages::
 
-    celery worker -A websauna.system.task.celery.celery_app --ini production.ini --purge
+    ws-celery worker -A websauna.system.task.celery.celery_app --ini production.ini --purge
 
 Stop with CTRL+C.
 

@@ -40,7 +40,7 @@ _customized_web_server_port = 8523
 
 
 @pytest.fixture()
-def customized_web_server(request, app:Router) -> typing.Callable:
+def customized_web_server(request, app: Router, customized_port: int=None) -> typing.Callable:
     '''py.test fixture to create a WSGI web server for functional tests with custom INI options set.
 
     This is similar to ``web_server``, but instead directly spawning a server, it returns a factory method which you can use to launch the web server which custom parameters besides those given in test.ini.
@@ -134,6 +134,8 @@ def customized_web_server(request, app:Router) -> typing.Callable:
 
     :param app: py.test fixture for constructing a WSGI application
 
+    :param port: Force a certain port.
+
     :return: A factory callable you can use to spawn a web server. Pass test.ini overrides as dict to this function.
     '''
 
@@ -146,11 +148,11 @@ def customized_web_server(request, app:Router) -> typing.Callable:
         if overrides:
             app.registry.settings.update(overrides)
 
-        host_base = "http://localhost:{}".format(_customized_web_server_port)
-
+        port = customized_port or _customized_web_server_port
+        host_base = "http://localhost:{}".format(port)
         logger.debug("Opening a test web server at %s", host_base)
 
-        server = StopableWSGIServer.create(app, host="localhost", port=_customized_web_server_port)
+        server = StopableWSGIServer.create(app, host="localhost", port=port)
         server.wait()
 
         _customized_web_server_port += 1

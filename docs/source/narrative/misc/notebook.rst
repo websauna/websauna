@@ -33,3 +33,8 @@ Limitations
 The notebook process is spawned separately from the web server. Each user can hold only one active notebook session. The notebook process automatically terminated 30 minutes after the launch unless the user shuts it down.
 
 Currently IPython Notebook feature works with localhost and certain production web servers only. Refer to :term:`pyramid_notebook` for more information.
+
+Customizing IPython Notebook
+============================
+
+Notebook is configured in :py:meth:`websauna.system.Initializer.configure_notebook`.

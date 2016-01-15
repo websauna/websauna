@@ -14,12 +14,13 @@ from sqlalchemy.orm.session import Session
 
 from pyramid.paster import (
     get_appsettings,
-    setup_logging,
     bootstrap)
+
+from websauna.system.devop.cmdline import setup_logging
+from websauna.system.model.meta import create_dbsession
 
 # TODO: Remove this method
 from websauna.system import get_init
-from websauna.system.model.meta import create_dbsession
 
 
 @pytest.fixture(scope='session')

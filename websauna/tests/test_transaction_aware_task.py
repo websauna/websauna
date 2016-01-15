@@ -112,7 +112,7 @@ def celery_worker(request, init):
 
     setup_app(init.config.registry, ini_file)
 
-    cmdline = ["celery", "worker", "-A", "websauna.tests.test_transaction_aware_task.test_celery_app", "--ini", ini_file, "--loglevel", "DEBUG"]
+    cmdline = ["ws-celery", "worker", "-A", "websauna.tests.test_transaction_aware_task.test_celery_app", "--ini", ini_file, "--loglevel", "DEBUG"]
 
     logger.info("Running celery worker: %s", cmdline)
 

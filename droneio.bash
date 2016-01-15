@@ -23,7 +23,7 @@ CHECKOUT_HOME=/home/ubuntu/src/bitbucket.org/miohtama/$PROJECT_NAME
 # Need to upgrade to Python 3.5, at the writing of this drone.io only offers Python 3.3
 sudo add-apt-repository ppa:fkrull/deadsnakes > /dev/null 2>&1
 sudo apt-get -qq update > /dev/null 2>&1
-sudo apt-get -qq install python3.5-dev
+sudo apt-get -qq install python3.5-dev > /dev/null 2>&1
 
 # Creteat test virtualenv - we need to upgrade pip and virtualenv to good enough versions
 sudo pip install -U pip virtualenv
@@ -32,8 +32,8 @@ virtualenv -p python3.5 venv
 
 # Make sure pip itself is up to date
 echo "Installing requirements"
-# --extra-index-url -> a custom daemonocle release, waiting the upstream author for a release
-pip install --extra-index-url https://pypi.fury.io/uzQ6egqLUi1bcfHJehXv/miohtama/ -e ".[test]"
+# TODO: --extra-index-url -> a custom daemonocle release, waiting the upstream author for a release
+pip install --extra-index-url https://pypi.fury.io/uzQ6egqLUi1bcfHJehXv/miohtama/ -e ".[test]" > /dev/null 2>&1
 
 # Create PostgreSQL database for the tests
 # http://docs.drone.io/databases.html - no IF NOT EXISTS for psql

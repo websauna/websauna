@@ -162,7 +162,6 @@ API
     api/websauna.tests
     api/websauna.scaffolds
     api/websauna.compat
-    api/websauna.viewconfig
 
 
 Indices and tables

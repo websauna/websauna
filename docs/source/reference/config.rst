@@ -136,7 +136,7 @@ All members in admin group are also superusers.
 
 Default: ``True`` in :ref:`development.ini`, ``False`` otherwise.
 
-See also :ref:`websauna.superuser`.
+See also :ref:`websauna.superusers`.
 
 websauna.cachebust
 ------------------
@@ -214,16 +214,16 @@ In which case your secrets INI would contain::
         consumer_secret = yyy
         ...
 
-.. _websauna.superuser:
+.. _websauna.superusers:
 
-websauna.superuser
-------------------
+websauna.superusers
+-------------------
 
 List of superuser emails or usernames. Add your username on this list to make it super user.
 
 Example::
 
-    websauna.superuser =
+    websauna.superusers =
         admin
         mikko@example.com
 

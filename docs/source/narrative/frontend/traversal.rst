@@ -11,7 +11,7 @@ Resources
 
 An object representing a node in the resource tree of an application. If traversal is used, a resource is an element in the resource tree traversed by the system. When traversal is used, a resource becomes the context of a view.
 
-Websauna provides :term:`websauna.system.core.traversal.Resource` base class from which you can inherit all resource classes. The API documentation explains how to set up resource objects.
+Websauna provides :py:class:`websauna.system.core.traversal.Resource` base class from which you can inherit all resource classes. The API documentation explains how to set up resource objects.
 
 Breadcrumbs
 ===========

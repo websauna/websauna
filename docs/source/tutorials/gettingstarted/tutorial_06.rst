@@ -43,7 +43,7 @@ Type in shell (you can use TAB key for autocomplete variable names and functions
 
 Press ALT + Enter to execute the current contents of the cell in notebook. There is no output for a successful command, because the last line in the cell (``transaction.commit``) returns ``None``.
 
-The latter line is important, because unlike when processing HTTP requests, in shell transactions are not automatically committed. For more information this you can read :doc:`database documentation chapter <../../narrative/manipulation/database>`.
+The latter line is important, because unlike when processing HTTP requests, in shell transactions are not automatically committed. For more information this you can read :doc:`database documentation chapter <../../../narrative/modelling/database>`.
 
 .. image:: images/notebook_changes.png
     :width: 640px

@@ -40,7 +40,7 @@ Session data is available for both logged in and anonymous users. Examples::
 
     print(request.session.get("my_key")  # Get a session value, defaults to None if not yet set
 
-See also :doc:`flash messages <../misc/messages>`_ and :py:meth:`websauna.system.Initializer.configure_sessions`.
+See also :doc:`flash messages <../misc/messages>` and :py:meth:`websauna.system.Initializer.configure_sessions`.
 
 For more information see `Sessions in Pyramid <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/sessions.html>`_.
 

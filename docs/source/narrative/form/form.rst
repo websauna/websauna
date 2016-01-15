@@ -91,7 +91,7 @@ Below is an example how to create and validate one form::
          return locals()
 
 
-Then the template ``myapp/my_form.html``::
+Then the template ``myapp/my_form.html``:
 
 .. code-block:: html+jinja
 

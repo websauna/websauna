@@ -3,6 +3,7 @@ import fileinput
 import subprocess
 import time
 from contextlib import closing, contextmanager
+from distutils.spawn import find_executable
 from fileinput import FileInput
 
 import os
@@ -11,10 +12,16 @@ from tempfile import mkdtemp
 import psycopg2
 import pytest
 
+from websauna.compat.typing import List
 
-VIRTUALENV = ["virtualenv-3.4", "venv"]
 
-PSQL = "psql"
+if find_executable("virtualenv-3.4"):
+    # OSX + Homebrew
+    VIRTUALENV = "virtualenv-3.4"
+    PYTHON_INTERPRETER = "python3.4"
+else:
+    VIRTUALENV = "virtualenv"
+    PYTHON_INTERPRETER = "python3.5"
 
 
 def print_subprocess_fail(worker, cmdline):
@@ -37,7 +44,7 @@ def execute_command(cmdline, folder):
     return worker.returncode
 
 
-def execute_command(cmdline, folder):
+def execute_command(cmdline: List, folder: str):
     """Run a command in a specific folder."""
     worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=folder)
 
@@ -201,7 +208,7 @@ def app_scaffold(request) -> str:
 
     websauna_folder = os.getcwd()
 
-    execute_command(VIRTUALENV, folder)
+    execute_command([VIRTUALENV, "-p", PYTHON_INTERPRETER, "venv"], folder)
 
     # PIP cannot handle pip -install .[test]
     # On some systems, the default PIP is too old and it doesn't seem to allow upgrade through wheelhouse

@@ -6,8 +6,8 @@ Notebook and IPython shell
 
 Websauna comes with an integrated `IPython Notebook <http://ipython.org/notebook.html>`_ shell. When it's enabled you can directly open IPython Notebook shell from your website with a single click. It also serves as more user friendly alternative for terminal based shell.
 
-.. image:: ../../tutorial/images/notebook.png
-    :width: 640pxc
+.. image:: ../../tutorials/gettingstarted/images/notebook.png
+    :width: 640px
 
 Enabling Notebook
 =================

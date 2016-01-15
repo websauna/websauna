@@ -5,7 +5,7 @@ CRUD
 Introduction
 ============
 
-Websauna comes with :term:`CRUD`. CRUD is designed for :term:`SQLAlchemy` models, but can be storage mechanism agnostics and you can use with any arbitrary persistency mechanism. CRUD supports :doc:`form autogeneration <../forms/autoform>`, so that a CRUD UI can be generated automatically for your model. CRUD is extensively used by :term:`admin`, but you can as well roll it standalone.
+Websauna comes with :term:`CRUD`. CRUD is designed for :term:`SQLAlchemy` models, but can be storage mechanism agnostics and you can use with any arbitrary persistency mechanism. CRUD supports :doc:`form autogeneration <../form/autoform>`, so that a CRUD UI can be generated automatically for your model. CRUD is extensively used by :term:`admin`, but you can as well roll it standalone.
 
 CRUD elements
 =============

@@ -13,7 +13,7 @@
 set -e
 
 # Set this flag if you want to debug output from the bash execution
-set -x
+# set -x
 
 # This is the name of the project and also name of the Python package
 PROJECT_NAME=websauna
@@ -37,8 +37,6 @@ pip install --extra-index-url https://pypi.fury.io/uzQ6egqLUi1bcfHJehXv/miohtama
 
 # Create PostgreSQL database for the tests
 # http://docs.drone.io/databases.html - no IF NOT EXISTS for psql
-
-export OLD_POSTGRESQL=1
 
 set +e
 psql -c 'CREATE DATABASE websauna_test;' -U postgres

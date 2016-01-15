@@ -90,7 +90,7 @@ setup(
         "pytz",
 
         # SQLAlchemy and database support
-        "psycopg2",
+        "psycopg2>2.6",
         "sqlalchemy",
         "alembic",
         "colanderalchemy",

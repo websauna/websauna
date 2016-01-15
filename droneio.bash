@@ -26,9 +26,9 @@ sudo apt-get -qq update > /dev/null 2>&1
 sudo apt-get -qq install python3.5-dev > /dev/null 2>&1
 
 # Creteat test virtualenv - we need to upgrade pip and virtualenv to good enough versions
-sudo pip install -U pip virtualenv
-virtualenv -p python3.5 venv
-. venv/bin/activate
+sudo pip install -U pip virtualenv > /dev/null 2>&1
+virtualenv -p python3.5 venv > /dev/null 2>&1
+. venv/bin/activate > /dev/null 2>&1
 
 # Make sure pip itself is up to date
 echo "Installing requirements"
@@ -37,6 +37,10 @@ pip install --extra-index-url https://pypi.fury.io/uzQ6egqLUi1bcfHJehXv/miohtama
 
 # Create PostgreSQL database for the tests
 # http://docs.drone.io/databases.html - no IF NOT EXISTS for psql
+
+# Dump out version information about the run
+psql --version
+pip freeze
 
 set +e
 psql -c 'CREATE DATABASE websauna_test;' -U postgres
@@ -59,7 +63,5 @@ echo "Done with tests"
 # Upload coverage report to codecov
 codecov --token=$CODECOV_TOK
 
-# Show package versions to build output if all tests passed
-pip freeze
 
 

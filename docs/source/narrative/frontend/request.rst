@@ -26,7 +26,7 @@ Related methods include
 
 * :py:meth:`pyramid.configurator.Configurator.add_route`
 
-* :py:func:`tomb_routes.simple_route`
+* :py:func:`websauna.system.core.route.simple_route`
 
 Tweens
 ------

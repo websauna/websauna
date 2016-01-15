@@ -78,7 +78,6 @@ setup(
         'websauna.viewconfig',
         'pyramid_redis_sessions',
         'pyramid-layout',
-        "tomb-routes",
         "deform>=2.0a2",
         'pyramid_deform',
         "pyramid_debugtoolbar",

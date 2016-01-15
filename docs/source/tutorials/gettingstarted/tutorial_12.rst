@@ -80,11 +80,12 @@ This is because you have not filled in all the settings in *developer.facebook.c
 
 If your Facebook account uses the same email as you gave earlier for ``ws-create-user`` command you can now use Login with Facebook to log in as administrator. Otherwise a new user is created. The new user does not have accses to the admin, as this is given to the site initial user only. However you can use the initial user to edit the newly created user and add it to *Admin* group.
 
-
+.. image:: images/edit_user_groups.png
+    :width: 640px
 
 More information
 ================
 
-Read :doc:`Websauna OAuth documentation <../narrative/user/social>`.
+Read :doc:`Websauna OAuth documentation <../../narrative/user/social>`.
 
 

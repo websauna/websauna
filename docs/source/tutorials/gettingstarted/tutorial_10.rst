@@ -32,7 +32,7 @@ In Websauna, web pages and other content are delivered by views. Each view is re
 
 A URL pattern is simply the general form of a URL - for example: `/newsarchive/<year>/<month>/`.
 
-This tutorial provides basic instruction in the use of routing, and you can refer to :doc:`view documentation <../narrative/frontend/views>` for more information.
+This tutorial provides basic instruction in the use of routing, and you can refer to :doc:`view documentation <../../narrative/frontend/views>` for more information.
 
 URL dispatch
 ------------
@@ -139,7 +139,7 @@ Is a short hand to say::
 
     return dict(latest_question_list=latest_question_list)
 
-The template itself extends a default base template called ``site/base.html``. This renders :term:`Bootstrap` decoration, namely header with navigation bar and footer, around your content. You can read more about default templates in :doc:`templates documentation <../narrative/frontend/templates>`.
+The template itself extends a default base template called ``site/base.html``. This renders :term:`Bootstrap` decoration, namely header with navigation bar and footer, around your content. You can read more about default templates in :doc:`templates documentation <../../narrative/frontend/templates>`.
 
 We do not refer the question by its running counter ``id`` attribute. Instead we take a randomly generated :term:`uuid` attribute and convert it to a :term:`slug` - a string which looks like ``Hh4D7Hh7SWujcvwE0XgEFA``. It is base64 encoded string of 122-bit of randomness. Using UUIDs instead of running counters in publicly visible content is important from the security and business intelligence - this way your malicious actors and competitors have harded to extract meaningful intel out of your site.
 

@@ -9,7 +9,6 @@ from websauna.system.core.redis import get_redis
 # Execute every second
 @celery.task(name="foobar", base=RequestAwareTask)
 def redis_test_write(request):
-    import pdb ; pdb.set_trace()
     registry = request.registry
     connection = get_redis(registry)
     connection.set("foo", "foo")

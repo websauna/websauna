@@ -1,6 +1,6 @@
 from pyramid.httpexceptions import HTTPFound, HTTPMovedPermanently
 from slugify import slugify
-from tomb_routes import simple_route, add_simple_route
+from websauna.system.core.simpleroute import add_simple_route
 import venusian
 
 

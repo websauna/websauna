@@ -173,7 +173,7 @@ class FacebookMapper(EmailSocialLoginMapper):
 
         # Facebook specific Authomatic call to fetch more user data from the Facebook provider
         # https://github.com/peterhudec/authomatic/issues/112
-        #result.user.provider.user_info_url = 'https://graph.facebook.com/me?fields=id,email,name,first_name,last_name,address,gender,hometown,link,timezone,verified,website,locale,languages'
+        result.user.provider.user_info_url = 'https://graph.facebook.com/me?fields=id,email,name,first_name,last_name,gender,link,timezone,verified'
         result.user.update()
 
         # Make user Facebook user looks somewhat legit

@@ -88,6 +88,9 @@ Here is an example task for calling API and storing the results in Redis. In you
         converter = RedisConverter(redis)
         converter.update()
 
+
+Another example can be found in :py:mod`websauna.system.devop.backup`.
+
 Scheduling task
 ---------------
 
@@ -107,6 +110,7 @@ Your project INI configuration file has a section for Celery and Celery tasks. I
     task = update_conversion_rates
     type = timedelta
     schedule = {"hours": 1}
+
 
 Delayed tasks
 =============

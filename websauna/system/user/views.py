@@ -5,6 +5,8 @@
     This is code is blasphemy and will be replaced with something more sane in the future versions. I suggest you just copy-paste this and do from the scratch for your project.
 """
 
+import logging
+
 from authomatic.core import LoginResult
 from pyramid.session import check_csrf_token
 
@@ -59,6 +61,9 @@ from . import events
 from websauna.system.user.social import NotSatisfiedWithData
 from websauna.system.user.utils import get_authomatic, get_social_login_mapper, get_user_class, get_site_creator
 from websauna.system.core import messages
+
+
+logger = logging.getLogger(__name__)
 
 
 def create_activation(request, user):
@@ -508,14 +513,18 @@ class AuthomaticLoginHandler:
         user = self.mapper.capture_social_media_user(self.request, authomatic_result)
         return authenticated(self.request, user)
 
-    def do_error(self, authomatic_result:LoginResult, e:Exception) -> Response:
+    def do_error(self, authomatic_result: LoginResult, e: Exception) -> Response:
         """Handle getting error from OAuth provider."""
         # We got some error result, now let see how it goes
         request = self.request
-        social_logins = aslist(self.settings.get("websauna.social_logins", ""))
-        self.form.action = request.route_url('login')
-        context = {"form": self.form.render(), "authomatic_result": authomatic_result, "social_logins": social_logins}
-        return render_to_response("login/login.html", context, request=request)
+
+        # TODO: Not sure if we shoul log this or now
+        logger.exception(e)
+
+        messages.add(self.request, kind="error", msg=str(e), msg_id="authomatic-login-error")
+
+        login_url = self.request.route_url("login")
+        return HTTPFound(location=login_url)
 
     def do_bad_request(self):
         """Handle getting HTTP GET to POST endpoint.

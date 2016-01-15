@@ -223,4 +223,4 @@ Save the changes. Restart your :term:`notebook` session by shutting it down and 
 More information
 ================
 
-See :doc:`models documentation <../narrative/modelling/models>` for more information.
+See :doc:`models documentation <../../narrative/modelling/models>` for more information.

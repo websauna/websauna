@@ -1,14 +1,12 @@
 """Transaction-aware Celery task handling.
 
-Core originally written for Warehouse project https://raw.githubusercontent.com/pypa/warehouse/master/warehouse/celery.py
+Inspired by Warehouse project https://raw.githubusercontent.com/pypa/warehouse/master/warehouse/celery.py
 """
-
 
 from celery import Task
 from pyramid import scripting
 from pyramid.interfaces import IRequest
 from pyramid.request import Request
-from pyramid.threadlocal import get_current_request
 from pyramid_tm import tm_tween_factory
 
 
@@ -109,11 +107,15 @@ class RequestAwareTask(Task):
         finally:
             pyramid_env["closer"]()
 
-    def apply_async(self, *args, **kwargs):
+    def apply_async_web_process(self, args, kwargs):
+        """Schedule a task from web process.
 
-        # Intercept request argumetn going to the function
+        Do not trigger the task until transaction commit. Check that we pass Request to the task as the first argument always. This is an extra complex sanity check.
+        """
+        #  Intercept request argumetn going to the function
         args_ = kwargs.get("args", [])
         kwargs_ = kwargs.get("kwargs", {})
+
         request, args_, kwargs_ = _pop_request_argument(args_, kwargs_)
         kwargs["args"] = args_
         kwargs["kwargs"] = kwargs_
@@ -136,9 +138,25 @@ class RequestAwareTask(Task):
             kws=kwargs,
         )
 
-    def _after_commit_hook(self, success, *args, **kwargs):
+    def apply_async_beat(self, *args, **options):
+        """Schedule async task from beat process."""
+        return super().apply_async(*args, **options)
+
+    def apply_async(self, *args, **options):
+
+        if "publisher" in options:
+            # This comes from the celery beat process which has not initialized websauna yet.
+            # We never initialize Websauna inside a beat process, only in a worker process.
+            # Thus just pass a dummy request here
+            return self.apply_async_beat(*args, **options)
+        else:
+            # This call comes from inside a web process
+            return self.apply_async_web_process(args, options)
+
+    def _after_commit_hook(self, success, args, kwargs, **options):
+        """When HTTP request terminates and the transaction is committed, actually submit the task to Celery."""
         if success:
-            super().apply_async(*args, **kwargs)
+            super().apply_async(args, kwargs, **options)
 
 
 class TransactionalTask(RequestAwareTask):

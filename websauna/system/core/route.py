@@ -40,11 +40,13 @@ class simple_route(object):
 
     Pyramid's URL dispatch has separate concepts for routes and views. This gives additional flexibility in that you can one route map to multiple views, using different predicates (e.g.: predicates depending on Accept header, whether request is XHR or not, etc.). In many applications, this flexibility is not needed and having both routes and views adds a bit of complexity and duplication, and reduces DRYness. This module implements some easy-to-use mechanisms that create a route and a view in one step, resulting in simpler, easier to understand code. This kind of makes Pyramid's routing look a bit more like Flask, albeit without Flask's controversial thread locals.
 
-    Example:
+    Example::
 
-    @simple_route('/path/to/view', renderer='json')
-    def view_callable(request):
-        return {'message': 'Hello'}
+        from websauna.system.core.route import simple_route
+
+        @simple_route('/path/to/view', renderer='myapp/example.html')
+        def view_callable(request):
+            return {'message': 'Hello'}
     """
 
     def __init__(self, path, *args, **kwargs):

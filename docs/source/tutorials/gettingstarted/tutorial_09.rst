@@ -2,7 +2,7 @@
 Introducing admin
 =================
 
-Websauna provides automated :doc:`admin interface <../narrative/modelling/admin>` for managing your data.
+Websauna provides automated :doc:`admin interface <../../narrative/modelling/admin>` for managing your data.
 
 Generating admin sites for your staff or clients to add, change, and delete content is tedious work that doesn’t require much creativity. For that reason, Websauna mostly automates creation of admin interfaces for models.
 

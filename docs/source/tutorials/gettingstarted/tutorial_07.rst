@@ -117,4 +117,4 @@ Like earlier, you can pop up :ref:`ws-db-shell` command to see that new tables a
 More information
 ================
 
-See :doc:`models documentation <../narrative/modelling/models>`.
+See :doc:`models documentation <../../narrative/modelling/models>`.

@@ -28,7 +28,7 @@ First steps with Websauna.
 .. toctree::
     :maxdepth: 1
 
-    tutorial/index
+    tutorials/gettingstarted/index
 
 Modelling and data
 ------------------
@@ -87,7 +87,7 @@ Users and authentication
 
     narrative/user/user
     narrative/user/auth
-    narrative/user/social
+    narrative/user/oauth
 
 Testing
 -------

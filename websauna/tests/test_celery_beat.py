@@ -1,13 +1,11 @@
-"""See that cron'd tasks run."""
+"""See that scheduled tasks are run by Celery beat."""
 
 import subprocess
 import time
 import os
 
-from pyramid.testing import DummyRequest
 
 from websauna.system.core.redis import get_redis
-from websauna.tests import scheduledtasks
 
 
 def test_run_scheduled(init):
@@ -17,21 +15,16 @@ def test_run_scheduled(init):
 
     cmdline = ["ws-celery", "worker", "-A", "websauna.system.task.celery.celery_app", "--ini", ini_file]
 
-    if False:
-        # You can start manually ws-celery worker -A websauna.system.task.celery.celery_app --ini websauna/tests/scheduler-test.ini
+    # You can start manually ws-celery worker -A websauna.system.task.celery.celery_app --ini websauna/tests/scheduler-test.ini
+    worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    time.sleep(2.0)
 
-        print("Running ", " ".join(cmdline))
-        worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        time.sleep(2.0)
-
-        worker.poll()
-        if worker.returncode is not None:
-            raise AssertionError("Scheduler process did not start up: {}".format(" ".join(cmdline)))
+    worker.poll()
+    if worker.returncode is not None:
+        raise AssertionError("Scheduler process did not start up: {}".format(" ".join(cmdline)))
 
     # You can run manually ws-celery beat -A websauna.system.task.celery.celery_app --ini websauna/tests/scheduler-test.ini
-
     cmdline = ["ws-celery", "beat", "-A", "websauna.system.task.celery.celery_app", "--ini", ini_file]
-    print(" ".join(cmdline))
     beat = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     time.sleep(1.0)

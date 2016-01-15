@@ -144,7 +144,7 @@ This code includes a few things we haven't covered yet in this tutorial:
 
 * We check if the choice is present in the form and skip to ``error_message`` if a visitor submits an empty form
 
-* We increment the vote count of a choice on a successful submit. We add a success message to the :doc:`flash message stack <../narrative/misc/messages>` which is a displayed on the results page after redirect.
+* We increment the vote count of a choice on a successful submit. We add a success message to the :doc:`flash message stack <../../narrative/misc/messages>` which is a displayed on the results page after redirect.
 
 .. note ::
 
@@ -159,7 +159,7 @@ This code includes a few things we haven't covered yet in this tutorial:
 
     **A form framework reduces your workload**
 
-    In real life you rarely need to write forms by hand in Websauna. Here we do it for practice. Instead you want to use a :term:`Deform` form framework. Deform comes with dozens widgets and validators, as writing all HTML and validation code for complex forms would be a massive effort. Furthermore forms :doc:`can be automatically generated from the SQLAlchemy models <../narrative/form/autoform>` like admin interface does.
+    In real life you rarely need to write forms by hand in Websauna. Here we do it for practice. Instead you want to use a :term:`Deform` form framework. Deform comes with dozens widgets and validators, as writing all HTML and validation code for complex forms would be a massive effort. Furthermore forms :doc:`can be automatically generated from the SQLAlchemy models <../../narrative/form/autoform>` like admin interface does.
 
 Showing results
 ===============

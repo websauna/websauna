@@ -10,7 +10,7 @@ Glossary
         In computer science, ACID (Atomicity, Consistency, Isolation, Durability) is a set of properties that guarantee that database transactions are processed reliably. `More info <https://en.wikipedia.org/wiki/ACID>`__.
 
     admin
-        The admin section of a Websauna site. Logged in users with admin privileges can go to this section and see and edit all the site data. :doc:`Read Websauna admin documentation <../narrative/modelling/admin>`_.
+        The admin section of a Websauna site. Logged in users with admin privileges can go to this section and see and edit all the site data. :doc:`Read Websauna admin documentation <../narrative/modelling/admin>`.
 
     Alembic
        A migration script tool for :term:`SQLAlchemy`. `More info <http://alembic.readthedocs.org/>`__.
@@ -32,7 +32,7 @@ Glossary
         `More info <https://en.wikipedia.org/wiki/Create,_read,_update_and_delete>`__.
 
     CSRF
-        Cross-site request forgery, also known as one-click attack or session riding and abbreviated as CSRF (sometimes pronounced sea-surf) or XSRF, is a type of malicious exploit of a website where unauthorized commands are transmitted from a user that the website trusts. `More info <https://en.wikipedia.org/wiki/Cross-site_request_forgery>`__.
+        Cross-site request forgery, also known as one-click attack or session riding and abbreviated as CSRF (sometimes pronounced sea-surf) or XSRF, is a type of malicious exploit of a website where unauthorized commands are transmitted from a user that the website trusts. :doc:`See Websauna CSRF protection documentation <../narrative/form/csrf>`. `More info <https://en.wikipedia.org/wiki/Cross-site_request_forgery>`__.
 
     CSS
         Cascading Style Sheets (CSS) is a style sheet language used for describing the presentation of a document written in a markup language. It's most often used to set the visual style of web pages and user interfaces written in HTML and XHTML. `More info <https://en.wikipedia.org/wiki/Cascading_Style_Sheets>`__.
@@ -45,6 +45,9 @@ Glossary
 
     duplicity
         Duplicity backs directories by producing encrypted tar-format volumes and uploading them to a remote or local file server. Because duplicity uses librsync, the incremental archives are space efficient and only record the parts of files that have changed since the last backup. Because duplicity uses GnuPG to encrypt and/or sign these archives, they will be safe from spying and/or modification by the server. `More info <http://duplicity.nongnu.org/>`__.
+
+    DoS
+        In computing, a denial-of-service (DoS) attack is an attempt to make a machine or network resource unavailable to its intended users, such as to temporarily or indefinitely interrupt or suspend services of a host connected to the Internet. A distributed denial-of-service (DDoS) is where the attack source is more than one–and often thousands of-unique IP addresses. `More information <https://en.wikipedia.org/wiki/Denial-of-service_attack>`__.
 
     git
       The most popular version control software at the moment. `More info <https://git-scm.com/book/en/v2/Getting-Started-About-Version-Control>`__.

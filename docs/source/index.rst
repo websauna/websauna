@@ -64,6 +64,9 @@ Forms
 
     narrative/form/form
     narrative/form/autoform
+    narrative/form/csrf
+    narrative/form/resourceregistry
+    narrative/form/throttling
 
 Frontend
 --------

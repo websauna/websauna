@@ -33,7 +33,7 @@ virtualenv -p python3.5 venv
 # Make sure pip itself is up to date
 echo "Installing requirements"
 # --extra-index-url -> a custom daemonocle release, waiting the upstream author for a release
-pip install -e --extra-index-url https://pypi.fury.io/uzQ6egqLUi1bcfHJehXv/miohtama/  ".[test]"
+pip install --extra-index-url https://pypi.fury.io/uzQ6egqLUi1bcfHJehXv/miohtama/ -e ".[test]"
 
 # Create PostgreSQL database for the tests
 # http://docs.drone.io/databases.html - no IF NOT EXISTS for psql
@@ -44,10 +44,15 @@ set -e
 # Make sure we have X11 set up so Selenium can launch Firefox
 sudo start xvfb
 
+# Code coverage setup
+# https://pypi.python.org/pypi/coverage_enable_subprocess/0
+pip install coverage-enable-subprocess
+export COVERAGE_PROCESS_START=$PWD/.coveragerc
+
 # Run tests using py.test test runner. We set timeout, so that if a test gets stuck it doesn't hang the run.
 # We also print 10 slowest tests.
 echo "Running tests"
-py.test --splinter-webdriver=firefox --splinter-make-screenshot-on-failure=true --ini=droneio.ini --timeout=200 --durations=10 $PROJECT_NAME --cov-report xml --cov trees --cov-config .coveragerc
+py.test --splinter-webdriver=firefox --splinter-make-screenshot-on-failure=true --ini=droneio.ini --timeout=200 --durations=10 $PROJECT_NAME --cov-report xml --cov websauna --cov-config .coveragerc
 echo "Done with tests"
 
 # Upload coverage report to codecov

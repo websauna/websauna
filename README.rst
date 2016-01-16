@@ -38,7 +38,7 @@ Websauna is a full stack superstructure aimed for building consumer and business
 What it is?
 ===========
 
-    `"...the portion of the structure that is the span and directly receives the live load is referred to as the superstructure" <https://en.wikipedia.org/wiki/Superstructure>`_
+    Superstructure: `"...the portion of the structure that is the span and directly receives the live load is referred to as the superstructure" <https://en.wikipedia.org/wiki/Superstructure>`_
 
 Websauna is a Python package and framework for developing custom consumer and business web services. It emphasises meeting business requirements with reliable delivery times, responsiveness, consistency in quality, security and high data integrity. A low learning curve, novice friendliness and polished documentation help less seasoned developers to get their first release out fast.
 

@@ -23,7 +23,14 @@ $VIRTUALENV -q --no-site-packages -p $PYTHON_VERSION /tmp/wheelhouse-venv
 source /tmp/wheelhouse-venv/bin/activate
 # default pip is too old for 3.4
 pip install -q -U pip
-pip install -q .[test,dev]
+
+# We do the messages three phases as otherwise Travis considers our build stalled after 10m and I hope this solves this
+echo "Installing project core dependencies."
+pip install -q .
+echo "Installing project test dependencies."
+pip install -q ".[test]"
+echo "Installing project dev dependencies."
+pip install -q ".[dev]"
 pip install -q wheel
 pip freeze > /tmp/wheelhouse-venv/requirements.txt
 

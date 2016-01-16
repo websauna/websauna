@@ -17,14 +17,15 @@ matrix:
 # http://stackoverflow.com/a/19460794/315168
 cache:
   directories:
+    # /home/travis/.cache/pip/wheels is the normal pip cache folder
     - $HOME/.cache/pip
+    # This is where we explicitly build binary compatible .whl archives for caching using create_wheelhouse.script
     - wheelhouse
 
 # https://docs.travis-ci.com/user/gui-and-headless-browsers/
 before_script:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
-  - sleep 3 # give xvfb some time to start
   - psql -c 'create database websauna_test;' -U postgres
   - pip install -U pip
 

@@ -58,6 +58,9 @@ def test_pyramid_debugtoolbar(app_scaffold, dev_db, browser):
     execute_venv_command("ws-sync-db development.ini", app_scaffold, cd_folder="myapp")
     execute_venv_command("pserve development.ini --pid-file=test_pserve.pid", app_scaffold, wait_and_see=3.0, cd_folder="myapp")
 
+    # Give pserve some time to wake up in CI
+    time.sleep(3.0)
+
     try:
 
         # Make sure we get some sensible output from the server

@@ -23,4 +23,7 @@ After you have create your application you need to install it to your current :t
 
 Install the package in edit mode, including Python package dependencies needed for testing, using :term:`pip`::
 
+    # Temporary fix until the upstream author gets a release out
+    pip install --extra-index-url https://pypi.fury.io/uzQ6egqLUi1bcfHJehXv/miohtama/ daemonocle
+
     pip install -e "myapp[test]"

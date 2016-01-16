@@ -193,8 +193,6 @@ pseudoxml:
 
 apidoc:
 	sphinx-apidoc -f -o source/reference/api/ --separate ../websauna
-	rm source/api/modules.rst
-	rm source/api/websauna.rst
 
 publish:
 	aws s3 sync build/html s3://websauna.org

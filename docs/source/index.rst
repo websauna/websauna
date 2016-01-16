@@ -24,5 +24,5 @@ Table of contents
     narrative/misc/index
     narrative/ops/index
     narrative/contributing/index
-    narrative/reference/index
+    reference/index
 

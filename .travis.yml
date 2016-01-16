@@ -32,7 +32,7 @@ script:
   - python --version
   - which pip
   - pip install -U pip
-  - pip install -q wheelhouse/*
+  - bash -c "pip install -q wheelhouse/*"
   - pip install -q -e ".[test]"
   - py.test --splinter-webdriver=firefox --splinter-make-screenshot-on-failure=true --ini=travis.ini --timeout=200 --durations=10 --cov-report xml --cov websauna --cov-config .coveragerc websauna
 

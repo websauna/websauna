@@ -6,7 +6,7 @@ websauna/__pycache__
 *.egg
 *.egg-info
 *.log
-secrets.ini
+*secrets.ini
 
 # Created by pytest-splinter for screenshots if not disabled by default
 websauna.tests.*

@@ -46,10 +46,16 @@ def test_run_scheduled(init):
 
         # scheduledtasks.ticker should beat every second and reset values in Redis
         # sets foo
-        time.sleep(2)
+        time.sleep(5)
 
         redis = get_redis(init.config.registry)
         foo = redis.get("foo")
+
+        if worker:
+            assert worker.returncode is None
+
+        if beat:
+            assert beat.returncode is None
 
         assert foo == b"foo"  # Set back by its original value by 1 second beat
 

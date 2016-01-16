@@ -1,4 +1,6 @@
 """Test form autogeneration and CRUD."""
+import time
+
 import os
 import pytest
 from splinter.driver import DriverAPI
@@ -43,6 +45,8 @@ def test_add_question(browser: DriverAPI, tutorial_req, web_server, dbsession):
 
     # Pick any date
     b.find_by_css(".picker__day--infocus")[0].click()
+
+    time.sleep(0.5)  # Give some time for the browser, next click fails on CI
 
     b.find_by_css("#deformField2-time").click()
     b.find_by_css(".picker__list-item")[0].click()

@@ -42,5 +42,5 @@ after_script:
 
 # Update coverage information in codecov.io
 after_success:
-  - codecov --token=$CODECOV_TOKEN
+  - codecov
 

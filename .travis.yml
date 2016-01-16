@@ -28,8 +28,12 @@ before_script:
   - psql -c 'create database websauna_test;' -U postgres
   - pip install -U pip
 
-# http://stackoverflow.com/a/91394/315168
+
 script:
+  # https://pypi.python.org/pypi/coverage_enable_subprocess
+  - pip install coverage-enable-subprocess
+  - export COVERAGE_PROCESS_START=$PWD/.coveragerc
+  # http://stackoverflow.com/a/91394/315168
   - if [ "$(ls wheelhouse/$PYTHON_VERSION/*)" ] ; then echo "Wheelhouse cache package count:" && (ls -l wheelhouse | wc -l) ; fi
   - if [ ! "$(ls wheelhouse/$PYTHON_VERSION/*)" ] ;  then bash websauna/tests/create_wheelhouse.bash ; fi
   - pip install -q wheelhouse/$PYTHON_VERSION/*

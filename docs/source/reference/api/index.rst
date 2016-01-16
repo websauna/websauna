@@ -1,0 +1,4 @@
+API documentation
+-----------------
+
+    websauna/index

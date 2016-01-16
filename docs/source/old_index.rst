@@ -42,94 +42,15 @@ How to get your data in to and out from a database.
     narrative/modelling/crud
     narrative/modelling/admin
 
-HTTP and routing
-----------------
-
-.. toctree::
-    :maxdepth: 1
-
-    narrative/frontend/request
-    narrative/frontend/views
-    narrative/frontend/traversal
-
-Forms
-------
-
-.. toctree::
-    :maxdepth: 1
-
-    narrative/form/form
-    narrative/form/autoform
-    narrative/form/csrf
-    narrative/form/resourceregistry
-    narrative/form/throttling
-
-Frontend
---------
-
-.. toctree::
-    :maxdepth: 1
-
-    narrative/frontend/templates
-    narrative/frontend/templatecontext
-    narrative/frontend/tweens
-    narrative/frontend/javascript
-
-Users and authentication
-------------------------
-
-.. toctree::
-    :maxdepth: 1
-
-    narrative/user/user
-    narrative/user/auth
-    narrative/user/oauth
-
-Testing
--------
-
-.. toctree::
-    :maxdepth: 1
-
-    narrative/testing/preface
-    narrative/testing/writing
 
 
-Development and operations
---------------------------
 
-.. toctree::
-    :maxdepth: 1
 
-    narrative/ops/migrations
-    narrative/ops/production
-    narrative/ops/backup
-    narrative/ops/sentry
 
-Other
------
 
-.. toctree::
-    :maxdepth: 1
 
-    narrative/misc/task
-    narrative/misc/notebook
-    narrative/misc/mail
-    narrative/misc/messages
-    narrative/misc/events
-    narrative/misc/shellwrapper
-    narrative/misc/scaffolds
-    narrative/misc/logging
 
-Developing Websauna itself
---------------------------
 
-.. toctree::
-    :maxdepth: 1
-
-    narrative/developing/develop
-    narrative/developing/docs
-    narrative/developing/conventions
 
 References
 ==========
@@ -140,30 +61,10 @@ Other
 .. toctree::
     :maxdepth: 1
 
-    reference/config
-    reference/commands
-    reference/troubleshooting
-    glossary
 
 
-API
----
-
-.. toctree::
-    :maxdepth: 1
-
-    api/websauna
-    api/websauna.system
-    api/websauna.utils
-    api/websauna.tests
-    api/websauna.scaffolds
-    api/websauna.compat
 
 
-Indices and tables
-==================
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+
 

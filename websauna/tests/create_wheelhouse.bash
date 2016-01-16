@@ -4,11 +4,17 @@
 # Builds a wheelhouse folder containing al dependencies.
 #
 
+if type virtualenv-3.4 ; then
+    VIRTUALENV=virtualenv-3.4
+else
+    VIRTUALENV=virtualenv
+fi
+
 set -e
 set -x
 rm -rf /tmp/wheelhouse-venv
 rm -rf wheelhouse
-virtualenv-3.4 --no-site-packages /tmp/wheelhouse-venv
+$VIRTUALENV --no-site-packages /tmp/wheelhouse-venv
 source /tmp/wheelhouse-venv/bin/activate
 # default pip is too old for 3.4
 # https://github.com/jnrbsn/daemonocle/issues/8

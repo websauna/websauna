@@ -1,8 +1,8 @@
-==========================================
-Developing your first Websauna application
-==========================================
+===============
+Getting started
+===============
 
-Welcome to Websauna tutorial. This tutorial tells you how to set up a Websauna based website.
+Welcome to Websauna tutorial. This tutorial tells you how to get started with Websauna framework to develop your own website website.
 
 .. image:: images/welcome.png
     :width: 640px
@@ -23,3 +23,8 @@ Welcome to Websauna tutorial. This tutorial tells you how to set up a Websauna b
     tutorial_11
     tutorial_12
 
+
+Credits
+=======
+
+This tutorial shamelessly copy-pastes Django tutorial (BSD licensed).

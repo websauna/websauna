@@ -1,6 +1,6 @@
-=====
-Forms
-=====
+============
+Forms basics
+============
 
 .. contents:: :local:
 

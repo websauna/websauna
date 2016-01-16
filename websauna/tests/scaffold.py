@@ -1,10 +1,9 @@
 """Scaffold test utility functions."""
-import fileinput
+import sys
 import subprocess
 import time
 from contextlib import closing, contextmanager
 from distutils.spawn import find_executable
-from fileinput import FileInput
 
 import os
 from tempfile import mkdtemp
@@ -20,9 +19,9 @@ if find_executable("virtualenv-3.4"):
     VIRTUALENV = "virtualenv-3.4"
     PYTHON_INTERPRETER = "python3.4"
 else:
-    # Codeship.com
+    # Travis
     VIRTUALENV = "virtualenv"
-    PYTHON_INTERPRETER = "python3.4"
+    PYTHON_INTERPRETER = "python{}.{}".format(sys.version_info.major, sys.version_info.minor)
 
 
 def print_subprocess_fail(worker, cmdline):

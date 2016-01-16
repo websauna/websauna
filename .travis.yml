@@ -5,18 +5,14 @@ services:
   - postgresql
   - redis-server
 
-python:
-  - 3.4
+matrix:
+    include:
+        - python: 3.4
+        - python: 3.5
 
 cache:
   directories:
     - wheelhouse
-
-install:
-  - python --version
-  - which pip
-  - bash websauna/tests/create_wheelhouse.bash
-  - pip install -e ".[test]"
 
 # https://docs.travis-ci.com/user/gui-and-headless-browsers/
 before_script:
@@ -25,6 +21,10 @@ before_script:
   - sleep 3 # give xvfb some time to start
 
 script:
+  - python --version
+  - which pip
+  - bash websauna/tests/create_wheelhouse.bash
+  - pip install -e ".[test]"
   - py.test --splinter-webdriver=firefox --splinter-make-screenshot-on-failure=true --ini=travis.ini --timeout=200 --durations=10 --cov-report xml --cov websauna --cov-config .coveragerc $PROJECT_NAME
 
 

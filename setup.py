@@ -24,7 +24,7 @@ setup(
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://github.com/pypa/sampleproject',
+    url='https://github.com/websauna/websauna',
 
     # Author details
     author='Mikko Ohtamaa',

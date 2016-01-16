@@ -1,4 +1,4 @@
-Websauna is a full stack Python web framework aimed for building consumer and community websites.
+Websauna is a full stack superstructure aimed for building consumer and business web services based on Pyramid and SQLAlchemy.
 
 .. note ::
 
@@ -38,19 +38,44 @@ Websauna is a full stack Python web framework aimed for building consumer and co
 What it is?
 ===========
 
-Websauna gives you building blocks for creating scalable, state-of-the-art websites and services. The framework enables  efficient business problem solving, so that developers can maximize productivity from day zero. Websauna is suggestive and has default options on all parts of stack, so one can follow a red line to get the first release out quickly. On the other hand, Websauna does not enforce hard opinions and sacrifice flexibility, so that experienced developers can easily override parts and use more sophisticated components for specific needs.
+    `"...the portion of the structure that is the span and directly receives the live load is referred to as the superstructure" <https://en.wikipedia.org/wiki/Superstructure>`_
+
+Websauna is a Python package and framework for consumer and business web service development. It emphasises meeting business requirements with fast delivery times, low learning curve, responsiveness and consistency in quality, security and high data integrity.
 
 How it is done?
 ===============
 
-Websauna achieves flexibility by keeping its own codebase minimal and not reinventing the wheel. Instead it provides a polished integration of the top packages of Python ecosystem like Pyramid web framework, SQLAlchemy object relationship mapper, Alembic migration scripts, IPython shell, Authomatic federated login, Jinja templating and py.test testing framework.
+Build fast, reach high
+----------------------
+
+Websauna stands on the shoulders of `Python programming language <https://python.org>`_ and `Pyramid web framework <http://docs.pylonsproject.org/projects/pyramid/en/latest/>`_. It uses `SQLAlchemy <http://sqlalchemy.org/>`_ modelling for data and business logic with automatic admin interface generation. A project scaffold and polished getting started tutorial allow a seasoned Python developer to roll out a custom logic website within few hours - being a turn key solution for the first prototype that can be later iterated on.
+
+Security
+--------
+
+Websauna has a strong drive for security. It is designed to be immune for OWASP top 10 vulnerabilities. Websauna heavily leans on optimistic concurrency control eliminating potential for race condition errors. ACID guarantees are followed through the codebase, making Websauna ideal for financial services needing high data integrity.
+
+User experience and frontend
+----------------------------
+
+A default Bootstrap frontend is provided for landing page and form styling. This makes it possible to use ready premium theme packages for distinct user experience even if there is graphical design talent in a team. Building RESTful behavior over business logic is made easy, so that frontend may be replaced with a heavier JavaScript solution when needed.
+
+Data analysis
+-------------
+
+`IPython Notebook <http://ipython.org/>`_, an award winning data analysis and science tool, is directly integrated to Websauna. Analyzing website data and building interactive visualizations is within a reach of one click.
+
+Modular architecture
+--------------------
+
+All default stack choices are suggestive, thus leaving room for opinions for different components and a path to scale up a service. There is no inversion of control - the developer is always on a driver's seat. A strong decoupling is achieved through component architecture, event dispatch and standardized addon mechanism. This allows building non-monolithic packages and frictionless distribution of work among teams.
 
 When to use it?
 ===============
 
-Websauna is focused on Internet facing sites where you have a public or private sign up process and administrative backend. It's sweet spots are custom business portals, software-as-a-service sites and consumer portals where out of the box software cannot satisfy your needs and you need to program moderate amount of business logic. A special focus is given for security, so that Websauna is a strong candidate for financial technology and eCommerce solutions.
+Websauna is focused on Internet facing sites where you have a public or private sign up process and a administrative back office. It's sweet spots are custom business portals and software-as-a-service sites which are too specialized for off-the-shelf solutions. Websauna is ideal for Internet startups that iterate fast and may face urgent scalability needs.
 
 Documentation
 =============
 
-See ``docs`` folder - `make html`.
+See `websauna.org <https://websauna.org>`_.

@@ -50,6 +50,9 @@ def test_add_question(browser: DriverAPI, tutorial_req, web_server, dbsession):
 
     b.find_by_css("#deformField2-time").click()
     b.find_by_css(".picker__list-item")[0].click()
+
+    time.sleep(0.5)  # Give some time for the browser, next click fails on CI
+
     b.find_by_name("add").click()
 
     assert b.is_element_present_by_css("#msg-item-added")

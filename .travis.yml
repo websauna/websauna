@@ -26,15 +26,19 @@ before_script:
   - psql -c 'create database websauna_test;' -U postgres
   - pip install -U pip
 
+# http://stackoverflow.com/a/91394/315168
 script:
-  - echo "Wheelhouse contents:" && ls -l wheelhouse
-  - if [ -z `ls wheelhouse/*` ];  then bash websauna/tests/create_wheelhouse.bash ; fi
+  - if [ "$(ls wheelhouse/*)" ] ; then echo "Wheelhouse cache package count:" && (ls -l wheelhouse | wc -l) ; fi
+  - if [ ! "$(ls wheelhouse/*)" ] ;  then bash websauna/tests/create_wheelhouse.bash ; fi
   - pip install -q wheelhouse/*
   - pip install -q -e ".[test]"
   - py.test --splinter-webdriver=firefox --splinter-make-screenshot-on-failure=true --ini=travis.ini --timeout=200 --durations=10 --cov-report xml --cov websauna --cov-config .coveragerc websauna
 
-
+# Show version pinnings when the build as still succeeding
 after_script:
-  - codecov --token=$CODECOV_TOKEN
   - pip freeze
+
+# Update coverage information in codecov.io
+after_success:
+  - codecov --token=$CODECOV_TOKEN
 

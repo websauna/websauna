@@ -14,7 +14,7 @@ set -e
 set -x
 rm -rf /tmp/wheelhouse-venv
 rm -rf wheelhouse
-$VIRTUALENV --no-site-packages /tmp/wheelhouse-venv
+$VIRTUALENV --no-site-packages -p python3.4 /tmp/wheelhouse-venv
 source /tmp/wheelhouse-venv/bin/activate
 # default pip is too old for 3.4
 # https://github.com/jnrbsn/daemonocle/issues/8

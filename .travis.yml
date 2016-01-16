@@ -27,8 +27,8 @@ before_script:
   - pip install -U pip
 
 script:
-  - bash -c "if [ -d wheelhouse ] ; then ls -l wheelhouse ; fi"
-  - bash -c "if [ ! -d wheelhouse ] ; then bash websauna/tests/create_wheelhouse.bash ; fi"
+  - echo "Wheelhouse contents:" && ls -l wheelhouse
+  - if [ -z `ls wheelhouse/*` ];  then bash websauna/tests/create_wheelhouse.bash ; fi
   - pip install -q wheelhouse/*
   - pip install -q -e ".[test]"
   - py.test --splinter-webdriver=firefox --splinter-make-screenshot-on-failure=true --ini=travis.ini --timeout=200 --durations=10 --cov-report xml --cov websauna --cov-config .coveragerc websauna

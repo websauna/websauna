@@ -1,7 +1,7 @@
 """Export settings and secrets as environment variables to subprocesses."""
 
 import os
-from websauna.system.core.secrets import get_secrets
+from websauna.system.core.utils import get_secrets
 from sqlalchemy.engine.url import make_url
 
 

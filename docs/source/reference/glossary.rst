@@ -61,6 +61,9 @@ Glossary
     Initializer
         Initializer is the main entry point of your Websauna application. It is a class responsible for ramping up and integrating various subsystems. For more information see :py:class:`websauna.system.Initializer`.
 
+    INI
+        he INI file format is an informal standard for configuration files for some platforms or software. INI files are simple text files with a basic structure composed of sections, properties, and values. `More info <https://en.wikipedia.org/wiki/INI_file>`__.
+
     IPython
         Next generation read–eval–print loop engine for Python and other programming languages. See `IPython Notebook site <http://ipython.org/notebook.html>`__ for more information. See also :term:`IPython Notebook`.
 
@@ -88,7 +91,7 @@ Glossary
     OAuth
         OAuth is an open standard for authorization, commonly used as a way for Internet users to log into third party websites using their Microsoft, Google, Facebook or Twitter accounts without exposing their password. `More information <https://en.wikipedia.org/wiki/OAuth>`__.
 
-    Optimistic concurrency control
+    optimistic concurrency control
         Optimistic concurrency control (OCC) is a concurrency control method applied to transactional systems such as relational database management systems and software transactional memory. OCC assumes that multiple transactions can frequently complete without interfering with each other. While running, transactions use data resources without acquiring locks on those resources. Before committing, each transaction verifies that no other transaction has modified the data it has read. If the check reveals conflicting modifications, the committing transaction rolls back and can be restarted. `More information <https://en.wikipedia.org/wiki/Optimistic_concurrency_control>`__.
 
     Paste

@@ -59,9 +59,9 @@ class App(JinjaFriendlyTemplate):
                              'The package name "site" has a special meaning in '
                              'Python.  Please name it anything except "site".')
 
-        vars['authentication_random'] = binascii.hexlify(os.urandom(20))
-        vars['authomatic_random'] = binascii.hexlify(os.urandom(20))
-        vars['session_random'] = binascii.hexlify(os.urandom(20))
+        vars['authentication_random'] = binascii.hexlify(os.urandom(20)).decode("utf-8")
+        vars['authomatic_random'] = binascii.hexlify(os.urandom(20)).decode("utf-8")
+        vars['session_random'] = binascii.hexlify(os.urandom(20)).decode("utf-8")
 
         package_logger = vars['package']
         if package_logger == 'root':
@@ -79,9 +79,9 @@ class Addon(PyramidTemplate):
 
     def pre(self, command, output_dir, vars):
 
-        vars['authentication_random'] = binascii.hexlify(os.urandom(20))
-        vars['authomatic_random'] = binascii.hexlify(os.urandom(20))
-        vars['session_random'] = binascii.hexlify(os.urandom(20))
+        vars['authentication_random'] = binascii.hexlify(os.urandom(20)).decode("utf-8")
+        vars['authomatic_random'] = binascii.hexlify(os.urandom(20)).decode("utf-8")
+        vars['session_random'] = binascii.hexlify(os.urandom(20)).decode("utf-8")
         return PyramidTemplate.pre(self, command, output_dir, vars)
 
     def run(self, command, output_dir, vars):

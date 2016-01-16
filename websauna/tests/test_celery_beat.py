@@ -7,11 +7,7 @@ import os
 
 from websauna.system.core.redis import get_redis
 
-
-def test_run_scheduled(init):
-    """Scheduled tasks run properly on the celery worker + celery beat process."""
-
-    ini_file = os.path.join(os.path.dirname(__file__), "scheduler-test.ini")
+def run_worker_and_beat(ini_file):
 
     cmdline = ["ws-celery", "worker", "-A", "websauna.system.task.celery.celery_app", "--ini", ini_file]
 
@@ -33,6 +29,16 @@ def test_run_scheduled(init):
         worker.terminate()
         AssertionError("Beat process did not start up")
 
+    return worker, beat
+
+
+def test_run_scheduled(init):
+    """Scheduled tasks run properly on the celery worker + celery beat process."""
+
+    ini_file = os.path.join(os.path.dirname(__file__), "scheduler-test.ini")
+    worker, beat = run_worker_and_beat(ini_file)
+    # worker, beat = None, None
+
     try:
         # Reset test database
         redis = get_redis(init.config.registry)
@@ -45,17 +51,15 @@ def test_run_scheduled(init):
         redis = get_redis(init.config.registry)
         foo = redis.get("foo")
 
-        assert beat.returncode is None
-        assert worker.returncode is None
         assert foo == b"foo"  # Set back by its original value by 1 second beat
 
     finally:
         try:
-            worker.terminate()
+            worker and worker.terminate()
         except ProcessLookupError:
             pass
 
         try:
-            beat.terminate()
+            beat and beat.terminate()
         except ProcessLookupError:
             pass

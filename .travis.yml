@@ -1,0 +1,24 @@
+addons:
+  postgresql: "9.4"
+
+services:
+  - postgresql
+  - redis-server
+
+python:
+  - 3.4
+
+install:
+  - pip install -e ".[test]"
+
+# https://docs.travis-ci.com/user/gui-and-headless-browsers/
+before_script:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - sleep 3 # give xvfb some time to start
+
+script:
+  - py.test --splinter-webdriver=firefox --splinter-make-screenshot-on-failure=true --ini=travis.ini --timeout=200 --durations=10 --cov-report xml --cov websauna --cov-config .coveragerc $PROJECT_NAME
+
+
+

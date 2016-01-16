@@ -1,13 +1,4 @@
-"""INI-like secrets file support.
-
- Secret files are configuration files which contain sensitive material. Additional measurements must be taken that this material is not leaked.
-
- * Secrets file is only on the production server, not in the version control
-
- * Secrets file can be encrypted, requiring decryption key
-
-
-"""
+"""INI-file basd secrets reading."""
 import os
 import io
 
@@ -15,22 +6,14 @@ import configparser
 from urllib.parse import urlparse
 
 import pkg_resources
-from zope.interface import Interface
+
 
 
 _resource_manager = pkg_resources.ResourceManager()
 
 
-class ISecrets(Interface):
-    """Utility marker interface which gives us our secrets.
-
-    Secrets is a dictionary which hold sensitive deployment data.
-    """
-
-
-def get_secrets(registry):
-    """Get the secrets provider dictionary."""
-    return registry.getUtility(ISecrets)
+class MissingSecretsEnvironmentVariable(Exception):
+    """Thrown when we try to interpolate an environment variable that does not exist."""
 
 
 def resolve(uri):
@@ -93,6 +76,13 @@ def read_ini_secrets(secrets_file) -> dict:
 
     for section in secrets_config.sections():
         for key, value in secrets_config.items(section):
+
+            if value.startswith("$"):
+                environment_variable = value[1:]
+                value = os.getenv(environment_variable, None)
+                if not value:
+                    raise MissingSecretsEnvironmentVariable("Secrets key {} needs environment variable {} in file {} section {}".format(key, environment_variable, secrets_file, section))
+
             secrets["{}.{}".format(section, key)] = value
 
     return secrets

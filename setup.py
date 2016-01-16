@@ -65,15 +65,8 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
 
-        # TODO: Open bug on Daemonocle, the package needs a new release without pinned down dependencies
-        # Remove these when Daemonocle gets a bump.
-        # https://github.com/jnrbsn/daemonocle/issues/8
-        # http://blog.ziade.org/2013/04/13/declaring-dependencies-in-python/
-        'daemonocle>0.8',
-        # 'psutil==2.1.1',
-
         # Pyramid dependencies
-        'pyramid>=1.6b3',
+        'pyramid>=1.6',
         'waitress',
         'websauna.viewconfig',
         'pyramid_redis_sessions',
@@ -90,7 +83,7 @@ setup(
         "pytz",
 
         # SQLAlchemy and database support
-        "psycopg2>2.6",
+        "psycopg2",
         "sqlalchemy",
         "alembic",
         "colanderalchemy",
@@ -113,7 +106,7 @@ setup(
         "backports.typing",
 
         # Needed by python_notebook etc. who call pyramid.paster module
-        "pyramid_notebook",
+        "pyramid_notebook>=0.1.6",
         "PasteDeploy",
 
         # Console logging

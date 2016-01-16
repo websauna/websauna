@@ -196,7 +196,7 @@ def insert_content_after_line(path:str, content:str, marker:str):
         open(path, "wt").write(backup)
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='session')
 def app_scaffold(request) -> str:
     """py.test fixture to create app scaffold.
 

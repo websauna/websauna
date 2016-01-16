@@ -20,4 +20,6 @@ Do **not** do the following::
         # Handle generic exception
         pass
 
-This would also catch transaction conflict exceptions and prevent optimistic concurrency control to work properly.
+Instead of always use a specific exception subclass when catching.
+
+This would also catch transaction conflict exceptions and prevent :term:`optimistic concurrency control` to work properly.

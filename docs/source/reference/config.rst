@@ -107,7 +107,7 @@ See :download:`staging.ini <../../../staging.ini>`.
 secrets
 -------
 
-All INI files have a corresponding secrets pair (``development-secrets.ini``, ``production-secrets.ini``). Websauna app :term:`scaffold` places these files to :term:`.gitignore`, so that you cannot accidentally put potentially confidential information to a version control.
+See :doc:`secrets documentation <../narrative/misc/secrets>`.
 
 Configuration inclusion
 =======================
@@ -116,7 +116,21 @@ For examples see any INI file produced by :term:`scaffold`.
 
 .. note ::
 
-    Configuraition inclusion system will be phased out in the future versions to be replaced with more generic configuration solution.
+    Configuration inclusion system will be phased out in the future versions to be replaced with more generic configuration solution.
+
+Example ``continuos-integration.ini`` which extends other INI files and overrides some settings::
+
+
+    [includes]
+    include_ini_files =
+        resource://websauna/test.ini
+        resource://websauna/base.ini
+
+    [app:main]
+    use = egg:websauna
+    websauna.init = websauna.Initializer
+    sqlalchemy.url = postgres://ci:ci:@localhost:5434/test
+
 
 Websauna configuration variables
 ================================
@@ -305,6 +319,17 @@ Available options
 See also :py:meth:`websauna.system.Initializer.configure_mail`.
 
 See also below ``pyramid_mailer`` for configuring the actual mail server details.
+
+.. _websauna.secrets_file:
+
+websauna.secrets_file
+---------------------
+
+Secrets file for API keys and tokens. :doc:`Read secrets documentation for more information <../narrative/misc/secrets>`.
+
+The value is in URL format ``resource://PYTHON_PACKAGE_NAME/PATH_TO_INI_FILE_INSIDE_PACKAGE``.
+
+Default value: ``resource://websauna/development-secrets.ini``.
 
 websauna.site_url
 -----------------

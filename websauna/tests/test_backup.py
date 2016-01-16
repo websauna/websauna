@@ -10,7 +10,7 @@ Logger._process_aware = True
 import transaction
 from pyramid.threadlocal import get_current_registry
 from websauna.system import get_init
-from websauna.system.core.secrets import get_secrets
+from websauna.system.core.utils import get_secrets
 from websauna.system.devop.backup import backup_site
 from pyramid import testing
 

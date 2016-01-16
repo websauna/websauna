@@ -563,7 +563,8 @@ class Initializer:
         Stores API keys, such.
         """
         # Secret configuration diretives
-        from websauna.system.core import secrets
+        from websauna.utils.secrets import read_ini_secrets
+        from websauna.system.core.interfaces import ISecrets
 
         settings = self.settings
 
@@ -571,8 +572,8 @@ class Initializer:
         if not secrets_file:
             return {}
 
-        _secrets = secrets.read_ini_secrets(secrets_file)
-        self.config.registry.registerUtility(_secrets, secrets.ISecrets)
+        _secrets = read_ini_secrets(secrets_file)
+        self.config.registry.registerUtility(_secrets, ISecrets)
         return _secrets
 
     def configure_addons(self):

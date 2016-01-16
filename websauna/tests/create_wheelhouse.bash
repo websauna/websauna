@@ -18,12 +18,12 @@ $VIRTUALENV --no-site-packages -p python3.4 /tmp/wheelhouse-venv
 source /tmp/wheelhouse-venv/bin/activate
 # default pip is too old for 3.4
 # https://github.com/jnrbsn/daemonocle/issues/8
-pip install --extra-index-url https://pypi.fury.io/uzQ6egqLUi1bcfHJehXv/miohtama/ -U pip
-pip install --extra-index-url https://pypi.fury.io/uzQ6egqLUi1bcfHJehXv/miohtama/ .[test,dev]
-pip install --extra-index-url https://pypi.fury.io/uzQ6egqLUi1bcfHJehXv/miohtama/ wheel
+pip install -U pip
+pip install .[test,dev]
+pip install wheel
 pip freeze > /tmp/wheelhouse-venv/requirements.txt
 # websauna 0.0 development not available, remove from freeze
 echo "$(grep -v "websauna" /tmp/wheelhouse-venv/requirements.txt)" >/tmp/wheelhouse-venv/requirements.txt
 # sed -i '/websauna/d' /tmp/wheelhouse-venv/requirements.txt
 # Needed for Daemonocle
-pip wheel --extra-index-url https://pypi.fury.io/uzQ6egqLUi1bcfHJehXv/miohtama/ -r /tmp/wheelhouse-venv/requirements.txt
+pip wheel -r /tmp/wheelhouse-venv/requirements.txt

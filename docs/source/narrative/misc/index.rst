@@ -11,4 +11,5 @@ Miscancellous functions
     events
     shellwrapper
     scaffolds
+    secrets
     logging

@@ -28,3 +28,4 @@ docs/source/reference/api/*
 # Visual Paradigm backups
 *.vpp~*
 wheelhouse
+setup-test-secrets.bash

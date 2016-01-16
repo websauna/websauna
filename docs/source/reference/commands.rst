@@ -172,6 +172,11 @@ Example::
 Advanced
 ========
 
+Pyramid p* commands
+-------------------
+
+See `p* commands in Pyramid documentation <http://docs.pylonsproject.org/projects/pyramid/en/latest/index.html#p-scripts-documentation>`_.
+
 Command registry
 ----------------
 

@@ -9,5 +9,5 @@ Websauna documentation is managed with Sphinx.
 
 To build Sphinx documentation::
 
-    make apidoc html
+    make apidoc clean html
 

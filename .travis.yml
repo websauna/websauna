@@ -27,6 +27,7 @@ before_script:
   - pip install -U pip
 
 script:
+  - if [ -d wheelhouse ] ; then ls -l wheelhouse ; fi
   - if [ ! -d wheelhouse ] ; then bash websauna/tests/create_wheelhouse.bash ; fi
   - pip install -q wheelhouse/*
   - pip install -q -e ".[test]"

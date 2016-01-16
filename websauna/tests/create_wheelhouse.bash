@@ -19,7 +19,7 @@ fi
 
 rm -rf /tmp/wheelhouse-venv
 rm -rf wheelhouse/$PYTHON_VERSION
-$VIRTUALENV -q --no-site-packages -p python3.4 /tmp/wheelhouse-venv
+$VIRTUALENV -q --no-site-packages -p $PYTHON_VERSION /tmp/wheelhouse-venv
 source /tmp/wheelhouse-venv/bin/activate
 # default pip is too old for 3.4
 pip install -q -U pip

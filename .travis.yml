@@ -10,7 +10,9 @@ services:
 matrix:
     include:
         - python: 3.4
+          env: PYTHON_VERSION=python3.4
         - python: 3.5
+          env: PYTHON_VERSION=python3.5
 
 # http://stackoverflow.com/a/19460794/315168
 cache:
@@ -28,9 +30,9 @@ before_script:
 
 # http://stackoverflow.com/a/91394/315168
 script:
-  - if [ "$(ls wheelhouse/*)" ] ; then echo "Wheelhouse cache package count:" && (ls -l wheelhouse | wc -l) ; fi
-  - if [ ! "$(ls wheelhouse/*)" ] ;  then bash websauna/tests/create_wheelhouse.bash ; fi
-  - pip install -q wheelhouse/*
+  - if [ "$(ls wheelhouse/$PYTHON_VERSION/*)" ] ; then echo "Wheelhouse cache package count:" && (ls -l wheelhouse | wc -l) ; fi
+  - if [ ! "$(ls wheelhouse/$PYTHON_VERSION/*)" ] ;  then bash websauna/tests/create_wheelhouse.bash ; fi
+  - pip install -q wheelhouse/$PYTHON_VERSION/*
   - pip install -q -e ".[test]"
   - py.test --splinter-webdriver=firefox --splinter-make-screenshot-on-failure=true --ini=travis.ini --timeout=200 --durations=10 --cov-report xml --cov websauna --cov-config .coveragerc websauna
 

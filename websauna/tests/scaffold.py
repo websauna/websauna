@@ -122,7 +122,7 @@ def preload_wheelhouse(folder:str):
     cache_folder = os.getcwd()
 
     if os.path.exists(os.path.join(cache_folder, "wheelhouse")):
-        execute_venv_command("pip install {}/wheelhouse/*".format(cache_folder), folder, timeout=3*60)
+        execute_venv_command("pip install {}/wheelhouse/python{}.{}/*".format(cache_folder, sys.version_info.major, sys.version_info.minor), folder, timeout=3*60)
     else:
         print("No preloaded Python package cache found")
 

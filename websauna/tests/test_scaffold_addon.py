@@ -41,7 +41,7 @@ def addon_scaffold(request, app_scaffold):
     content_folder = os.path.join(folder, "websauna.myaddon")
 
     # Instal package created by scaffold
-    execute_venv_command("pip install -e {}".format(content_folder), folder, timeout=5*60)
+    execute_venv_command("pip install -e {}".format(content_folder), folder, timeout=5 * 60)
 
     return folder
 
@@ -59,7 +59,7 @@ def test_addon_pserve(addon_scaffold, addon_dev_db, browser):
     try:
 
         # Make sure we get some sensible output from the server
-        b  = browser
+        b = browser
         b.visit("http://localhost:6543/example-view")
 
         # See our scaffold home page loads and demo text is there
@@ -85,10 +85,10 @@ def test_addon_pytest(addon_scaffold, addon_test_db):
     """Create an addon and see if the default py.test tests pass. """
 
     # Install test requirements
-    execute_venv_command("pip install '.[test]'", addon_scaffold, timeout=2*60, cd_folder="websauna.myaddon")
+    execute_venv_command("pip install '.[test]'", addon_scaffold, timeout=2 * 60, cd_folder="websauna.myaddon")
 
     # Execute one functional test
-    execute_venv_command("py.test --ini test.ini websauna/myaddon/tests", addon_scaffold, timeout=1*60, cd_folder="websauna.myaddon")
+    execute_venv_command("py.test --ini test.ini websauna/myaddon/tests", addon_scaffold, timeout=1 * 60, cd_folder="websauna.myaddon")
 
 
 def test_addon_sdist(addon_scaffold):
@@ -103,9 +103,6 @@ def test_addon_integration(app_scaffold, addon_scaffold, addon_dev_db):
     2. Make app using this addon
     3. See that app shell sees the models from the addon
     """
-
-
-
     with replace_file(os.path.join(addon_scaffold, "websauna.myaddon", "websauna", "myaddon", "models.py"), MODELS_PY):
         with insert_content_after_line(os.path.join(app_scaffold, "myapp", "myapp", "__init__.py"), ADDON_INSTALLED_INITIALIZER, "def run"):
             # path = os.path.join(app_scaffold, "myapp", "myapp", "__init__.py")
@@ -115,7 +112,7 @@ def test_addon_integration(app_scaffold, addon_scaffold, addon_dev_db):
 
 
 #: Migration test file
-MODELS_PY="""
+MODELS_PY = """
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy.ext.declarative.base import _declarative_constructor
@@ -131,7 +128,7 @@ class MyModel:
 """
 
 #: Initializer file snipped when addon has been installed
-ADDON_INSTALLED_INITIALIZER="""
+ADDON_INSTALLED_INITIALIZER = """
 
     def configure_addons(self):
         self.config.include("websauna.myaddon")

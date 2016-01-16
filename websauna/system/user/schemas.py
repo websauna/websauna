@@ -1,19 +1,16 @@
 import deform
 import deform.widget as w
 import colander as c
-from colander.compat import is_nonstr_iter
+
 
 from hem.schemas import CSRFSchema
 from horus.schemas import unique_email
-from websauna.system.form.fields import TuplifiedModel, TuplifiedModelSequenceSchema
-from websauna.system.form.sqlalchemy import convert_query_to_tuples, ModelSet, UUIDModelSet
-from websauna.system.user.models import Group
+from websauna.system.form.sqlalchemy import convert_query_to_tuples, UUIDModelSet
 from websauna.system.user.utils import get_group_class, get_user_class
+from websauna.utils.slug import uuid_to_slug
+
 
 #: Todo change to setting, convert to deferred widget
-from websauna.utils.slug import uuid_to_slug, slug_to_uuid
-from websauna.compat.typing import List
-
 PASSWORD_MIN_LENGTH = 6
 
 

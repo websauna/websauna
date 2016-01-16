@@ -9,14 +9,13 @@ import colander
 import deform
 
 from abc import ABC, abstractmethod
-from sqlalchemy import Column, ForeignKey
+from sqlalchemy import Column
 from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID, JSONB, INET
 from sqlalchemy.orm import RelationshipProperty, Mapper
 from sqlalchemy.sql.type_api import TypeEngine
 from websauna.system.crud import Resource
 from websauna.system.form.colander import PropertyAwareSQLAlchemySchemaNode, TypeOverridesHandling
 from websauna.system.form.sqlalchemy import get_uuid_vocabulary_for_model, UUIDModelSet, UUIDForeignKeyValue
-from websauna.system.form.utils import get_relationship_for_foreign_key
 from websauna.system.form.widgets import FriendlyUUIDWidget
 from websauna.system.http import Request
 

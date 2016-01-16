@@ -8,9 +8,14 @@ exclude_lines =
     def __repr__
     if .debug:
     raise NotImplementedError
+    assert
     if __name__ == .__main__.:
 
 
 ignore_errors = True
 omit =
     setup.py
+    websauna/utils/orderedset.py
+    websauna/tests
+    websauna/system/http
+

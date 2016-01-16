@@ -1,3 +1,8 @@
+"""pyramid_layout panel rendering helper.
+
+TODO: This module is on the list of those who will get burial by fire.
+"""
+
 from markupsafe import Markup
 from pyramid_layout.interfaces import IPanel
 from zope.interface import providedBy
@@ -18,7 +23,5 @@ def render_panel(context, request, name='', *args, **kw):
     """
     adapters = request.registry.adapters
     panel = adapters.lookup((providedBy(context),), IPanel, name=name)
-    if panel is None:
-        # Mimics behavior of pyramid.view.render_view
-        return None
+    assert panel, "Could not find panel {}".format(name)
     return Markup(panel(context, request, *args, **kw))

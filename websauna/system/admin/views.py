@@ -10,7 +10,7 @@ from websauna.system.crud import listing
 from websauna.system.crud.views import TraverseLinkButton
 from websauna.system.notebook.views import launch_context_sensitive_shell
 
-from websauna.utils.panel import render_panel
+from websauna.system.core.panel import render_panel
 
 
 @view_config(route_name='admin_home', renderer='admin/admin.html', permission='view')

@@ -27,10 +27,14 @@ Create ``setup-test-secrets.bash`` (git ignored) with following content::
     RANDOM_VALUE="x"
     FACEBOOK_CONSUMER_KEY="x"
     FACEBOOK_CONSUMER_SECRET="x"
+    FACEBOOK_USER="x"
+    FACEBOOK_PASSWORD="x"
 
     export RANDOM_VALUE
     export FACEBOOK_CONSUMER_KEY
     export FACEBOOK_CONSUMER_SECRET
+    export FACEBOOK_USER
+    export FACEBOOK_PASSWORD
 
 Enable it in your shell:
 

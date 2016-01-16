@@ -8,8 +8,8 @@ Websauna is a full stack superstructure aimed for building consumer and business
 .. |ci| image:: https://travis-ci.org/websauna/websauna.svg
     :target: https://travis-ci.org/websauna/websauna/
 
-.. |cov| image:: https://codecov.io/bitbucket/miohtama/websauna/coverage.svg?branch=master
-    :target: https://codecov.io/bitbucket/miohtama/websauna?branch=master
+.. |cov| image:: https://codecov.io/github/websauna/websauna/coverage.svg?branch=master
+    :target: https://codecov.io/github/websauna/websauna?branch=master
 
 .. |downloads| image:: https://img.shields.io/pypi/dm/websauna.svg
     :target: https://pypi.python.org/pypi/websauna/
@@ -40,7 +40,7 @@ What it is?
 
     `"...the portion of the structure that is the span and directly receives the live load is referred to as the superstructure" <https://en.wikipedia.org/wiki/Superstructure>`_
 
-Websauna is a Python package and framework for consumer and business web service development. It emphasises meeting business requirements with fast delivery times, low learning curve, responsiveness and consistency in quality, security and high data integrity.
+Websauna is a Python package and framework for developing custom consumer and business web services. It emphasises meeting business requirements with fast delivery times, low learning curve, responsiveness, consistency in quality, security and high data integrity.
 
 How it is done?
 ===============
@@ -58,7 +58,7 @@ Websauna has a strong drive for security. It is designed to be immune for OWASP 
 User experience and frontend
 ----------------------------
 
-A default Bootstrap frontend is provided for landing page and form styling. This makes it possible to use ready premium theme packages for distinct user experience even if there is graphical design talent in a team. Building RESTful behavior over business logic is made easy, so that frontend may be replaced with a heavier JavaScript solution when needed.
+A default mobile friendly Bootstrap frontend is provided for landing page and form styling. This makes it possible to use ready premium theme packages for distinct user experience even if there is graphical design talent in a team. Federated authentication, like Facebook or Google login, is supported out of the box. Building RESTful behavior over business logic is made easy, so that frontend may be replaced with a heavier JavaScript solution when needed.
 
 Data analysis
 -------------

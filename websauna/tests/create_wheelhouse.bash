@@ -28,4 +28,4 @@ pip freeze > /tmp/wheelhouse-venv/requirements.txt
 echo "$(grep -v "websauna" /tmp/wheelhouse-venv/requirements.txt)" >/tmp/wheelhouse-venv/requirements.txt
 # sed -i '/websauna/d' /tmp/wheelhouse-venv/requirements.txt
 # Needed for Daemonocle
-pip wheel -r /tmp/wheelhouse-venv/requirements.txt
+pip wheel -q -r /tmp/wheelhouse-venv/requirements.txt

@@ -23,3 +23,5 @@ script:
 
 after_script:
   - codecov --token=$CODECOV_TOKEN
+  - pip freeze
+

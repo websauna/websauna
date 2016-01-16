@@ -44,11 +44,15 @@ def execute_command(cmdline, folder):
     return worker.returncode
 
 
-def execute_command(cmdline: List, folder: str):
+def execute_command(cmdline: List, folder: str, timeout=5.0):
     """Run a command in a specific folder."""
     worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=folder)
 
-    worker.wait(timeout=5.0)
+    try:
+        worker.wait(timeout)
+    except subprocess.TimeoutExpired as e:
+        print_subprocess_fail(worker, cmdline)
+        raise AssertionError("execute_command did not properly exit") from e
 
     if worker.returncode != 0:
         print_subprocess_fail(worker, cmdline)
@@ -208,7 +212,7 @@ def app_scaffold(request) -> str:
 
     websauna_folder = os.getcwd()
 
-    execute_command([VIRTUALENV, "-p", PYTHON_INTERPRETER, "venv"], folder)
+    execute_command([VIRTUALENV, "-p", PYTHON_INTERPRETER, "venv"], folder, timeout=30)
 
     # PIP cannot handle pip -install .[test]
     # On some systems, the default PIP is too old and it doesn't seem to allow upgrade through wheelhouse

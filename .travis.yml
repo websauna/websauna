@@ -5,8 +5,7 @@ services:
   - postgresql
   - redis-server
 
-python:
-  - 3.4
+python: 3.4
 
 install:
   - pip install -e ".[test]"

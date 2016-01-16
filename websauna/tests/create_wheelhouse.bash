@@ -38,4 +38,5 @@ pip freeze > /tmp/wheelhouse-venv/requirements.txt
 echo "$(grep -v "websauna" /tmp/wheelhouse-venv/requirements.txt)" >/tmp/wheelhouse-venv/requirements.txt
 
 # Build wheelhouse
+echo "Building wheelhouse"
 pip wheel -q -r /tmp/wheelhouse-venv/requirements.txt --wheel-dir wheelhouse/$PYTHON_VERSION

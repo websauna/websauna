@@ -35,6 +35,9 @@ def test_pserve(app_scaffold, dev_db, browser):
 
     execute_venv_command("cd myapp && pserve development.ini --pid-file=test_pserve.pid", app_scaffold, wait_and_see=3.0)
 
+    # Give pserve some time to wake up
+    time.sleep(4.0)
+
     try:
 
         # Make sure we get some sensible output from the server

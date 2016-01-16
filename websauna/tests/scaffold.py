@@ -61,7 +61,7 @@ def execute_command(cmdline: List, folder: str, timeout=5.0):
     return worker.returncode
 
 
-def execute_venv_command(cmdline, folder, timeout=5.0, wait_and_see=None, assert_exit=0, cd_folder=None):
+def execute_venv_command(cmdline, folder, timeout=15.0, wait_and_see=None, assert_exit=0, cd_folder=None):
     """Run a command in a specific folder using virtualenv created there.
 
     Assume virtualenv is under ``venv`` folder.

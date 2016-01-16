@@ -107,7 +107,7 @@ def test_addon_integration(app_scaffold, addon_scaffold, addon_dev_db):
         with insert_content_after_line(os.path.join(app_scaffold, "myapp", "myapp", "__init__.py"), ADDON_INSTALLED_INITIALIZER, "def run"):
             # path = os.path.join(app_scaffold, "myapp", "myapp", "__init__.py")
             # print(path)
-            exit_code, output, stderr = execute_venv_command("echo 'quit()' | ws-shell development.ini", app_scaffold, cd_folder="myapp")
+            exit_code, output, stderr = execute_venv_command("echo 'quit()' | ws-shell development.ini", app_scaffold, cd_folder="myapp", timeout=30)
             assert "MyModel" in output
 
 

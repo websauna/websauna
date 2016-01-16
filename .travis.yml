@@ -24,8 +24,6 @@ before_script:
   - "sh -e /etc/init.d/xvfb start"
   - sleep 3 # give xvfb some time to start
   - psql -c 'create database websauna_test;' -U postgres
-
-install:
   - pip install -U pip
 
 script:

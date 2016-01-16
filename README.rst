@@ -48,7 +48,7 @@ How it is done?
 Build fast, reach high
 ----------------------
 
-Websauna stands on the shoulders of `Python programming language <https://python.org>`_ and `Pyramid web framework <http://docs.pylonsproject.org/projects/pyramid/en/latest/>`_. It uses `SQLAlchemy <http://sqlalchemy.org/>`_ modelling for data and business logic with automatic admin interface generation. A project scaffold and polished getting started tutorial allow a seasoned Python developer to roll out a custom logic website within few hours - being a turn key solution for the first prototype that can be later iterated on.
+Websauna stands on the shoulders of `Python programming language <https://python.org>`_ and `Pyramid web framework <http://docs.pylonsproject.org/projects/pyramid/en/latest/>`_. It uses `SQLAlchemy <http://sqlalchemy.org/>`_ modelling for data and business logic with automatic admin interface generation. Polished project scaffold and getting started tutorial allow a seasoned Python developer to roll out a custom web service within few hours - being a turn key solution for the first prototype that can be later iterated on.
 
 Security
 --------

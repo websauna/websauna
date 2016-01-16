@@ -1,6 +1,5 @@
-from tomb_routes import simple_route
-
 from websauna.system.http import Request
+from websauna.system.core.route import simple_route
 
 
 # Configure view named home at path / using a template {{package}}/home.html

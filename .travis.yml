@@ -21,4 +21,5 @@ script:
   - py.test --splinter-webdriver=firefox --splinter-make-screenshot-on-failure=true --ini=travis.ini --timeout=200 --durations=10 --cov-report xml --cov websauna --cov-config .coveragerc $PROJECT_NAME
 
 
-
+after_script:
+  - codecov --token=$CODECOV_TOKEN

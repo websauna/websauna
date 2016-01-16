@@ -5,6 +5,7 @@ Rerunning these tests can be greatly sped up by creating a local Python package 
     bash websauna/tests/create_wheelhouse.bash
 
 """
+import time
 
 import os
 import pytest
@@ -51,6 +52,9 @@ def test_addon_pserve(addon_scaffold, addon_dev_db, browser):
     # User models are needed to start the web server
     execute_venv_command("ws-sync-db development.ini", addon_scaffold, cd_folder="websauna.myaddon")
     execute_venv_command("pserve development.ini --pid-file=test_pserve.pid", addon_scaffold, wait_and_see=3.0, cd_folder="websauna.myaddon")
+
+    # Give pserve some time to wake up in CI
+    time.sleep(2)
 
     try:
 

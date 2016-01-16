@@ -5,6 +5,8 @@ Rerunning these tests can be greatly sped up by creating a local Python package 
     bash websauna/tests/create_wheelhouse.bash
 
 """
+import time
+
 import os
 import pytest
 
@@ -127,6 +129,9 @@ def test_create_user(app_scaffold, dev_db, browser):
     execute_venv_command("ws-create-user development.ini mikko@example.com secret", app_scaffold, cd_folder="myapp")
 
     execute_venv_command("pserve development.ini --pid-file=test_pserve.pid", app_scaffold, wait_and_see=3.0, cd_folder="myapp")
+
+    # Give pserve some time to wake up in CI
+    time.sleep(2)
 
     try:
 

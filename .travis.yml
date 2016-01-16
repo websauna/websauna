@@ -31,7 +31,8 @@ install:
 script:
   - python --version
   - which pip
-  - pip install -e ".[test]" --download-cache $HOME/.pip-cache
+  - pip install -q wheelhouse/*
+  - pip install -q -e ".[test]" --download-cache $HOME/.pip-cache
   - py.test --splinter-webdriver=firefox --splinter-make-screenshot-on-failure=true --ini=travis.ini --timeout=200 --durations=10 --cov-report xml --cov websauna --cov-config .coveragerc websauna
 
 

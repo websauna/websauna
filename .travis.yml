@@ -10,9 +10,10 @@ matrix:
         - python: 3.4
         - python: 3.5
 
+# http://stackoverflow.com/a/19460794/315168
 cache:
   directories:
-    - wheelhouse
+    - $HOME/.pip-cache/
 
 # https://docs.travis-ci.com/user/gui-and-headless-browsers/
 before_script:
@@ -23,9 +24,8 @@ before_script:
 script:
   - python --version
   - which pip
-  - bash websauna/tests/create_wheelhouse.bash
-  - pip install -e ".[test]"
-  - py.test --splinter-webdriver=firefox --splinter-make-screenshot-on-failure=true --ini=travis.ini --timeout=200 --durations=10 --cov-report xml --cov websauna --cov-config .coveragerc $PROJECT_NAME
+  - pip install -e ".[test]" --download-cache $HOME/.pip-cache
+  - py.test --splinter-webdriver=firefox --splinter-make-screenshot-on-failure=true --ini=travis.ini --timeout=200 --durations=10 --cov-report xml --cov websauna --cov-config .coveragerc websauna
 
 
 after_script:

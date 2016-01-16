@@ -20,8 +20,9 @@ if find_executable("virtualenv-3.4"):
     VIRTUALENV = "virtualenv-3.4"
     PYTHON_INTERPRETER = "python3.4"
 else:
+    # Codeship.com
     VIRTUALENV = "virtualenv"
-    PYTHON_INTERPRETER = "python3.5"
+    PYTHON_INTERPRETER = "python3.4"
 
 
 def print_subprocess_fail(worker, cmdline):

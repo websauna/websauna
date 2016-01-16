@@ -5,9 +5,17 @@ services:
   - postgresql
   - redis-server
 
-python: 3.4
+python:
+  - 3.4
+
+cache:
+  directories:
+    - wheelhouse
 
 install:
+  - python --version
+  - which pip
+  - bash websauna/tests/create_wheelhouse.bash
   - pip install -e ".[test]"
 
 # https://docs.travis-ci.com/user/gui-and-headless-browsers/

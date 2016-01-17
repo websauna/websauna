@@ -7,9 +7,10 @@ How to get your data in to and out from a database.
     :maxdepth: 1
 
     models
-    columns
     database
     transient
     json
     crud
     admin
+    columns
+    indexes

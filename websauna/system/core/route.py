@@ -1,8 +1,11 @@
 """Route related helpers."""
 import venusian
+from pyramid.config import Configurator
 from websauna.system.http import Request
 from websauna.utils.slug import SlugDecodeError
 from websauna.utils.slug import slug_to_uuid
+from websauna.compat.typing import Optional
+
 from .simpleroute import add_simple_route
 
 
@@ -81,3 +84,24 @@ class simple_route(object):
                 kwargs['attr'] = wrapped.__name__
 
         return wrapped
+
+
+def add_template_only_view(config: Configurator, pattern: str, name: str, template: str, view_args: Optional[dict] = None, route_args: Optional[dict] = None):
+    """Adds a view which do not have a specific view function assgined.
+
+    The view will render a template with the default template context.
+
+    :param pattern: A path where the view is, e.g. ``/features``
+    :param name: View name for ``route_url()``
+    :param tempalte: A template to render
+    :param view_args: kwargs passed to :py:meth:`pyramid.config.Configurator.add_view`
+    :param route_args: kwargs passed to :py:meth:`pyramid.config.Configurator.add_view`
+    """
+
+    def _default_view(request):
+        return {}
+
+    config.add_route(name, pattern)
+    config.add_view(view=_default_view, route_name=name, renderer=template)
+
+

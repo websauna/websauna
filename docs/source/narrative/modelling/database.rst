@@ -24,6 +24,13 @@ You can get a access to the database session through a :py:class:`websauna.syste
 
     TODO
 
+Transaction isolation level and serialization
+=============================================
+
+* http://www.postgresql.org/docs/9.5/static/transaction-iso.html
+
+* http://sqlperformance.com/2014/04/t-sql-queries/the-serializable-isolation-level
+
 PostgreSQL specific
 ===================
 

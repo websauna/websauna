@@ -20,6 +20,8 @@ from websauna.system.admin.modeladmin import configure_model_admin
 from websauna.system.model.utils import attach_model_to_base
 from websauna.utils.configincluder import IncludeAwareConfigParser
 
+from websauna.compat.typing import Callable
+
 
 class SanityCheckFailed(Exception):
     """Looks like the application has configuration which would fail to run."""
@@ -637,6 +639,13 @@ class Initializer:
         # This must be run before configure_database() because SQLAlchemy will resolve @declared_attr and we must have config present by then
         self.configure_instrumented_models()
         self.configure_database()
+
+        # Tests can pass us some extra initialization work on ad hoc
+        extra_init = self.global_config.get("extra_init")
+        if extra_init:
+            resolver = DottedNameResolver()
+            extra_init = resolver.resolve(extra_init)
+            extra_init(self)
 
     def sanity_check(self):
         """Perform post-initialization sanity checks.

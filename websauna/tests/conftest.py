@@ -20,7 +20,9 @@ from websauna.system.devop.cmdline import setup_logging
 from websauna.system.model.meta import create_dbsession
 
 # TODO: Remove this method
-from websauna.system import get_init
+from websauna.compat.typing import Optional
+from websauna.compat.typing import Callable
+from websauna.utils.qualname import get_qual_name
 
 
 @pytest.fixture(scope='session')
@@ -51,6 +53,22 @@ def ini_settings(request) -> dict:
     return config
 
 
+def get_app(ini_settings: dict, extra_init: Optional[Callable] = None) -> Router:
+    """Construct a WSGI application from INI settings.
+
+    You can pass extra callable which is called back when Initializer is about to finish. This allows you to poke app configuration easily.
+    """
+    if extra_init:
+        # Convert extra init to string, because Paster stack doesn't allow raw objects through configuration
+        options = {"extra_init": get_qual_name(extra_init)}
+    else:
+        options = None
+
+    data = bootstrap(ini_settings["_ini_file"], options=options)
+    return data["app"]
+
+
+
 @pytest.fixture(scope='session')
 def app(request, ini_settings: dict, **settings_overrides) -> Router:
     """Initialize WSGI application from INI file given on the command line.
@@ -59,7 +77,7 @@ def app(request, ini_settings: dict, **settings_overrides) -> Router:
 
     :return: WSGI application instance as created by ``Initializer.make_wsgi_app()``. You can access the Initializer instance itself as ``app.initializer``.
     """
-    if not "_ini_file" in ini_settings:
+    if "_ini_file" not in ini_settings:
         raise RuntimeError("You need to give --ini test.ini command line option to py.test to find our test settings")
 
     data = bootstrap(ini_settings["_ini_file"])

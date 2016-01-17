@@ -1,6 +1,7 @@
 """Provide scaffolds for different Websauna projects."""
 import binascii
 import os
+import string
 
 from textwrap import dedent
 from pyramid.scaffolds import PyramidTemplate
@@ -12,6 +13,11 @@ from pyramid.scaffolds.template import TypeMapper
 from pyramid.scaffolds.template import fsenc
 from pyramid.scaffolds.template import native_
 from pyramid.scaffolds.template import Template # API
+
+
+
+def check_valid_package_name(name):
+    assert all(c in string.ascii_lowercase + string.ascii_uppercase + string.digits for c in name), "The scaffold assumes the project name must be ASCII letters and numbers only. This is for the sake of clarify, not a hard requirement and can be changed later. websauna. namespace prefix is automatically added to addon packages."
 
 
 class JinjaFriendlyTemplate(PyramidTemplate):
@@ -54,6 +60,9 @@ class App(JinjaFriendlyTemplate):
     summary = 'Websauna app'
 
     def pre(self, command, output_dir, vars):
+
+        check_valid_package_name(vars['project'])
+
         if vars['package'] == 'site':
             raise ValueError('Sorry, you may not name your package "site". '
                              'The package name "site" has a special meaning in '
@@ -78,6 +87,8 @@ class Addon(PyramidTemplate):
     summary = 'Websauna addon'
 
     def pre(self, command, output_dir, vars):
+
+        check_valid_package_name(vars['project'])
 
         vars['authentication_random'] = binascii.hexlify(os.urandom(20)).decode("utf-8")
         vars['authomatic_random'] = binascii.hexlify(os.urandom(20)).decode("utf-8")

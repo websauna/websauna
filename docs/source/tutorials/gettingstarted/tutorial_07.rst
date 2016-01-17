@@ -81,7 +81,7 @@ Having a Python code is not enough for a working model. You need to inform your 
 
 If you try to start your development server in this point the :term:`sanity check` feature aborts the start up::
 
-    ws-pserve development.ini --reload
+    ws-pserve conf/development.ini --reload
 
     ...
     Model <class 'myapp.models.Question'> declares table question which does not exist in database Engine(postgresql://localhost/myapp_dev)
@@ -91,7 +91,7 @@ If you try to start your development server in this point the :term:`sanity chec
 
 To create a migration script for your application run the following command in your application folder::
 
-    ws-alembic -c development.ini revision --auto -m "Added choices and questions"
+    ws-alembic -c conf/development.ini revision --auto -m "Added choices and questions"
 
     ... a lot of output ...
     .. All done
@@ -104,7 +104,7 @@ You need to do this every time columns change. After the script is created on yo
 
 Then apply migration to your local database::
 
-    ws-alembic -c development.ini upgrade head
+    ws-alembic -c conf/development.ini upgrade head
 
     ... a lot of output ...
     .. All done

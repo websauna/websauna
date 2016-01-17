@@ -31,6 +31,27 @@ Transaction isolation level and serialization
 
 * http://sqlperformance.com/2014/04/t-sql-queries/the-serializable-isolation-level
 
+Debugging SQL queries
+=====================
+
+Debugging by logging
+--------------------
+
+You can turn on SQL queries by editing :term:`SQLAlchemy` logging settings in corresponding configuration file like :term:`development.ini::
+
+    [logger_sqlalchemy]
+    level = WARN
+    handlers =
+    qualname = sqlalchemy.engine
+    # "level = INFO" Show SQL queries in the console
+    # "level = DEBUG" logs SQL queries and results.
+    # "level = WARN" logs neither.  (Recommended for production systems.)
+
+Debugging by pyramid_debugtoolbar
+---------------------------------
+
+:term`pyramid_debugtoolbar` gives various information regarding executed SQL queries during the page rendering.
+
 PostgreSQL specific
 ===================
 

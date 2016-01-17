@@ -3,24 +3,12 @@
 [includes]
 include_ini_files =
     resource://websauna/test.ini
-    resource://{{project}}/base.ini
+    resource://{{project}}/conf/base.ini
     resource://websauna/base.ini
 
 [app:main]
-use = egg:{{project}}
-
-websauna.init = {{project}}.Initializer
 websauna.site_id = {{project}}_test
 websauna.site_email_prefix = [{{project}} TEST]
 sqlalchemy.url = postgresql://localhost/{{project}}_test
-websauna.secrets_file = resource://{{project}}/development-secrets.ini
+websauna.secrets_file = resource://{{project}}/conf/test-secrets.ini
 websauna.test_web_server_port = 8533
-
-###
-# wsgi server configuration
-###
-
-[server:main]
-use = egg:waitress#main
-host = 0.0.0.0
-port = 6543

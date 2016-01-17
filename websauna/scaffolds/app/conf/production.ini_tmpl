@@ -3,7 +3,7 @@
 [includes]
 include_ini_files =
     resource://websauna/production.ini
-    resource://{{project}}/base.ini
+    resource://{{project}}/conf/base.ini
     resource://websauna/base.ini
 
 [app:main]
@@ -12,7 +12,7 @@ websauna.init = {{project}}.Initializer
 websauna.site_id = {{project}}_prod
 websauna.site_email_prefix = [{{project}}]
 sqlalchemy.url = postgresql://localhost/{{project}}_prod
-websauna.secrets_file = resource://{{project}}/production-secrets.ini
+websauna.secrets_file = resource://{{project}}/conf/production-secrets.ini
 
 [server:main]
 use = egg:waitress#main

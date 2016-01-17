@@ -1,0 +1,13 @@
+# pserve and command line configuration for a staging server
+
+[includes]
+include_ini_files =
+    resource://{{project}}/conf/production.ini
+    resource://websauna/production.ini
+    resource://{{project}}/conf/base.ini
+    resource://websauna/base.ini
+
+[app:main]
+websauna.site_id = {{project}}_staging
+sqlalchemy.url = postgresql://localhost/{{project}}_staging
+websauna.secrets_file = resource://{{project}}/conf/staging-secrets.ini

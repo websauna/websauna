@@ -48,7 +48,7 @@ Websauna stores data in SQL databases in tables. When these tables are changed, 
 To do this we use :ref:`ws-alembic` command inside ``myapp`` folder::
 
     cd myapp
-    ws-alembic -c development.ini -x packages=all revision --auto -m "Initial migration"
+    ws-alembic -c conf/development.ini -x packages=all revision --auto -m "Initial migration"
 
 This creates migration script for the default ``user`` and ``groups`` SQL tables.
 
@@ -63,14 +63,14 @@ Running the migration script
 
 Migration script is a repeatable and can be run against multiple database. First you need to run it against the database on your local development computer::
 
-    ws-alembic -c development.ini -x packages=all upgrade head
+    ws-alembic -c conf/development.ini -x packages=all upgrade head
 
 Checking what's in your database
 ================================
 
 You can use :ref:`ws-db-shell` to open a *pgcli* prompt to explore your PostgreSQL database::
 
-    ws-db-shell development.ini
+    ws-db-shell conf/development.ini
 
     wattcoin_dev> \dt
     +----------+--------------------------+--------+---------+

@@ -4,6 +4,8 @@
 # WSGI entry point and websauna INI settings
 #
 [app:main]
+use = egg:{{project}}
+websauna.init = {{project}}.Initializer
 
 # websauna settings
 websauna.site_name = {{project}}

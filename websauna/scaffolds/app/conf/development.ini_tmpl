@@ -3,21 +3,14 @@
 [includes]
 include_ini_files =
     resource://websauna/development.ini
-    resource://{{project}}/base.ini
+    resource://{{project}}/conf/base.ini
     resource://websauna/base.ini
 
 [app:main]
-use = egg:{{project}}
-websauna.init = {{project}}.Initializer
 websauna.site_id = {{project}}_dev
 websauna.site_email_prefix = [{{project}} DEV]
 sqlalchemy.url = postgresql://localhost/{{project}}_dev
-websauna.secrets_file = resource://{{project}}/development-secrets.ini
+websauna.secrets_file = resource://{{project}}/conf/development-secrets.ini
 
 [celery]
 CELERY_ALWAYS_EAGER = true
-
-[server:main]
-use = egg:waitress#main
-host = 0.0.0.0
-port = 6543

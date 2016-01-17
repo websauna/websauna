@@ -1,5 +1,7 @@
 """Provide scaffolds for different Websauna projects."""
 import binascii
+import shutil
+
 import os
 import string
 
@@ -17,7 +19,7 @@ from pyramid.scaffolds.template import Template # API
 
 
 def check_valid_package_name(name):
-    assert all(c in string.ascii_lowercase + string.ascii_uppercase + string.digits for c in name), "The scaffold assumes the project name must be ASCII letters and numbers only. This is for the sake of clarify, not a hard requirement and can be changed later. websauna. namespace prefix is automatically added to addon packages."
+    assert all(c in string.ascii_lowercase + string.ascii_uppercase + string.digits for c in name), "The scaffold assumes the project name must be ASCII letters and numbers only. This is for the sake of clarify when generating the package, not a hard requirement and can be changed later easily edited in the configuration file. websauna. namespace prefix is automatically added to addon packages."
 
 
 class JinjaFriendlyTemplate(PyramidTemplate):
@@ -41,11 +43,15 @@ class JinjaFriendlyTemplate(PyramidTemplate):
         print "Welcome to Pyramid.  Sorry for the convenience." after a
         successful scaffolding rendering."""
 
+        if os.path.exists(os.path.join(self.template_dir(), ".gitignore")):
+            # .gitignore needs special handling because leading dot
+            shutil.copy(os.path.join(self.template_dir(), ".gitignore"), output_dir)
+
         separator = "=" * 79
         msg = dedent(
             """
             %(separator)s
-            Welcome to Websauna.  See README.txt for further information.
+            Welcome to Websauna. See README.rst for further information.
             %(separator)s
         """ % {'separator': separator})
 

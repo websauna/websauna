@@ -9,7 +9,7 @@ Starting a local web development server
 
 Run::
 
-    ws-pserve development.ini --reload
+    ws-pserve conf/development.ini --reload
 
 The web server keeps running until
 

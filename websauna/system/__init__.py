@@ -1,7 +1,9 @@
 """Websauna framework initialization routine."""
 import sys
 
+from horus import IUserClass
 from websauna.system.core.csrf import csrf_mapper_factory
+from websauna.system.user.interfaces import ILoginService
 
 assert sys.version_info >= (3,4), "Websauna needs Python 3.4 or newer"
 
@@ -19,8 +21,6 @@ from pyramid_deform import configure_zpt_renderer
 from websauna.system.admin.modeladmin import configure_model_admin
 from websauna.system.model.utils import attach_model_to_base
 from websauna.utils.configincluder import IncludeAwareConfigParser
-
-from websauna.compat.typing import Callable
 
 
 class SanityCheckFailed(Exception):
@@ -146,7 +146,7 @@ class Initializer:
         from horus.interfaces import IRegisterSchema
         from horus.interfaces import ILoginSchema
         from horus import IResetPasswordSchema
-        from websauna.system.user.interfaces import IUserClass, IGroupClass
+        from websauna.system.user.interfaces import IUserModel, IGroupModel
         from websauna.system.user import schemas
         from websauna.system.user import horus as horus_init
 
@@ -473,9 +473,10 @@ class Initializer:
         """
         from websauna.system.user import models
         from websauna.system.model.meta import Base
-        from websauna.system.user.interfaces import IGroupClass, IUserClass, ISiteCreator
+        from websauna.system.user.interfaces import IGroupModel, IUserModel, ISiteCreator
         from websauna.system.user.usermixin import SiteCreator
         from horus.interfaces import IActivationClass
+        from horus.interfaces import IUserClass
 
         attach_model_to_base(models.User, Base)
         attach_model_to_base(models.Group, Base)
@@ -484,8 +485,11 @@ class Initializer:
 
         # Mark active user and group class
         registry = self.config.registry
+        registry.registerUtility(models.User, IUserModel)
+        registry.registerUtility(models.Group, IGroupModel)
+
+        # TODO: Legacy Horus compatibiltiy
         registry.registerUtility(models.User, IUserClass)
-        registry.registerUtility(models.Group, IGroupClass)
 
         site_creator = SiteCreator()
         registry.registerUtility(site_creator, ISiteCreator)
@@ -497,6 +501,11 @@ class Initializer:
         """Configure user model, sign in and sign up subsystem."""
         from websauna.system.user import views
         from horus.resources import UserFactory
+        from websauna.system.user.loginservice import DefaultLoginService
+
+        # Set up login service
+        registry = self.config.registry
+        registry.registerUtility(DefaultLoginService(), ILoginService)
 
         # Configure user models base package
         # TODO: Get rid of Horus

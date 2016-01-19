@@ -7,7 +7,7 @@ from sqlalchemy.orm.attributes import flag_modified
 from websauna.system.user.utils import get_site_creator
 
 from websauna.utils.time import now
-from websauna.system.user.interfaces import IUserClass, ISocialLoginMapper
+from websauna.system.user.interfaces import IUserModel, ISocialLoginMapper
 from zope.interface import implementer
 
 
@@ -40,7 +40,7 @@ class SocialLoginMapper(ABC):
         site_creator.init_empty_site(dbsession, user)
 
     @abstractmethod
-    def capture_social_media_user(self, request:Request, result:LoginResult) -> IUserClass:
+    def capture_social_media_user(self, request:Request, result:LoginResult) -> IUserModel:
         """Extract social media information from the Authomatic login result in order to associate the user account."""
 
 
@@ -71,7 +71,7 @@ class EmailSocialLoginMapper(SocialLoginMapper):
         """
         pass
 
-    def update_every_login_social_data(self, user:IUserClass, data:dict):
+    def update_every_login_social_data(self, user:IUserModel, data:dict):
         """Update internal user data on every login.
 
         Bt default, sets user.user_data["social"]["facebook"] or user.user_data["social"]["yoursocialnetwork"] to reflect the raw data given us by ``import_social_media_user()``.
@@ -93,7 +93,7 @@ class EmailSocialLoginMapper(SocialLoginMapper):
         The resulting dict must be JSON serializable as it is persisted as is.
         """
 
-    def create_blank_user(self, user_model, dbsession, email) -> IUserClass:
+    def create_blank_user(self, user_model, dbsession, email) -> IUserModel:
         """Create a new blank user instance as we could not find matching user with the existing details."""
         user = user_model(email=email)
         dbsession.add(user)
@@ -107,9 +107,9 @@ class EmailSocialLoginMapper(SocialLoginMapper):
         user = dbsession.query(user_model).filter_by(email=email).first()
         return user
 
-    def get_or_create_user_by_social_medial_email(self, request:Request, user:authomatic.core.User) -> IUserClass:
+    def get_or_create_user_by_social_medial_email(self, request:Request, user:authomatic.core.User) -> IUserModel:
 
-        User = self.registry.queryUtility(IUserClass)
+        User = self.registry.queryUtility(IUserModel)
 
         dbsession = request.dbsession
 
@@ -162,12 +162,12 @@ class FacebookMapper(EmailSocialLoginMapper):
             # "address": user.address,
         }
 
-    def update_first_login_social_data(self, user:IUserClass, data:dict):
+    def update_first_login_social_data(self, user:IUserModel, data:dict):
         super(FacebookMapper, self).update_first_login_social_data(user, data)
         if not user.full_name and data.get("full_name"):
             user.full_name = data["full_name"]
 
-    def capture_social_media_user(self, request:Request, result:LoginResult) -> IUserClass:
+    def capture_social_media_user(self, request:Request, result:LoginResult) -> IUserModel:
         """Extract social media information from the Authomatic login result in order to associate the user account."""
         assert not result.error
 

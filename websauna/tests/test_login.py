@@ -45,9 +45,11 @@ def test_logout(web_server, browser, dbsession, init):
     b.fill("password", PASSWORD)
     b.find_by_name("login_email").click()
 
+    assert b.is_element_visible_by_css("#msg-you-are-logged-in")
     b.find_by_css("#nav-logout").click()
 
     # Anonynous again
+    assert b.is_element_visible_by_css("#msg-logged-out")
     assert not b.is_element_visible_by_css("#nav-logout")
 
     # We should see the log in form

@@ -15,7 +15,7 @@ def test_register_email(web_server, browser, dbsession):
 
     # Load user model
     # registry = get_current_registry()
-    # User = registry.queryUtility(IUserClass)
+    # User = registry.queryUtility(IUserModel)
     # assert User
 
     b = browser

@@ -11,10 +11,13 @@ from sqlalchemy.ext.declarative.base import _declarative_constructor
 
 from hem.text import pluralize
 from horus import models as horus_models
+from websauna.system.user.interfaces import IGroup, IUser
+from zope.interface import implementer
 
 from . import usermixin
 
 
+@implementer(IUser)
 class User(usermixin.UserMixin, horus_models.UserMixin):
     """The default user implementation for Websauna.
 
@@ -46,6 +49,7 @@ class User(usermixin.UserMixin, horus_models.UserMixin):
         )
 
 
+@implementer(IGroup)
 class Group(usermixin.GroupMixin, horus_models.GroupMixin):
 
     __init__ = _declarative_constructor
@@ -64,7 +68,9 @@ class Group(usermixin.GroupMixin, horus_models.GroupMixin):
         )
 
 
+
 class UserGroup(horus_models.UserGroupMixin):
+    """Map one user to one group."""
 
     __tablename__ = "usergroup"
 

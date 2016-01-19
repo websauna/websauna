@@ -154,7 +154,6 @@ def test_create_user(app_scaffold, dev_db, browser):
         b.fill("username", "mikko@example.com")
         b.fill("password", "secret")
         b.find_by_name("login_email").click()
-
         assert b.is_element_present_by_css("#nav-admin")
 
     finally:

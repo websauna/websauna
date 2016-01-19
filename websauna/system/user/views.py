@@ -59,7 +59,7 @@ from websauna.utils.time import now
 
 from . import events
 from websauna.system.user.social import NotSatisfiedWithData
-from websauna.system.user.utils import get_authomatic, get_social_login_mapper, get_user_class, get_site_creator
+from websauna.system.user.utils import get_authomatic, get_social_login_mapper, get_user_class, get_site_creator, get_login_service
 from websauna.system.core import messages
 
 
@@ -96,51 +96,6 @@ def create_activation(request, user):
 
     site_creator = get_site_creator(request.registry)
     site_creator.check_empty_site_init(request.dbsession, user)
-
-
-def authenticated(request:Request, user:UserMixin, location:str=None) -> HTTPFound:
-    """Logs in the user.
-
-    TODO: Make this is a registry component for overriding
-
-    Sets the auth cookies and redirects to the page defined in horus.login_redirect, which defaults to a view named 'index'.
-
-    Fills in user last login details.
-
-    :param request: Current request
-
-    :param user: User model to log in
-
-    :param location: Override the redirect page. If none use ``horus.login_redirect``
-    """
-
-    # See that our user model matches one we expect from the configuration
-    registry = request.registry
-    User = get_user_class(registry)
-    assert User
-    assert isinstance(user, User)
-
-    assert user.id, "Cannot login with invalid user object"
-    if not user.can_login():
-        raise RuntimeError("Got authenticated() request for disabled user - should not happen")
-
-    headers = remember(request, user.id)
-    # assert headers, "Authentication backend did not give us any session headers"
-
-    if not user.last_login_at:
-        e = events.FirstLogin(request, user)
-        request.registry.notify(e)
-
-    # Update user security details
-    user.last_login_at = now()
-    user.last_login_ip = request.client_addr
-
-    if not location:
-        location = get_config_route(request, 'horus.login_redirect')
-
-    messages.add(request, kind="success", msg="You are now logged in.", msg_id="msg-you-are-logged-in")
-
-    return HTTPFound(location=location, headers=headers)
 
 
 class RegisterController(horus_views.RegisterController):
@@ -209,7 +164,8 @@ class RegisterController(horus_views.RegisterController):
             self.request, user, None, controls))
         if autologin:
             self.db.flush()  # in order to get the id
-            return authenticated(self.request, user)
+            login_service = get_login_service(self.request.registry)
+            return login_service.authenticate(self.request, user)
         else:  # not autologin: user must log in just after registering.
             return self.waiting_for_activation(user)
 
@@ -234,7 +190,8 @@ class RegisterController(horus_views.RegisterController):
                 self.db.flush()
 
                 if self.login_after_activation:
-                    return authenticated(self.request, user)
+                    login_service = get_login_service(self.request.registry)
+                    return login_service.authenticate(self.request, user)
                 else:
                     self.request.registry.notify(RegistrationActivatedEvent(self.request, user, activation))
                     return HTTPFound(location=self.after_activate_url)
@@ -257,48 +214,12 @@ class AuthController(horus_views.AuthController):
             'horus.login_redirect'
         )
 
-        self.logout_redirect_view = get_config_route(
-            request,
-            'horus.logout_redirect'
-        )
-
-        self.require_activation = asbool(
-            self.settings.get('horus.require_activation', True)
-        )
-        self.allow_inactive_login = asbool(
-            self.settings.get('horus.allow_inactive_login', False)
-        )
-
         # XXX: Bootstrap classes leak into Deform here
         login_button = deform.Button(name="login_email", title="Login with email", css_class="btn-lg btn-block")
         self.form = form(self.schema, buttons=(login_button,))
 
         # If the form is embedded on other pages force it go to right HTTP POST endpoint
         self.form.action = request.route_url("login")
-
-    def check_credentials(self, username, password):
-        allow_email_auth = self.settings.get('horus.allow_email_auth', False)
-
-        # Check login with username
-        User = get_user_class(self.request.registry)
-        user = User.get_user(self.request, username, password)
-
-        # Check login with email
-        if allow_email_auth and not user:
-            user = User.get_by_email_password(self.request, username, password)
-
-        if not user:
-            raise AuthenticationFailure(_('Invalid username or password.'))
-
-        if not self.allow_inactive_login and self.require_activation \
-                and not user.is_activated:
-            raise AuthenticationFailure(
-                _('Your account is not active, please check your e-mail.'))
-
-        if not user.can_login():
-            raise AuthenticationFailure(_('This user account cannot log in at the moment.'))
-
-        return user
 
     @view_config(route_name='login', renderer='login/login.html')
     def login(self):
@@ -322,10 +243,10 @@ class AuthController(horus_views.AuthController):
 
             username = captured['username']
             password = captured['password']
+            login_service = get_login_service(self.request.registry)
 
             try:
-                user = self.check_credentials(username, password)
-                assert user.password
+                user = login_service.check_credentials(self.request, username, password)
             except AuthenticationFailure as e:
 
                 # Tell user they cannot login at the moment
@@ -337,7 +258,7 @@ class AuthController(horus_views.AuthController):
                     "social_logins": social_logins
                 }
 
-            return authenticated(self.request, user)
+            return login_service.authenticate(self.request, user)
 
     @view_config(route_name='registration_complete', renderer='login/registration_complete.html')
     def registration_complete(self):
@@ -361,13 +282,12 @@ class AuthController(horus_views.AuthController):
         # Don't allow <img src="http://server/logout">
         assert self.request.method == "POST"
         check_csrf_token(self.request)
-        self.request.session.invalidate()
-        messages.add(self.request, msg="You are now logged out.", kind="success", msg_id="msg-logged-out")
-        headers = forget(self.request)
-        return HTTPFound(location=self.logout_redirect_view, headers=headers)
+        login_service = get_login_service(self.request.registry)
+        return login_service.logout(self.request)
 
 
 class ForgotPasswordController(horus_views.ForgotPasswordController):
+    """TODO: This view is going to see a rewrite."""
 
     @view_config(route_name='forgot_password', renderer='login/forgot_password.html')
     def forgot_password(self):
@@ -392,6 +312,9 @@ class ForgotPasswordController(horus_views.ForgotPasswordController):
             # This catches if the email does not exist, too.
             return {'form': e.render(), 'errors': e.error.children}
 
+        # Process valid form
+        email = captured["email"]
+        #user_service = get_user_service(request.registry)
         user = self.User.get_by_email(req, captured['email'])
         activation = self.Activation()
         self.db.add(activation)
@@ -406,6 +329,7 @@ class ForgotPasswordController(horus_views.ForgotPasswordController):
 
         FlashMessage(req, "Please check your email to continue password reset.", kind='success')
         return HTTPFound(location=self.reset_password_redirect_view)
+
 
     @view_config(route_name='reset_password', renderer='login/reset_password.html')
     def reset_password(self):
@@ -511,7 +435,8 @@ class AuthomaticLoginHandler:
     def do_success(self, authomatic_result:LoginResult) -> Response:
         """Handle we got a valid OAuth login data."""
         user = self.mapper.capture_social_media_user(self.request, authomatic_result)
-        return authenticated(self.request, user)
+        login_service = get_login_service(self.request.registry)
+        return login_service.authenticate(self.request, user)
 
     def do_error(self, authomatic_result: LoginResult, e: Exception) -> Response:
         """Handle getting error from OAuth provider."""

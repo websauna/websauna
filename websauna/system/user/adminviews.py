@@ -1,5 +1,4 @@
 """CRUD views for user and group management."""
-
 import colander
 import deform
 from pyramid_layout.panel import panel_config
@@ -92,7 +91,7 @@ class UserShow(admin_views.Show):
 
 
 class UserEdit(admin_views.Edit):
-    """Show one user."""
+    """Edit one user in admin interface."""
 
     includes = admin_views.Edit.includes + [
                 "enabled",

@@ -106,7 +106,7 @@ Backend
 
 * Pyramid web framework
 
-* PostgreSQ with JSONB support persistent data
+* PostgreSQL with JSONB support persistent data
 
 * Redis for session and transient data
 
@@ -117,7 +117,7 @@ Backend
 Frontend
 --------
 
-* :term:`Bootstrap` CSS ja JS frontend framework
+* :term:`Bootstrap` frontend framework for CSS and JavaScript
 
 * :term:`Jinja` templates
 

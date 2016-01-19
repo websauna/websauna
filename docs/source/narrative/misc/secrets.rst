@@ -70,7 +70,7 @@ You can also use environment variable interpolation::
     scope = user_about_me, email
     mapper = websauna.system.user.social.FacebookMapper
 
-Create a file ``setup-secrets``with content::
+Create a file ``setup-secrets`` with content::
 
     RANDOM_VALUE="xxx"
     FACEBOOK_CONSUMER_KEY="xxx"

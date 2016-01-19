@@ -100,10 +100,6 @@ staging.ini
 
 Same as `production.ini`, but with staging secrets, so that you can use different API credentials for a staging server and production server.
 
-See :download:`staging.ini <../../../staging.ini>`.
-
-.. _secrets:
-
 secrets
 -------
 

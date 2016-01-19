@@ -12,7 +12,7 @@ from websauna.utils.time import now
 from zope.interface import implementer
 
 from websauna.system.user.interfaces import ILoginService, IUser
-from websauna.system.user.utils import get_user_class, get_login_service
+from websauna.system.user.utils import get_user_class, get_login_service, get_user_registry
 
 from . import events
 
@@ -43,12 +43,13 @@ class DefaultLoginService:
         require_activation = asbool(settings.get('horus.require_activation', True))
         allow_inactive_login = asbool(settings.get('horus.allow_inactive_login', False))
         # Check login with username
-        User = get_user_class(request.registry)
-        user = User.get_user(request, username, password)
+        user_registry = get_user_registry(request)
+        user = user_registry.get_authenticated_user_by_username(username, password)
 
+        User = get_user_class(request.registry)
         # Check login with email
         if allow_email_auth and not user:
-            user = User.get_by_email_password(request, username, password)
+            user = user_registry.get_authenticated_user_by_email(username, password)
 
         if not user:
             raise AuthenticationFailure('Invalid username or password.')
@@ -79,15 +80,13 @@ class DefaultLoginService:
 
         # See that our user model matches one we expect from the configuration
         registry = request.registry
-        User = get_user_class(registry)
-        assert User
-        assert isinstance(user, User)
 
-        assert user.id, "Cannot login with invalid user object"
         if not user.can_login():
             raise RuntimeError("Got authenticated() request for disabled user - should not happen")
 
-        headers = remember(request, user.id)
+        user_registry = get_user_registry(request)
+        token = user_registry.get_session_token(user)
+        headers = remember(request, token)
         # assert headers, "Authentication backend did not give us any session headers"
 
         self.update_login_data(request, user)

@@ -302,6 +302,7 @@ class ForgotPasswordController(horus_views.ForgotPasswordController):
 
         # Process valid form
         email = captured["email"]
+
         #user_service = get_user_service(request.registry)
         user = self.User.get_by_email(req, captured['email'])
         activation = self.Activation()

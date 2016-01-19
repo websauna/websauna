@@ -4,19 +4,19 @@ from pyramid.security import unauthenticated_userid
 from websauna.system.http import Request
 from websauna.system.user.models import User
 
-from websauna.system.user.utils import get_user_class
+from websauna.system.user.utils import get_user_class, get_user_registry
 
 
-def get_user(user_id, request:Request) -> User:
+def get_user(session_token: str, request: Request) -> User:
     """Extract the logged in user from the request object using Pyramid's authentication framework."""
 
     # user_id = unauthenticated_userid(request)
 
     # TODO: Abstract this to its own service like in Warehouse?
-    user_class = get_user_class(request.registry)
+    user_registry = get_user_registry(request)
 
-    if user_id is not None:
-        user = user_class.get_by_id(request, user_id)
+    if session_token is not None:
+        user = user_registry.get_user_by_session_token(session_token)
 
         # Check through conditions why this user would no longer be valid
         if user:

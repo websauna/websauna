@@ -141,6 +141,10 @@ class UserMixin:
         """Check if the current session is still valid for this user."""
         return self.last_auth_sensitive_operation_at <= session_created_at
 
+    def verify_password(self, password):
+        # TODO: Remove this Horus'ism
+        return self.validate_user(self, password)
+
 
 class GroupMixin:
     """Basic fields for Websauna default group model."""

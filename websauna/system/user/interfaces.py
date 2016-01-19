@@ -13,9 +13,23 @@ class IUser(Interface):
     """
 
 
-    # How we present the user's name to the user itself.
-    # Usually. Picks one of 1) full name if set 2) username if set 3) email.
-    friendly_name = zope.interface.Attribute("""X blah blah""")
+    #: How we present the user's name to the user itself. Usually. Picks one of 1) full name if set 2) username if set 3) email.
+    friendly_name = zope.interface.Attribute("friendly_name")
+
+    #: True if the user has completed email activation or any other external activation required for login
+    is_activated = zope.interface.Attribute("is_activated")
+
+    def can_login() -> bool:
+        """Can user login.
+
+        True if user is enabled and there is no managerial reason to deny the login.
+        """
+
+    def get_session_remember_token() -> str:
+        """The token used to carry logged in user in the session.
+
+        Usually just user.id.
+        """
 
 
 class IGroup(Interface):
@@ -23,9 +37,6 @@ class IGroup(Interface):
 
     Usually SQLAlchemy model instance of :py:class:`websauna.system.user.usermixin.GroupMixin` but can be any object.
     """
-
-
-
 
 
 class IUserModel(Interface):
@@ -61,6 +72,15 @@ class ILoginService(Interface):
     * Do post login actions
     """
 
+    def check_credentials(self, request: IRequest, username: str, password: str) -> IUser:
+        """Check if the user password matches.
+
+        :param username: username or email
+        :param password:
+        :raise horus.exceptionsAuthenticationFailure: On login problem. TODO: Exception class to be changed.
+        :return: User object which was picked
+        """
+
     def authenticate(self, request: IRequest, user: IUser, location: str=None) -> IResponse:
         """Logs in the user.
 
@@ -89,6 +109,19 @@ class ILoginService(Interface):
 
 
 class IOAuthLoginService(Interface):
-    """Utility that is responsible to authenticate incoming OAuth logins.
+    """Service that is responsible to handle OAuth HTTP traffic."""
 
+    def handle_request(request: IRequest, provider_name: str) -> IResponse:
+        """Handle all requests coming to login/facebook, login/twitter etc. endpoints.
+
+        * Login form does an empty HTTP POST request to initiate OAuth process
+
+        * Federated authentication service does HTTP GET redirect when they accept OAuth authentication request
+        """
+
+
+class IUserRegistry(Interface):
+    """Manage creation and querying of users.
+
+    Allow abstraction over the user backend - do not assume users are stored in the primary database.
     """

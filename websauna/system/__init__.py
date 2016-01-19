@@ -3,7 +3,7 @@ import sys
 
 from horus import IUserClass
 from websauna.system.core.csrf import csrf_mapper_factory
-from websauna.system.user.interfaces import ILoginService, IOAuthLoginService
+from websauna.system.user.interfaces import ILoginService, IOAuthLoginService, IUserRegistry
 
 assert sys.version_info >= (3,4), "Websauna needs Python 3.4 or newer"
 
@@ -11,7 +11,7 @@ import logging
 import os
 
 from pyramid.config import Configurator
-from pyramid.interfaces import IDebugLogger, IViewMapperFactory
+from pyramid.interfaces import IDebugLogger, IViewMapperFactory, IRequest
 from pyramid.path import DottedNameResolver
 from pyramid.settings import aslist
 from pyramid.settings import asbool
@@ -472,12 +472,15 @@ class Initializer:
 
         Connect chosen user model to SQLAlchemy model Base. Also set up :py:class:`websauna.system.user.usermixin.SiteCreator` logic - what happens when the first user logs in.
         """
+
+        from horus.interfaces import IActivationClass
+        from horus.interfaces import IUserClass
+
         from websauna.system.user import models
         from websauna.system.model.meta import Base
         from websauna.system.user.interfaces import IGroupModel, IUserModel, ISiteCreator
         from websauna.system.user.usermixin import SiteCreator
-        from horus.interfaces import IActivationClass
-        from horus.interfaces import IUserClass
+        from websauna.system.user.userregistry import DefaultEmailBasedUserRegistry
 
         attach_model_to_base(models.User, Base)
         attach_model_to_base(models.Group, Base)
@@ -497,6 +500,7 @@ class Initializer:
 
         # TODO: Get rid of Horus
         registry.registerUtility(models.Activation, IActivationClass)
+        registry.registerAdapter(factory=DefaultEmailBasedUserRegistry, required=(IRequest,), provided=IUserRegistry)
 
     def configure_user(self, settings, secrets):
         """Configure user model, sign in and sign up subsystem."""

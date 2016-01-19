@@ -1,7 +1,7 @@
 from authomatic import Authomatic
 from pyramid.registry import Registry
 
-from websauna.system.user.interfaces import IGroupModel, IUserModel, IAuthomatic, ISocialLoginMapper, ISiteCreator, ILoginService, IActivationModel
+from websauna.system.user.interfaces import IGroupModel, IUserModel, IAuthomatic, ISocialLoginMapper, ISiteCreator, ILoginService, IActivationModel, IOAuthLoginService
 
 
 def get_user_class(registry) -> IUserModel:
@@ -47,3 +47,7 @@ def get_social_login_mapper(registry, provider_id:str) -> ISocialLoginMapper:
 
 def get_login_service(registry: Registry) -> ILoginService:
     return registry.queryUtility(ILoginService)
+
+
+def get_oauth_login_service(registry: Registry) -> IOAuthLoginService:
+    return registry.queryUtility(IOAuthLoginService)

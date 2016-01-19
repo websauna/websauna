@@ -3,7 +3,7 @@ import sys
 
 from horus import IUserClass
 from websauna.system.core.csrf import csrf_mapper_factory
-from websauna.system.user.interfaces import ILoginService
+from websauna.system.user.interfaces import ILoginService, IOAuthLoginService
 
 assert sys.version_info >= (3,4), "Websauna needs Python 3.4 or newer"
 
@@ -245,15 +245,14 @@ class Initializer:
 
         Set up Authomatic login services.
 
-        Read enabled logins from the configuration file.
-
-        Read consumer secrets from a secrets.ini.
+        Read enabled federated authentication methods from the configuration file.
         """
 
         # TODO: Refactor this functions, not clean
 
         import authomatic
         from websauna.system.user.interfaces import IAuthomatic, ISocialLoginMapper
+        from websauna.system.user.oauthloginservice import DefaultOAuthLoginService
 
         settings = self.settings
         secrets = self.secrets
@@ -301,6 +300,8 @@ class Initializer:
 
         instance = authomatic.Authomatic(config=authomatic_config, secret=authomatic_secret, logger=logger)
         self.config.registry.registerUtility(instance, IAuthomatic)
+
+        self.config.registry.registerUtility(DefaultOAuthLoginService(), IOAuthLoginService)
 
     def configure_database(self):
         """Configure database.

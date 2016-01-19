@@ -88,7 +88,7 @@ class ILoginService(Interface):
         """
 
 
-class ISocialLoginService(Interface):
+class IOAuthLoginService(Interface):
     """Utility that is responsible to authenticate incoming OAuth logins.
 
     """

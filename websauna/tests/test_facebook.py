@@ -6,6 +6,7 @@ To run::
 
 
 """
+import time
 
 import os
 
@@ -55,6 +56,9 @@ def do_facebook_login(browser):
     # FB allow app confirmation dialog - this is only once per user unless you reset in in your FB profile
     if b.is_text_present("will receive the following info"):
         b.find_by_css("button[name='__CONFIRM__']").click()
+
+    # Give CI env browser some time to catch up
+    time.sleep(1.5)
 
 
 def do_facebook_login_if_facebook_didnt_log_us_already(browser):

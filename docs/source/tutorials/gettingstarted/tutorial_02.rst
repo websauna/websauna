@@ -58,6 +58,8 @@ Install Python 3.5
 
 Install Redis
 
+.. code-block:: shell
+
     sudo apt install redis-server
 
 Install PostgreSQL

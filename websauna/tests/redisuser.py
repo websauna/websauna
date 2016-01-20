@@ -16,20 +16,9 @@ class Initializer(websauna.system.Initializer):
     Override parent class methods to customize application behavior.
     """
 
-    def configure_static(self):
-        """Configure static asset serving and cache busting."""
-        super(Initializer, self).configure_static()
-
-        self.config.add_static_view('myapp-static', 'myapp:static')
-        self.add_cache_buster("myapp:static/")
-
     def configure_templates(self):
         """Include our package templates folder in Jinja 2 configuration."""
         super(Initializer, self).configure_templates()
-
-        self.config.add_jinja2_search_path('myapp:templates', name='.html', prepend=True)  # HTML templates for pages
-        self.config.add_jinja2_search_path('myapp:templates', name='.txt', prepend=True)  # Plain text email templates (if any)
-        self.config.add_jinja2_search_path('myapp:templates', name='.xml', prepend=True)  # Sitemap and misc XML files (if any)
 
     def configure_views(self):
         """Configure views for your application.

@@ -13,6 +13,7 @@ import os
 import transaction
 import pytest
 from websauna.system.devop.cmdline import init_websauna
+from websauna.tests.utils import create_user
 
 from websauna.tests.webserver import customized_web_server
 from websauna.system.user.models import User
@@ -133,3 +134,27 @@ def test_facebook_second_login(web_server, browser, dbsession):
         assert u.activated_at
 
     b.find_by_css("#nav-logout").click()
+
+
+
+@pytest.mark.skipif("FACEBOOK_USER" not in os.environ, reason="Give Facebook user/pass as environment variables")
+def test_facebook_login_disabled_user(web_server, browser, dbsession, init):
+    """Logged in user which is not enabled should give an error.."""
+
+    with transaction.manager:
+        u = create_user(dbsession, init.config.registry, email=os.environ["FACEBOOK_USER"])
+        u.enabled = False
+
+    b = browser
+    b.visit(web_server)
+
+    b.click_link_by_text("Sign in")
+
+    assert b.is_element_visible_by_css("#login-form")
+
+    b.find_by_css(".btn-login-facebook").click()
+
+    do_facebook_login_if_facebook_didnt_log_us_already(browser)
+
+    assert b.is_element_present_by_css("#msg-cannot-login-social-media-user")
+

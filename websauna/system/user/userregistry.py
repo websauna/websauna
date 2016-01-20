@@ -1,10 +1,6 @@
 """Default user object generator."""
 
-from pyramid.httpexceptions import HTTPFound
-from pyramid.response import Response
 from sqlalchemy import func
-from websauna.system.core import messages
-from websauna.system.mail import send_templated_mail
 from websauna.system.user.interfaces import IUserRegistry
 from websauna.system.user.usermixin import UserMixin
 from websauna.system.user.utils import get_user_class, get_activation_model

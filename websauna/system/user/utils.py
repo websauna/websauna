@@ -46,12 +46,14 @@ def get_social_login_mapper(registry, provider_id:str) -> ISocialLoginMapper:
     return registry.queryUtility(ISocialLoginMapper, name=provider_id)
 
 
-def get_login_service(registry: Registry) -> ILoginService:
-    return registry.queryUtility(ILoginService)
+def get_login_service(request: IRequest) -> ILoginService:
+    assert IRequest.providedBy(request)
+    return request.registry.queryAdapter(request, ILoginService)
 
 
-def get_oauth_login_service(registry: Registry) -> IOAuthLoginService:
-    return registry.queryUtility(IOAuthLoginService)
+def get_oauth_login_service(request: IRequest) -> IOAuthLoginService:
+    assert IRequest.providedBy(request)
+    return request.registry.queryAdapter(request, IOAuthLoginService)
 
 
 def get_user_registry(request: IRequest) -> IUserRegistry:

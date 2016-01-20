@@ -40,15 +40,15 @@ from horus.events import RegistrationActivatedEvent
 from horus.events import PasswordResetEvent
 from horus.lib import FlashMessage
 from horus.models import _, UserMixin
-from horus.exceptions import AuthenticationFailure
 from horus import views as horus_views
 from horus.views import get_config_route
+from websauna.system import ILoginService
 
 from websauna.system.mail import send_templated_mail
 from websauna.utils.slug import uuid_to_slug, slug_to_uuid
 from websauna.system.user.utils import get_user_class, get_site_creator, get_login_service, get_oauth_login_service
 from websauna.system.core import messages
-
+from .interfaces import AuthenticationFailure
 
 logger = logging.getLogger(__name__)
 
@@ -196,11 +196,6 @@ class AuthController(horus_views.AuthController):
 
         form = request.registry.getUtility(ILoginForm)
 
-        self.login_redirect_view = get_config_route(
-            request,
-            'horus.login_redirect'
-        )
-
         # XXX: Bootstrap classes leak into Deform here
         login_button = deform.Button(name="login_email", title="Login with email", css_class="btn-lg btn-block")
         self.form = form(self.schema, buttons=(login_button,))
@@ -219,6 +214,9 @@ class AuthController(horus_views.AuthController):
             return {'form': self.form.render(), "social_logins": social_logins}
 
         elif self.request.method == 'POST':
+
+            check_csrf_token(self.request)
+
             try:
                 controls = self.request.POST.items()
                 captured = self.form.validate(controls)
@@ -230,10 +228,10 @@ class AuthController(horus_views.AuthController):
 
             username = captured['username']
             password = captured['password']
-            login_service = get_login_service(self.request.registry)
+            login_service = get_login_service(self.request)
 
             try:
-                user = login_service.check_credentials(self.request, username, password)
+                return login_service.authenticate_credentials(username, password, login_source="login_form")
             except AuthenticationFailure as e:
 
                 # Tell user they cannot login at the moment
@@ -245,7 +243,7 @@ class AuthController(horus_views.AuthController):
                     "social_logins": social_logins
                 }
 
-            return login_service.authenticate(self.request, user)
+
         else:
             raise AssertionError("Unknown HTTP method")
 
@@ -262,16 +260,16 @@ class AuthController(horus_views.AuthController):
 
         # Get the internal provider name URL variable.
         provider_name = self.request.matchdict.get('provider_name')
-        oauth_login_service = get_oauth_login_service(self.request.registry)
-        return oauth_login_service.handle_request(self.request, provider_name)
+        oauth_login_service = get_oauth_login_service(self.request)
+        return oauth_login_service.handle_request(provider_name)
 
     @view_config(permission='authenticated', route_name='logout')
     def logout(self):
         # Don't allow <img src="http://server/logout">
         assert self.request.method == "POST"
         check_csrf_token(self.request)
-        login_service = get_login_service(self.request.registry)
-        return login_service.logout(self.request)
+        login_service = get_login_service(self.request)
+        return login_service.logout()
 
 
 class ForgotPasswordController(horus_views.ForgotPasswordController):

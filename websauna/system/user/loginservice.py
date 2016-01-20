@@ -1,5 +1,4 @@
 """Default login service implementation."""
-from horus.exceptions import AuthenticationFailure
 from horus.views import get_config_route
 from pyramid.httpexceptions import HTTPFound
 from pyramid.response import Response
@@ -12,15 +11,21 @@ from websauna.utils.time import now
 from zope.interface import implementer
 
 from websauna.system.user.interfaces import ILoginService, IUser
-from websauna.system.user.utils import get_user_class, get_login_service, get_user_registry
+from websauna.system.user.utils import get_user_registry
 
 from . import events
+from .interfaces import AuthenticationFailure
 
 
 @implementer(ILoginService)
 class DefaultLoginService:
+    """A login service which tries to authenticate with email and username against the current user registry."""
 
-    def update_login_data(self, request, user):
+    def __init__(self, request: Request):
+        self.request = request
+
+    def update_login_data(self, user):
+        request = self.request
         if not user.last_login_at:
             e = events.FirstLogin(request, user)
             request.registry.notify(e)
@@ -29,24 +34,26 @@ class DefaultLoginService:
         user.last_login_at = now()
         user.last_login_ip = request.client_addr
 
-    def check_credentials(self, request: Request, username: str, password: str) -> UserMixin:
+    def check_credentials(self, username: str, password: str) -> UserMixin:
         """Check if the user password matches.
+
+        * First try username + password
+
+        + Then try with email + password
 
         :param username: username or email
         :param password:
         :raise horus.exceptionsAuthenticationFailure: On login problem. TODO: Exception class to be changed.
         :return: User object which was picked
         """
+        request = self.request
         settings = request.registry.settings
         allow_email_auth = settings.get('horus.allow_email_auth', False)
 
-        require_activation = asbool(settings.get('horus.require_activation', True))
-        allow_inactive_login = asbool(settings.get('horus.allow_inactive_login', False))
         # Check login with username
         user_registry = get_user_registry(request)
         user = user_registry.get_authenticated_user_by_username(username, password)
 
-        User = get_user_class(request.registry)
         # Check login with email
         if allow_email_auth and not user:
             user = user_registry.get_authenticated_user_by_email(username, password)
@@ -54,16 +61,38 @@ class DefaultLoginService:
         if not user:
             raise AuthenticationFailure('Invalid username or password.')
 
+        return user
+
+    def authenticate_user(self, user: IUser, login_source:str, location: str=None):
+        """Make the current session logged in session for this particular user."""
+        request = self.request
+        settings = request.registry.settings
+
+        require_activation = asbool(settings.get('horus.require_activation', True))
+        allow_inactive_login = asbool(settings.get('horus.allow_inactive_login', False))
+
         if (not allow_inactive_login) and require_activation and (not user.is_activated):
             raise AuthenticationFailure('Your account is not active, please check your e-mail.')
 
         if not user.can_login():
             raise AuthenticationFailure('This user account cannot log in at the moment.')
 
-        return user
+        user_registry = get_user_registry(request)
+        token = user_registry.get_session_token(user)
+        headers = remember(request, token)
+        # assert headers, "Authentication backend did not give us any session headers"
 
-    def authenticate(self, request: Request, user: UserMixin, location: str=None) -> Response:
-        """Logs in the user.
+        self.update_login_data(user)
+
+        if not location:
+            location = get_config_route(request, 'horus.login_redirect')
+
+        messages.add(request, kind="success", msg="You are now logged in.", msg_id="msg-you-are-logged-in")
+
+        return HTTPFound(location=location, headers=headers)
+
+    def authenticate_credentials(self, username: str, password: str, login_source:str, location: str=None) -> Response:
+        """Try logging in the user with username and password.
 
         This is called after the user credentials have been validated, after sign up when direct sign in after sign up is in use or after successful federated authentication.
 
@@ -76,29 +105,19 @@ class DefaultLoginService:
         :param user: Default login service is designed to work with UserMixin compatible user classes
 
         :param location: Override the redirect page. If none use ``horus.login_redirect``. TODO - to be changed.
+
+        :raise: AuthenticationError
         """
 
         # See that our user model matches one we expect from the configuration
+        request = self.request
         registry = request.registry
 
-        if not user.can_login():
-            raise RuntimeError("Got authenticated() request for disabled user - should not happen")
+        user = self.check_credentials(username, password)
 
-        user_registry = get_user_registry(request)
-        token = user_registry.get_session_token(user)
-        headers = remember(request, token)
-        # assert headers, "Authentication backend did not give us any session headers"
+        return self.authenticate_user(user, login_source)
 
-        self.update_login_data(request, user)
-
-        if not location:
-            location = get_config_route(request, 'horus.login_redirect')
-
-        messages.add(request, kind="success", msg="You are now logged in.", msg_id="msg-you-are-logged-in")
-
-        return HTTPFound(location=location, headers=headers)
-
-    def logout(self, request: Request, location=None) -> Response:
+    def logout(self, location=None) -> Response:
         """Log out user from the site.
 
         * Terminate session
@@ -109,6 +128,7 @@ class DefaultLoginService:
         """
 
         # TODO: Horus might go
+        request = self.request
         logout_redirect_view = get_config_route(request, 'horus.logout_redirect')
         location = location or logout_redirect_view
 

@@ -11,7 +11,7 @@ from websauna.system.core import messages
 from websauna.system.user.social import NotSatisfiedWithData
 from zope.interface import implementer
 
-from websauna.system.user.interfaces import IOAuthLoginService
+from websauna.system.user.interfaces import IOAuthLoginService, AuthenticationFailure
 from websauna.system.user.utils import get_login_service, get_social_login_mapper, get_authomatic
 
 logger = logging.getLogger(__name__)
@@ -20,14 +20,17 @@ logger = logging.getLogger(__name__)
 @implementer(IOAuthLoginService)
 class DefaultOAuthLoginService:
 
-    def handle_request(self, request: Request, provider_name) -> Response:
+    def __init__(self, request: Request):
+        self.request = request
+
+    def handle_request(self, provider_name) -> Response:
         """Handle all requests coming to login/facebook, login/twitter etc. endpoints.
 
         * Login form does an empty HTTP POST request to initiate OAuth process
 
         * Federated authentication service does HTTP GET redirect when they accept OAuth authentication request
         """
-        ae = AuthomaticLoginHandler(request, provider_name)
+        ae = AuthomaticLoginHandler(self.request, provider_name)
         response = ae.handle()
         return response
 
@@ -88,10 +91,18 @@ class AuthomaticLoginHandler:
         """
 
     def do_success(self, authomatic_result: LoginResult) -> Response:
-        """Handle we got a valid OAuth login data."""
+        """Handle we got a valid OAuth login data.
+
+        Try and log in the user.
+        """
         user = self.mapper.capture_social_media_user(self.request, authomatic_result)
-        login_service = get_login_service(self.request.registry)
-        return login_service.authenticate(self.request, user)
+        try:
+            login_service = get_login_service(self.request)
+            return login_service.authenticate_user(user, login_source=self.provider_name)
+        except AuthenticationFailure as e:
+            messages.add(self.request, kind="error", msg=str(e), msg_id="msg-cannot-login-social-media-user")
+            login_url = self.request.route_url("login")
+            return HTTPFound(location=login_url)
 
     def do_error(self, authomatic_result: LoginResult, e: Exception) -> Response:
         """Handle getting error from OAuth provider."""
@@ -101,8 +112,7 @@ class AuthomaticLoginHandler:
         # TODO: Not sure if we shoul log this or now
         logger.exception(e)
 
-        messages.add(self.request, kind="error", msg=str(e), msg_id="authomatic-login-error")
-
+        messages.add(self.request, kind="error", msg=str(e), msg_id="msg-authomatic-login-error")
         login_url = self.request.route_url("login")
         return HTTPFound(location=login_url)
 

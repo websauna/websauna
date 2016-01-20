@@ -62,26 +62,35 @@ class ISiteCreator(Interface):
     """Utility that is responsible to create the initial site."""
 
 
-class ILoginService(Interface):
-    """Utility that is responsible to authenticate credentials, set up session and return user object.
+class AuthenticationFailure(Exception):
+    """The user is not allowed to log in."""
 
-    This is responsible to
+
+class ILoginService(Interface):
+    """A service that is responsible for handling normal website facing log in actions.
+
+    This service is responsible to
 
     * Set up logged in session
 
-    * Do post login actions
+    * Do post login actions like redirects
+
+    Use :py:func:`websauna.system.user.utils.get_login_service` to get access to configured login service.
     """
 
-    def check_credentials(self, request: IRequest, username: str, password: str) -> IUser:
-        """Check if the user password matches.
+    def authentication_user(user: IUser, login_source:str, location: str=None) -> IResponse:
+        """Make the current session logged in session for this particular user.
 
-        :param username: username or email
-        :param password:
-        :raise horus.exceptionsAuthenticationFailure: On login problem. TODO: Exception class to be changed.
-        :return: User object which was picked
+        A password check is not performed. However it is checked if user is active and such.
+
+        :param location: Override the redirect page. If none use ``horus.login_redirect``. TODO - to be changed.
+
+        :param login_source: Application specific string telling where the login come from. E.g. "social_media", "signup", "login_form".
+
+        :raise AuthenticationFailure: If the user is disabled
         """
 
-    def authenticate(self, request: IRequest, user: IUser, location: str=None) -> IResponse:
+    def authenticate_credentials(username: str, login_source:str, password: str, location: str=None) -> IResponse:
         """Logs in the user.
 
         This is called after the user credentials have been validated.
@@ -95,9 +104,13 @@ class ILoginService(Interface):
         :param user: Default login service is designed to work with UserMixin compatible user classes
 
         :param location: Override the redirect page. If none use ``horus.login_redirect``. TODO - to be changed.
+
+        :param login_source: Application specific string telling where the login come from. E.g. "social_media", "signup", "login_form".
+
+        :raise AuthenticationFailure: If the password does not match or user is disabled
         """
 
-    def logout(self, request: IRequest, location="/") -> IResponse:
+    def logout(location:str =None) -> IResponse:
         """Log out user from the site.
 
         * Terminate session
@@ -109,9 +122,14 @@ class ILoginService(Interface):
 
 
 class IOAuthLoginService(Interface):
-    """Service that is responsible to handle OAuth HTTP traffic."""
+    """A login service for federated authentication.
 
-    def handle_request(request: IRequest, provider_name: str) -> IResponse:
+    See :py:class:`websauna.system.interfaces.ILoginService`.
+
+    Use :py:func:`websauna.system.user.utils.get_oauth_login_service` to get access to configured login service.
+    """
+
+    def handle_request(provider_name: str) -> IResponse:
         """Handle all requests coming to login/facebook, login/twitter etc. endpoints.
 
         * Login form does an empty HTTP POST request to initiate OAuth process

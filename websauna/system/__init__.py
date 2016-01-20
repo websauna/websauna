@@ -301,7 +301,7 @@ class Initializer:
         instance = authomatic.Authomatic(config=authomatic_config, secret=authomatic_secret, logger=logger)
         self.config.registry.registerUtility(instance, IAuthomatic)
 
-        self.config.registry.registerUtility(DefaultOAuthLoginService(), IOAuthLoginService)
+        self.config.registry.registerAdapter(factory=DefaultOAuthLoginService, required=(IRequest,), provided=IOAuthLoginService)
 
     def configure_database(self):
         """Configure database.
@@ -510,7 +510,7 @@ class Initializer:
 
         # Set up login service
         registry = self.config.registry
-        registry.registerUtility(DefaultLoginService(), ILoginService)
+        registry.registerAdapter(factory=DefaultLoginService, required=(IRequest,), provided=ILoginService)
 
         # Configure user models base package
         # TODO: Get rid of Horus

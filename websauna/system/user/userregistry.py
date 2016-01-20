@@ -2,10 +2,11 @@
 
 from sqlalchemy import func
 from websauna.system.user.interfaces import IUserRegistry
-from websauna.system.user.usermixin import UserMixin
+from websauna.system.user.usermixin import UserMixin, GroupMixin
 from websauna.system.user.utils import get_user_class, get_activation_model
 
 from websauna.compat.typing import Optional
+from websauna.compat.typing import List
 from zope.interface import implementer
 
 
@@ -37,6 +38,12 @@ class DefaultEmailBasedUserRegistry:
 
     def get_by_activation(self, activation):
         pass
+
+    def can_login(self, user):
+        return user.can_login()
+
+    def get_groups(self, user) -> List[GroupMixin]:
+        return user.groups
 
     def get_authenticated_user_by_username(self, username, password) -> Optional[UserMixin]:
         """Authenticate incoming user.

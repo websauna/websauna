@@ -4,7 +4,7 @@ from pyramid.security import unauthenticated_userid
 from websauna.system.http import Request
 from websauna.system.user.models import User
 
-from websauna.system.user.utils import get_user_class, get_user_registry
+from websauna.system.user.utils import get_user_registry
 
 
 def get_user(session_token: str, request: Request) -> User:

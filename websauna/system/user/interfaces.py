@@ -38,6 +38,9 @@ class IGroup(Interface):
     Usually SQLAlchemy model instance of :py:class:`websauna.system.user.usermixin.GroupMixin` but can be any object.
     """
 
+    #: Then name of the group
+    name = zope.interface.Attribute("name")
+
 
 class IUserModel(Interface):
     """Register utility registration which marks active User SQLAlchemy model."""

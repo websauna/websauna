@@ -20,14 +20,14 @@ def test_login(web_server, browser, dbsession, init):
 
     b.click_link_by_text("Sign in")
 
-    assert b.is_element_visible_by_css("#login-form")
+    assert b.is_element_present_by_css("#login-form")
 
     b.fill("username", EMAIL)
     b.fill("password", PASSWORD)
     b.find_by_name("login_email").click()
 
     # After login we see a profile link to our profile
-    assert b.is_element_visible_by_css("#nav-logout")
+    assert b.is_element_present_by_css("#nav-logout")
 
 
 def test_logout(web_server, browser, dbsession, init):
@@ -39,21 +39,21 @@ def test_logout(web_server, browser, dbsession, init):
     b = browser
     b.visit("{}/{}".format(web_server, "login"))
 
-    assert b.is_element_visible_by_css("#login-form")
+    assert b.is_element_present_by_css("#login-form")
 
     b.fill("username", EMAIL)
     b.fill("password", PASSWORD)
     b.find_by_name("login_email").click()
 
-    assert b.is_element_visible_by_css("#msg-you-are-logged-in")
+    assert b.is_element_present_by_css("#msg-you-are-logged-in")
     b.find_by_css("#nav-logout").click()
 
     # Anonynous again
-    assert b.is_element_visible_by_css("#msg-logged-out")
-    assert not b.is_element_visible_by_css("#nav-logout")
+    assert b.is_element_present_by_css("#msg-logged-out")
+    assert not b.is_element_present_by_css("#nav-logout")
 
     # We should see the log in form
-    assert b.is_element_visible_by_css("#login-form")
+    assert b.is_element_present_by_css("#login-form")
 
 
 def test_last_login_ip(web_server, browser, dbsession, init):
@@ -71,7 +71,7 @@ def test_last_login_ip(web_server, browser, dbsession, init):
 
     b.click_link_by_text("Sign in")
 
-    assert b.is_element_visible_by_css("#login-form")
+    assert b.is_element_present_by_css("#login-form")
 
     b.fill("username", EMAIL)
     b.fill("password", PASSWORD)
@@ -93,10 +93,10 @@ def test_forget_password(web_server, browser, dbsession, init):
 
     b.click_link_by_text("Sign in")
 
-    assert b.is_element_visible_by_css("#login-form")
+    assert b.is_element_present_by_css("#login-form")
 
     b.click_link_by_text("Forgot your password?")
-    assert b.is_element_visible_by_css("#forgot-password-form")
+    assert b.is_element_present_by_css("#forgot-password-form")
     b.fill("email", EMAIL)
     b.find_by_name("submit").click()
 
@@ -107,7 +107,7 @@ def test_forget_password(web_server, browser, dbsession, init):
         activation_code = user.activation.code
 
     b.visit("{}/reset-password/{}".format(web_server, activation_code))
-    assert b.is_element_visible_by_css("#reset-password-form")
+    assert b.is_element_present_by_css("#reset-password-form")
 
     # Friendly name should be visible
     assert b.is_text_present("example@example.com")
@@ -115,13 +115,13 @@ def test_forget_password(web_server, browser, dbsession, init):
     b.fill("password-confirm", "yyy")
     b.find_by_name("submit").click()
 
-    assert b.is_text_present("The password reset complete.")
+    assert b.is_element_present_by_css("#msg-password-reset-complete")
 
     b.fill("username", EMAIL)
     b.fill("password", "yyy")
     b.find_by_name("login_email").click()
 
-    assert b.is_element_visible_by_css("#nav-logout")
+    assert b.is_element_present_by_css("#nav-logout")
 
 
 def test_forget_password_bad_user(web_server, browser, dbsession, init):
@@ -133,10 +133,10 @@ def test_forget_password_bad_user(web_server, browser, dbsession, init):
     b = browser
     b.visit(web_server + "/login")
 
-    assert b.is_element_visible_by_css("#login-form")
+    assert b.is_element_present_by_css("#login-form")
 
     b.click_link_by_text("Forgot your password?")
-    assert b.is_element_visible_by_css("#forgot-password-form")
+    assert b.is_element_present_by_css("#forgot-password-form")
     b.fill("email", "foo@example.com")
     b.find_by_name("submit").click()
 
@@ -153,10 +153,10 @@ def test_forget_password_disabled_user(web_server, browser, dbsession, init):
     b = browser
     b.visit(web_server + "/login")
 
-    assert b.is_element_visible_by_css("#login-form")
+    assert b.is_element_present_by_css("#login-form")
 
     b.click_link_by_text("Forgot your password?")
-    assert b.is_element_visible_by_css("#forgot-password-form")
+    assert b.is_element_present_by_css("#forgot-password-form")
     b.fill("email", EMAIL)
     b.find_by_name("submit").click()
 
@@ -169,4 +169,4 @@ def test_bad_forget_password_activation_code(web_server, browser, dbsession):
     b.visit("{}/reset-password/xxxx".format(web_server))
 
     # Check we get the pimped up not found page
-    assert b.is_element_visible_by_css("#not-found")
+    assert b.is_element_present_by_css("#not-found")

@@ -113,5 +113,5 @@ class ForgotPasswordSchema(CSRFSchema):
         c.Str(),
         title='Email',
         validator=c.All(c.Email(), validate_user_exists_with_email),
-        widget=w.TextInputWidget(siz e=40, maxlength=260, type='email', template="textinput_placeholder"),
+        widget=w.TextInputWidget(size=40, maxlength=260, type='email', template="textinput_placeholder"),
         description="The email address under which you have your account. Example: joe@example.com")

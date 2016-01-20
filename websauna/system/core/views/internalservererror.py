@@ -12,6 +12,10 @@ logger = logging.getLogger(__name__)
 
 @view_config(context=Exception)
 def internal_server_error(context, request):
+    """Generate the default internal server error page when exception falls through from a view.
+
+    Also see https://github.com/Pylons/pyramid_tm/issues/40
+    """
 
     # Here we have a hardcoded support for Sentry exception logging and pyramid_raven package
     # https://github.com/thruflo/pyramid_raven
@@ -49,7 +53,7 @@ def internal_server_error(context, request):
     html = render('core/internalservererror.html', {}, request=request)
     resp = Response(html)
     resp.status_code = 500
-    transaction.abort()
+    transaction.abort()  # https://github.com/Pylons/pyramid_tm/issues/40
     return resp
 
 

@@ -42,8 +42,8 @@ class DefaultEmailBasedUserRegistry:
     def get_by_email(self, email):
         return self.dbsession.query(self.User).filter(func.lower(self.User.email) == email.lower()).first()
 
-    def get_by_activation(self, activation):
-        pass
+    def get_by_activation(self, activation: object):
+        return self.dbsession.query(self.User).filter(self.User.activation_id == activation.id).first()
 
     def can_login(self, user):
         return user.can_login()
@@ -94,4 +94,18 @@ class DefaultEmailBasedUserRegistry:
     def get_user_by_session_token(self, token: str):
         """Resolve the authenticated user by a session token reference."""
         return self.dbsession.query(self.User).get(token)
+
+    def get_user_by_password_reset_token(self, token: str):
+        """Get user by a password token issued earlier."""
+        activation = self.dbsession.query(self.Activation).filter(self.Activation.code == token).first()
+
+        if activation:
+            user = self.get_by_activation(activation)
+            return user
+
+        return None
+
+    def set_password(self, user: UserMixin, password: str):
+        user.password = password
+        self.dbsession.delete(user.activation)
 

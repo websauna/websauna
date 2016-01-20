@@ -4,6 +4,7 @@ Miscancellous functions
 .. toctree::
     :maxdepth: 1
 
+    addons
     task
     notebook
     mail

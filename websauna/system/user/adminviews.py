@@ -14,6 +14,7 @@ from websauna.system.form.fieldmapper import EditMode
 from websauna.system.form.fields import defer_widget_values
 from websauna.system.user.models import User
 from websauna.system.user.schemas import group_vocabulary, GroupSet, validate_unique_user_email
+from websauna.utils.time import now
 from websauna.viewconfig import view_overrides
 from websauna.system.crud import listing
 from websauna.system.admin import views as admin_views
@@ -135,6 +136,7 @@ class UserAdd(admin_views.Add):
 
     #: TODO: Not sure how we should manage with explicit username - it's not used for login so no need to have a point to ask
 
+
     includes = [
         # "username", --- usernames are never exposed anymore
         colander.SchemaNode(colander.String(), name="email", validator=validate_unique_user_email),
@@ -147,11 +149,13 @@ class UserAdd(admin_views.Add):
         # TODO: Still not sure how handle nested values on the automatically generated add form. But here we need it for groups to appear
         return self.create_form(EditMode.add, buttons=("add", "cancel",), nested=True)
 
-    # def customize_schema(self, schema):
-    #    # TODO: Still unsure if there will be autogeneration of relatinships on add form, this may change
-    #    group_model = get_group_class(self.request.registry)
-    #    schema["groups"].widget = GroupWidget(model=group_model, dictify=schema.dictify)
-    #    schema["groups"].missing = []
+    def add_object(self, obj):
+        """Flush newly created object to persist storage."""
+
+        # Users created through admin are useable right away
+        obj.activated_at = now()
+
+        super(UserAdd, self).add_object(obj)
 
 
 class UserSetPassword(admin_views.Edit):

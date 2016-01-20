@@ -13,6 +13,7 @@ from websauna.system.user.utils import get_site_creator
 from websauna.system.user.models import User
 
 from websauna.compat.typing import Callable
+from websauna.utils.time import now
 
 EMAIL = "example@example.com"
 
@@ -31,6 +32,7 @@ def create_user(dbsession:Session, registry:Registry, email:str=EMAIL, password:
     dbsession.add(user)
     dbsession.flush()
     user.username = user.generate_username()
+    user.activated_at = now()
 
     assert user.can_login()
 

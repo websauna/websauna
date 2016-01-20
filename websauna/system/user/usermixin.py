@@ -117,6 +117,10 @@ class UserMixin:
         assert self.id
         return "user-{}".format(self.id)
 
+    def is_activated(self):
+        """Has the user completed the email activation."""
+        return self.activated_at is not None
+
     def can_login(self):
         """Is this user allowed to login."""
         # TODO: is_active defined in Horus
@@ -209,3 +213,19 @@ class SiteCreator:
             return
 
         self.init_empty_site(dbsession, user)
+
+
+class ActivationMixin:
+
+    #: When this group was created.
+    created_at = Column(UTCDateTime, default=now)
+
+    #: When the group was updated last time. Please note that this does not concern group membership, only desription updates.
+    updated_at = Column(UTCDateTime, onupdate=now)
+
+    #: All activation tokens must have expiring time
+    expires_at = Column(UTCDateTime, nullable=False)
+
+    def is_expired(self):
+        """The activation best before is past and we should not use it anymore."""
+        return self.expires_at < now()

@@ -5,6 +5,7 @@ from pyramid.response import Response
 from websauna.system.core import messages
 from websauna.system.http import Request
 from websauna.system.mail import send_templated_mail
+from websauna.system.user.events import UserAuthSensitiveOperation
 from websauna.system.user.interfaces import ICredentialActivityService, CannotResetPasswordException, IUser
 from websauna.system.user.utils import get_user_registry
 from zope.interface import implementer
@@ -20,7 +21,12 @@ class DefaultCredentialActivityService:
         self.request = request
 
     def activate(self, user_token: str, activation_code: str) -> Response:
-        """Active a user after user activation email."""
+        """Active a user after user after the activation email.
+
+        * User clicks link in the activation email
+
+        * User enters the activation code on the form by hand
+        """
 
         activation = self.Activation.get_by_code(self.request, code)
 
@@ -43,7 +49,6 @@ class DefaultCredentialActivityService:
                     return HTTPFound(location=self.after_activate_url)
 
         return HTTPNotFound()
-
 
     def create_forgot_password_request(self, email, location=None) -> Response:
         """Create a new email activation token for a user and produce the following screen.
@@ -100,10 +105,12 @@ class DefaultCredentialActivityService:
         if not user:
             return HTTPNotFound("Activation code not found")
 
-        user_registry.set_password(user, password)
+        user_registry.reset_password(user, password)
 
         messages.add(request, msg="The password reset complete. Please sign in with your new password.", kind='success', msg_id="msg-password-reset-complete")
+
         request.registry.notify(PasswordResetEvent(self.request, user, password))
+        request.registry.notify(UserAuthSensitiveOperation(self.request, user, "password_reset"))
 
         location = location or get_config_route(request, 'horus.reset_password_redirect')
         return HTTPFound(location=location)

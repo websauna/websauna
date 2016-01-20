@@ -32,7 +32,7 @@ Creating your admin user
 
     This method highlights creating the initial site administrator user from the command line, using email and password. You can also configure any of social media logins (Facebook, Google) as described later in this tutorial. If your first login to the site comes through social media accounts the firstly logged in user becomes admin.
 
-On a shell where your project virtual environment is activated type::
+On a shell where your project virtual environment is activated, cd to a folder with ``development.ini`` and type::
 
     ws-create-user development.ini myemail@example.com
 

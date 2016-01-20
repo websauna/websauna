@@ -19,7 +19,10 @@ from .interfaces import AuthenticationFailure
 
 @implementer(ILoginService)
 class DefaultLoginService:
-    """A login service which tries to authenticate with email and username against the current user registry."""
+    """A login service which tries to authenticate with email and username against the current user registry.
+
+    Login service must know details about user implementation and user registry abstraction is not enough.
+    """
 
     def __init__(self, request: Request):
         self.request = request
@@ -71,8 +74,8 @@ class DefaultLoginService:
         require_activation = asbool(settings.get('horus.require_activation', True))
         allow_inactive_login = asbool(settings.get('horus.allow_inactive_login', False))
 
-        if (not allow_inactive_login) and require_activation and (not user.is_activated):
-            raise AuthenticationFailure('Your account is not active, please check your e-mail.')
+        if (not allow_inactive_login) and require_activation and (not user.is_activated()):
+            raise AuthenticationFailure('Your account is not active, please check your e-mail. If your account activation email as expired please request a password reset.')
 
         if not user.can_login():
             raise AuthenticationFailure('This user account cannot log in at the moment.')

@@ -7,6 +7,8 @@
 
 import logging
 
+from datetime import timedelta
+
 from pyramid.session import check_csrf_token
 
 from pyramid.view import view_config
@@ -48,6 +50,7 @@ from websauna.system.mail import send_templated_mail
 from websauna.utils.slug import uuid_to_slug, slug_to_uuid
 from websauna.system.user.utils import get_user_class, get_site_creator, get_login_service, get_oauth_login_service, get_credential_activity_service
 from websauna.system.core import messages
+from websauna.utils.time import now
 from .interfaces import AuthenticationFailure, CannotResetPasswordException
 
 logger = logging.getLogger(__name__)
@@ -67,6 +70,9 @@ def create_activation(request, user):
     db = get_session(request)
     Activation = request.registry.getUtility(IActivationClass)
     activation = Activation()
+    activation_token_expiry_seconds = int(request.registry.settings.get("websauna.activation_token_expiry_seconds", 24*3600))
+
+    activation.expires_at = now() + timedelta(seconds=activation_token_expiry_seconds)
 
     db.add(activation)
     user.activation = activation
@@ -163,6 +169,28 @@ class RegisterController(horus_views.RegisterController):
         code = self.request.matchdict.get('code', None)
         user_id = self.request.matchdict.get('user_id', None)
         User = get_user_class(self.request.registry)
+        activation = self.Activation.get_by_code(self.request, code)
+
+        if activation and not activation.is_expired():
+            user_uuid = slug_to_uuid(user_id)
+            user = self.request.dbsession.query(User).filter_by(uuid=user_uuid).first()
+
+            if not user or (user.activation != activation):
+                raise HTTPNotFound()
+
+            if user:
+                user.activated_at = now()
+                self.db.delete(activation)
+                self.db.flush()
+
+                if self.login_after_activation:
+                    login_service = get_login_service(self.request)
+                    return login_service.authenticate_user(user)
+                else:
+                    self.request.registry.notify(RegistrationActivatedEvent(self.request, user, activation))
+                    return HTTPFound(location=self.after_activate_url)
+
+        raise HTTPNotFound()
 
 
 

@@ -1,6 +1,8 @@
 """Default user object generator."""
+from datetime import timedelta
 
 from sqlalchemy import func
+from websauna.system.user import events
 from websauna.system.user.interfaces import IUserRegistry, IUser
 from websauna.system.user.usermixin import UserMixin, GroupMixin
 from websauna.system.user.utils import get_user_class, get_activation_model
@@ -8,6 +10,7 @@ from websauna.system.user.utils import get_user_class, get_activation_model
 from websauna.compat.typing import Optional
 from websauna.compat.typing import List
 from websauna.compat.typing import Tuple
+from websauna.utils.time import now
 from zope.interface import implementer
 
 
@@ -62,7 +65,10 @@ class DefaultEmailBasedUserRegistry:
         if not self.can_login(user):
             return None
 
+        activation_token_expiry_seconds = int(self.registry.settings.get("websauna.activation_token_expiry_seconds", 24*3600))
+
         activation = self.Activation()
+        activation.expires_at = now() + timedelta(seconds=activation_token_expiry_seconds)
         self.dbsession.add(activation)
         self.dbsession.flush()
         user.activation = activation
@@ -100,12 +106,34 @@ class DefaultEmailBasedUserRegistry:
         activation = self.dbsession.query(self.Activation).filter(self.Activation.code == token).first()
 
         if activation:
+
+            if activation.is_expired():
+                return None
+
             user = self.get_by_activation(activation)
             return user
 
         return None
 
-    def set_password(self, user: UserMixin, password: str):
+    def get_user_by_email_activation_token(self, token: str):
+        """Get user by a password token issued earlier."""
+        activation = self.dbsession.query(self.Activation).filter(self.Activation.code == token).first()
+
+        if activation:
+
+            if activation.is_expired():
+                return None
+
+            user = self.get_by_activation(activation)
+            return user
+
+        return None
+
+    def reset_password(self, user: UserMixin, password: str):
+        """Reset user password and clear all pending activation issues."""
         user.password = password
+        if not user.activated_at:
+            user.activated_at = now()
+
         self.dbsession.delete(user.activation)
 

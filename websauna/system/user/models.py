@@ -12,6 +12,7 @@ from sqlalchemy.ext.declarative.base import _declarative_constructor
 from hem.text import pluralize
 from horus import models as horus_models
 from websauna.system.user.interfaces import IGroup, IUser
+from websauna.system.user.usermixin import ActivationMixin
 from zope.interface import implementer
 
 from . import usermixin
@@ -101,10 +102,10 @@ class UserGroup(horus_models.UserGroupMixin):
         )
 
 
-class Activation(horus_models.ActivationMixin):
+class Activation(ActivationMixin, horus_models.ActivationMixin):
     """The default implementation of user email activation token."""
 
-    __tablename__ = "activation"
+    __tablename__ = "user_activation"
 
     # Default constructor
     __init__ = _declarative_constructor

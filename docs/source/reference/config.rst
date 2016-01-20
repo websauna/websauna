@@ -165,6 +165,13 @@ More info
 
 * http://docs.pylonsproject.org/projects/pyramid/en/1.6-branch/narr/assets.html#cache-busting-and-asset-overrides
 
+websauna.activation_token_expiry_seconds
+----------------------------------------
+
+How quickly email activation and password reset token turns sour.
+
+Default: 24 hours
+
 websauna.cache_max_age
 ----------------------
 

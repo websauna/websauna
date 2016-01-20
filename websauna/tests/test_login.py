@@ -1,7 +1,10 @@
+from datetime import timedelta
+
 import transaction
 from websauna.tests.utils import create_user
 from websauna.tests.utils import EMAIL
 from websauna.tests.utils import PASSWORD
+from websauna.utils.time import now
 
 
 def get_user(dbsession):
@@ -100,7 +103,7 @@ def test_forget_password(web_server, browser, dbsession, init):
     b.fill("email", EMAIL)
     b.find_by_name("submit").click()
 
-    assert b.is_text_present("Please check your email")
+    assert b.is_element_present_by_css("#msg-check-email")
 
     with transaction.manager:
         user = get_user(dbsession)
@@ -169,4 +172,55 @@ def test_bad_forget_password_activation_code(web_server, browser, dbsession):
     b.visit("{}/reset-password/xxxx".format(web_server))
 
     # Check we get the pimped up not found page
+    assert b.is_element_present_by_css("#not-found")
+
+
+def test_login_forget_password_email_send(web_server, browser, dbsession, init):
+    """Send out the reset password by email, but do not answer to it, instead directly login."""
+
+    with transaction.manager:
+        create_user(dbsession, init.config.registry)
+
+    b = browser
+    b.visit(web_server)
+
+    b.find_by_css("#nav-sign-in").click()
+
+    assert b.is_element_present_by_css("#login-form")
+
+    b.click_link_by_text("Forgot your password?")
+    assert b.is_element_present_by_css("#forgot-password-form")
+    b.fill("email", EMAIL)
+    b.find_by_name("submit").click()
+
+    b.visit("{}/login".format(web_server))
+
+    b.fill("username", EMAIL)
+    b.fill("password", PASSWORD)
+    b.find_by_name("login_email").click()
+    assert b.is_element_present_by_css("#msg-you-are-logged-in")
+
+
+def test_forget_password_expired_token(web_server, browser, dbsession, init):
+    """Reset password by email."""
+
+    with transaction.manager:
+        create_user(dbsession, init.config.registry)
+
+    b = browser
+    b.visit(web_server + "/forgot-password")
+
+    assert b.is_element_present_by_css("#forgot-password-form")
+    b.fill("email", EMAIL)
+    b.find_by_name("submit").click()
+
+    assert b.is_element_present_by_css("#msg-check-email")
+    
+    with transaction.manager:
+        user = get_user(dbsession)
+        activation = user.activation
+        activation.expires_at = now() - timedelta(days=365)
+        activation_code = activation.code
+
+    b.visit("{}/reset-password/{}".format(web_server, activation_code))
     assert b.is_element_present_by_css("#not-found")

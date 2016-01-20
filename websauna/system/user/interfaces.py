@@ -10,26 +10,13 @@ class IUser(Interface):
     Usually SQLAlchemy model instance of :py:class:`websauna.system.user.usermixin.UserMixin`.
 
     Hard requirements for User interface listed here - this is what Websauna default frontend expects from an user instance.
+
+    :py:class:`websauna.system.user.interfaces.ILoginService` must know some user implementation details.
     """
 
 
     #: How we present the user's name to the user itself. Usually. Picks one of 1) full name if set 2) username if set 3) email.
     friendly_name = zope.interface.Attribute("friendly_name")
-
-    #: True if the user has completed email activation or any other external activation required for login
-    is_activated = zope.interface.Attribute("is_activated")
-
-    def can_login() -> bool:
-        """Can user login.
-
-        True if user is enabled and there is no managerial reason to deny the login.
-        """
-
-    def get_session_remember_token() -> str:
-        """The token used to carry logged in user in the session.
-
-        Usually just user.id.
-        """
 
 
 class IGroup(Interface):

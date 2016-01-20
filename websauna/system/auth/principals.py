@@ -8,7 +8,7 @@ from websauna.compat.typing import Optional
 from websauna.system.user.utils import get_user_registry
 
 
-def resolve_principals(session_token:str, request:Request) -> Optional[List[str]]:
+def resolve_principals(session_token: str, request: Request) -> Optional[List[str]]:
     """Get applied groups and other for the user.
 
     This is a callback for :py:class:`pyramid.authentication.SessionAuthenticationPolicy`.

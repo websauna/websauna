@@ -124,6 +124,45 @@ def test_forget_password(web_server, browser, dbsession, init):
     assert b.is_element_visible_by_css("#nav-logout")
 
 
+def test_forget_password_bad_user(web_server, browser, dbsession, init):
+    """Reset password by email."""
+
+    with transaction.manager:
+        create_user(dbsession, init.config.registry)
+
+    b = browser
+    b.visit(web_server + "/login")
+
+    assert b.is_element_visible_by_css("#login-form")
+
+    b.click_link_by_text("Forgot your password?")
+    assert b.is_element_visible_by_css("#forgot-password-form")
+    b.fill("email", "foo@example.com")
+    b.find_by_name("submit").click()
+
+    assert b.is_element_present_by_css(".errorMsg")
+
+
+def test_forget_password_disabled_user(web_server, browser, dbsession, init):
+    """Reset password by email."""
+
+    with transaction.manager:
+        u = create_user(dbsession, init.config.registry)
+        u.enabled = False
+
+    b = browser
+    b.visit(web_server + "/login")
+
+    assert b.is_element_visible_by_css("#login-form")
+
+    b.click_link_by_text("Forgot your password?")
+    assert b.is_element_visible_by_css("#forgot-password-form")
+    b.fill("email", EMAIL)
+    b.find_by_name("submit").click()
+
+    assert b.is_element_present_by_css("#msg-cannot-reset-password")
+
+
 def test_bad_forget_password_activation_code(web_server, browser, dbsession):
     """Reset password by email."""
     b = browser

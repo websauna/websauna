@@ -1,12 +1,13 @@
 """Default user object generator."""
 
 from sqlalchemy import func
-from websauna.system.user.interfaces import IUserRegistry
+from websauna.system.user.interfaces import IUserRegistry, IUser
 from websauna.system.user.usermixin import UserMixin, GroupMixin
 from websauna.system.user.utils import get_user_class, get_activation_model
 
 from websauna.compat.typing import Optional
 from websauna.compat.typing import List
+from websauna.compat.typing import Tuple
 from zope.interface import implementer
 
 
@@ -26,6 +27,11 @@ class DefaultEmailBasedUserRegistry:
         """Currently configured User SQLAlchemy model."""
         return get_user_class(self.registry)
 
+    @property
+    def Activation(self):
+        """Currently configured User SQLAlchemy model."""
+        return get_activation_model(self.registry)
+
     def verify_password(self, user, password):
         """Validate user password."""
         return user.verify_password(password)
@@ -44,6 +50,26 @@ class DefaultEmailBasedUserRegistry:
 
     def get_groups(self, user) -> List[GroupMixin]:
         return user.groups
+
+    def create_password_reset_token(self, email) -> str:
+        """Sets password reset token for user.
+
+        :return: User and his password reset token or ``None`` if user is disabled or is not email login based.
+        """
+        user = self.get_by_email(email)
+        assert user, "Got password reset request for non-existing email".format(email)
+
+        if not self.can_login(user):
+            return None
+
+        activation = self.Activation()
+        self.dbsession.add(activation)
+        self.dbsession.flush()
+        user.activation = activation
+
+        assert user.activation.code, "Could not generate the password reset code"
+
+        return user, activation.code
 
     def get_authenticated_user_by_username(self, username, password) -> Optional[UserMixin]:
         """Authenticate incoming user.

@@ -3,7 +3,7 @@ import sys
 
 from horus import IUserClass
 from websauna.system.core.csrf import csrf_mapper_factory
-from websauna.system.user.interfaces import ILoginService, IOAuthLoginService, IUserRegistry
+from websauna.system.user.interfaces import ILoginService, IOAuthLoginService, IUserRegistry, ICredentialActivityService, IActivationModel
 
 assert sys.version_info >= (3,4), "Websauna needs Python 3.4 or newer"
 
@@ -145,6 +145,7 @@ class Initializer:
         from hem.interfaces import IDBSession
         from horus.interfaces import IRegisterSchema
         from horus.interfaces import ILoginSchema
+        from horus.interfaces import IForgotPasswordSchema
         from horus import IResetPasswordSchema
         from websauna.system.user.interfaces import IUserModel, IGroupModel
         from websauna.system.user import schemas
@@ -161,6 +162,7 @@ class Initializer:
         self.config.registry.registerUtility(schemas.RegisterSchema, IRegisterSchema)
         self.config.registry.registerUtility(schemas.LoginSchema, ILoginSchema)
         self.config.registry.registerUtility(schemas.ResetPasswordSchema, IResetPasswordSchema)
+        self.config.registry.registerUtility(schemas.ForgotPasswordSchema, IForgotPasswordSchema)
 
     def configure_mailer(self, settings):
         """Configure outgoing email backend based on the INI settings."""
@@ -491,6 +493,7 @@ class Initializer:
         registry = self.config.registry
         registry.registerUtility(models.User, IUserModel)
         registry.registerUtility(models.Group, IGroupModel)
+        registry.registerUtility(models.Activation, IActivationModel)
 
         # TODO: Legacy Horus compatibiltiy
         registry.registerUtility(models.User, IUserClass)
@@ -507,10 +510,12 @@ class Initializer:
         from websauna.system.user import views
         from horus.resources import UserFactory
         from websauna.system.user.loginservice import DefaultLoginService
+        from websauna.system.user.credentialactivityservice import DefaultCredentialActivityService
 
         # Set up login service
         registry = self.config.registry
         registry.registerAdapter(factory=DefaultLoginService, required=(IRequest,), provided=ILoginService)
+        registry.registerAdapter(factory=DefaultCredentialActivityService, required=(IRequest,), provided=ICredentialActivityService)
 
         # Configure user models base package
         # TODO: Get rid of Horus

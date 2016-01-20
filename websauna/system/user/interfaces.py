@@ -146,3 +146,12 @@ class IUserRegistry(Interface):
 
     Allow abstraction over the user backend - do not assume users are stored in the primary database.
     """
+
+
+class CannotResetPasswordException(Exception):
+    pass
+
+
+class ICredentialActivityService(Interface):
+    """User password and activation related activities."""
+

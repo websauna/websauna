@@ -2,7 +2,7 @@ from authomatic import Authomatic
 from pyramid.interfaces import IRequest
 from pyramid.registry import Registry
 
-from websauna.system.user.interfaces import IGroupModel, IUserModel, IAuthomatic, ISocialLoginMapper, ISiteCreator, ILoginService, IActivationModel, IOAuthLoginService, IUserRegistry
+from websauna.system.user.interfaces import IGroupModel, IUserModel, IAuthomatic, ISocialLoginMapper, ISiteCreator, ILoginService, IActivationModel, IOAuthLoginService, IUserRegistry, ICredentialActivityService
 
 
 def get_user_class(registry) -> IUserModel:
@@ -18,6 +18,7 @@ def get_group_class(registry) -> IGroupModel:
 def get_activation_model(registry) -> IActivationModel:
     activation_model = registry.queryUtility(IActivationModel)
     return activation_model
+
 
 def get_site_creator(registry) -> ISiteCreator:
     site_creator = registry.queryUtility(ISiteCreator)
@@ -58,3 +59,8 @@ def get_oauth_login_service(request: IRequest) -> IOAuthLoginService:
 
 def get_user_registry(request: IRequest) -> IUserRegistry:
     return request.registry.queryAdapter(request, IUserRegistry)
+
+
+def get_credential_activity_service(request: IRequest) -> ICredentialActivityService:
+    assert IRequest.providedBy(request)
+    return request.registry.queryAdapter(request, ICredentialActivityService)

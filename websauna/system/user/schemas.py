@@ -6,6 +6,7 @@ import colander as c
 from hem.schemas import CSRFSchema
 from horus.schemas import unique_email
 from websauna.system.form.sqlalchemy import convert_query_to_tuples, UUIDModelSet
+from websauna.system.user.utils import get_user_registry
 from websauna.system.user.utils import get_group_class, get_user_class
 from websauna.utils.slug import uuid_to_slug
 
@@ -82,7 +83,6 @@ class LoginSchema(CSRFSchema):
     password = c.SchemaNode(c.String(), widget=deform.widget.PasswordWidget())
 
 
-
 class ResetPasswordSchema(CSRFSchema):
     user = c.SchemaNode(
         c.String(),
@@ -94,3 +94,24 @@ class ResetPasswordSchema(CSRFSchema):
         validator=c.Length(min=2),
         widget=deform.widget.CheckedPasswordWidget()
     )
+
+
+def validate_user_exists_with_email(node, val):
+    '''Colander validator that ensures a User exists with the email.'''
+    request = node.bindings['request']
+
+    user_registry = get_user_registry(request)
+    user = user_registry.get_by_email(val)
+
+    if not user:
+        raise c.Invalid(node, "Cannot reset password for such email: {}".format(val))
+
+
+class ForgotPasswordSchema(CSRFSchema):
+    """Used on forgot password view."""
+    email = c.SchemaNode(
+        c.Str(),
+        title='Email',
+        validator=c.All(c.Email(), validate_user_exists_with_email),
+        widget=w.TextInputWidget(siz e=40, maxlength=260, type='email', template="textinput_placeholder"),
+        description="The email address under which you have your account. Example: joe@example.com")

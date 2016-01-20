@@ -46,9 +46,9 @@ from websauna.system import ILoginService
 
 from websauna.system.mail import send_templated_mail
 from websauna.utils.slug import uuid_to_slug, slug_to_uuid
-from websauna.system.user.utils import get_user_class, get_site_creator, get_login_service, get_oauth_login_service
+from websauna.system.user.utils import get_user_class, get_site_creator, get_login_service, get_oauth_login_service, get_credential_activity_service
 from websauna.system.core import messages
-from .interfaces import AuthenticationFailure
+from .interfaces import AuthenticationFailure, CannotResetPasswordException
 
 logger = logging.getLogger(__name__)
 
@@ -298,24 +298,15 @@ class ForgotPasswordController(horus_views.ForgotPasswordController):
             # This catches if the email does not exist, too.
             return {'form': e.render(), 'errors': e.error.children}
 
+        credential_activity_service = get_credential_activity_service(self.request)
         # Process valid form
         email = captured["email"]
 
-        #user_service = get_user_service(request.registry)
-        user = self.User.get_by_email(req, captured['email'])
-        activation = self.Activation()
-        self.db.add(activation)
-        self.db.flush()
-        user.activation = activation
-
-        assert user.activation.code, "Could not generate the password reset code"
-        link = req.route_url('reset_password', code=user.activation.code)
-
-        context = dict(link=link, user=user)
-        send_templated_mail(req, [user.email], "login/email/forgot_password", context=context)
-
-        FlashMessage(req, "Please check your email to continue password reset.", kind='success')
-        return HTTPFound(location=self.reset_password_redirect_view)
+        try:
+            return credential_activity_service.create_forgot_password_request(email)
+        except CannotResetPasswordException as e:
+            messages.add(self.request, msg=str(e), msg_id="msg-cannot-reset-password", kind="error")
+            return {'form': form.render()}
 
 
     @view_config(route_name='reset_password', renderer='login/reset_password.html')

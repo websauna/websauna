@@ -1,4 +1,4 @@
-"""Support for includes hack in INI files."""
+"""Support for INI file inclusion mechanism."""
 from urllib.parse import urlparse
 from logging.config import fileConfig
 import configparser

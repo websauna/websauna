@@ -16,7 +16,7 @@ Websauna uses :term:`Pyramid`'s :term:`pcreate` command and scaffold mechanism t
 
     pcreate -t websauna_app myapp  # Replace myapp with a creative all lowercase alphanumeric name
 
-This will create a project structure like
+This will create a project structure like::
 
     myapp/                          # Python package root
     myapp/myapp                     # Python module "myapp" with all .py files

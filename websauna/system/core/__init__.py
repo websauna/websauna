@@ -1,1 +1,1 @@
-"""Websauna core view logic like 404 and 500. The default site templates. Basic website mechanisms like flash messages and breadcrumbs."""
+"""Core logic and integration needed for a functional website. Session handling. The default site templates. Basic website mechanisms like flash messages and breadcrumbs."""

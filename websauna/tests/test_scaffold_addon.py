@@ -54,7 +54,7 @@ def test_addon_pserve(addon_scaffold, addon_dev_db, browser):
     execute_venv_command("pserve development.ini --pid-file=test_pserve.pid", addon_scaffold, wait_and_see=3.0, cd_folder="websauna.myaddon")
 
     # Give pserve some time to wake up in CI
-    time.sleep(2)
+    time.sleep(4)
 
     try:
 

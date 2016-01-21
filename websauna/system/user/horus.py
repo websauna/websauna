@@ -107,5 +107,3 @@ def includeme(config):
         event['render_flash_messages'] = lambda: fn(event['request'])
 
     config.add_subscriber(on_before_render, BeforeRender)
-
-    include_routes(config)

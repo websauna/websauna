@@ -282,7 +282,7 @@ Comparison
                 <td class="built-in"></td>
                 <td class="not-exist"></td>
                 <td class="not-exist"></td>
-                <td class="not-exist"></td>
+                <td class="built-in"></td>
             </tr>
 
 
@@ -396,6 +396,14 @@ Comparison
 
             <tr>
                 <th>CRUD</th>
+                <td class="built-in"></td>
+                <td class="not-exist"></td>
+                <td class="built-in"></td>
+                <td class="not-exist"></td>
+            </tr>
+
+            <tr>
+                <th>Widgets for SQL manipulation</th>
                 <td class="built-in"></td>
                 <td class="not-exist"></td>
                 <td class="built-in"></td>

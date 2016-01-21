@@ -7,7 +7,7 @@ Websauna uses Pyramid's `request processing <http://docs.pylonsproject.org/proje
 Request and response
 --------------------
 
-The incoming HTTP request is an instance of :py:class`websauna.system.http.Request`.
+The incoming HTTP request is an instance of :py:class:`websauna.system.http.Request`.
 
 When your view function returns
 

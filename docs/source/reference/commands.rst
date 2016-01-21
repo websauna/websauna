@@ -113,6 +113,8 @@ Example how to backup your development database::
 
     ws-dump-db development.ini > dump.sql
 
+.. _ws-tweens:
+
 ws-tweens
 ---------
 

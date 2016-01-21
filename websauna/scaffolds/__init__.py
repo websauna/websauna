@@ -56,7 +56,6 @@ class JinjaFriendlyTemplate(PyramidTemplate):
         """ % {'separator': separator})
 
         self.out(msg)
-        return Template.post(self, command, output_dir, vars)
 
 
 class App(JinjaFriendlyTemplate):
@@ -86,7 +85,7 @@ class App(JinjaFriendlyTemplate):
         return PyramidTemplate.pre(self, command, output_dir, vars)
 
 
-class Addon(PyramidTemplate):
+class Addon(JinjaFriendlyTemplate):
     """A scaffold for Websauna addon living in Websauna namespace."""
 
     _template_dir = 'addon'

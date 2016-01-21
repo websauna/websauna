@@ -46,3 +46,7 @@ Example::
     # Run test suite using py.test running
     py.test myapp/tests --ini test.ini
 
+More information
+================
+
+Please see https://websauna.org/

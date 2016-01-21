@@ -140,7 +140,7 @@ Comparison
             </tr>
 
             <tr>
-                <th>Barries included approach</th>
+                <th>Batteries included approach</th>
                 <td class="built-in"></td>
                 <td class="not-there"></td>
                 <td class="built-in"></td>
@@ -148,7 +148,7 @@ Comparison
             </tr>
 
             <tr>
-                <th>Global variable free</th>
+                <th>Free from global variables</th>
                 <td class="built-in"></td>
                 <td class="built-in"></td>
                 <td class="built-in"></td>
@@ -483,7 +483,7 @@ Comparison
             </tr>
 
             <tr>
-                <th>Forbid CSRF post by default</th>
+                <th>Forbid CSRF'ed POST by default</th>
                 <td class="built-in"></td>
                 <td class="not-exist"></td>
                 <td class="built-in"></td>

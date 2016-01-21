@@ -1,4 +1,4 @@
-Websauna is a full stack application framework aimed for building consumer and business web services based on Pyramid and SQLAlchemy.
+Websauna is a full stack application framework aimed for building consumer and business web services build on the top on Pyramid and SQLAlchemy.
 
 .. note ::
 

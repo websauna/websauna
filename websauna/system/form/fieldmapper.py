@@ -31,8 +31,14 @@ logger = logging.getLogger(__name__)
 
 class EditMode(Enum):
     """Different edit modes for where a form can be."""
+
+    #: Generate form for viewing contents (read-only)
     show = 0
+
+    #: Generated form for creating a new object
     add = 1
+
+    #: Generated form for editing an existing object
     edit = 2
 
 
@@ -161,9 +167,9 @@ class DefaultFieldMapper(ColumnToFieldMapper):
         :param mode: What kind of form is this - show, add, edit
         :param request: HTTP request
         :param context: Current traversing context or None
-        :param model: The model for which we generate schema
+        :param model: The SQLAlchemy model class for which we generate schema
         :param includes: List of column, relationship and property names or ``colander.SchemaNode(name=name) instances to be included on the form.
-        :param nested: Going away
+        :param nested: Legacy. Going away.
         """
 
         def _map_column(node, name, column, column_type):

@@ -1,23 +1,35 @@
 ========================
-User, log in and sign up
+Users, login and sign up
 ========================
+
+Websauna provides subsystems for managing site users, logging in and signing up.
 
 .. contents :: local:
 
-Websauna has a subsystem for user management.
+Introduction
+============
 
-* Pyramid authentication is used for authenticating users
+Websauna supports different user sources like site's own sign up form or Facebook login. The user data storage is abstracted. Users can be stored in an internal SQL database storage, LDAP server or any pluggable user source. Websauna comes with a default :term:`SQLAlchemy` user and group models which allow you to get started quickly.
 
-* Default SQLAlchemy models are provided for users and groups through Horus
+Default Bootstrap templates are provided for sign in, sign up and password reset.
 
-* Default Bootstrap templates for log in, sign up and other related forms are available
+Service architecture
+====================
 
-* :term:`Authomatic` is used for social logins: Facebook, Twitter, Github and other OAuth-based systems. :doc:`This is covered in another chapter <./oauth>`.
+Login and sign up process consists of different services which are registered as components in :py:meth:`websauna.system.Initializer.configure_user_models`. Each of the services can be individually overridden and customized for your specific needs.
 
-User services
-=============
+* User registry
 
-Login and sign up process consists of different services which are registered as components in :py:meth:`websauna.system.Initializer.configure_user_models`. Each of the services can be individually overridden and customizer.
+* Registration service
+
+* Login service
+
+* Credential activity service (password resets, etc.)
+
+* :doc:`OAuth login services <./oauth>` (social media logins)
+
+Customizing user flow
+=====================
 
 Default user model
 ------------------
@@ -112,6 +124,19 @@ See
 
 * :py:mod:`horus.events`
 
+Examples
+========
+
+Creating a user
+---------------
+
+For creating users see :py:func:`websauna.tests.utils.create_user` or :py:mod:`websauna.system.devop.scripts.createuser`.
+
+Getting the logged in user
+--------------------------
+
+The logged in user can be accessed ``request.user`` which gives you a :py:class:`websauna.system.user.model.User` instance. This is set to ``None`` for anonymous users.
+
 Advanced
 ========
 
@@ -123,31 +148,4 @@ Horus legacy
     Currently there are various references to Horus package internally, but they are expected to cleaned up in the future versions.
 
 
-Generating test users
----------------------
 
-Below is a simple shell script to generate empty users for manual testing purposes::
-
-    from websauna.system.user.utils import get_user_class
-
-    # Get instance of whatever user class is configured for Websauna
-    User = get_user_class(registry)
-
-    for i in range(0, 100):
-        username = "u{}".format(i)
-        email = "dummy{}@example.com".format(i)
-        password = "x"
-        user = User(username=username, email=email, password=password)
-        user.user_registration_source = User.USER_MEDIA_DUMMY
-        DBSession.add(user)
-
-    transaction.commit()
-
-
-Getting all users who are members of a group
---------------------------------------------
-
-Example::
-
-    admin_group = DBSession.query(Group).filter_by(name="admin").first()
-    users = admin_group.users

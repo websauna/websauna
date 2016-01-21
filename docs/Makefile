@@ -192,7 +192,7 @@ pseudoxml:
 	@echo "Build finished. The pseudo-XML files are in $(BUILDDIR)/pseudoxml."
 
 apidoc-clean:
-	rm -rf source/reference/api/websauna.*
+	rm -rf source/api/websauna.*
 
 apidoc:
 	sphinx-apidoc -f -o source/api/ --separate --module-first ../websauna

@@ -76,6 +76,9 @@ Glossary
     IPython Notebook
         A powerful browser based shell for a Python. Popular in scientific community and data analysis. See `IPython Notebook site <http://ipython.org/notebook.html>`__ for more information.
 
+    isolation level
+        How database handles transactions where there is a :term:`race condition`. See also :term:`ACID`.
+
     Jinja
         Jinja2 is a modern and designer-friendly templating language for Python, modelled after Django’s templates. It is fast, widely used and secure with the optional sandboxed template execution environment. `Read more <http://jinja.pocoo.org/docs/dev//>`__.
 
@@ -182,9 +185,11 @@ Glossary
         :term:`SQLAlchemy` database session keeps automatically track of objects you have modified.
         `More information <http://docs.sqlalchemy.org/en/latest/orm/session_state_management.html>`__.
 
-
     testing
         Testing is the development face when automated test suite is executed against your application. See :ref:`test.ini` configuration reference. See :doc:`How to write and run tests <../narrative/testing/writing>`.
+
+    transaction retry
+        If a succesfully committed transaction is doomed by the database due to a :term:`race condition` the application tries to replay the HTTP request certain number of times before giving up. This usually works on the assumptions race conditions are rare and the data being modified does not need content locking like protection. See :term:`optimistic concurrency control`.
 
     URL dispatch
         A method of mapping URLs to views through regular expression. `See full documentation in Pyramid documentation. <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/urldispatch.html>`__.

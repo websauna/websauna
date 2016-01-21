@@ -249,6 +249,14 @@ Comparison
             </tr>
 
             <tr>
+                <th>Support for configuration secrets</th>
+                <td class="built-in"></td>
+                <td class="not-exist"></td>
+                <td class="not-exist"></td>
+                <td class="not-exist"></td>
+            </tr>
+
+            <tr>
                 <th>Addon mechanism</th>
                 <td class="built-in"></td>
                 <td class="built-in"></td>
@@ -507,6 +515,14 @@ Comparison
             </tr>
 
             <tr>
+                <th>Secrets and API token management</th>
+                <td class="built-in"></td>
+                <td class="not-exist"></td>
+                <td class="not-exist"></td>
+                <td class="not-exist"></td>
+            </tr>
+
+            <tr>
                 <th colspan="5"><h3>Responsiveness</h3></th>
             </tr>
 
@@ -580,14 +596,6 @@ Comparison
 
             <tr>
                 <th>Deployment model with staging and production</th>
-                <td class="built-in"></td>
-                <td class="not-exist"></td>
-                <td class="not-exist"></td>
-                <td class="not-exist"></td>
-            </tr>
-
-            <tr>
-                <th>Secrets management</th>
                 <td class="built-in"></td>
                 <td class="not-exist"></td>
                 <td class="not-exist"></td>

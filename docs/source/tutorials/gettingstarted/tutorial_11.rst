@@ -150,10 +150,16 @@ This code includes a few things we haven't covered yet in this tutorial:
 
     **Why there is no save()?**
 
-    Websauna uses an :term:`optimistic concurrency control` strategy with atomic requests (see :term:`ACID`).
-    :term:`SQLAlchemy` has a :term:`state management` mechanism. If the HTTP request succesfully completes without exception, all changes you have made to model attributes are automatically committed to the database.
+    :term:`SQLAlchemy` has a :term:`state management` mechanism. It tracks what objects you have modified or added via ``dbsession.add()``. On a succesfull commit, all of these changes are written to a database and you do not need to explicitly list what changes need to be saved.
 
-    Optimistic concurrency control automatically protects your application against a :term`race condition`.
+.. note ::
+
+    **What happens if requests modify data simultaneously?**
+
+    Websauna uses an :term:`optimistic concurrency control` strategy with atomic requests.
+    Optimistic concurrency control protects your application against a :term`race condition`.
+
+    The default database transaction :term:`isolation level` is serializable: database prevents race conditions to happen. If a database detects a race condition an application level Python exception is raised. Then the application tries to resolve this conflict. Websauna default resoution mechanism is through :term:`transaction retry`.
 
 .. note ::
 

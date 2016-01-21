@@ -138,7 +138,7 @@ class IUserRegistry(Interface):
 
 
 class CannotResetPasswordException(Exception):
-    pass
+    """Password reset is disabled for this user e.g. due to disabled account."""
 
 
 class ICredentialActivityService(Interface):

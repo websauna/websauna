@@ -1,3 +1,5 @@
+"""TODO: This is a hacked in Horus support that will be removed in the future versions."""
+
 from horus.resources import UserFactory
 from horus.schemas import LoginSchema
 from horus.schemas import RegisterSchema
@@ -29,36 +31,6 @@ from pyramid.path import DottedNameResolver
 from hem.config import get_class_from_config
 
 import inspect
-
-
-
-def include_routes(config):
-    """Add routes to the config."""
-    # config.add_route('login', '/login')
-    # config.add_route('logout', '/logout')
-    # config.add_route('register', '/register')
-    # config.add_route('activate', '/activate/{user_id}/{code}',
-    #                 factory=UserFactory)
-    #config.add_route('forgot_password', '/forgot_password')
-    #config.add_route('reset_password', '/reset_password/{code}')
-
-    # config.add_route('profile', '/profile/{user_id}',
-    #                 factory=UserFactory,
-    #                 traverse="/{user_id}")
-    # config.add_route('edit_profile', '/profile/{user_id}/edit',
-    #                 factory=UserFactory,
-    #                 traverse="/{user_id}")
-
-    # config.add_route('admin', '/admin')
-    # config.add_route('admin_users_index', '/admin/users')
-    # config.add_route('admin_users_create', '/admin/users/new')
-    # config.add_route('admin_users_edit',
-    #                  '/admin/users/{user_id}/edit',
-    #                  factory=UserFactory,
-    #                  traverse="/{user_id}")
-    #
-    # config.add_static_view(name='horus-static', path='horus:static',
-    #                        cache_max_age=3600)
 
 
 
@@ -137,5 +109,3 @@ def includeme(config):
     config.add_subscriber(on_before_render, BeforeRender)
 
     include_routes(config)
-    # import horus
-    # config.scan(package=horus, ignore=str('horus.tests'))

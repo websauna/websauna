@@ -25,7 +25,7 @@ Glossary
         A database is an organized collection of data. A database management system (DBMS) is a computer software application that interacts with the user, other applications, and the database itself to capture and analyze data. A general-purpose DBMS is designed to allow the definition, creation, querying, update, and administration of databases. Websauna defaults to :term:`PostgreSQL` DBMS.
 
     development.ini
-      The default configuration file when you run Websauna on your local computer when doing development. For more information see :doc:`configuration <reference/config>`.
+      The default configuration file when you run Websauna on your local computer when doing development. For more information see :doc:`configuration <../reference/config>`.
 
     Celery
       Celery a task queue for Python with focus on real-time processing, while also supporting task scheduling. `More info <http://celery.readthedocs.org/>`__.
@@ -157,6 +157,9 @@ Glossary
     slug
         Slug is a descriptive part of the URL that is there to make URL more (human) readable.
         `More information <http://stackoverflow.com/questions/427102/what-is-a-slug-in-django>`__.
+
+    SQL
+        SQL is a special-purpose programming language designed for managing data held in a relational database management system (RDBMS). `More information <https://en.wikipedia.org/wiki/SQL>`__.
 
     SQLAlchemy
         SQLAlchemy enables effortless SQL data manipulation from Python programming.

@@ -12,7 +12,7 @@ Websauna has a subsystem for user management.
 
 * Default Bootstrap templates for log in, sign up and other related forms are available
 
-* :term:`Authomatic` is used for social logins: Facebook, Twitter, Github and other OAuth-based systems. :doc:`This is covered in another chapter <./oauth>`_.
+* :term:`Authomatic` is used for social logins: Facebook, Twitter, Github and other OAuth-based systems. :doc:`This is covered in another chapter <./oauth>`.
 
 User services
 =============
@@ -38,7 +38,7 @@ The most important attributes of the default model are
 
 * ``user_data`` - JSONB dictionary, can hold any arbitrary data
 
-* ``activation`` - any pending :py:`websauna.system.user.model.Activation` token for email activation, password reset
+* ``activation`` - any pending :py:class:`websauna.system.user.model.Activation` token for email activation, password reset
 
 Abstract user registry
 ----------------------
@@ -75,7 +75,7 @@ Default views are found in :py:mod:`websauna.system.user.views`.
 Registration service
 --------------------
 
-Registration service is responsible for users created through sign up form.
+Registration service is responsible for users created through sign up form. Registration service does not know about user implementation and only interacts with user registry.
 
 See :py:class:`websauna.system.user.registrationservice.DefaultRegistrationService`.
 
@@ -86,7 +86,7 @@ Default views are found in :py:mod:`websauna.system.user.views`.
 Credential activity service
 ---------------------------
 
-Credential activity service is responsible for password reset requests.
+Credential activity service is responsible for password reset requests. Credential activity service does not know about user implementation and only interacts with user registry.
 
 See :py:class:`websauna.system.user.credentialactivityservice.DefaultCredentialActivityService`.
 

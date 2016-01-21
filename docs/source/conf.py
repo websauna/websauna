@@ -37,6 +37,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx_autodoc_typehints',
     'pyramid_autodoc',
+    'sphinxcontrib.zopeext.autointerface',
 #    'autoapi.extension',
 ]
 

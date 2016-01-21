@@ -69,6 +69,16 @@ You need to install your event handles by scanning your subscribers module in yo
         from myapp import subscribers
         self.config.scan(subscribers)
 
+Stock events
+============
+
+See
+
+* :py:mod:`websauna.system.admin.events`
+
+* :py:mod:`websauna.system.user.events`
+
+
 More information
 ================
 

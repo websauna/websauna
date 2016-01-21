@@ -4,7 +4,6 @@ API
 .. toctree::
     :maxdepth: 1
 
-    api/index
     api/websauna
     api/websauna.system
     api/websauna.utils

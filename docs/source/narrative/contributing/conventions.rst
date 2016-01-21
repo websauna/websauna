@@ -16,7 +16,7 @@ The code line length is the varying window width of the author, soft wrapped.
 
 All prose, regardless if it is in source code or not, should follow the normal text editing practices: a hard line break terminates a paragraph - or two line breaks for where it applies (restructured text). This namely applies to comments, doctstrings and other text strings.
 
-For the sake of clarity, too long code lines should be broken down. This should happen through the means of refactoring the code to be more sensible instead of hard terminating lines with `\` operator or similar. For example, split your code to several Python statements and helper functions.
+For the sake of clarity, too long code lines should be broken down. This should happen through the means of refactoring the code to be more sensible instead of hard terminating lines with ``\`` operator or similar. For example, split your code to several Python statements and helper functions.
 
 Generally, keep your lines under 132 characters. `Consider this guidelining <https://www.youtube.com/watch?v=b6kgS_AwuH0>`_ as the line length is still what the width of editor window of the author happens to be on that day, as it might be narrower in two columns mode or wider in full screen mode. And this number was only chosen because of the complaints of an anynomous contributor saying his Github text viewer cannot display lines longer than this particular number without a horizontal scroll bar. For this blasphemy I immediately called to Github as a paying customer and complained why they chose this number and not some nice number like 142 what it is in my web browser.
 

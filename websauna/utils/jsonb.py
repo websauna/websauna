@@ -107,6 +107,10 @@ class JSONBProperty(object):
     def ensure_valid_data(self, obj):
         """Handle freshly created objects and corrupted data more gracefully."""
 
+        if obj is None:
+            # TODO: Not sure what is this but gets hit during Sphinx build
+            return None
+
         field = getattr(obj, self.data_field)
 
         if field is None:
@@ -130,6 +134,9 @@ class JSONBProperty(object):
 
     def __get__(self, obj, objtype=None):
         data = self.ensure_valid_data(obj)
+        if data is None:
+            # Gets hit by Sphinx build
+            return None
         try:
             val = jsonpointer.resolve_pointer(data, self.pointer, default=JSONBProperty.UNDEFINED)
         except jsonpointer.JsonPointerException as e:

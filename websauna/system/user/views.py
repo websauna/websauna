@@ -12,10 +12,8 @@ from pyramid.view import view_config
 from pyramid.url import route_url
 from pyramid.httpexceptions import HTTPFound, HTTPMethodNotAllowed
 from pyramid.httpexceptions import HTTPNotFound
-from pyramid.settings import asbool
 from pyramid.settings import aslist
 
-from pyramid_mailer import get_mailer
 
 import deform
 
@@ -27,13 +25,10 @@ from horus.interfaces import IForgotPasswordForm
 from horus.interfaces import IForgotPasswordSchema
 from horus.interfaces import IResetPasswordForm
 from horus.interfaces import IResetPasswordSchema
-from horus.events import RegistrationActivatedEvent
 from horus import views as horus_views
 
-from websauna.utils.slug import slug_to_uuid
-from websauna.system.user.utils import get_user_class, get_login_service, get_oauth_login_service, get_credential_activity_service, get_registration_service
+from websauna.system.user.utils import get_login_service, get_oauth_login_service, get_credential_activity_service, get_registration_service
 from websauna.system.core import messages
-from websauna.utils.time import now
 from .interfaces import AuthenticationFailure, CannotResetPasswordException
 
 logger = logging.getLogger(__name__)
@@ -51,9 +46,6 @@ class RegisterController(horus_views.RegisterController):
 
         form = request.registry.getUtility(IRegisterForm)
         self.form = form(self.schema, buttons=(sign_up_button,))
-
-        self.after_register_url = route_url(
-            self.settings.get('horus.register_redirect', 'index'), request)
 
     @view_config(route_name='register', renderer='login/register.html')
     def register(self):

@@ -2,7 +2,7 @@
 Optimistic concurrency control
 ==============================
 
-Websauna uses :term:`optimistic concurrency control` to eliminate the possibility of :term:`race conditions` in your code.
+Websauna uses :term:`optimistic concurrency control` to eliminate the possibility of :term:`race condition` in your code.
 
 By default, optimistic concurrency control is set up to apply to the primary :term:`SQL` database. Unlike with pessimistic locking, the developer doesn't need to worry creating and managing locks upfront. Instead, a database maintains predicate locking. If a database detects a race condition caused by concurrent transactions, one transaction is let through while the other receives an application level exception. The conflict is then resolved on the application level. This approach is beneficial for applications where the likely of transaction conflicts are rare and it's unlike two concurrent requests write on the same field.
 

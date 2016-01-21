@@ -1,2 +1,2 @@
-"""Authentication related classes."""
+"""Authentication and authorization."""
 

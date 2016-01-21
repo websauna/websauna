@@ -1,1 +1,1 @@
-"""Automatically generated admin interface and CRUD for registered SQLAlchemy models."""
+"""Admin interface and automatically generated model admins."""

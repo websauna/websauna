@@ -1,4 +1,4 @@
-"""CRUD based on SQLAlchemy, Deform and Pyramid traversal."""
+"""An abstract CRUD implementation based on traversal. The default support for SQLAlchemy and Deform."""
 
 from abc import abstractmethod
 from websauna.system.core.traversal import Resource as _Resource

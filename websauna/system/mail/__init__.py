@@ -1,3 +1,5 @@
+"""Sending out HTML and plain text email."""
+
 from pyramid.renderers import render
 
 from pyramid_mailer import get_mailer

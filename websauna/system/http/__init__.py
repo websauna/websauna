@@ -1,3 +1,5 @@
+"""HTTP request and response handling."""
+
 from pyramid.interfaces import ISession
 from pyramid.registry import Registry
 from pyramid.request import Request as _Request

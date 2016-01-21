@@ -1,3 +1,5 @@
+"""HTML manipulation helpers."""
+
 _js_escapes = {
     ord('\\'): '\\u005C',
     ord('\''): '\\u0027',

@@ -1,3 +1,5 @@
+"""Testing utility functions."""
+
 import time
 
 from pyramid.registry import Registry

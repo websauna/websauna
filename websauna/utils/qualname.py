@@ -1,3 +1,5 @@
+"""Python object fully qualified name resolving."""
+
 def get_qual_name(func: object) -> str:
     """Reverse resolve full dotted name of a Python function.
 

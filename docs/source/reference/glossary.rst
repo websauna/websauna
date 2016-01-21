@@ -30,6 +30,12 @@ Glossary
     Celery
       Celery a task queue for Python with focus on real-time processing, while also supporting task scheduling. `More info <http://celery.readthedocs.org/>`__.
 
+    Colander
+        A simple schema-based serialization and deserialization library. Useful for building forms, RESTFul APIs and other interfaces where you need to transform and validate data. `More information <https://pypi.python.org/pypi/colander>`__.
+
+    colanderalchemy
+        A Python package to generate :term:`Colander` forms from :term:`SQLAlchemy` models. `More information <https://pypi.python.org/pypi/ColanderAlchemy>`__.
+
     CRUD
         In computer programming, create, read, update and delete, sometimes called SCRUD with an "S" for Search, are the four basic functions of persistent storage. :doc:`Read about CRUD in Websauna <../narrative/modelling/crud>`.
         `More info <https://en.wikipedia.org/wiki/Create,_read,_update_and_delete>`__.

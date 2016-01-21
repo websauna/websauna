@@ -2,24 +2,37 @@
 Automatic form generation
 =========================
 
+Websauna comes with an automatic form generator for :term:`SQLAlchemy` models.
+
 .. contents:: :local:
 
-Websauna comes with automatic form generator for :term:`SQLAlchemy` models.
+* :term:`Colander` form schema can be generated with :term:`Deform` widgets from :term:`SQLAlchemy` models automatically based on field mapper (:py:class:`websauna.system.form.fieldmapper.DefaultFieldMapper`).
 
-* :term:`Colander` form schema is generated with :term:`Deform` widgets from :term:`SQLAlchemy` models automatically based on field mapper (:py:class:`websauna.system.form.fieldmapper.DefaultFieldMapper`).
-
-* :doc:`Automatically generated model admin interface <../modelling/admin>` is based on this CRUD.
+* :doc:`Automatically generated model admin interface <../modelling/admin>` use this.
 
 * :doc:`CRUD implementation can be used standalone <../modelling/crud>` from the admin interface, e.g. inside user profile or other user facing pages.
 
-Form generator
-==============
+An example of automatically generated form - the question edit page from :doc:`the tutorial <../../tutorials/gettingstarted/index>`:
+
+.. image:: ../../tutorials/gettingstarted/images/edit_question.png
+    :width: 640px
+
+Form generatation
+=================
+
+The core part of form generation is :py:meth:`websauna.system.form.fieldmapper.ColumnToFieldMapper` which maps SQLAlchemy columsn to Colander schema.
 
 See :py:meth:`websauna.system.form.fieldmapper.DefaultFieldMapper.map` for interface.
 
-See :py:meth:`websauna.system.crud.views.FormView.create_form` for a usage example.
+See :py:meth:`websauna.system.crud.views.FormView.create_form` for a usage example how to call the field mapper.
 
 See classes in :py:mod:`websauna.system.user.adminviews` for examples how to customize automatically included fields.
+
+Internally form generation uses highly modified :term:`colanderalchemy` library.
+
+.. note ::
+
+    Due to high customization this dependency is likely to go away.
 
 Customizing automatically generated forms
 =========================================
@@ -28,6 +41,8 @@ There are several ways to customize automatic form generation based on your use 
 
 Edit includes attribute
 -----------------------
+
+This is the most common way to customize :doc:`CRUD <../modelling/crud>` forms. Each CRUD class comes with ``includes`` attribute which lists a fields which are pulled from the SQLAlchemy columns, or other Python object properties, to a form.
 
 * :py:class:`websauna.system.crud.views.Add`
 

@@ -192,10 +192,10 @@ pseudoxml:
 	@echo "Build finished. The pseudo-XML files are in $(BUILDDIR)/pseudoxml."
 
 apidoc-clean:
-	rm -rf source/reference/api/*
+	rm -rf source/reference/api/websauna.*
 
 apidoc:
-	sphinx-apidoc -f -o source/reference/api/ --separate ../websauna
+	sphinx-apidoc -f -o source/api/ --separate --module-first ../websauna
 
 publish:
 	aws s3 sync build/html s3://websauna.org

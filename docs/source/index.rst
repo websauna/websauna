@@ -25,4 +25,5 @@ Table of contents
     narrative/ops/index
     narrative/contributing/index
     reference/index
+    api/index
 

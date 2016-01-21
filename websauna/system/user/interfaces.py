@@ -132,6 +132,8 @@ class IUserRegistry(Interface):
     """Manage creation and querying of users.
 
     Allow abstraction over the user backend - do not assume users are stored in the primary database.
+
+    TODO: Interface not described yet, see :py:class:`websauna.system.user.userregistry.DefaultEmailBasedUserRegistry`.
     """
 
 
@@ -140,5 +142,15 @@ class CannotResetPasswordException(Exception):
 
 
 class ICredentialActivityService(Interface):
-    """User password and activation related activities."""
+    """User password and activation related activities.
 
+    TODO: Interface not described yet, see :py:class:`websauna.system.user.credentialactivityservice.DefaultCredentialActivityService`.
+    """
+
+
+class IRegistrationService(Interface):
+    """Sign up form service.
+
+    TODO: Interface not described yet, see :py:class:`websauna.system.user.registrationservice.DefaultRegistrationService`.
+
+    """

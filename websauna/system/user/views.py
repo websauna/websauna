@@ -7,26 +7,18 @@
 
 import logging
 
-from datetime import timedelta
-
 from pyramid.session import check_csrf_token
-
 from pyramid.view import view_config
 from pyramid.url import route_url
 from pyramid.httpexceptions import HTTPFound, HTTPMethodNotAllowed
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.settings import asbool
 from pyramid.settings import aslist
-from pyramid.renderers import render_to_response
 
 from pyramid_mailer import get_mailer
 
 import deform
 
-from hem.db import get_session
-
-
-from horus.interfaces import IActivationClass
 from horus.interfaces import ILoginForm
 from horus.interfaces import ILoginSchema
 from horus.interfaces import IRegisterForm
@@ -35,60 +27,17 @@ from horus.interfaces import IForgotPasswordForm
 from horus.interfaces import IForgotPasswordSchema
 from horus.interfaces import IResetPasswordForm
 from horus.interfaces import IResetPasswordSchema
-from horus.interfaces import IProfileForm
-from horus.interfaces import IProfileSchema
-from horus.events import NewRegistrationEvent
 from horus.events import RegistrationActivatedEvent
-from horus.events import PasswordResetEvent
-from horus.lib import FlashMessage
-from horus.models import _, UserMixin
 from horus import views as horus_views
-from horus.views import get_config_route
-from websauna.system import ILoginService
 
-from websauna.system.mail import send_templated_mail
-from websauna.utils.slug import uuid_to_slug, slug_to_uuid
-from websauna.system.user.utils import get_user_class, get_site_creator, get_login_service, get_oauth_login_service, get_credential_activity_service
+from websauna.utils.slug import slug_to_uuid
+from websauna.system.user.utils import get_user_class, get_login_service, get_oauth_login_service, get_credential_activity_service, get_registration_service
 from websauna.system.core import messages
 from websauna.utils.time import now
 from .interfaces import AuthenticationFailure, CannotResetPasswordException
 
 logger = logging.getLogger(__name__)
 
-
-def create_activation(request, user):
-    """Create through-the-web user sign up with his/her email.
-
-    We don't want to force the users to pick up an usernames, so we just generate an username.
-    The user is free to change their username later.
-    """
-
-    assert user.id
-    user.username = user.generate_username()
-    user.registration_source = "email"
-
-    db = get_session(request)
-    Activation = request.registry.getUtility(IActivationClass)
-    activation = Activation()
-    activation_token_expiry_seconds = int(request.registry.settings.get("websauna.activation_token_expiry_seconds", 24*3600))
-
-    activation.expires_at = now() + timedelta(seconds=activation_token_expiry_seconds)
-
-    db.add(activation)
-    user.activation = activation
-
-    db.flush()
-
-    # TODO Create a hook for this, don't assume create_activation() call
-    # TODO We don't need pystache just for this!
-    context = {
-        'link': request.route_url('activate', user_id=uuid_to_slug(user.uuid), code=user.activation.code)
-    }
-
-    send_templated_mail(request, [user.email], "login/email/activate", context)
-
-    site_creator = get_site_creator(request.registry)
-    site_creator.check_empty_site_init(request.dbsession, user)
 
 
 class RegisterController(horus_views.RegisterController):
@@ -105,19 +54,6 @@ class RegisterController(horus_views.RegisterController):
 
         self.after_register_url = route_url(
             self.settings.get('horus.register_redirect', 'index'), request)
-        self.after_activate_url = route_url(
-            self.settings.get('horus.activate_redirect', 'index'), request)
-
-        self.require_activation = asbool(
-            self.settings.get('horus.require_activation', True))
-
-        if self.require_activation:
-            self.mailer = get_mailer(request)
-
-        self.login_after_activation = asbool(self.settings.get('horus.login_after_activation', False))
-
-    def waiting_for_activation(self, user):
-        return render_to_response('login/waiting_for_activation.html', {"user": user}, request=self.request)
 
     @view_config(route_name='register', renderer='login/register.html')
     def register(self):
@@ -142,56 +78,16 @@ class RegisterController(horus_views.RegisterController):
 
         # With the form validated, we know email and username are unique.
         del captured['csrf_token']
-        user = self.persist_user(captured)
 
-        autologin = asbool(self.settings.get('horus.autologin', False))
-
-        if self.require_activation:
-            self.db.flush()
-            create_activation(self.request, user)
-        elif not autologin:
-            FlashMessage(self.request, self.Str.registration_done,
-                         kind='success')
-
-        self.request.registry.notify(NewRegistrationEvent(
-            self.request, user, None, controls))
-        if autologin:
-            self.db.flush()  # in order to get the id
-            login_service = get_login_service(self.request.registry)
-            return login_service.authenticate(self.request, user)
-        else:  # not autologin: user must log in just after registering.
-            return self.waiting_for_activation(user)
+        registration_service = get_registration_service(self.request)
+        return registration_service.sign_up(user_data=captured)
 
     @view_config(route_name='activate')
     def activate(self):
         """View to activate user after clicking email link."""
-
         code = self.request.matchdict.get('code', None)
-        user_id = self.request.matchdict.get('user_id', None)
-        User = get_user_class(self.request.registry)
-        activation = self.Activation.get_by_code(self.request, code)
-
-        if activation and not activation.is_expired():
-            user_uuid = slug_to_uuid(user_id)
-            user = self.request.dbsession.query(User).filter_by(uuid=user_uuid).first()
-
-            if not user or (user.activation != activation):
-                raise HTTPNotFound()
-
-            if user:
-                user.activated_at = now()
-                self.db.delete(activation)
-                self.db.flush()
-
-                if self.login_after_activation:
-                    login_service = get_login_service(self.request)
-                    return login_service.authenticate_user(user)
-                else:
-                    self.request.registry.notify(RegistrationActivatedEvent(self.request, user, activation))
-                    return HTTPFound(location=self.after_activate_url)
-
-        raise HTTPNotFound()
-
+        registration_service = get_registration_service(self.request)
+        return registration_service.activate_by_email(code)
 
 
 class AuthController(horus_views.AuthController):

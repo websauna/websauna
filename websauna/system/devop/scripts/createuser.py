@@ -5,6 +5,7 @@ import os
 import sys
 
 from websauna.system.devop.cmdline import init_websauna
+from websauna.system.user.events import UserCreated
 from websauna.system.user.utils import get_user_class, get_site_creator
 
 import transaction
@@ -47,8 +48,7 @@ def main(argv=sys.argv):
         dbsession.add(u)
         dbsession.flush()
 
-        site_creator = get_site_creator(request.registry)
-        site_creator.init_empty_site(dbsession, u)
+        request.registry.notify(UserCreated(request, u))
 
         print("Created user #{}: {}, admin: {}".format(u.id, u.email, u.is_admin()))
 

@@ -3,7 +3,8 @@ import sys
 
 from horus import IUserClass
 from websauna.system.core.csrf import csrf_mapper_factory
-from websauna.system.user.interfaces import ILoginService, IOAuthLoginService, IUserRegistry, ICredentialActivityService, IActivationModel
+from websauna.system.user.interfaces import ILoginService, IOAuthLoginService, IUserRegistry, ICredentialActivityService, IActivationModel, IRegistrationService
+from websauna.system.user.registrationservice import DefaultRegistrationService
 
 assert sys.version_info >= (3,4), "Websauna needs Python 3.4 or newer"
 
@@ -508,7 +509,7 @@ class Initializer:
     def configure_user(self, settings, secrets):
         """Configure user model, sign in and sign up subsystem."""
         from websauna.system.user import views
-        from horus.resources import UserFactory
+        from websauna.system.user import subscribers
         from websauna.system.user.loginservice import DefaultLoginService
         from websauna.system.user.credentialactivityservice import DefaultCredentialActivityService
 
@@ -516,6 +517,7 @@ class Initializer:
         registry = self.config.registry
         registry.registerAdapter(factory=DefaultLoginService, required=(IRequest,), provided=ILoginService)
         registry.registerAdapter(factory=DefaultCredentialActivityService, required=(IRequest,), provided=ICredentialActivityService)
+        registry.registerAdapter(factory=DefaultRegistrationService, required=(IRequest,), provided=IRegistrationService)
 
         # Configure user models base package
         # TODO: Get rid of Horus
@@ -533,6 +535,7 @@ class Initializer:
         self.config.add_jinja2_search_path('websauna.system:user/templates', name='.html')
         self.config.add_jinja2_search_path('websauna.system:user/templates', name='.txt')
 
+        self.config.scan(subscribers)
         self.config.scan(views)
         self.config.add_route('waiting_for_activation', '/waiting-for-activation')
         self.config.add_route('registration_complete', '/registration-complete')
@@ -541,7 +544,7 @@ class Initializer:
         self.config.add_route('forgot_password', '/forgot-password')
         self.config.add_route('reset_password', '/reset-password/{code}')
         self.config.add_route('register', '/register')
-        self.config.add_route('activate', '/activate/{user_id}/{code}', factory=UserFactory)
+        self.config.add_route('activate', '/activate/{code}')
 
     def configure_model_admins(self):
         import websauna.system.user.admins

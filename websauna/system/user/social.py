@@ -4,6 +4,7 @@ from authomatic.core import LoginResult
 from pyramid.registry import Registry
 from pyramid.request import Request
 from sqlalchemy.orm.attributes import flag_modified
+from websauna.system.user.events import UserCreated
 from websauna.system.user.utils import get_site_creator
 
 from websauna.utils.time import now
@@ -32,12 +33,6 @@ class SocialLoginMapper(ABC):
         #: This is the string we use to map configuration for the
         self.provider_id = provider_id
         self.registry = registry
-
-    def prepare_new_site(self, registry, dbsession, user):
-        """If this is the first user on the site, initialize groups and give this user admin permissions."""
-        # XXX: Move this to an event
-        site_creator = get_site_creator(registry)
-        site_creator.init_empty_site(dbsession, user)
 
     @abstractmethod
     def capture_social_media_user(self, request:Request, result:LoginResult) -> IUserModel:
@@ -100,6 +95,7 @@ class EmailSocialLoginMapper(SocialLoginMapper):
         dbsession.flush()
         user.username = user.generate_username()
         user.registration_source = self.provider_id
+        user.activated_at = now()
         return user
 
     def get_existing_user(self, user_model, dbsession, email):
@@ -120,10 +116,12 @@ class EmailSocialLoginMapper(SocialLoginMapper):
 
         if not user:
             user = self.create_blank_user(User, dbsession, email)
+
+            request.registry.notify(UserCreated(request, user))
+
             self.update_first_login_social_data(user, imported_data)
             user.first_login = True
 
-            self.prepare_new_site(request.registry, dbsession, user)
         else:
             user.first_login = False
 

@@ -2,12 +2,14 @@ from horus.events import PasswordResetEvent
 from horus.views import get_config_route
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.response import Response
+from pyramid.settings import asbool
 from websauna.system.core import messages
 from websauna.system.http import Request
 from websauna.system.mail import send_templated_mail
 from websauna.system.user.events import UserAuthSensitiveOperation
 from websauna.system.user.interfaces import ICredentialActivityService, CannotResetPasswordException, IUser
-from websauna.system.user.utils import get_user_registry
+from websauna.system.user.usermixin import UserMixin
+from websauna.system.user.utils import get_user_registry, get_site_creator
 from zope.interface import implementer
 
 from websauna.compat.typing import Optional
@@ -19,36 +21,6 @@ class DefaultCredentialActivityService:
 
     def __init__(self, request: Request):
         self.request = request
-
-    def activate(self, user_token: str, activation_code: str) -> Response:
-        """Active a user after user after the activation email.
-
-        * User clicks link in the activation email
-
-        * User enters the activation code on the form by hand
-        """
-
-        activation = self.Activation.get_by_code(self.request, code)
-
-        if activation:
-            user_uuid = slug_to_uuid(user_id)
-            user = self.request.dbsession.query(User).filter_by(uuid=user_uuid).first()
-
-            if not user or (user.activation != activation):
-                return HTTPNotFound()
-
-            if user:
-                self.db.delete(activation)
-                self.db.flush()
-
-                if self.login_after_activation:
-                    login_service = get_login_service(self.request.registry)
-                    return login_service.authenticate(self.request, user)
-                else:
-                    self.request.registry.notify(RegistrationActivatedEvent(self.request, user, activation))
-                    return HTTPFound(location=self.after_activate_url)
-
-        return HTTPNotFound()
 
     def create_forgot_password_request(self, email, location=None) -> Response:
         """Create a new email activation token for a user and produce the following screen.
@@ -70,10 +42,10 @@ class DefaultCredentialActivityService:
         reset_info = user_registry.create_password_reset_token(email)
         if not reset_info:
             raise CannotResetPasswordException("Cannot reset password for email: {}".format(email))
-        user, token = reset_info
+        user, token, expiration_seconds = reset_info
 
         link = request.route_url('reset_password', code=token)
-        context = dict(link=link, user=user)
+        context = dict(link=link, user=user, expiration_hours=expiration_seconds/60)
         send_templated_mail(request, [email,], "login/email/forgot_password", context=context)
 
         messages.add(request, msg="Please check your email to continue password reset.", kind='success', msg_id="msg-check-email")

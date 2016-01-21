@@ -54,10 +54,10 @@ class DefaultEmailBasedUserRegistry:
     def get_groups(self, user) -> List[GroupMixin]:
         return user.groups
 
-    def create_password_reset_token(self, email) -> str:
+    def create_password_reset_token(self, email) -> Optional[Tuple[object, str, int]]:
         """Sets password reset token for user.
 
-        :return: User and his password reset token or ``None`` if user is disabled or is not email login based.
+        :return: [User, password reset token, token expiration in seconds]. ``None`` if user is disabled or is not email login based.
         """
         user = self.get_by_email(email)
         assert user, "Got password reset request for non-existing email".format(email)
@@ -75,7 +75,22 @@ class DefaultEmailBasedUserRegistry:
 
         assert user.activation.code, "Could not generate the password reset code"
 
-        return user, activation.code
+        return user, activation.code, activation_token_expiry_seconds
+
+    def create_email_activation_token(self, user) -> Tuple[str, int]:
+        """Create activation token for the user to be used in the email
+
+        :return: Tuple (email activation code, expiration in seconds)
+        """
+        activation = self.Activation()
+        activation_token_expiry_seconds = int(self.registry.settings.get("websauna.activation_token_expiry_seconds", 24*3600))
+        activation.expires_at = now() + timedelta(seconds=activation_token_expiry_seconds)
+
+        self.dbsession.add(activation)
+        self.dbsession.flush()
+        user.activation = activation
+        return [activation.code, activation_token_expiry_seconds]
+
 
     def get_authenticated_user_by_username(self, username, password) -> Optional[UserMixin]:
         """Authenticate incoming user.
@@ -102,7 +117,10 @@ class DefaultEmailBasedUserRegistry:
         return self.dbsession.query(self.User).get(token)
 
     def get_user_by_password_reset_token(self, token: str):
-        """Get user by a password token issued earlier."""
+        """Get user by a password token issued earlier.
+
+        Consume any activation token.
+        """
         activation = self.dbsession.query(self.Activation).filter(self.Activation.code == token).first()
 
         if activation:
@@ -115,8 +133,11 @@ class DefaultEmailBasedUserRegistry:
 
         return None
 
-    def get_user_by_email_activation_token(self, token: str):
-        """Get user by a password token issued earlier."""
+    def activate_user_by_email_token(self, token: str):
+        """Get user by a password token issued earlier.
+
+        Consume any activation token.
+        """
         activation = self.dbsession.query(self.Activation).filter(self.Activation.code == token).first()
 
         if activation:
@@ -125,6 +146,8 @@ class DefaultEmailBasedUserRegistry:
                 return None
 
             user = self.get_by_activation(activation)
+            user.activated_at = now()
+            self.dbsession.delete(activation)
             return user
 
         return None
@@ -134,6 +157,23 @@ class DefaultEmailBasedUserRegistry:
         user.password = password
         if not user.activated_at:
             user.activated_at = now()
-
         self.dbsession.delete(user.activation)
+
+    def sign_up(self, registration_source: str, user_data: dict) -> UserMixin:
+        """Sign up a new user through registration form."""
+        u = self.User(**user_data)
+
+        self.dbsession.add(u)
+        self.dbsession.flush()
+
+        # Generate default username (should not be exposed by default)
+        u.username = u.generate_username()
+
+        # Record how we created this record
+        u.registration_source = registration_source
+
+        self.dbsession.flush()
+        return u
+
+
 

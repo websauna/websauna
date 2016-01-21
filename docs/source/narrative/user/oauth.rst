@@ -4,7 +4,14 @@ Federated authentication (Oauth)
 
 Internally Websauna uses :py:term:`Authomatic` framework to implement :term:`OAuth`.
 
-OAuth consumer and API key are stored in :term:`secrets`.
+See Getting started tutorial how to set up Facebook authentication. Same mechanism applies to every OAuth provider like Google, Twitter and Github.
+
+OAuth login service
+===================
+
+The default OAuth login logic is implemented in :py:class:`websauna.system.user.oauthloginservice.DefaultOAuthLoginService`. It directly wraps underlying :py:term:`Authomatic` request processing.
+
+You can drop in your own replacement for OAuth authentication by overriding :py:meth:`websauna.system.Initializer.configure_federated_login`.
 
 Mapping external users to Websauna users
 ========================================

@@ -3,6 +3,21 @@ from websauna.system.http import Request
 from websauna.system.user.models import User
 
 
+class UserCreated:
+    """User is created.
+
+    Fired upon
+
+    * Social media login
+
+    * When sending email activation link
+    """
+
+    def __init__(self, request:Request, user:User):
+        self.request = request
+        self.user = user
+
+
 class FirstLogin:
     """User logs in to the site for the first time.
 

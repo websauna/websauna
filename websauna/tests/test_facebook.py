@@ -58,8 +58,7 @@ def do_facebook_login(browser):
     if b.is_text_present("will receive the following info"):
         b.find_by_css("button[name='__CONFIRM__']").click()
 
-    # Give CI env browser some time to catch up
-    time.sleep(1.5)
+    assert b.is_element_present_by_css("#msg-you-are-logged-in")
 
 
 def do_facebook_login_if_facebook_didnt_log_us_already(browser):

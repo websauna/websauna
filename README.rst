@@ -1,4 +1,4 @@
-Websauna is a full stack superstructure aimed for building consumer and business web services based on Pyramid and SQLAlchemy.
+Websauna is a full stack application framework aimed for building consumer and business web services based on Pyramid and SQLAlchemy.
 
 .. note ::
 
@@ -38,9 +38,7 @@ Websauna is a full stack superstructure aimed for building consumer and business
 What it is?
 ===========
 
-    Superstructure: `"...the portion of the structure that is the span and directly receives the live load is referred to as the superstructure" <https://en.wikipedia.org/wiki/Superstructure>`_
-
-Websauna is a Python package and framework for developing custom consumer and business web services. It emphasises meeting business requirements with reliable delivery times, responsiveness, consistency in quality, security and high data integrity. A low learning curve, novice friendliness and polished documentation help less seasoned developers to get their first release out fast.
+Websauna is a Python package and application framework for developing custom consumer and business web services. It emphasises meeting business requirements with reliable delivery times, responsiveness, consistency in quality, security and high data integrity. A low learning curve, novice friendliness and polished documentation help less seasoned developers to get their first release out quickly.
 
 How it is done?
 ===============
@@ -48,7 +46,7 @@ How it is done?
 Build fast, reach high
 ----------------------
 
-Websauna stands on the shoulders of `Python programming language <https://python.org>`_ and `Pyramid web framework <http://docs.pylonsproject.org/projects/pyramid/en/latest/>`_. It uses `SQLAlchemy <http://sqlalchemy.org/>`_ modelling for data and business logic with automatic admin interface generation. Polished project scaffold and getting started tutorial allow a seasoned Python developer to roll out a custom web service within few hours - being a turn key solution for the first prototype that can be later iterated on.
+Websauna stands on the shoulders of `Python programming language <https://python.org>`_ and `Pyramid web framework <http://docs.pylonsproject.org/projects/pyramid/en/latest/>`_. It uses `SQLAlchemy <http://sqlalchemy.org/>`_ modelling for data and business logic with automatic admin interface generation. Polished integration, project scaffold and getting started tutorial allow a seasoned Python developer to roll out a custom web service within few hours - being a turn key solution for the first prototype that can be later iterated on.
 
 Security
 --------

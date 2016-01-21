@@ -157,7 +157,7 @@ This code includes a few things we haven't covered yet in this tutorial:
     **What happens if requests modify data simultaneously?**
 
     Websauna uses an :term:`optimistic concurrency control` strategy with atomic requests.
-    Optimistic concurrency control protects your application against a :term`race condition`.
+    Optimistic concurrency control protects your application against a :term:`race condition`.
 
     The default database transaction :term:`isolation level` is serializable: database prevents race conditions to happen. If a database detects a race condition an application level Python exception is raised. Then the application tries to resolve this conflict. Websauna default resoution mechanism is through :term:`transaction retry`.
 

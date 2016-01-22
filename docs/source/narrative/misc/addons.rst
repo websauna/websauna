@@ -38,19 +38,19 @@ Addon initialization process
 
 * Websauna application initializer calls ``includeme()`` entry points very early in the application initialization process, right after :py:class:`pyramid.config.Configurator` and logging have been set up
 
-* Addons can hook themselves to the part of initialization process using aspect-oriented approach. :py:class:`websauna.system.Initializer` provides join points which can be hooked in with :py:func:`websauna.utils.aspect.before` and :py:func:`websauna.utils.aspect.after` decorators.
+* Addons can hook themselves to the part of initialization process using events. :py:class:`websauna.system.Initializer` provides join points which can be hooked in with :py:func:`websauna.utils.autoevent.before` and :py:func:`websauna.utils.autoevent.after` decorators.
 
-* Addon sets up its :py:class:`websauna.utils.aspect.Crosscutter` based addon initializer class and returns
+* Addon sets up its addon initializer instance and bind it to application initializer using :py:func:`websauna.utils.autoevent.bind_events`.
 
 * The application continues its initialization process
 
-* Every time application hits any of initializer join points, the crosscutter gets called
+* Every time application hits any of event source methods, the addon event hooks get called
 
 Example::
 
     from websauna.system import Initializer
-    from websauna.utils.aspect import advice_after
-    from websauna.utils.aspect import Crosscutter
+    from websauna.utils.autoevent import after
+    from websauna.utils.autoevent import bind_events
 
 
     class AddonInitializer(metaclass=Crosscutter):
@@ -58,14 +58,14 @@ Example::
         def __init__(self, config:Configurator):
             self.config = config
 
-        @advice_after(Initializer.configure_templates)
+        @after(Initializer.configure_templates)
         def configure_templates(self):
             """Include our package templates folder in Jinja 2 configuration."""
             self.config.add_jinja2_search_path('websauna.myaddon:templates', name='.html', prepend=False)  # HTML templates for
 
         def run(self):
             # Nothing here, advisors get called later
-            pass
+            bind_event(self.config.registry.initializer, self)
 
 
     def includeme(config: Configurator):

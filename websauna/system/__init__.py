@@ -12,7 +12,7 @@ from pyramid.path import DottedNameResolver
 from pyramid.settings import aslist
 from pyramid.settings import asbool
 
-from websauna.utils.aspect import join_point
+from websauna.utils.autoevent import event_source
 
 from websauna.system.admin.modeladmin import configure_model_admin
 from websauna.system.model.utils import attach_model_to_base
@@ -38,7 +38,7 @@ class Initializer:
 
     See :py:meth:`websauna.system.Initializer.run` for linear initialization order.
 
-    Aspect-oriented approach with :py:mod:`websauna.utils.aspect.join_point` is used to provide hooks for addons to participate initialization process.
+    Aspect-oriented approach with :py:mod:`websauna.utils.aspect.event_source` is used to provide hooks for addons to participate initialization process.
     """
 
     def __init__(self, global_config:dict, settings:dict=None):
@@ -129,7 +129,7 @@ class Initializer:
         pyramid_debug_logger = logging.getLogger("pyramid_debug")
         self.config.registry.registerUtility(pyramid_debug_logger, IDebugLogger)
 
-    @join_point
+    @event_source
     def configure_horus(self, settings):
         """Configure user and group SQLAlchemy models, login and sign up views."""
 
@@ -159,7 +159,7 @@ class Initializer:
         self.config.registry.registerUtility(schemas.ResetPasswordSchema, IResetPasswordSchema)
         self.config.registry.registerUtility(schemas.ForgotPasswordSchema, IForgotPasswordSchema)
 
-    @join_point
+    @event_source
     def configure_mailer(self, settings):
         """Configure outgoing email backend based on the INI settings."""
         from pyramid_mailer import IMailer
@@ -188,7 +188,7 @@ class Initializer:
 
             self.config.registry.registerUtility(mailer, IMailer)
 
-    @join_point
+    @event_source
     def configure_templates(self):
         from websauna.system.core import templatecontext
         from websauna.system.core.render import get_on_demand_resource_renderer
@@ -213,7 +213,7 @@ class Initializer:
         # Add the default resource registry for Deform
         self.config.add_request_method(get_on_demand_resource_renderer, 'on_demand_resource_renderer', reify=True)
 
-    @join_point
+    @event_source
     def configure_authentication(self):
         """Set up authentication and authorization policies.
 
@@ -238,11 +238,11 @@ class Initializer:
         from websauna.system.auth import subscribers
         self.config.scan(subscribers)
 
-    @join_point
+    @event_source
     def configure_panels(self, settings):
         self.config.include('pyramid_layout')
 
-    @join_point
+    @event_source
     def configure_federated_login(self):
         """Configure federated authentication (OAuth).
 
@@ -306,7 +306,7 @@ class Initializer:
 
         self.config.registry.registerAdapter(factory=DefaultOAuthLoginService, required=(IRequest,), provided=IOAuthLoginService)
 
-    @join_point
+    @event_source
     def configure_database(self):
         """Configure database.
 
@@ -314,7 +314,7 @@ class Initializer:
         """
         self.config.include(".model.meta")
 
-    @join_point
+    @event_source
     def configure_instrumented_models(self):
         """Configure models from third party addons and dynamic SQLAlchemy fields which need access to the configuration.
 
@@ -326,7 +326,7 @@ class Initializer:
         from websauna.system.model.meta import Base
         Base.metadata.pyramid_config = self.config
 
-    @join_point
+    @event_source
     def configure_error_views(self):
 
         settings = self.settings
@@ -352,7 +352,7 @@ class Initializer:
             self.config.scan(errortrigger)
             self.config.add_route('error_trigger', '/error-trigger')
 
-    @join_point
+    @event_source
     def configure_root(self):
         """Root object defines permissions for route URLs which have not their own traversing context.
 
@@ -361,20 +361,20 @@ class Initializer:
         from websauna.system.core.root import Root
         self.config.set_root_factory(Root.root_factory)
 
-    @join_point
+    @event_source
     def configure_views(self):
         from websauna.system.core.views import home
         self.config.add_route('home', '/')
         self.config.scan(home)
 
-    @join_point
+    @event_source
     def configure_sitemap(self, settings):
         """Configure sitemap generation for your site.
 
         By default this is not configured and nothing is done.
         """
 
-    @join_point
+    @event_source
     def configure_static(self):
         """Configure static asset serving and cache busting.
 
@@ -384,7 +384,7 @@ class Initializer:
         """
         self.add_static('websauna-static', 'websauna.system:static')
 
-    @join_point
+    @event_source
     def configure_sessions(self, settings, secrets):
         """Configure session storage."""
 
@@ -401,7 +401,7 @@ class Initializer:
 
         set_creation_time_aware_session_factory(self.config)
 
-    @join_point
+    @event_source
     def configure_admin(self, settings):
         """Configure admin ux.
 
@@ -435,7 +435,7 @@ class Initializer:
         # Add request.admin variable
         self.config.add_request_method(get_admin, 'admin', reify=True)
 
-    @join_point
+    @event_source
     def configure_forms(self):
         """Configure subsystems for rendering Deform forms."""
 
@@ -460,7 +460,7 @@ class Initializer:
             mapper = DefaultViewMapper
         self.config.set_view_mapper(csrf_mapper_factory(mapper))
 
-    @join_point
+    @event_source
     def configure_crud(self, settings):
         """CRUD templates and views."""
 
@@ -471,7 +471,7 @@ class Initializer:
         from websauna.system.crud import views
         self.config.scan(views)
 
-    @join_point
+    @event_source
     def configure_models(self):
         """Configure all models from your application.
 
@@ -481,7 +481,7 @@ class Initializer:
         """
         pass
 
-    @join_point
+    @event_source
     def configure_user_models(self):
         """Plug in user models.
 
@@ -519,7 +519,7 @@ class Initializer:
         registry.registerUtility(models.Activation, IActivationClass)
         registry.registerAdapter(factory=DefaultEmailBasedUserRegistry, required=(IRequest,), provided=IUserRegistry)
 
-    @join_point
+    @event_source
     def configure_user(self, settings, secrets):
         """Configure user model, sign in and sign up subsystem."""
         from websauna.system.user import views
@@ -554,14 +554,14 @@ class Initializer:
         self.config.add_route('register', '/register')
         self.config.add_route('activate', '/activate/{code}')
 
-    @join_point
+    @event_source
     def configure_model_admins(self):
         import websauna.system.user.admins
         import websauna.system.user.adminviews
         self.config.scan(websauna.system.user.admins)
         self.config.scan(websauna.system.user.adminviews)
 
-    @join_point
+    @event_source
     def configure_notebook(self):
         """Setup pyramid_notebook integration."""
         import websauna.system.notebook.views
@@ -570,14 +570,14 @@ class Initializer:
         self.config.add_route('notebook_proxy', '/notebook/*remainder')
         self.config.scan(websauna.system.notebook.views)
 
-    @join_point
+    @event_source
     def configure_tasks(self, settings):
         """Scan all Python modules with asynchoronou sna dperiodic tasks to be imported."""
 
         # Importing the task is enough to add it to Celerybeat working list
         from websauna.system.devop import tasks  # noqa
 
-    @join_point
+    @event_source
     def configure_scheduler(self, settings):
         """Configure Celery."""
 
@@ -688,7 +688,7 @@ class Initializer:
             extra_init = resolver.resolve(extra_init)
             extra_init(self)
 
-    @join_point
+    @event_source
     def sanity_check(self):
         """Perform post-initialization sanity checks.
 

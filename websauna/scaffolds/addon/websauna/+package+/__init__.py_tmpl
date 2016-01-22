@@ -2,11 +2,11 @@ from pyramid.config import Configurator
 
 from websauna.system import Initializer
 from websauna.system.model.utils import attach_models_to_base_from_module
-from websauna.utils.aspect import advice_after
-from websauna.utils.aspect import Crosscutter
+from websauna.utils.autoevent import after
+from websauna.utils.autoevent import bind_events
 
 
-class AddonInitializer(metaclass=Crosscutter):
+class AddonInitializer:
     """Configure this addon for websauna.
 
     * We hook to existing parts of initialization process using ``@after`` aspect advisor
@@ -17,14 +17,14 @@ class AddonInitializer(metaclass=Crosscutter):
     def __init__(self, config:Configurator):
         self.config = config
 
-    @advice_after(Initializer.configure_templates)
+    @after(Initializer.configure_templates)
     def configure_templates(self):
         """Include our package templates folder in Jinja 2 configuration."""
 
         # Use prepend=False here so that the app can override our templates easily
         self.config.add_jinja2_search_path('websauna.{{package}}:templates', name='.html', prepend=False)  # HTML templates for pages
 
-    @advice_after(Initializer.configure_instrumented_models)
+    @after(Initializer.configure_instrumented_models)
     def configure_instrumented_models(self):
         """Plug models from this addon to Websauna."""
         from . import models
@@ -43,6 +43,11 @@ class AddonInitializer(metaclass=Crosscutter):
         self.config.scan(views)
 
     def run(self):
+
+        # This will make sure our initialization hooks are called later
+        bind_events(self.config.registry.initializer, self)
+
+        # Run our custom initialization code which does not have a good hook
         self.configure_addon_views()
 
 
@@ -56,5 +61,6 @@ def includeme(config: Configurator):
             self.config.include("websauna.{{package}}")
 
     """
-    init = AddonInitializer(config)
-    init.run()
+    addon_init = AddonInitializer(config)
+    addon_init.run()
+

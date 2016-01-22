@@ -95,6 +95,17 @@ Then you can exit from pgcli::
     \q
 
 
+.. _ws-create-table:
+
+ws-create-table
+---------------
+
+Print out :term:`SQL` ``CREATE TABLE`` statements needed to construct currently configured models.
+
+Example::
+
+    ws-create-table development.ini
+
 .. _ws-alembic:
 
 ws-alembic

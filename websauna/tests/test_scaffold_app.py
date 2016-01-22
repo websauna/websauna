@@ -169,6 +169,13 @@ def test_tweens(app_scaffold, dev_db):
     execute_venv_command("cd myapp && ws-tweens conf/development.ini", app_scaffold)
 
 
+def test_create_table(app_scaffold, dev_db):
+    """Test ws-create-table command."""
+
+    execute_venv_command("ws-create-table conf/development.ini", app_scaffold, cd_folder="myapp")
+
+
+
 #: Migration test file
 MODELS_PY="""
 from websauna.system.model.meta import Base

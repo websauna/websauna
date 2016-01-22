@@ -2,19 +2,12 @@
 
 import os
 import sys
-
-from websauna.system.devop.cmdline import init_websauna
-from websauna.utils.configincluder import \
-    monkey_patch_paster_config_parser
-import transaction
 from collections import OrderedDict
 
+import transaction
 from IPython import embed
 
-from pyramid.paster import (
-    setup_logging,
-    )
-
+from websauna.system.devop.cmdline import init_websauna
 from websauna.system.model.meta import Base
 
 

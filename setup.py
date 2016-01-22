@@ -136,6 +136,7 @@ setup(
             'ws-create-user=websauna.system.devop.scripts.createuser:main',
             'ws-celery=websauna.system.devop.scripts.celery:main',
             'ws-pserve=websauna.system.devop.scripts.pserve:main',
+            'ws-create-table=websauna.system.devop.scripts.createtable:main',
         ],
 
         'paste.app_factory': [

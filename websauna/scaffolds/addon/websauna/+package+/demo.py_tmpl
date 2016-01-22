@@ -6,12 +6,9 @@ import websauna.system
 class Initializer(websauna.system.Initializer):
     """A demo / test app initializer for testing addon websauna.{{package}}."""
 
-    def configure_addons(self):
+    def include_addons(self):
         """Include this addon in the configuration."""
         self.config.include("websauna.{{package}}")
-
-    def run(self):
-        super(Initializer, self).run()
 
 
 def main(global_config, **settings):

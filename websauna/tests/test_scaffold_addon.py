@@ -130,7 +130,7 @@ class MyModel:
 #: Initializer file snipped when addon has been installed
 ADDON_INSTALLED_INITIALIZER = """
 
-    def configure_addons(self):
+    def include_addons(self):
         self.config.include("websauna.myaddon")
 
 """

@@ -127,7 +127,7 @@ Example: checking if a user has a permission on certain resources inside admin:
 
 Example: check if a user has permission to view :term:`admin`:
 
-.. code-block: html+jinja
+.. code-block:: html+jinja
 
   {% if request.admin %}
      {% if request.has_permission('view', context=request.admin) %}

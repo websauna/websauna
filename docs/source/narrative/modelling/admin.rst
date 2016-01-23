@@ -7,13 +7,11 @@ Admin
 Introduction
 ============
 
-Admin, the short for "administration interface", is user experience to easily manage your data in Websauna. Admin interface should do the heavy lifting for writing a lot of CRUD forms for managing your application data.
+Admin, or administration interface, provides super administrator capabilities for your Websauna site. You can easily browse, add and edit data without need to write explicit forms and views or install additional software for database browsing.
 
-The default Websauna admin interface
+Admin is accessible for users who belong *admin* group. The first signed up user is automatically added to this group. Different permissions schemes can be implemented through :term:`ACL`, so that groups of people can only view partial data or cannot modify it.
 
-* is accessible only by users who belong to the site managers - they have been given administration permission through groups
-
-* registers SQLAlchemy models and has CRUD forms automatically generated form them
+Admin is automatically generated for your data :doc:`models <./models>`_. It is based on Websauna :doc:`CRUD <./crud>` and :doc:`automatic form generation <../form/autoform>`.
 
 Admin URL breakdown
 ===================

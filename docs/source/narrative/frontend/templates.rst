@@ -2,23 +2,81 @@
 Templates
 =========
 
+.. contents:: :local:
+
 Introduction
 ============
 
-Websauna uses :term:`Jinja` 2 template language in its default templates. You are free to choose any other template engine for your templates. See :term:`Pyramid` support for `different template engines <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/templates.html#available-add-on-template-system-bindings>`_.
+Websauna uses :term:`Jinja` template language as its default template engine for rendering HTML. You are free to choose any other template engine for your templates. See :term:`Pyramid` support for `different template engines <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/templates.html#available-add-on-template-system-bindings>`_.
+
+How templating works
+====================
+
+URLs are never directly connected to template files. Instead, URLs point to views. Views prepare the data as input for the page template. This usually includes doing database look ups and processing form posts. A view returns a dictionary which contains items which can be later substituted in template using ``{{ variable }}`` syntax.
+
+:doc:`Read how views work <./views>`.
 
 Template reference
 ==================
 
 See :doc:`template reference <../../reference/templates>` to get yourself familiar with core templates.
 
+Jinja primer
+============
+
+To learn how :term:`Jinja` template language works read `Jinja Template Designer Documentation <http://jinja.pocoo.org/docs/dev/templates/>`_.
+
+Template loading order
+======================
+
+Template loader in set up in such a way that it tries to
+
+* Load the first matching template relative to the ``templates`` folder
+
+* Load template from your Websauna ``myapp/templates`` folder
+
+* Load from any Websauna addon
+
+* Load from Websauna core package
+
+For example it would first try ``myapp/templates/site/logo.html`` and then ``websauna/system/core/templates/site/logo.html``.
+
+All ``templates`` folder are connected to the :term:`Jinja` template loader in :py:class:`websauna.system.Initializer`. See
+
+* :py:meth:`websauna.system.Initializer.configure_templates`.
+
+* :py:meth:`websauna.system.Initializer.configure_admin`.
+
+* :py:meth:`websauna.system.Initializer.configure_crud`.
+
 Rendering a template
 ====================
 
-View use case
--------------
+Rendering for a view
+--------------------
 
 The template is usually rendered by returning a template context dictionary from a view function. The template context dictionary is passed to a template defined by ``renderer`` parameter in the view config. ``renderer`` must be a path to a file defined in one of the template paths.
+
+Example::
+
+    from websauna.system.http import Request
+    from websauna.system.core.route import simple_route
+
+    @simple_route("/", route_name="home", renderer='myapp/home.html')
+    def home(request: Request):
+        """Render site homepage."""
+        project_name = "Mikko's awesome cow hiphop music videos"
+        return locals()
+
+Then you can have a template:
+
+.. code-block:: html+jinja
+
+    {% extends "site/base.html" %}
+
+    {% block content %}
+        Welcome to {{ project_name }}
+    {% endblock %}
 
 Manual rendering
 ----------------

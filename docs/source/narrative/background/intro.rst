@@ -92,8 +92,6 @@ Design goals
 
 * **Least resistance**: When compromises and choices between default components are made, a path of least resistance is preferred. This usually means picking up a choice most developers feel comfortable with.
 
-* **
-
 Default stack
 =============
 

@@ -58,6 +58,9 @@ Glossary
     DoS
         In computing, a denial-of-service (DoS) attack is an attempt to make a machine or network resource unavailable to its intended users, such as to temporarily or indefinitely interrupt or suspend services of a host connected to the Internet. A distributed denial-of-service (DDoS) is where the attack source is more than one–and often thousands of-unique IP addresses. `More information <https://en.wikipedia.org/wiki/Denial-of-service_attack>`__.
 
+    Font Awesome
+        A popular web icon library distributed as web fonts to allow :term:`CSS` coloring options. `More information <http://fontawesome.io/>`__.
+
     git
       The most popular version control software at the moment. `More info <https://git-scm.com/book/en/v2/Getting-Started-About-Version-Control>`__.
 
@@ -87,6 +90,9 @@ Glossary
 
     JSONB
         A :term:`PostgreSQL` column type to store JSON structured data. `Read more <https://www.compose.io/articles/is-postgresql-your-next-json-database/>`__.
+
+    Less
+        Less is a :term:`CSS` pre-processor, meaning that it extends the CSS language, adding features that allow variables, mixins, functions and many other techniques that allow you to make CSS that is more maintainable, themable and extendable. `Read more <http://lesscss.org/>`__.
 
     model
         A model is a Python class describing :term:`persistent` data structure. A model provides convenient Python API to manipulate your data, so that save and load it into a :term:`database`. :doc:`More information <../narrative/modelling/models>`.

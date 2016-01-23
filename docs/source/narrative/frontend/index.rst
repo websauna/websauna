@@ -11,3 +11,4 @@ Frontend
     traversal
     tweens
     javascript
+    themes

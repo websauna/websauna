@@ -3,5 +3,22 @@
 {% extends "site/base.html" %}
 
 {% block content %}
-<h1 id="demo-text">Welcome to {{project}}!</h1>
+
+    <div class="jumbotron text-center">
+        <h1>{[ site_name ]}</h1>
+        <p class="lead text-center">
+            {[ site_tag_line ]}
+        </p>
+    </div>
+
+    {% if request.user %}
+        <p id="demo-text">
+            Welcome {[ request.user.friendly_name ]}!
+        </p>
+    {% else %}
+        <p id="demo-text">
+            Welcome visitor!
+        </p>
+    {% endif %}
+
 {% endblock %}

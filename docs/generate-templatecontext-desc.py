@@ -24,6 +24,23 @@ Introduction
 
 :doc:`See templating documentation <../narrative/frontend/templates>`.
 
+Variables
+=========
+
+{% for name, func, doc, heading in modules.vars %}
+
+{{ name }}
+{{ heading }}
+
+{{ doc }}
+
+{% if func %}
+See :py:func:`{{ func }}` for more information.
+{% endif %}
+
+{% endfor %}
+
+
 Filters
 =======
 
@@ -85,9 +102,22 @@ def find_filters(request):
     return filters
 
 
+def find_vars():
+    vars = websauna.system.core.vars
+    result = []
+    for name, func in vars._template_variables.items():
+        qual = fullname(func)
+        doc = strip_indent(func.__doc__)
+        heading = "-" * len(name)
+        result.append((name, qual, doc, heading))
+    result = sorted(result, key=lambda x: x[0])
+    return result
+
+
 request = init_websauna("../development.ini")
 
 modules = {}
 modules["filters"] = find_filters(request)
+modules["vars"] = find_vars()
 
 print(template.render(dict(modules=modules)))

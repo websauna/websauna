@@ -334,14 +334,48 @@ The value is in URL format ``resource://PYTHON_PACKAGE_NAME/PATH_TO_INI_FILE_INS
 
 Default value: ``resource://websauna/development-secrets.ini``.
 
+websauna.site_id
+----------------
+
+An alphanumeric id for the site. If multiple sites are running on the same resources this can be used to discriminate between sites.
+
+For example backup scripts tags backup archives with this identifier.
+
+Default value: project name + "_prod"
+
+websauna.site_name
+------------------
+
+See :py:func:`websauna.system.core.vars.site_name`.
+
 websauna.site_url
 -----------------
 
-Where this site is running. When serving web pages, this value is not accessed, as ``request.route_url()`` and similar methods rely on the HTTP headers coming from the web server.
-
-The value is mostly used when running tasks and command line scripts.
+See :py:func:`websauna.system.core.vars.site_url`.
 
 Default: No default, must be set.
+
+websauna.site_tag_line
+----------------------
+
+See :py:func:`websauna.system.core.vars.site_tag_line`.
+
+Default: No default, must be set.
+
+
+websauna.site_email_prefix
+--------------------------
+
+See :py:func:`websauna.system.core.vars.site_email_prefix`.
+
+Default: No default, must be set.
+
+websauna.site_time_zone
+-----------------------
+
+See :py:func:`websauna.system.core.vars.site_time_zone`.
+
+Default: :term:`UTC`
 
 websauna.test_web_server_port
 -----------------------------

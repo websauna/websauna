@@ -204,6 +204,7 @@ class Initializer:
         self.config.include('pyramid_mako')
 
         self.config.include("websauna.system.core.templatecontext")
+        self.config.include("websauna.system.core.vars")
 
         # Add core templates to the search path
         self.config.add_jinja2_search_path('websauna.system:core/templates', name='.html')

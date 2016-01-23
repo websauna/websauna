@@ -1,24 +1,18 @@
-"""Extra template variables."""
+"""Websauna template filters ."""
 import datetime
 import json
 
 from pyramid.config import Configurator
-from pyramid.events import BeforeRender
 from pyramid.renderers import render
-from pyramid.settings import asbool
 from pyramid.threadlocal import get_current_request
 
 from pytz import timezone
-
-
 from jinja2 import contextfilter
 from jinja2 import Markup
-
 from arrow import Arrow
-from websauna.compat import typing
 
+from websauna.compat import typing
 from websauna.utils import html
-from websauna.utils.time import now
 from websauna.utils import slug
 
 
@@ -26,7 +20,9 @@ from websauna.utils import slug
 def uuid_to_slug(jinja_ctx, context, **kw):
     """Convert UUID object to a base64 encoded slug.
 
-    Example::
+    Example:
+
+    .. code-block:: html+jinja
 
         {% for question in latest_question_list %}
             <li>
@@ -164,7 +160,7 @@ def fromtimestamp(jinja_ctx, context, **kw):
 
     Example:
 
-    .. code-block:: html
+    .. code-block:: html+jinja
 
         <p>
             Prestodoctor license expires: {{ prestodoctor.recommendation.expires|fromtimestamp(timezone="US/Pacific")|friendly_time }}
@@ -203,7 +199,7 @@ def include_filter(config:Configurator, name:str, func:typing.Callable, renderer
             return neg
 
 
-    Then in your initialization:
+    Then in your initialization:::
 
         include_filter(config, "neg", negative)
 
@@ -232,52 +228,6 @@ def include_filter(config:Configurator, name:str, func:typing.Callable, renderer
 
 
 def includeme(config):
-
-    # The site name - used in <title> tag, front page, etc.
-    site_name = config.registry.settings["websauna.site_name"]
-
-    # Do not use - use request.route_url("home") to get link to the site root
-    site_url = config.registry.settings["websauna.site_url"]
-
-    # Shown in the footer as the site copyright owner
-    site_author = config.registry.settings["websauna.site_author"]
-
-    # Shown on the front page below title
-    site_tag_line = config.registry.settings["websauna.site_tag_line"]
-
-    # [label] Added beginning of every outgoing email subject
-    site_email_prefix = config.registry.settings["websauna.site_email_prefix"]
-
-    # True if this is production set up - can be used in templates to change/hide texts
-    site_production = asbool(config.registry.settings.get("websauna.site_production"))
-
-    #: The default site timezone - can be used in templates to translate UTC timetamps to local time
-    site_timezone = asbool(config.registry.settings.get("websauna.site_timezone", "UTC"))
-
-    def on_before_render(event):
-        # Augment Pyramid template renderers with these extra variables and deal with JS placement
-
-        request = event["request"]
-
-        event['site_name'] = site_name
-        event['site_url'] = site_url
-        event['site_author'] = site_author
-        event['site_tag_line'] = site_tag_line
-        event['site_now'] = now
-        event['site_email_prefix'] = site_email_prefix
-        event['site_production'] = site_production
-        event['site_timezone'] = site_timezone
-
-        # Determine placement of JS
-        on_demand_resource_renderer = getattr(request, "on_demand_resource_renderer")
-        if on_demand_resource_renderer:
-            event['is_js_in_head'] = on_demand_resource_renderer.is_js_in_head(request)
-            event['on_demand_resource_renderer'] = on_demand_resource_renderer
-        else:
-            event['is_js_in_head'] = True
-
-    config.add_subscriber(on_before_render, BeforeRender)
-
     include_filter(config, "uuid_to_slug", uuid_to_slug)
     include_filter(config, "friendly_time", friendly_time)
     include_filter(config, "datetime", filter_datetime)

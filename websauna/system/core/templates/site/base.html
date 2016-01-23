@@ -17,7 +17,7 @@
     {% endblock %}
 
     {% block head_script %}
-        {% if is_js_in_head %}
+        {% if js_in_head %}
           {% include "site/javascript.html" %}
         {% endif %}
     {% endblock %}
@@ -69,7 +69,7 @@
 
         {# script is shared site JavaScript #}
         {% block body_end_script %}
-            {% if not is_js_in_head %}
+            {% if not js_in_head %}
               {% include "site/javascript.html" %}
             {% endif %}
         {% endblock body_end_script %}

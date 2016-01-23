@@ -1,3 +1,4 @@
+{# Alternative <html>...</html> framing without header and footer. #}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -20,21 +21,22 @@
 <body>
     {# body block contains the whole page without a navigation frame and the analytics script #}
     {% block body %}
+
+      <main>
+
+          {# content is the content with margins #}
+          <div class="container">
+              {% block content %}
+              {% endblock content %}
+          </div>
+      </main>
+
+      {# analytics is tracking JavaScript #}
+      {% block analytics %}
+          {% include "site/analytics.html" %}
+      {% endblock analytics %}
+
     {% endblock body %}
-
-    <main>
-
-        {# content is the content with margins #}
-        <div class="container">
-            {% block content %}
-            {% endblock content %}
-        </div>
-    </main>
-
-    {# analytics is tracking JavaScript #}
-    {% block analytics %}
-        {% include "site/analytics.html" %}
-    {% endblock analytics %}
 
 </body>
 </html>

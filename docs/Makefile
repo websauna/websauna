@@ -194,9 +194,14 @@ pseudoxml:
 apidoc-clean:
 	rm -rf source/api/websauna.*
 
+templatedoc:
+	python generate-template-desc.py > source/reference/templates.rst
+
 apidoc:
 	sphinx-apidoc -f -o source/api/ --separate --module-first ../websauna
 	python generate-api-toc.py > source/api/index.rst
 
 publish:
 	aws s3 sync build/html s3://websauna.org
+
+world: apidoc-clean clean templatedoc apidoc html publish

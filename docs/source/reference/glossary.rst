@@ -27,6 +27,9 @@ Glossary
     development.ini
       The default configuration file when you run Websauna on your local computer when doing development. For more information see :doc:`configuration <../reference/config>`.
 
+    CDN
+        A content delivery network or content distribution network (CDN) is a globally distributed network of proxy servers deployed in multiple data centers. The goal of a CDN is to serve content to end-users with high availability and high performance. Many CDNs allow developers to upload their own static asset files to speed up their loading. `More information <https://en.wikipedia.org/wiki/Content_delivery_network>`__.
+
     Celery
       Celery a task queue for Python with focus on real-time processing, while also supporting task scheduling. `More info <http://celery.readthedocs.org/>`__.
 

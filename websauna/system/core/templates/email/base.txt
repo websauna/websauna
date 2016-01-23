@@ -1,2 +1,3 @@
+{# Plain text email framing #}
 {% block content %}{% endblock content %}
 {% block footer %} {% include "email/footer.txt" %}{% endblock footer %}

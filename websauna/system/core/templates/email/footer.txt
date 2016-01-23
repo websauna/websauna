@@ -1,3 +1,4 @@
+{# Plain text email footer #}
 {% block footer %}
 
 --

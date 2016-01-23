@@ -1,4 +1,9 @@
-{# Render absolute timestamp + friendly timestamp in Bootstrap friendly manner #}
+{# Render a datetime.
+
+Render absolute timestamp and relative friendly timestamp for it.
+
+User by :py:func:`websauna.system.core.templatecontext.friendly_time`.
+#}
 <div class="friendly-time">
     {{ time|friendly_time() }}
 </div>

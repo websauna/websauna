@@ -4,11 +4,12 @@ References
 .. toctree::
     :maxdepth: 1
 
-    api
+    templates
     config
     commands
     troubleshooting
     glossary
+
 
 Indices and tables
 ++++++++++++++++++

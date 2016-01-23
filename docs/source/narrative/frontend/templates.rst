@@ -5,7 +5,12 @@ Templates
 Introduction
 ============
 
-Websauna uses Jinja 2 template language in its default templates. You are, however, free to choose any other template engine for your templates (see Pyramid template support).
+Websauna uses :term:`Jinja` 2 template language in its default templates. You are free to choose any other template engine for your templates. See :term:`Pyramid` support for `different template engines <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/templates.html#available-add-on-template-system-bindings>`_.
+
+Template reference
+==================
+
+See :doc:`template reference <../../reference/templates>` to get yourself familiar with core templates.
 
 Rendering a template
 ====================

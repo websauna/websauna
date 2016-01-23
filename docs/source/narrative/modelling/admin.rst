@@ -11,7 +11,16 @@ Admin, or administration interface, provides super administrator capabilities fo
 
 Admin is accessible for users who belong *admin* group. The first signed up user is automatically added to this group. Different permissions schemes can be implemented through :term:`ACL`, so that groups of people can only view partial data or cannot modify it.
 
-Admin is automatically generated for your data :doc:`models <./models>`_. It is based on Websauna :doc:`CRUD <./crud>` and :doc:`automatic form generation <../form/autoform>`.
+Admin is automatically generated for your data :doc:`models <./models>`. It is based on Websauna :doc:`CRUD <./crud>` and :doc:`automatic form generation <../form/autoform>`.
+
+
+.. image:: ../images/admin.png
+    :width: 640px
+
+Getting started
+===============
+
+How to get your models to admin is :doc:`covered in tutorial <../../tutorials/gettingstarted/index>`.
 
 Admin URL breakdown
 ===================
@@ -44,7 +53,9 @@ In your Initializer make sure the module where you view lies is scanned::
             from . import phoneorder
             self.config.scan(phoneorder)
 
-In the template ``phone_order.html``::
+In the template ``phone_order.html``:
+
+.. code-block:: html+jinja
 
     {% extends "admin/base.html" %}
 
@@ -53,13 +64,15 @@ In the template ``phone_order.html``::
     {% endblock %}
 
 
-Then you can later get the link to this page in template code::
+Then you can later get the link to this page in template code:
+
+.. code-block:: html+jinja
 
     <p>
         <a href="{{ request.resource_url(admin, 'phone-order') }}>Create phone order</a>
     </p>
 
-Getting an model instance link in admin
+Linking into the admin views of a model
 =======================================
 
 Preface: You have an SQLAlchemy object and you want to provide the link to its admin interface: show, edit or custom action.
@@ -74,11 +87,8 @@ To construct a link to the model instance inside admin interface, you need to
 
 Example::
 
-    # Get admin singleton from the registry
-    admin = Admin.get_admin(request.registry)
-
     # Get traversable resource for a model instance
-    resource = admin.get_admin_resource(user)
+    resource = request.admin.get_admin_resource(user)
 
     # Get a context view named "edit" for this resource
     edit_link = request.resource_url(resource, "edit")

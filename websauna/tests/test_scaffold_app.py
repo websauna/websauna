@@ -150,6 +150,8 @@ def test_create_user(app_scaffold, dev_db, browser):
         b  = browser
         b.visit("http://localhost:6543/login")
 
+        assert b.is_element_present_by_css("#sign-up-form")
+
         # See our scaffold home page loads and demo text is there
         b.fill("username", "mikko@example.com")
         b.fill("password", "secret")

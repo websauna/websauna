@@ -19,12 +19,17 @@ URLs are never directly connected to template files. Instead, URLs point to view
 Template reference
 ==================
 
-See :doc:`template reference <../../reference/templates>` to get yourself familiar with core templates.
+See :doc:`template reference <../../reference/templates>` to get yourself familiar with templates supplied with Websauna.
 
 Jinja primer
 ============
 
 To learn how :term:`Jinja` template language works read `Jinja Template Designer Documentation <http://jinja.pocoo.org/docs/dev/templates/>`_.
+
+Filters and context variables
+=============================
+
+See :doc:`template content variable and filter reference <../../reference/templatecontext>` to get yourself familiar with Jinja variables and filters supplied with Websauna.
 
 Template loading order
 ======================
@@ -148,3 +153,21 @@ Example:
 .. code-block:: html+jinja
 
     <img src="{{ 'myapp:static/assets/img/logo-transparent.png'|static_url }}" alt="">
+
+Advanced
+========
+
+Accessing Jinja environment
+---------------------------
+
+Each template suffix (``.txt``, ``.html``, ``.xml``) has its own Jinja environment.
+
+Example::
+
+    from pyramid_jinja2 import IJinja2Environment
+
+    def find_filters(request):
+        env = request.registry.queryUtility(IJinja2Environment, name=".html")
+        filters = []
+        for name, func in env.filters.items():
+            print(name, func)

@@ -5,6 +5,7 @@ References
     :maxdepth: 1
 
     templates
+    templatecontext
     config
     commands
     troubleshooting

@@ -18,6 +18,11 @@ Templates
 
 .. contents:: :local:
 
+Introduction
+============
+
+:doc:`See templating documentation <../narrative/frontend/templates>`.
+
 Default site
 ============
 

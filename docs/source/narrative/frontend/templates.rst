@@ -100,10 +100,44 @@ Alternatively if you know the output will be a HTTP response you can use ``pyram
     def my_view(request):
         return render_to_response("hello_world.html", dict(first_name="Mikko", last_name="Ohtamaa"), request=request)
 
-Defining template paths
------------------------
+Permission checks
+=================
 
-TODO
+Use :py:meth:`pyramid.request.Request.has_permission` to check if the user has the named permission in the current context.
+
+Example: checking if a user has a permission on certain resources inside admin:
+
+.. code-block:: html+jinja
+
+    {% block panel_buttons %}
+
+        {% if request.has_permission('view', context) %}
+            <a id="btn-panel-list-{{ model_admin.id }}" class="btn btn-default btn-admin-list" href="{{ model_admin|model_url('listing') }}">
+                List
+            </a>
+        {% endif %}
+
+
+        {% if request.has_permission('add', context) %}
+            <a id="btn-panel-add-{{ model_admin.id }}" class="btn btn-default btn-admin-list" href="{{ model_admin|model_url('add') }}">
+                Add
+            </a>
+        {% endif %}
+    {% endblock %}
+
+Example: check if a user has permission to view :term:`admin`:
+
+.. code-block: html+jinja
+
+  {% if request.admin %}
+     {% if request.has_permission('view', context=request.admin) %}
+        <li>
+          <a href="{{'admin_home'|route_url}}">
+             Admin
+          </a>
+        </li>
+    {% endif %}
+  {% endif %}
 
 Linking
 =======

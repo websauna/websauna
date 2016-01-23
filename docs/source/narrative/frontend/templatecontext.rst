@@ -1,8 +1,29 @@
+================
+Template context
+================
 
-Template variables
-==================
+.. contents:: :local:
+
+Variables
+=========
 
 The following variables are available in the templates, as set by :py:mod:`websauna.system.core.templatecontext`.
+
+Filters
+=======
+
+.. _static_url:
+
+static_url
+----------
+
+Refer to a static asset inside a Python package.
+
+Example::
+
+    <img src="{{ 'myapp:static/logo.png'|static_url }}" alt="">
+
+Provided by :term`pyramid_jinja2` package.
 
 Other template context
 ======================

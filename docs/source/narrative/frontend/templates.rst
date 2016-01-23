@@ -130,3 +130,21 @@ The actual view definition looks like:
     def sms_user(context, request):
         user = context.get_object()
         # ...
+
+Images
+======
+
+Static images
+-------------
+
+The usual process to add an image on your website is
+
+* Include image file in ``static`` folder of your application
+
+* Refer to this image using :ref:`static_url` filter in your template.
+
+Example:
+
+.. code-block:: html+jinja
+
+    <img src="{{ 'myapp:static/assets/img/logo-transparent.png'|static_url }}" alt="">

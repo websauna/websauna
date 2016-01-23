@@ -6,21 +6,25 @@
 
 <head>
 
-    {% block meta %}
-        {% include "site/meta.html" %}
-    {% endblock meta %}
+  {% block meta %}
+    {# Include or override default <meta> tags #}
+    {% include "site/meta.html" %}
+  {% endblock meta %}
 
-    {% block css %}
-        {% include "site/css.html" %}
-    {% endblock %}
+  {% block css %}
+    {# Include or override default CSS head #}
+    {% include "site/css.html" %}
+  {% endblock %}
 
+  {% block custom_head %}
+    {# A block where the template extending this base tempplate can drop in more ``<head>`` elements. #}
+  {% endblock %}
 
 </head>
 
-{# body_classes allows to insert extra CSS classes on <body> tag #}
 <body>
-    {# body block contains the whole page without a navigation frame and the analytics script #}
     {% block body %}
+      {#  This block covers everything between ``<body>...</body>`` #}
 
       <main>
 

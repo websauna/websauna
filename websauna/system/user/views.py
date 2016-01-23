@@ -157,6 +157,7 @@ class AuthController(horus_views.AuthController):
         # Get the internal provider name URL variable.
         provider_name = self.request.matchdict.get('provider_name')
         oauth_login_service = get_oauth_login_service(self.request)
+        assert oauth_login_service, "OAuth not configured for {}".format(provider_name)
         return oauth_login_service.handle_request(provider_name)
 
     @view_config(permission='authenticated', route_name='logout')

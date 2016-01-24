@@ -1,28 +1,95 @@
-==============
-Using database
-==============
+================
+Database and SQL
+================
 
-SQL database
+.. contents:: :local:
+
+Introduction
 ============
 
-Websaunan uses an SQL database. SQLAlchemy object relations mapping (ORM) library is used to create Python classes representing the model of data. From these models corresponding SQL database tables are created in the database.
+Websaunan uses an :term:`SQL` database. :term:`SQLAlchemy` object relations mapping (ORM) library is used to create Python classes representing the model of data. From these models corresponding SQL database tables are created in the database.
 
-By default, PostgreSQL database software is recommended, though Websauna should be compatible with all databases supported by SQLAlchemy
+By default, :term:`PostgreSQL` database software is recommended, though Websauna is compatible, but not tested, with all databases supported by SQLAlchemy.
 
 Accessing database session
---------------------------
+==========================
 
-All database operations are done through SQLAlchemy session.
+All database operations are done through a SQLAlchemy session (:py:class:`sqlalchemy.orm.Session`).
 
-Session in a HTTP request
-+++++++++++++++++++++++++
+Session in a HTTP request processing
+++++++++++++++++++++++++++++++++++++
+
+Session is exposed as :py:attr:`websauna.system.http.Request.dbsession` attribute::
+
+    def my_view(request):
+        dbsession = request
+        user = dbsession.query(User).get(1)
+
+``request.dbsession`` transaction is bound to HTTP request lifecycle. If HTTP request success, the transaction is commited. If HTTP request fails due to a raised exception, but not due to error value return from view, the transaction is rolled back and nothing is written into a database.
+
+Session from other SQLAlchemy model instances
++++++++++++++++++++++++++++++++++++++++++++++
+
+This is a common pattern when writing model APIs. You have an existing database object and you want to query related objects. In this case you can grab the session from the existing object using :py:meth:`sqlalchemy.orm.Session.object_session`.
+
+Example::
+
+    from sqlalchemy.orm import Session
+
+
+    class UserOwnedAccount(Base):
+
+        # ...
+
+        @classmethod
+        def create_for_user(cls, user, asset):
+            dbsession = Session.object_session(user)
+            account = Account(asset=asset)
+            dbsession.flush()
+            uoa = UserOwnedAccount(user=user, account=account)
+            return uoa
 
 Session in a command line application
 +++++++++++++++++++++++++++++++++++++
 
-You can get a access to the database session through a :py:class:`websauna.system.Initializer` instance exposed through a constructed WSGI application:
+Use :py:func:`websauna.system.devop.cmdline.init_websauna` to create a dummy :py:class:`websauna.system.http.Request` object. It will expose request in similar fashion as for HTTP request.
 
-    TODO
+You need to manually manage transaction lifecycle as there is no real HTTP request lifecycle::
+
+    import transaction
+
+    request = init_websauna("conf/development.ini")
+    with transaction.manager:
+        user = dbsession.query(User).get(1)
+        user.full_name = "Foo Bar"
+
+
+Session in tasks
+++++++++++++++++
+
+For :doc:`asynchronous tasks <../misc/task>` session is available through :py:class:`websauna.system.http.Request` given as an compulsory argument for tasks. Transaction-aware tasks maintain their own transction lifecycle and there is no need to invoke transaction manager or commit manually::
+
+    @test_celery_app.task(base=TransactionalTask)
+    def sample_task(request, user_id):
+        dbsession = request.dbsession
+        User = get_user_class(registry)
+        u = dbsession.query(User).get(user_id)
+        u.username = "set by celery"
+
+Session in shell
+++++++++++++++++
+
+Session in shell (:term:`notebook`, :ref:`ws-shell`) is available through ``dbsession`` variable. You need to commit the transaction at the end of your shell session using :py:func:`transaction.commit`.
+
+.. code-block:: pycon
+
+    >>> u = dbsession.query(User).get(1)
+    <User-1>
+
+    >>> u.full_name = "Jon Snow"
+    ...
+
+    >>> transaction.commit()
 
 Debugging SQL queries
 =====================

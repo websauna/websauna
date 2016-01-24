@@ -94,11 +94,17 @@ def test_case_ini_settings(request):
 
 @pytest.fixture(scope='session')
 def init(request, app):
-    """Backwards compatibility.
-
-    TODO: Remove this fixture, use app
+    """Access to the default :py:class:`websauna.system.Initializer` instance created from ``test.ini``.
     """
     return app.initializer
+
+
+@pytest.fixture(scope='session')
+def registry(request, app):
+    """Access registry of the default app instance created from ``test.ini``.
+
+    """
+    return app.initializer.config.registry
 
 
 def custom_dbsession(request, app: Router, transaction_manager=transaction.manager) -> Session:

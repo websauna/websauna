@@ -117,6 +117,37 @@ To make sure the user is logged in when accessing the view use pseudopermission 
     @simple_route("/affiliate", route_name="affiliate", renderer="views/affiliate.html", append_slash=False, permission="authenticated")
     def affiliate_program(request):
 
+Doing redirects
+===============
+
+Below is an example how to do a redirect (HTTP 302 temporary redirect) for logged in users using :py:class:`pyramid.httpexceptions.HTTPFound`:
+
+.. code-block:: python
+
+    from pyramid.httpexceptions import HTTPFound
+    from websauna.system.http import Request
+    from websauna.system.core.route import simple_route
+
+
+    @simple_route("/", route_name="home", renderer='myapp/home.html')
+    def home(request: Request):
+        """Render site homepage."""
+
+        if request.user:
+            # Logged in users go directly from home to profile page
+            return HTTPFound(request.route_url("profile"))
+
+        return {"project": "My App"}
+
+
+    @simple_route("/profile", route_name="profile", renderer='myapp/profile.html')
+    def profile(request: Request):
+        return {}
+
+
+.. note ::
+
+    One could also do a redirect by ``raise HTTPFound()`` and let exception handling mechanism to perform the redirect. In this case, however, nothing is written to the database, like user login records, because exceptions cause transaction rollback.
 
 Stock views
 ===========

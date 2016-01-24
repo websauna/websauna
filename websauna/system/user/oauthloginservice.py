@@ -109,8 +109,9 @@ class AuthomaticLoginHandler:
         # We got some error result, now let see how it goes
         request = self.request
 
-        # TODO: Not sure if we shoul log this or now
-        logger.exception(e)
+        if e:
+            # Leave a cue for sysadmins everything is not right
+            logger.exception(e)
 
         messages.add(self.request, kind="error", msg=str(e), msg_id="msg-authomatic-login-error")
         login_url = self.request.route_url("login")

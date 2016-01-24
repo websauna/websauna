@@ -188,6 +188,79 @@ Example:
 
     <img src="{{ 'myapp:static/assets/img/logo-transparent.png'|static_url }}" alt="">
 
+Customizing navigation
+======================
+
+Navigation is defined in :ref:`template-site/nav.html`.
+
+Copy ``nav.html`` file to ``yourapp/site`` folder.
+
+Edit the file and add new entries to ``navbar-collapse`` section.
+
+Example:
+
+.. code-block:: html+jinja
+
+    <nav class="navbar navbar-default">
+      <div class="container">
+        {# Brand and toggle get grouped for better mobile display #}
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#header-navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          {% include "site/logo.html" %}
+        </div>
+
+        <div class="collapse navbar-collapse" id="header-navbar-collapse">
+          <ul class="nav navbar-nav navbar-left">
+            <li class="hidden">
+              <a href="#page-top"></a>
+            </li>
+
+            <li>
+              <a href="{{'invoices'|route_url}}">Bills</a>
+            </li>
+
+            <li>
+              <a href="#">Top up</a>
+            </li>
+
+            <li>
+              <a href="#">Send money</a>
+            </li>
+
+            <li>
+              <a href="#">Withdraw</a>
+            </li>
+          </ul>
+
+          <ul class="nav navbar-nav navbar-right">
+                {# .... #}
+          </ul>
+        </div>
+        {# /.navbar-collapse #}
+      </div>
+      {# /.container-fluid #}
+    </nav>
+
+Formatting decimals
+===================
+
+Jinja can use Python string formatting:
+
+.. code-block:: html+jinja
+
+    Price: <strong>${{ '{0:0.2f}'.format(price) }}</strong>
+
+Alternative use :ref:`filter-round` where you can give rounding direction:
+
+.. code-block:: html+jinja:
+
+    Price: <strong>${{ price|round(precision=2, method='common') }}</strong>
+
 Advanced
 ========
 

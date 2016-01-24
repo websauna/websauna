@@ -1,5 +1,7 @@
 
-/* Fix log out button in the nav bar */
-.navbar-default .btn-link {
+/* Fix log out form + button in the nav bar to a look like proper link */
+.navbar-default form .btn-link {
   padding: 15px;
+  background: transparent;
+  text-transform: none;
 }

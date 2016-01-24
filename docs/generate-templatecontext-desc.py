@@ -83,6 +83,8 @@ Filters
 
 {% for name, func, doc, heading in modules.filters %}
 
+.. _filter-{{ name }}:
+
 {{ name }}
 {{ heading }}
 

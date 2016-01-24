@@ -65,6 +65,8 @@ Default site
 
 {% for name, intro, ref, heading in modules.core %}
 
+.. _template-{{ name }}:
+
 {{ name }}
 {{ heading }}
 

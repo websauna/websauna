@@ -17,6 +17,43 @@ TEMPLATE="""
 Template context variables and filters
 ======================================
 
+.. raw:: html
+
+    <!-- Make TOC more readable -->
+    <style>
+
+        #contents ul > li {
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        #contents ul > li > ul {
+            font-weight: normal;
+            margin-top: 0;
+
+            display: flex;
+            flex-wrap: wrap;
+            /* TODO: Width here does not seem to take effect, forcing it below */
+            flex: 1 0 200px;
+            font-size: 90%;
+        }
+
+        #contents ul > li > ul > li {
+
+            font-weight: normal;
+            margin-top: 0;
+
+
+            list-style: none;
+            margin-left: 0;
+            margin-right: 20px;
+            box-sizing: border-box;
+            width: 250px;
+        }
+
+    </style>
+
+
 .. contents:: :local:
 
 Introduction

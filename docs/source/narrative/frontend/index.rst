@@ -1,5 +1,5 @@
-Frontend
---------
+Frontend and templating
+-----------------------
 
 .. toctree::
     :maxdepth: 1

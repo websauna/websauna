@@ -22,7 +22,7 @@ def main(argv=sys.argv):
 
     config_uri = argv[1]
     try:
-        request = init_websauna(config_uri)
+        request = init_websauna(config_uri, sanity_check=True)
     except SanityCheckFailed:
         print("It did not go that well.")
         sys.exit(10)

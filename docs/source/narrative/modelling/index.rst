@@ -10,8 +10,6 @@ How to get your data in to and out from a database.
     database
     transient
     json
-    crud
-    admin
     columns
     indexes
     occ

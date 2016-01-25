@@ -11,7 +11,7 @@ Admin, or administration interface, provides super administrator capabilities fo
 
 Admin is accessible for users who belong *admin* group. The first signed up user is automatically added to this group. Different permissions schemes can be implemented through :term:`ACL`, so that groups of people can only view partial data or cannot modify it.
 
-Admin is automatically generated for your data :doc:`models <./models>`. It is based on Websauna :doc:`CRUD <./crud>` and :doc:`automatic form generation <../form/autoform>`.
+Admin is automatically generated for your data :doc:`models <../modelling/models>`. It is based on Websauna :doc:`CRUD <./crud>` and :doc:`automatic form generation <../form/autoform>`.
 
 
 .. image:: ../images/admin.png

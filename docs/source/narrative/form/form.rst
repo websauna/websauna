@@ -15,11 +15,11 @@ In Websauna forming
 
 * You can :doc:`automatically generate forms from SQLAlchemy models <./autoform>`
 
-* :doc:`Admin interface does this for your site manager views easily <../modelling/admin>`
+* :doc:`Admin interface does this for your site manager views easily <../crud/admin>`
 
 * :doc:`Widgets can get their CSS and JS included in the page rendering on demand <./resourceregistry>`
 
-* You can also use :doc:`CRUD independently from admin <../modelling/crud>`
+* You can also use :doc:`CRUD independently from admin <../crud/crud>`
 
 * Database transactions are tied to successful HTTP request processing, so even if your form processing fails, no partial data is written to the database. This is so called atomatic requests behavior.
 

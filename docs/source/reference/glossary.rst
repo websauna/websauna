@@ -10,7 +10,7 @@ Glossary
         In computer science, ACID (Atomicity, Consistency, Isolation, Durability) is a set of properties that guarantee that database transactions are processed reliably. `More info <https://en.wikipedia.org/wiki/ACID>`__.
 
     admin
-        The admin section of a Websauna site. Logged in users with admin privileges can go to this section and see and edit all the site data. :doc:`Read Websauna admin documentation <../narrative/modelling/admin>`.
+        The admin section of a Websauna site. Logged in users with admin privileges can go to this section and see and edit all the site data. :doc:`Read Websauna admin documentation <../narrative/crud/admin>`.
 
     Alembic
        A migration script tool for :term:`SQLAlchemy`. `More info <http://alembic.readthedocs.org/>`__.
@@ -40,7 +40,7 @@ Glossary
         A Python package to generate :term:`Colander` forms from :term:`SQLAlchemy` models. `More information <https://pypi.python.org/pypi/ColanderAlchemy>`__.
 
     CRUD
-        In computer programming, create, read, update and delete, sometimes called SCRUD with an "S" for Search, are the four basic functions of persistent storage. :doc:`Read about CRUD in Websauna <../narrative/modelling/crud>`.
+        In computer programming, create, read, update and delete, sometimes called SCRUD with an "S" for Search, are the four basic functions of persistent storage. :doc:`Read about CRUD in Websauna <../narrative/crud/crud>`.
         `More info <https://en.wikipedia.org/wiki/Create,_read,_update_and_delete>`__.
 
     CSRF

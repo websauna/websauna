@@ -16,6 +16,7 @@ Table of contents
     narrative/background/index
     tutorials/gettingstarted/index
     narrative/modelling/index
+    narrative/crud/index
     narrative/view/index
     narrative/frontend/index
     narrative/form/index

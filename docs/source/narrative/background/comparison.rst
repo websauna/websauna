@@ -47,7 +47,7 @@ Python Web framework that encourages rapid development and clean, pragmatic desi
 
 Default template engine: Django
 
-Flash
+Flask
 -----
 
 Flask is a microframework for Python based on Werkzeug, Jinja 2 and good intentions.

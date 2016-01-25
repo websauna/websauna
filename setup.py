@@ -137,6 +137,7 @@ setup(
             'ws-celery=websauna.system.devop.scripts.celery:main',
             'ws-pserve=websauna.system.devop.scripts.pserve:main',
             'ws-create-table=websauna.system.devop.scripts.createtable:main',
+            'ws-sanity-check=websauna.system.devop.scripts.sanitycheck:main',
         ],
 
         'paste.app_factory': [

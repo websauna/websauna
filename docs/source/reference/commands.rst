@@ -125,6 +125,24 @@ Example how to backup your development database::
 
     ws-dump-db development.ini > dump.sql
 
+
+ws-sanity-check
+---------------
+
+Performs database sanity check.
+
+Exit values
+
+* 0: All ok
+
+* 10: Sanity check failed - we have unrun migrations
+
+* Any other value: Launch failed due to Python exception or similar
+
+Example::
+
+    ws-sanity-check conf/production.ini
+
 .. _ws-tweens:
 
 ws-tweens

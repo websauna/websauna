@@ -711,17 +711,19 @@ class Initializer:
             if not redis.is_sane_redis(self.config):
                 raise SanityCheckFailed("Could not connect to Redis server.\nWebsauna is configured to use Redis server for session data.\nIt cannot start up without a running Redis server.\nPlease consult your operating system community how to install and start a Redis server.")
 
+    @event_source
     def wrap_wsgi_app(self, app):
         """Perform any necessary WSGI application wrapping.
 
         Wrap WSGI application to another WSGI application e.g. for the monitoring support. By default support New Relic.
         """
 
-        if "NEW_RELIC_CONFIG_FILE" in os.environ:
-            # Wrap for New Relic
-            # libgcc_s.so.1 must be installed for pthread_cancel to work
-            import newrelic.agent
-            return newrelic.agent.wsgi_application()(app)
+        # TODO: Make this plugin
+        # if "NEW_RELIC_CONFIG_FILE" in os.environ:
+        # Wrap for New Relic
+        # libgcc_s.so.1 must be installed for pthread_cancel to work
+        # import newrelic.agent
+        # return newrelic.agent.wsgi_application()(app)
 
         return app
 

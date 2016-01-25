@@ -9,6 +9,7 @@ import time
 
 import os
 import pytest
+from flaky import flaky
 
 from .scaffold import execute_venv_command
 from .scaffold import replace_file
@@ -74,6 +75,7 @@ def test_pyramid_debugtoolbar(app_scaffold, dev_db, browser):
         execute_venv_command("ws-pserve conf/development.ini --stop-daemon --pid-file=test_pserve.pid", app_scaffold, cd_folder="myapp")
 
 
+@flaky
 def test_pytest(app_scaffold, test_db):
     """Create an application and see if py.test tests pass. """
 

@@ -34,7 +34,7 @@ pip install -q ".[dev]"
 pip install -q wheel
 pip freeze > /tmp/wheelhouse-venv/requirements.txt
 
-# websauna 0.0 development not available, remove from freeze
+# websauna 0.0 lsdevelopment not available, remove from freeze
 echo "$(grep -v "websauna" /tmp/wheelhouse-venv/requirements.txt)" >/tmp/wheelhouse-venv/requirements.txt
 
 # Build wheelhouse

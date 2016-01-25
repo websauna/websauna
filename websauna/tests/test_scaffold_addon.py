@@ -51,7 +51,7 @@ def test_addon_pserve(addon_scaffold, addon_dev_db, browser):
 
     # User models are needed to start the web server
     execute_venv_command("ws-sync-db development.ini", addon_scaffold, cd_folder="websauna.myaddon")
-    execute_venv_command("pserve development.ini --pid-file=test_pserve.pid", addon_scaffold, wait_and_see=3.0, cd_folder="websauna.myaddon")
+    execute_venv_command("ws-pserve development.ini --pid-file=test_pserve.pid", addon_scaffold, wait_and_see=3.0, cd_folder="websauna.myaddon")
 
     # Give pserve some time to wake up in CI
     time.sleep(4)
@@ -66,7 +66,7 @@ def test_addon_pserve(addon_scaffold, addon_dev_db, browser):
         assert b.is_element_present_by_css("#demo-text")
 
     finally:
-        execute_venv_command("pserve development.ini --stop-daemon --pid-file=test_pserve.pid", addon_scaffold, cd_folder="websauna.myaddon")
+        execute_venv_command("ws-pserve development.ini --stop-daemon --pid-file=test_pserve.pid", addon_scaffold, cd_folder="websauna.myaddon")
 
 
 def test_addon_migration(addon_scaffold, addon_dev_db):

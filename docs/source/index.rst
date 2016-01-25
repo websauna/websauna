@@ -23,6 +23,7 @@ Table of contents
     narrative/user/index
     narrative/testing/index
     narrative/misc/index
+    narrative/deployment/index
     narrative/ops/index
     narrative/contributing/index
     reference/index

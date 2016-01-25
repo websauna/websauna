@@ -195,7 +195,7 @@ websauna.sanity_check
 
 Perform database sanity check after the startup. This will check all models have corresponding tables and columns in the database and there are no unsynced models.
 
-Disabled for testing and various command line commands.
+Disabled for testing and various command line commands on a call to :py:func:`websauna.system.devop.cmdline.init_websauna`.
 
 See also :py:meth:`websauna.system.Initializer.sanity_check`.
 

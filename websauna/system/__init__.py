@@ -738,7 +738,7 @@ class Initializer:
 
         if "sanity_check" in self.global_config:
             # Command line scripts can override this when calling bootstrap()
-            sanity_check = self.global_config["sanity_check"]
+            sanity_check = asbool(self.global_config["sanity_check"])
         else:
             sanity_check = asbool(self.settings.get("websauna.sanity_check", True))
 

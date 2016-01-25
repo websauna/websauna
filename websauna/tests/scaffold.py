@@ -31,19 +31,6 @@ def print_subprocess_fail(worker, cmdline):
 
 
 
-def execute_command(cmdline, folder):
-    """Run a command in a specific folder."""
-    worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=folder)
-
-    worker.wait(timeout=5.0)
-
-    if worker.returncode != 0:
-        print_subprocess_fail(worker, cmdline)
-        raise AssertionError("scaffold command did not properly exit: {}".format(" ".join(cmdline)))
-
-    return worker.returncode
-
-
 def execute_command(cmdline: List, folder: str, timeout=5.0):
     """Run a command in a specific folder."""
     worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=folder)

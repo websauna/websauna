@@ -21,7 +21,7 @@ def setup_logging(config_uri):
         return fileConfig(parser, defaults)
 
 
-def init_websauna(config_uri: str, sanity_check=False) -> Request:
+def init_websauna(config_uri: str, sanity_check: bool=False) -> Request:
     """Initialize Websauna WSGI application for a command line oriented script.
 
     :param config_uri: Path to config INI file
@@ -34,6 +34,12 @@ def init_websauna(config_uri: str, sanity_check=False) -> Request:
     monkey_patch_paster_config_parser()
 
     setup_logging(config_uri)
+
+    # Paster thinks we are a string
+    if sanity_check:
+        sanity_check = "true"
+    else:
+        sanity_check = "false"
 
     bootstrap_env = bootstrap(config_uri, options=dict(sanity_check=sanity_check))
     app = bootstrap_env["app"]

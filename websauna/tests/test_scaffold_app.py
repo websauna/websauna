@@ -177,6 +177,13 @@ def test_create_table(app_scaffold, dev_db):
     execute_venv_command("ws-create-table conf/development.ini", app_scaffold, cd_folder="myapp")
 
 
+def test_sanity_check(app_scaffold, dev_db):
+    """Test sanity check command."""
+    execute_venv_command("ws-sanity-check conf/development.ini", app_scaffold, cd_folder="myapp", assert_exit=10)
+    execute_venv_command("ws-sync-db conf/development.ini", app_scaffold, cd_folder="myapp")
+    execute_venv_command("ws-sanity-check conf/development.ini", app_scaffold, cd_folder="myapp", assert_exit=0)
+
+
 
 #: Migration test file
 MODELS_PY="""

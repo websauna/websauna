@@ -125,7 +125,7 @@ class Initializer:
 
     @event_source
     def configure_mailer(self, settings):
-        """Configure outgoing email backend based on the INI settings."""
+        """Configure outgoing email backend and email test views."""
         from pyramid_mailer import IMailer
 
         settings = settings.copy()
@@ -151,6 +151,11 @@ class Initializer:
             mailer = mailer_cls()
 
             self.config.registry.registerUtility(mailer, IMailer)
+
+        if settings.get("websauna.sample_html_email", False):
+            from websauna.system.mail import views
+            self.config.scan(views)
+            self.config.add_jinja2_search_path('websauna.system:mail/templates', name='.html')
 
     @event_source
     def configure_templates(self):

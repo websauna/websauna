@@ -15,6 +15,9 @@ Glossary
     Alembic
        A migration script tool for :term:`SQLAlchemy`. `More info <http://alembic.readthedocs.org/>`__.
 
+    Ansible
+        Ansible is an IT automation tool. It can configure systems, deploy software, and orchestrate more advanced IT tasks such as continuous deployments or zero downtime rolling updates. `More information <http://www.ansible.com/>`__.
+
     Authomatic
         Authomatic is a framework agnostic library for Python web applications with a minimalistic but powerful interface which simplifies authentication of users by third party providers like Facebook or Twitter through standards like OAuth and OpenID. `More info <http://peterhudec.github.io/authomatic/>`__.
 
@@ -123,6 +126,9 @@ Glossary
 
     pip
       A Python package installation command. `Read more <https://packaging.python.org/en/latest/installing.html>`__.
+
+    playbook
+        Playbooks are Ansible’s configuration, deployment, and orchestration language. They can describe a policy you want your remote systems to enforce, or a set of steps in a general IT process. `Read more <http://docs.ansible.com/ansible/playbooks.html>`__.
 
     Pyramid
         Low level web framework Python doing request routing, configuration, sessions and such. See `Pyramid documentation <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/introduction.html>`__.

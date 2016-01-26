@@ -154,6 +154,23 @@ Stock views
 
 Some special views Websauna provides out of the box.
 
+Home
+----
+
+Websauna application scaffold provides a route with name ``home``. This should point to the landing page of your website.
+
+This view is referred e.g. sign up emails.
+
+Example
+
+.. code-block:: html+jinja
+
+        <h2>
+          <a href="{{ 'home'|route_url }}">
+            <img class="logo" src="{{ 'myapp:static/logo.png'|static_url }}" alt="{{ site_name }}">
+          </a>
+        </h2>
+
 HTTP 404 Not Found
 ------------------
 

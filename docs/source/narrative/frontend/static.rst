@@ -58,12 +58,25 @@ The default cache busting mechanism is
 
 * Hot deploys friendly, so that a website update does not break client browsers which are currently downloading static assets.
 
-Collecting static file information
-----------------------------------
+ws-collect-static: assembling cache busting information
+-------------------------------------------------------
 
 When you deploy a new version of website you need to run :ref:`ws-collect-static` command. The command scans all configured static folders and creates permanent, MD5 hashed, copies of all files. If the content of the file changes, its MD5 hash changes, and :py:meth:`pyramid.request.Request.static_url` can give a different URL pointing to the asset. Having a different URL invalidates the client cache.
 
 By default cached content is placed in ``perma-asset`` folder next to the files inside the original static asset folder. This folder is included in :term:`.gitignore`.
+
+To run the command:
+
+.. code-block:: shell
+
+    ws-collect-static conf/production
+
+This will generate following structure inside each ``static`` folder::
+
+    static/perma-assets                      # A folder to store MD5 hashed files permanently
+    static/perma-assets/.manifest.json       # List of all current assets
+    static/perma-assets/boostrap.234131.css  # MD5 stamped asset file
+    ...
 
 Enabling cache and cache busting
 --------------------------------

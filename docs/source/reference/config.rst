@@ -325,6 +325,16 @@ See also :py:meth:`websauna.system.Initializer.configure_mail`.
 
 See also below ``pyramid_mailer`` for configuring the actual mail server details.
 
+.. _websauna.sample_html_email:
+
+websauna.sample_html_email
+--------------------------
+
+Enable ``/sample-html-email`` view for testing HTML email looks.
+
+Default: True in  :ref:`development.ini`, false otherwise
+
+
 .. _websauna.secrets_file:
 
 websauna.secrets_file

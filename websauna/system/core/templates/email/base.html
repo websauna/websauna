@@ -1,4 +1,9 @@
-{# HTML email framing #}
+{# HTML email framing
+
+Based on a template by Lee Munroe
+
+* https://github.com/leemunroe/responsive-html-email-template
+#}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -30,6 +35,11 @@ body {
 /* -------------------------------------
         ELEMENTS
 ------------------------------------- */
+
+.logo {
+  max-height: 50px;
+}
+
 a {
     color: #348eda;
 }
@@ -37,9 +47,10 @@ a {
 .btn-primary {
     text-decoration: none;
     color: #F3F3F3;
-    background-color: #aa905f;
-    border: 1px solid #aa905f;
-    border-radius: 0;
+    background-color: #348eda;
+    border: 1px solid #348eda;
+    border-radius: 2px;
+    box-shadow: 1px 2px 3px #aaa;
     line-height: 2;
     font-weight: lighter;
     margin: 25px;
@@ -50,9 +61,9 @@ a {
 }
 
 .btn-primary:hover {
-  color: #aa905f;
+  color: #348eda;
   background-color: #f3f3f3;
-  border: 1px solid #aa905f;
+  border: 1px solid #348eda;
 }
 
 .btn-secondary {
@@ -182,15 +193,19 @@ tr th {
     text-align: right;
     padding-right: 20px;
     padding-bottom: 10px;
-}
+}header.html
 
+/*
 tr td {
     vertical-align: top;
     text-align: left;
     padding-bottom: 10px;
+}*/
+
+tr td.right-align {
+  text-align: right;
 }
 </style>
-
 
 {% block extra_head %}
 {% endblock %}

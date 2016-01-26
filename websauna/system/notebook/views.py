@@ -50,16 +50,22 @@ def launch_context_sensitive_shell(request, extra_script="", extra_greeting=""):
     return launch_notebook(request, request.user.username, notebook_context=nb)
 
 
+# TODO: Broken at the moment because CSRF conflict
 @view_config(route_name="notebook_proxy", permission="shell")
-@csrf_exempt_request
 def notebook_proxy(request):
-    """Proxy IPython Notebook requests to the upstream server."""
+    """Proxy IPython Notebook requests to the upstream server.
+
+    A special ``shell`` permission is needed to access this view. See :ref:`websauna.superusers`.
+    """
     return _notebook_proxy(request, request.user.username)
 
 
 @view_config(route_name="admin_shell", permission="shell")
 def admin_shell(request):
-    """Open admin shell with default parameters for the user."""
+    """Open admin shell with default parameters for the user.
+
+    A special ``shell`` permission is needed to access this view. See :ref:`websauna.superusers`.
+    """
     # Make sure we have a logged in user
     return launch_context_sensitive_shell(request)
 

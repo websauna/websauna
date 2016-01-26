@@ -2,6 +2,8 @@
 Email
 =====
 
+.. contents:: :local:
+
 Introduction
 ============
 
@@ -11,13 +13,15 @@ Websauna provides facilities to send out
 
 * Outgoing email is tied to the success of transaction - if your code fails in some point no email is sent
 
-* Rich-text HTML emails are supported with `premailer package <https://pypi.python.org/pypi/premailer>`_
+* Rich-text HTML emails are supported with `premailer package <https://pypi.python.org/pypi/premailer>`_ which will turn :term:`CSS` styles to inline styles for emails
 
 Configuring email
 =================
 
 Printing out email to console on the development server
 -------------------------------------------------------
+
+When you run a development server, no email goes out by default. Instead it is printed to your console where :ref:`ws-pserve` is running.
 
 Sending out email
 -----------------
@@ -34,3 +38,16 @@ Sending out test mail:
     mailer = get_mailer(request)
     mailer.send_immediately(message)
 
+HTML layout
+===========
+
+To edit HTML layout and CSS styles make a copy of :ref:`email/base.html <template-email/base.html>` to your application. Edit syles inside `<style>`.
+
+Testing HTML layout
+-------------------
+
+You can render a dummy HTML email in your browser by going to:
+
+    http://localhost:6543/sample-html-email
+
+See :ref:`websauna.sample_html_email` configuration for more information.

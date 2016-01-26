@@ -36,6 +36,15 @@ class InvalidCSRF(HTTPForbidden):
     pass
 
 
+
+def csrf_exempt_request(view):
+    @functools.wraps(view)
+    def wrapped(request):
+        request._process_csrf = False
+        return view(request)
+    return wrapped
+
+
 def csrf_exempt(view):
     @functools.wraps(view)
     def wrapped(context, request):

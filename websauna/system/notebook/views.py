@@ -4,6 +4,7 @@ from pyramid_notebook import startup
 from pyramid_notebook.views import launch_notebook
 from pyramid_notebook.views import shutdown_notebook as _shutdown_notebook
 from pyramid_notebook.views import notebook_proxy as _notebook_proxy
+from websauna.system.core.csrf import csrf_exempt
 from websauna.system.model.meta import Base
 
 
@@ -49,6 +50,7 @@ def launch_context_sensitive_shell(request, extra_script="", extra_greeting=""):
     return launch_notebook(request, request.user.username, notebook_context=nb)
 
 
+@csrf_exempt
 @view_config(route_name="notebook_proxy", permission="shell")
 def notebook_proxy(request):
     """Proxy IPython Notebook requests to the upstream server."""

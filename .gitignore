@@ -36,3 +36,6 @@ setup-test-secrets.bash
 # Static asset cache busting
 cache-manifest.json
 perma-asset
+
+# Whatever is creating a cache folders, stop it
+.cache

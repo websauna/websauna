@@ -30,3 +30,7 @@ websauna.{{ package }}.tests.*
 # Static asset cache busting
 cache-manifest.json
 perma-asset
+
+# pytest cache
+.cache
+

@@ -66,6 +66,10 @@ class DefaultLoginService:
 
         return user
 
+    def greet_user(self, user: IUser):
+        """Allow easy overridingn of a welcome message."""
+        messages.add(self.request, kind="success", msg="You are now logged in.", msg_id="msg-you-are-logged-in")
+
     def authenticate_user(self, user: IUser, login_source:str, location: str=None):
         """Make the current session logged in session for this particular user."""
         request = self.request
@@ -85,12 +89,12 @@ class DefaultLoginService:
         headers = remember(request, token)
         # assert headers, "Authentication backend did not give us any session headers"
 
-        self.update_login_data(user)
-
         if not location:
             location = get_config_route(request, 'horus.login_redirect')
 
-        messages.add(request, kind="success", msg="You are now logged in.", msg_id="msg-you-are-logged-in")
+        self.greet_user(user)
+
+        self.update_login_data(user)
 
         return HTTPFound(location=location, headers=headers)
 

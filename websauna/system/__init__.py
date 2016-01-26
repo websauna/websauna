@@ -78,7 +78,7 @@ class Initializer:
         """Override to have our own static asset policy."""
         return DefaultStaticAssetPolicy(self.config)
 
-    def configure_logging(self, settings):
+    def configure_logging(self):
         """Create and set Pyramid debug logger.
 
         Please note that most o the logging is configured through the configuration file and that should be the primary way to do it.
@@ -94,7 +94,7 @@ class Initializer:
         self.config.registry.registerUtility(pyramid_debug_logger, IDebugLogger)
 
     @event_source
-    def configure_horus(self, settings):
+    def configure_horus(self):
         """Configure user and group SQLAlchemy models, login and sign up views."""
 
         # Avoid importing horus if not needed as it will bring in its own SQLAlchemy models and dirties our SQLAlchemy initialization
@@ -124,11 +124,11 @@ class Initializer:
         self.config.registry.registerUtility(schemas.ForgotPasswordSchema, IForgotPasswordSchema)
 
     @event_source
-    def configure_mailer(self, settings):
+    def configure_mailer(self):
         """Configure outgoing email backend and email test views."""
         from pyramid_mailer import IMailer
 
-        settings = settings.copy()
+        settings = self.settings.copy()
 
         # Empty values are not handled gracefully, so mutate them here before passing forward to mailer
         if settings.get("mail.username", "x") == "":
@@ -209,7 +209,7 @@ class Initializer:
         self.config.scan(subscribers)
 
     @event_source
-    def configure_panels(self, settings):
+    def configure_panels(self):
         self.config.include('pyramid_layout')
 
     @event_source
@@ -338,7 +338,7 @@ class Initializer:
         self.config.scan(home)
 
     @event_source
-    def configure_sitemap(self, settings):
+    def configure_sitemap(self):
         """Configure sitemap generation for your site.
 
         By default this is not configured and nothing is done.
@@ -353,12 +353,12 @@ class Initializer:
         self.static_asset_policy.add_static_view('websauna-static', 'websauna.system:static')
 
     @event_source
-    def configure_sessions(self, settings, secrets):
+    def configure_sessions(self):
         """Configure session storage."""
 
         from websauna.system.core.session import set_creation_time_aware_session_factory
 
-        session_secret = secrets["session.secret"]
+        session_secret = self.secrets["session.secret"]
 
         # TODO: Make more boilerplate here so that we pass secret in more sane way
         self.config.registry.settings["redis.sessions.secret"] = session_secret
@@ -370,7 +370,7 @@ class Initializer:
         set_creation_time_aware_session_factory(self.config)
 
     @event_source
-    def configure_admin(self, settings):
+    def configure_admin(self):
         """Configure admin ux.
 
         Register templates and views for admin interface.
@@ -429,7 +429,7 @@ class Initializer:
         self.config.set_view_mapper(csrf_mapper_factory(mapper))
 
     @event_source
-    def configure_crud(self, settings):
+    def configure_crud(self):
         """CRUD templates and views."""
 
         # Add our template to search path
@@ -488,7 +488,7 @@ class Initializer:
         registry.registerAdapter(factory=DefaultEmailBasedUserRegistry, required=(IRequest,), provided=IUserRegistry)
 
     @event_source
-    def configure_user(self, settings, secrets):
+    def configure_user(self):
         """Configure user model, sign in and sign up subsystem."""
         from websauna.system.user import views
         from websauna.system.user import subscribers
@@ -497,7 +497,6 @@ class Initializer:
 
         from websauna.system.user.interfaces import ILoginService, IOAuthLoginService, IUserRegistry, ICredentialActivityService, IActivationModel, IRegistrationService
         from websauna.system.user.registrationservice import DefaultRegistrationService
-
 
         # Set up login service
         registry = self.config.registry
@@ -539,14 +538,14 @@ class Initializer:
         self.config.scan(websauna.system.notebook.views)
 
     @event_source
-    def configure_tasks(self, settings):
+    def configure_tasks(self):
         """Scan all Python modules with asynchoronou sna dperiodic tasks to be imported."""
 
         # Importing the task is enough to add it to Celerybeat working list
         from websauna.system.devop import tasks  # noqa
 
     @event_source
-    def configure_scheduler(self, settings):
+    def configure_scheduler(self):
         """Configure Celery."""
 
         # Patch pyramid_celery to use our config loader
@@ -600,7 +599,7 @@ class Initializer:
 
         self.secrets = self.read_secrets()
 
-        self.configure_logging(settings)
+        self.configure_logging()
 
         # Configure addons before anything else, so we can override bits from addon, like template lookup paths, later easily
         self.include_addons()
@@ -611,42 +610,42 @@ class Initializer:
 
         # Forms
         self.configure_forms()
-        self.configure_crud(settings)
+        self.configure_crud()
 
         # Email
-        self.configure_mailer(settings)
+        self.configure_mailer()
 
         # Timed tasks
-        self.configure_scheduler(settings)
-        self.configure_tasks(settings)
+        self.configure_scheduler()
+        self.configure_tasks()
 
         # Core view and layout related
         self.configure_root()
         self.configure_error_views()
         self.configure_views()
-        self.configure_panels(settings)
-        self.configure_sitemap(settings)
+        self.configure_panels()
+        self.configure_sitemap()
 
         # Website administration
-        self.configure_admin(settings)
+        self.configure_admin()
 
         # Addon models
         self.configure_models()
 
         # Sessions and users
-        self.configure_sessions(settings, self.secrets)
-        self.configure_user(settings, self.secrets)
-        self.configure_horus(settings)
+        self.configure_sessions()
+        self.configure_user()
+        self.configure_horus()
         self.configure_user_models()
         self.configure_authentication()
         self.configure_federated_login()
 
-        self.configure_model_admins()
+        # Configure web shell
         self.configure_notebook()
 
-        # Database
-        # This must be run before configure_database() because SQLAlchemy will resolve @declared_attr and we must have config present by then
+        # Database and models
         self.configure_instrumented_models()
+        self.configure_model_admins()
         self.configure_database()
 
         # Tests can pass us some extra initialization work on ad hoc

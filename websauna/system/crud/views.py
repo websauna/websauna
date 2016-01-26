@@ -188,7 +188,7 @@ class Listing(CRUDView):
         title = self.context.title
         count =  self.get_count(query)
         # Base listing template variables
-        template_vars = dict(title=title, columns=columns, base_template=base_template, query=query, crud=crud, current_view_name=current_view_name, resource_buttons=self.get_resource_buttons(), count=count)
+        template_vars = dict(title=title, columns=columns, base_template=base_template, query=query, crud=crud, current_view_name=current_view_name, resource_buttons=self.get_resource_buttons(), count=count, view=self)
 
         # Include pagination template context
         # self.paginate(query, template_vars)

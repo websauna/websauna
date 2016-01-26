@@ -7,4 +7,5 @@ How to get your site from local development to production.
     :maxdepth: 1
 
     intro
+    requirements
 

@@ -1,5 +1,6 @@
 from websauna.compat.typing import Optional
 from websauna.compat.typing import List
+from websauna.compat.typing import Callable
 
 
 class Column:
@@ -19,13 +20,14 @@ class Column:
     #: Arrow formatting string
     format = "MM/DD/YYYY HH:mm"
 
-    def __init__(self, id, name=None, renderer=None, header_template=None, body_template=None, getter=None, format=None, navigate_view_name=None, navigate_url_getter=None):
+    def __init__(self, id, name=None, renderer=None, header_template=None, body_template=None, getter: Callable=None, format=None, navigate_view_name=None, navigate_url_getter=None):
         """
         :param id: Must match field id on the model
         :param name:
         :param renderer:
         :param header_template:
         :param body_template:
+        :param getter: func(view instance, object) - extract value for this column for an object
         :param navigate_url_getter: callback(request, resource) to generate the target URL if the contents of this cell is clicked
         :param navigate_view_name: If set, make this column clickable and navigates to the traversed name. Options are "show", "edit", "delete"
         :return:
@@ -50,14 +52,17 @@ class Column:
         if navigate_url_getter:
             self.navigate_url_getter = navigate_url_getter
 
-    def get_value(self, obj):
+    def get_value(self, view, obj):
         """Extract value from the object for this column.
 
         Called in listing body.
+
+        :param view: View class calling us
+        :param obj: The object we are listing
         """
 
         if self.getter:
-            val = self.getter(obj)
+            val = self.getter(view, self, obj)
         else:
             val = getattr(obj, self.id)
 
@@ -115,7 +120,7 @@ class StringPresentationColumn(Column):
         self.formatter = kwargs.pop("formatter", str)
         super(StringPresentationColumn, self).__init__(**kwargs)
 
-    def get_value(self, obj):
+    def get_value(self, view, obj):
         """Extract value from the object for this column.
 
         Called in listing body.

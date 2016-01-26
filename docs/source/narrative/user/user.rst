@@ -106,6 +106,50 @@ You can override this in :py:meth:`websauna.system.Initializer.configure_user`.
 
 Default views are found in :py:mod:`websauna.system.user.views`.
 
+Overriding a service
+--------------------
+
+Below is an example how to override a login service for your site.
+
+Create a login service which extends the default login service in ``loginservice.py``:
+
+.. code-block:: python
+
+    from websauna.system.core import messages
+    from websauna.system.user.interfaces import IUser
+    from websauna.system.user.loginservice import DefaultLoginService
+
+
+    class MyLoginService(DefaultLoginService):
+
+        def greet_user(self, user: IUser):
+            if not user.last_login_at:
+                # User logging in for the first time, give a different message
+                messages.add(self.request, "Welcome to Myapp! A $5.00 credit has been added on your Wattcoin account as a sign up bonus.", kind="success", msg_id="msg-you-are-logged-in")
+            else:
+                # Normal user login
+                super(MyLoginService, self).greet_user(user)
+
+
+Then override the service in :py:meth:`websauna.system.Initializer.configure_user`:
+
+.. code-block:: python
+
+    def configure_user(self):
+
+        from .loginservice import MyLoginService
+        from websauna.system.user.interfaces import ILoginService
+        from pyramid.interfaces import IRequest
+
+        # Initialize default user services
+        super(Initializer, self).configure_user()
+
+        # Swap in our login service
+        registry = self.config.registry
+        registry.unregisterAdapter(required=(IRequest,), provided=ILoginService)
+        registry.registerAdapter(factory=MyLoginService, required=(IRequest,), provided=ILoginService)
+
+
 Groups
 ======
 

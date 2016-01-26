@@ -1,12 +1,12 @@
 <td class="crud-column-{{column.id}}">
 
-    {% with target=column.get_navigate_url(instance, request)  %}
+    {% with target=column.get_navigate_url(instance, request), value=column.get_value(view, obj)  %}
         {% if target %}
             <a href="{{target}}">
-                {{ column.get_value(obj) }}
+                {{ value }}
             </a>
         {% else %}
-            {{ column.get_value(obj) }}
+            {{ value }}
         {% endif %}
     {% endwith %}
 </td>

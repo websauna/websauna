@@ -92,3 +92,107 @@ Example::
 
     # Get a context view named "edit" for this resource
     edit_link = request.resource_url(resource, "edit")
+
+
+.. _override-listing:
+
+Overriding an existing model admin
+==================================
+
+Here is an example how we override the existing model admin for the user. Then we enhance the admin functionality by overriding a listing view to show the city of the user based on the location of the last login IP address.
+
+This is done using `pygeoip library <https://pypi.python.org/pypi/pygeoip/>`_.
+
+First let's add our admin definition in ``admins.py``. Because this module is scanned after the stock :py:mod:`websauna.system.user.admins` it takes the precendence.
+
+``admins.py``:
+
+.. code-block:: python
+
+    from websauna.system.admin.modeladmin import model_admin
+    from websauna.system.user.admins import UserAdmin as _UserAdmin
+
+
+    # Override default user admin
+    @model_admin(traverse_id="user")
+    class UserAdmin(_UserAdmin):
+
+        class Resource(_UserAdmin.Resource):
+            pass
+
+Then we roll out our custom ``adminviews.py`` where we override listing view for user model admin.
+
+``adminviews.py``:
+
+.. code-block:: python
+
+    import os
+    import pygeoip
+
+    from websauna.system.crud import listing
+    from websauna.viewconfig import view_overrides
+    from websauna.system.user import adminviews as _adminviews
+
+    # Import local admin
+    from . import admins
+
+
+    _geoip = None
+
+    def _get_geoip():
+        """Lazily load geoip database to memory as it's several megabytes."""
+        global _geoip
+        if not _geoip:
+            _geoip = pygeoip.GeoIP(os.path.join(os.path.dirname(__file__), '..', 'geoip.dat'), flags=pygeoip.MMAP_CACHE)
+        return _geoip
+
+
+
+    def get_location(view, column, user):
+        """Get state from IP using pygeoip."""
+
+        geoip = _get_geoip()
+
+        ip = user.last_login_ip
+        if not ip:
+            return ""
+        r = geoip.record_by_addr(ip)
+        if not r:
+            return ""
+
+        code = r.get("metro_code", "")
+        if code:
+            return code
+
+        code = (r.get("country_code") or "") + " " + (r.get("city") or "")
+        return code
+
+
+    @view_overrides(context=admins.UserAdmin)
+    class UserListing(_adminviews.UserListing):
+        """User listing modified to show the user hometown based on geoip of last login IP."""
+        table = listing.Table(
+            columns = [
+                listing.Column("id", "Id",),
+                listing.Column("friendly_name", "Friendly name"),
+                listing.Column("location", "Location", getter=get_location),
+                listing.ControlsColumn()
+            ]
+        )
+
+And as a last action we scan our ``adminviews`` module in our initializer:
+
+.. code-block:: python
+
+    def run(self):
+        super(Initializer, self).run()
+
+        # ...
+
+        from . import adminviews
+        self.config.scan(adminviews)
+
+This is how it looks like:
+
+.. image:: ../image/geoip.png
+    :width: 640px

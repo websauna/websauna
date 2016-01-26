@@ -80,7 +80,9 @@ class ModelAdminRoot(Resource):
 def model_admin(traverse_id:str) -> type:
     """Class decorator to mark the class to become part of model admins.
 
-    ``Configure.scan()`` must be run on this module for the definitino to be picked up.
+    ``Configure.scan()`` must be run on this module for the implementation to be picked up.
+
+    If there is already an existing model admin with same ``model``, then the existing model admin is overwritten.
 
     :param traverse_id: Under which URL id this model appears in the admin interface. Allowed to contain lowercase letters, dash and digits. This will be available as ``ModelAdmin.__name__`` instance attribute.
 
@@ -99,8 +101,12 @@ def model_admin(traverse_id:str) -> type:
             model = getattr(cls, "model", None)
             assert model, "Class {} must declare model attribute".format(cls)
 
-            config.registry.registerAdapter(cls, required=[IRequest], provided=IModelAdmin, name=traverse_id)
-            config.registry.model_admin_ids_by_model[model] = traverse_id
+            registry = config.registry
+
+            # Purge existing model admin
+            registry.unregisterAdapter(required=(IRequest,), provided=IModelAdmin)
+            registry.registerAdapter(cls, required=(IRequest,), provided=IModelAdmin, name=traverse_id)
+            registry.model_admin_ids_by_model[model] = traverse_id
 
         venusian.attach(cls, register, category='websauna')
         return cls

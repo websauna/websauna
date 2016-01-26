@@ -63,3 +63,10 @@ def add(request:Request, msg:str, kind:str="info", msg_id:str=None, extra:dict=N
     assert type(msg) == str
     msg = FlashMessage(msg, kind=kind, msg_id=msg_id, extra=extra)
     request.session.flash(msg, queue=kind, allow_duplicate=False)
+
+
+def clear(request: Request, kinds=("info", "error", "warning", "success")):
+    """Clear all messages from the flash message queue."""
+
+    for kind in kinds:
+        request.session.pop_flash(queue=kind)

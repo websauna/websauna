@@ -27,3 +27,6 @@ celerybeat*
 # let's not pollute source tree with them by accient.
 {{ package }}.tests.*
 
+# Static asset cache busting
+cache-manifest.json
+perma-asset

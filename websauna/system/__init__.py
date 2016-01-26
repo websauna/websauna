@@ -3,6 +3,7 @@ import sys
 import logging
 import os
 from pyramid_deform import configure_zpt_renderer
+from websauna.system.http.static import DefaultStaticAssetPolicy
 
 assert sys.version_info >= (3,4), "Websauna needs Python 3.4 or newer"
 
@@ -60,6 +61,8 @@ class Initializer:
         self.settings = settings
         self.config = self.create_configurator()
 
+        self.config.registry.static_asset_policy = self.static_asset_policy = self.create_static_asset_policy()
+
         #: Flag to tell if we need to do sanity check for redis sessiosn
         self._has_redis_sessions = False
 
@@ -71,48 +74,9 @@ class Initializer:
         configurator.registry.initializer = self
         return configurator
 
-    def get_cache_max_age(self, settings):
-        """Get websauna.cache_max_age setting and convert it to seconds.
-
-        :return: None for no caching or cache_max_age as seconds
-        """
-
-        cache_max_age = settings.get("websauna.cache_max_age")
-        if (not cache_max_age) or (not cache_max_age.strip()):
-            return None
-        else:
-            return int(cache_max_age)
-
-    def add_cache_buster(self, asset_spec:str):
-        """Adds configured cache busting capability to a given static assets.
-
-        You need to call this for every added ``config.add_static_view()``.
-
-        Override this to customize cache busting mechanism on your site. The default implementation uses ``PathSegmentMd5CacheBuster``.
-        """
-
-        try:
-            # Pyramid 1.6b3+
-            from pyramid.static import PathSegmentMd5CacheBuster
-            BusterClass = PathSegmentMd5CacheBuster
-        except ImportError:
-            # Pyramid 1.6b3
-            from pyramid.static import QueryStringCacheBuster
-            BusterClass = QueryStringCacheBuster
-
-        cachebust = asbool(self.settings.get("websauna.cachebust"))
-        if cachebust:
-            self.config.add_cache_buster(asset_spec, BusterClass())
-
-    def add_static(self, name, path):
-        """Include a path in static assets and configures cache busting for it.
-
-        This does not only include the static resources in the routing, but sets the default cache busting policy for them in the :term:`production` environment.
-
-        See :py:meth:`pyramid.config.Configurator.add_static_view` and :py:meth:`websauna.system.Initializer.add_cache_buster`
-        """
-        self.config.add_static_view(name, path)
-        self.add_cache_buster(path)
+    def create_static_asset_policy(self):
+        """Override to have our own static asset policy."""
+        return DefaultStaticAssetPolicy(self.config)
 
     def configure_logging(self, settings):
         """Create and set Pyramid debug logger.
@@ -377,13 +341,11 @@ class Initializer:
 
     @event_source
     def configure_static(self):
-        """Configure static asset serving and cache busting.
+        """Configure static asset views.
 
         By default we serve only core Websauna assets. Override this to add more static asset declarations to your app.
-
-        http://docs.pylonsproject.org/projects/pyramid/en/1.6-branch/narr/assets.html#static-assets-section
         """
-        self.add_static('websauna-static', 'websauna.system:static')
+        self.static_asset_policy.add_static_view('websauna-static', 'websauna.system:static')
 
     @event_source
     def configure_sessions(self, settings, secrets):
@@ -449,7 +411,7 @@ class Initializer:
         configure_zpt_renderer(["websauna.system:form/templates/deform"])
 
         # Include Deform JS and CSS to static serving
-        self.add_static('deform-static', 'deform:static')
+        self.static_asset_policy.add_static_view('deform-static', 'deform:static')
 
         # Overrides for Deform 2 stock JS and CSS
         default_form_resources = DefaultFormResources()

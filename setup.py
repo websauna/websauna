@@ -77,6 +77,7 @@ setup(
         "pyramid_jinja2",
         "ipython[notebook]<4",
         "pyramid_ipython",
+        "scandir",  # os.scandir backport for py3.4
 
         # Time handling
         "arrow",
@@ -138,6 +139,7 @@ setup(
             'ws-pserve=websauna.system.devop.scripts.pserve:main',
             'ws-create-table=websauna.system.devop.scripts.createtable:main',
             'ws-sanity-check=websauna.system.devop.scripts.sanitycheck:main',
+            'ws-collect-static=websauna.system.devop.scripts.collectstatic:main',
         ],
 
         'paste.app_factory': [

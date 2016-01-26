@@ -23,3 +23,10 @@ node_modules
 # Created by running a celery
 celerybeat*
 
+# pytest-splinter creates screenshots from failed browsers tests.
+# let's not pollute source tree with them by accient.
+websauna.{{ package }}.tests.*
+
+# Static asset cache busting
+cache-manifest.json
+perma-asset

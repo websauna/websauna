@@ -286,6 +286,25 @@ Set this to list of your production domain names::
 
 Default: ``localhost``.
 
+
+.. _websauna.cache_manifest_path:
+
+websauna.cache_manifest_path
+----------------------------
+
+The file where :ref:`ws-collect-static` writes cached MD5 information.
+
+Default: ``cache-manifest.json`` (in current working directory where the production web server is run).
+
+.. _websauna.cache_max_age_seconds:
+
+websauna.cache_max_age_seconds
+------------------------------
+
+How long :ref:`static assets <static>` are cached. Any non-zero value enables caching busting.
+
+Default: 0 (development), 2 weeks (production)
+
 websauna.error_test_trigger
 ---------------------------
 

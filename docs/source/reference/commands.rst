@@ -201,6 +201,23 @@ Example::
 
     It is possible to give password as the third command line argument, but this is not recommended because the password is recorded to your shell history.
 
+.. _ws-collect-static:
+
+ws-collect-static
+-----------------
+
+Read through all configured static views and compile their assets to ``collected-static`` folder.
+
+This needs to be run on production and staging server where one has configured cache busting policy.
+
+Example:
+
+.. code-block:: shell
+
+    ws-collect-static conf/production.ini
+
+For more information see :ref:`static assets <static>`.
+
 Advanced
 ========
 

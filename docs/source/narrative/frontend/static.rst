@@ -27,14 +27,20 @@ The return value of ``static_url`` can be a random string depending on configure
 Adding static assets
 ====================
 
-:py:attr:`websauna.system.Initializer.static_asset_policy`` has a method :py:meth:`websauna.system.http.DefaultStaticAssetPolicy.add_static_view` to map folders in Python packages as static asset source folders. :py:meth:`websauna.system.http.DefaultStaticAssetPolicy.add_static_view` is similar as underlying :py:meth:`pyramid.configurator.Configurator.add_static_view`, but it also includes cache busting mechanism added on these views.
+Static assets are added through a static asset policy, an instance of :py:class:`websauna.system.http.static.DefaultStaticAssetPolicy`. You can access this during the application initialization through:
 
-In your Initializer, override :py:meth:`websauna.system.Initializer.configure_static` to have more static views added
+.. code-block:: python
+
+    static_asset_policy = self.config.registry.static_asset_policy
+
+The policy has a method :py:meth:`websauna.system.http.DefaultStaticAssetPolicy.add_static_view` to map folders in Python packages as static asset source folders. It is similar as underlying :py:meth:`pyramid.configurator.Configurator.add_static_view` and adds a cache busting mechanism to added static views.
+
+In your Initializer, override :py:meth:`websauna.system.Initializer.configure_static` to incude more static views:
 
 .. code-block:: python
 
     def configure_static(self):
-        self.static_asset_policy.add_static_view('myapp-static', 'myapp:static')
+        self.config.registry.static_asset_policy.add_static_view('myapp-static', 'myapp:static')
 
 You need to have a folder ``static`` inside a Python module ``myapp``.
 
@@ -52,14 +58,23 @@ The default cache busting mechanism is
 
 * Hot deploys friendly, so that a website update does not break client browsers which are currently downloading static assets.
 
-When you deploy a new version of website you need to run :ref:`ws-collect-static` command. This will scan all configured static folders and create permantent, MD5 hashed, copies of all files. If the content of the file changes, its MD5 hash changes, and :py:meth:`pyramid.request.Request.static_url` can give a different URL pointing to the asset. Having a different URL invalidates the client cache.
+Collecting static file information
+----------------------------------
 
-The default cache busting mechanism has three settings
+When you deploy a new version of website you need to run :ref:`ws-collect-static` command. The command scans all configured static folders and creates permanent, MD5 hashed, copies of all files. If the content of the file changes, its MD5 hash changes, and :py:meth:`pyramid.request.Request.static_url` can give a different URL pointing to the asset. Having a different URL invalidates the client cache.
 
-* :ref:`websauna.collected_static_folder` - a file system folder where collected static files go. Defaults to ``collected-static`` under the Websauna application package root.
+By default cached content is placed in ``perma-asset`` folder next to the files inside the original static asset folder. This folder is included in :term:`.gitignore`.
 
-* :ref:`websauna.cache_max_age` - how many seconds the items are cached in a web browser
+Enabling cache and cache busting
+--------------------------------
 
+The default cache busting mechanism has one setting
+
+* :ref:`websauna.cache_max_age_seconds` - how many seconds the items are cached in a web browser
+
+* If this value is non-zero cache buster is also enabled
+
+This is configured to two weeks in :ref:`production.ini`.
 
 Using CDN
 =========
@@ -68,6 +83,8 @@ Using CDN
 
 More information
 ================
+
+You can find more advanced examples and integrations with CDN and asset pipelines (gulp) in Pyramid documentation.
 
 `Static assets and cache busting in Pyramid documentation <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/assets.html>`_.
 

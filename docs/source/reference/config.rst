@@ -172,13 +172,6 @@ How quickly email activation and password reset token turns sour.
 
 Default: 24 hours
 
-websauna.cache_max_age
-----------------------
-
-How long *Expires* header is set for served static assets.
-
-Default: ``None`` (zero) seconds. In production configuration this is overridden to 3600 seconds.
-
 websauna.global_config
 ----------------------
 
@@ -285,16 +278,6 @@ Set this to list of your production domain names::
         upload.libertymusicstore.net
 
 Default: ``localhost``.
-
-
-.. _websauna.cache_manifest_path:
-
-websauna.cache_manifest_path
-----------------------------
-
-The file where :ref:`ws-collect-static` writes cached MD5 information.
-
-Default: ``cache-manifest.json`` (in current working directory where the production web server is run).
 
 .. _websauna.cache_max_age_seconds:
 

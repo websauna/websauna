@@ -12,3 +12,4 @@ Frontend and templating
     tweens
     javascript
     themes
+    static

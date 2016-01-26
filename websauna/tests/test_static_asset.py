@@ -1,3 +1,5 @@
+import shutil
+
 import os
 import pytest
 from pyramid.config import Configurator
@@ -9,9 +11,6 @@ from websauna.tests.webserver import customized_web_server
 
 HERE = os.path.dirname(__file__)
 STATIC_CONF_FILE = os.path.join(HERE, "static-asset-test.ini")
-
-
-MARKER_FOLDER = "permanent-static-asset"
 
 
 @pytest.fixture(scope="module")
@@ -43,12 +42,20 @@ def test_collect_static_asset():
 def test_map_static_asset(browser, caching_web_server):
     """Use collected information to return static URLs"""
 
+    cache = os.path.join("websauna", "system", "static", "perma-asset")
+    if os.path.exists(cache):
+        shutil.rmtree(cache)
+
     # Run static asset collecteor
     execute_command(["ws-collect-static", STATIC_CONF_FILE], folder=os.getcwd())
 
     b = browser
     b.visit(caching_web_server)
 
+    el = b.find_by_css("link[rel='stylesheet']")[0]._element
+    bootstrap_css = el.get_attribute("href")
 
-def test_map_static_asset_no_collect(caching_web_server):
-    """When collector has not run we cannot server static assets."""
+    assert "perma-asset" in bootstrap_css
+    b.visit(bootstrap_css)
+    assert b.status_code.code == 200
+

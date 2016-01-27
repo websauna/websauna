@@ -206,7 +206,7 @@ def run_alembic(package:str):
         """
 
         # Try to figure out smartly table from different object types
-        if type_ in ("index", "column", "foreign_key_constraint"):
+        if type_ in ("index", "column", "foreign_key_constraint", "unique_constraint"):
             table_name = object.table.name
         elif type_ == "table":
             table_name = object.name

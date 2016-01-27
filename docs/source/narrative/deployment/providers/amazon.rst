@@ -21,7 +21,13 @@ For the image choose *Ubuntu 14.04*.
 
 For real production usage choose at least *t2.small*. You can also run on *t2.micro*, but do not expect stellar performance.
 
-On the instance review page, edit security groups and make sure HTTP and HTTPS are enabled.
+On the instance review page, edit security groups and make sure you enable
+
+* HTTP
+
+* HTTPS
+
+* ICMP - all ports (includes ping, others)
 
 .. image:: images/amazon3.png
     :width: 640px
@@ -136,8 +142,11 @@ Then it's play time::
 Checking the site
 =================
 
-If the playbook completes successfully, which it does if you have followed the instructions, you can check your site.
+If the playbook completes successfully, which it does if you have followed the instructions, you can check your site. You need to do this using ``server_name``. E.g.::
 
+    http://mysite.example.com
+
+This should bring up the home page:
 
 Setting up backup
 =================

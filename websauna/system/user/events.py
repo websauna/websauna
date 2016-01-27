@@ -26,6 +26,26 @@ class FirstLogin:
     * Social media login
 
     * After clicking email activation link
+
+    Fired before :py:class:`Login`
+    """
+
+    def __init__(self, request:Request, user:User):
+        self.request = request
+        self.user = user
+
+
+
+class Login:
+    """User has logged in to the site.
+
+    Fired upon
+
+    * Social media login
+
+    * When sending email activation link
+
+    Fired after login data (last_login_ip) has been updated.
     """
 
     def __init__(self, request:Request, user:User):

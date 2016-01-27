@@ -96,6 +96,9 @@ class DefaultLoginService:
 
         self.update_login_data(user)
 
+        e = events.Login(request, user)
+        request.registry.notify(e)
+
         return HTTPFound(location=location, headers=headers)
 
     def authenticate_credentials(self, username: str, password: str, login_source:str, location: str=None) -> Response:

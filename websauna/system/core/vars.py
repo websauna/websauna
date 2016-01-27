@@ -4,6 +4,9 @@ from pyramid.events import BeforeRender
 
 
 # TODO: We expose this as a global for documentation. Migrate to non-global map in the future.
+from pyramid.path import AssetResolver, DottedNameResolver
+from websauna.utils.time import now
+
 _template_variables = {}
 
 
@@ -123,6 +126,62 @@ def on_demand_resource_renderer(request, registry, settings):
     """Active instance of :py:class:`websauna.system.core.render.OnDemandResourceRenderer` managing dynamic CSS and JS. May be None."""
     on_demand_resource_renderer = getattr(request, "on_demand_resource_renderer")
     return on_demand_resource_renderer
+
+
+@var("now")
+def _now(request, registry, settings):
+    """Get the current time as :term:`UTC`.
+
+    :py:func:`websauna.utils.time.now` function.
+
+    Example:
+
+    .. code-block: html+jinja
+
+      <footer class="footer">
+        <div class="container-fluid">
+          <p class="copyright pull-right">
+            &copy; {{ now().year }} {{ site_author }}
+          </p>
+        </div>
+      </footer>
+
+    """
+    return now
+
+
+@var("debug")
+def debug(request, registry, settings):
+    """Invoke pdb breakpoint from a template.
+
+    Example:
+
+    .. code-block:: html+jinja
+
+        <h1>{{ site_name }}</h1>
+
+        {{ debug() }}
+
+    This will invoke function from :ref:`websauna.template_debugger` setting. The debugger is turned on only on :ref:`development.ini`. If there is no debugger configured, nothing happens.
+    """
+
+    def _dummy():
+        return ""
+
+    template_debugger = settings.get("websauna.template_debugger")
+    if not template_debugger:
+        return _dummy()
+
+    r = DottedNameResolver()
+    debugger = r.resolve(template_debugger)
+
+    assert debugger, "Could not find debugger in websauna.template_debugger setting: {}".format(template_debugger)
+
+    def _inner():
+        debugger()
+        return ""
+
+    return _inner
 
 
 def includeme(config):

@@ -84,6 +84,8 @@ Admin
 
 {% for name, intro, ref, heading in modules.admin %}
 
+.. _template-{{ name }}:
+
 {{ name }}
 {{ heading }}
 
@@ -102,6 +104,8 @@ CRUD
 
 {% for name, intro, ref, heading in modules.crud %}
 
+.. _template-{{ name }}:
+
 {{ name }}
 {{ heading }}
 
@@ -118,6 +122,8 @@ User
 ====
 
 {% for name, intro, ref, heading in modules.user %}
+
+.. _template-{{ name }}:
 
 {{ name }}
 {{ heading }}

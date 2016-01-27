@@ -73,6 +73,9 @@ Glossary
     .gitignore
       A mechanism to avoid placing files under a git version control by blacklisting them.
 
+    htpasswd
+        .htpasswd is a flat-file used to store usernames and password for basic authentication on an Apache HTTP Server and others. `More info <https://en.wikipedia.org/wiki/.htpasswd>`__.
+
     Initializer
         Initializer is the main entry point of your Websauna application. It is a class responsible for ramping up and integrating various subsystems. For more information see :py:class:`websauna.system.Initializer`.
 

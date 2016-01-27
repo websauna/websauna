@@ -35,7 +35,9 @@ class ModelAdmin(CRUD):
 
     #: Our resource factory
     class Resource(AlchemyResource):
-        pass
+
+        def get_admin(self):
+            return self.__parent__.get_admin()
 
     def get_admin(self) -> IAdmin:
         """Get Admin resource object."""

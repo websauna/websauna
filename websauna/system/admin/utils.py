@@ -38,7 +38,7 @@ def get_model_admin_for_sqlalchemy_object(admin:IAdmin, instance:type) -> Resour
     return model_manager[model_admin_id]
 
 
-def get_admin_url_for_sqlalchemy_object(admin:IAdmin, instance:type) -> str:
+def get_admin_url_for_sqlalchemy_object(admin: IAdmin, instance: object, view_name: str=None) -> str:
     """Return direct URL to the admin view page of this objet.
 
     :param admin: Admin root object
@@ -46,5 +46,5 @@ def get_admin_url_for_sqlalchemy_object(admin:IAdmin, instance:type) -> str:
     :param instance: SQLAlchemy object
     """
     model_admin = get_model_admin_for_sqlalchemy_object(admin, instance)
-    return model_admin.get_object_url(instance)
+    return model_admin.get_object_url(instance, view_name=view_name)
 

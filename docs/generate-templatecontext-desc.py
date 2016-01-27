@@ -66,6 +66,8 @@ Variables
 
 {% for name, func, doc, heading in modules.vars %}
 
+.. _var-{{ name }}:
+
 {{ name }}
 {{ heading }}
 

@@ -402,6 +402,15 @@ Default: ``8521``.
 
 Configuration from other packages
 
+websauna.template_debugger
+--------------------------
+
+Which debugger to invoke when hitting ``{{ debug() }}`` inside a page template.
+
+See :ref:`debug <vars-debug>` template variable.
+
+Default: ``pdb.set_trace`` in :ref:`development.ini`, otherwise turned off.
+
 Celery
 ------
 

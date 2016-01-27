@@ -257,19 +257,60 @@ Jinja can use Python string formatting:
 
 Alternative use :ref:`filter-round` where you can give rounding direction:
 
-.. code-block:: html+jinja:
+.. code-block:: html+jinja
 
     Price: <strong>${{ price|round(precision=2, method='common') }}</strong>
 
 Advanced
 ========
 
+Invoking debugger inside templates
+----------------------------------
+
+You can start a Python debugger prompt, pdb or any of its flavour, inside a page template. This allows you to inspect the current template rendering context, variables and such.
+
+If you put into the template
+
+.. code-block:: html+jinja
+
+    <h1>Template goes here</h1>
+
+    {{ debug() }}
+
+    <li>
+        Item
+    </li>
+
+Next time you reload the page the command line debugger will open in your :ref:`ws-pserve` terminal.
+
+Now you can inspect template context.
+
+.. code-block:: pycon
+
+    >>> up
+    ... -> return __obj(*args, **kwargs)
+    >>> up
+    -> <li>
+    >>>  context.keys()
+
+    dict_keys(['js_in_head', 'site_email_prefix', 'lipsum', 'render_flash_messages', 'view', 'dict', 'site_tag_line', 'on_demand_resource_renderer', 'joiner', 'site_url', 'panel', 'site_author', 'debug', 'context', 'renderer_info', 'ngettext', 'site_time_zone', 'range', 'request', '_', 'site_name', 'req', 'cycler', 'panels', 'gettext', 'renderer_name'])
+
+    >>> context["request"].admin.get_admin_menu().get_entries()
+
+    ValuesView(OrderedDict([('admin-menu-home', <websauna.system.admin.menu.RouteEntry object at 0x112b74ba8>), ('admin-menu-data', <websauna.system.admin.menu.RouteEntry object at 0x112b74b38>)]))
+
+See :ref:`var-debug` and :ref:`websauna.template_debugger` for more information.
+
+`See more information in template debugging article <https://opensourcehacker.com/2013/05/16/putting-breakpoints-to-html-templates-in-python/>`_.
+
 Accessing Jinja environment
 ---------------------------
 
 Each template suffix (``.txt``, ``.html``, ``.xml``) has its own Jinja environment.
 
-Example::
+Example:
+
+.. code-block:: python
 
     from pyramid_jinja2 import IJinja2Environment
 

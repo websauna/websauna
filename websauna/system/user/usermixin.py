@@ -149,6 +149,12 @@ class UserMixin:
         # TODO: Remove this Horus'ism
         return self.validate_user(self, password)
 
+    def __str__(self):
+        return self.friendly_name
+
+    def __repr__(self):
+        return "#{}: {}".format(self.id, self.friendly_name)
+
 
 class GroupMixin:
     """Basic fields for Websauna default group model."""

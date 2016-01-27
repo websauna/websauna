@@ -8,4 +8,5 @@ How to get your site from local development to production.
 
     intro
     requirements
+    staging
 

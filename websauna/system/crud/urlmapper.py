@@ -58,7 +58,7 @@ class IdMapper(Mapper):
     def get_path_from_object(self, obj):
 
         if not hasattr(obj, self.mapping_attribute):
-            raise CannotMapException("Could not find attribute {} on object {}. The default behavior is to look for attribute/column uuid. If you need to change this behavior define mapper in your CRUD class.", self.mapping_attribute, obj)
+            raise CannotMapException("Could not find attribute {} on object {}. The default behavior is to look for attribute/column uuid. If you need to change this behavior define mapper in your CRUD class.".format( self.mapping_attribute, obj))
 
         return self.transform_to_path(getattr(obj, self.mapping_attribute))
 

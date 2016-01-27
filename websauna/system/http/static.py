@@ -69,7 +69,7 @@ class CopyAndHashCollector:
         ext = "." + hash + ext
         relative_path = base_file + ext
 
-        return os.path.join(root, MARKER_FOLDER, relative_path)
+        return os.path.join(self.root, MARKER_FOLDER, relative_path)
 
     def process(self, root, static_view_name, entry, relative_path):
         """Make a persistent copy of a file.
@@ -78,7 +78,7 @@ class CopyAndHashCollector:
         """
         hash = md5(entry.path)
         target = self.get_permanent_path(root, static_view_name, relative_path, hash)
-        rel_target = os.path.relpath(target, root)
+        rel_target = os.path.relpath(target, self.root)
 
         if os.path.exists(target):
             # Let's avoid unnecessary copy
@@ -91,6 +91,7 @@ class CopyAndHashCollector:
 
         # Create a permanent copy
         shutil.copy(entry.path, target)
+        logger.info("Writing %s", target)
 
         return rel_target
 
@@ -99,7 +100,7 @@ class CopyAndHashCollector:
         target = self.process(root, static_view_name, entry, relative_path)
         by_view = self.collected[static_view_name]
         by_view[relative_path] = target
-
+        self.process(root, static_view_name, entry, relative_path)
         logger.info("Collected %s:%s as %s", static_view_name, relative_path, target)
 
     def finish(self):

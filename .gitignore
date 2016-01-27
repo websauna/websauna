@@ -39,3 +39,4 @@ perma-asset
 
 # Whatever is creating a cache folders, stop it
 .cache
+perma-asset/

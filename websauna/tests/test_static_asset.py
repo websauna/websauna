@@ -30,7 +30,6 @@ def caching_web_server(request, cache_app):
 def test_collect_static_asset():
     """Collect static files and stash them with MD5 sums."""
     c = Configurator()
-    c.registry.settings["websauna.collected_static_path"] = "/tmp/collect-static-test"
     sap = DefaultStaticAssetPolicy(c)
 
     sap.add_static_view("websauna-static", "websauna.system:static")
@@ -38,6 +37,20 @@ def test_collect_static_asset():
 
     # Check one resource from the collectin to see we succeeded
     assert collected["websauna-static"]["pyramid-32x32.png"] == 'perma-asset/pyramid-32x32.c453183eee6627ff09e49f0384cededd.png'
+
+
+def test_collect_recurse():
+    """Check another more complicated static file folder collect"""
+    c = Configurator()
+    sap = DefaultStaticAssetPolicy(c)
+
+    sap.add_static_view("deform-static", "deform:static")
+    collected = sap.collect_static()
+
+    assert len(collected) > 0
+
+    # Check one resource from the collectin to see we succeeded
+    assert collected["deform-static"]["pickadate/translations/ja_JP.js"] == 'perma-asset/pickadate/translations/ja_JP.a773b74d6fb882ea9f8d043270e8be17.js'
 
 
 @flaky

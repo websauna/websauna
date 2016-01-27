@@ -151,14 +151,9 @@ class DefaultStaticAssetPolicy(StaticAssetPolicy):
     def collect_static(self):
         """Collect all static files from all static views for the manifest."""
 
-        r = AssetResolver()
-        for name, asset_spec in self.views.items():
+        def recurse(collector, path):
 
-            root = r.resolve(asset_spec).abspath()
-
-            collector = CopyAndHashCollector(root, self.settings)
-
-            for entry in scandir(root):
+            for entry in scandir(path):
 
                 if entry.name.startswith("."):
                     # Dot files are usually backups or other no no files
@@ -168,11 +163,19 @@ class DefaultStaticAssetPolicy(StaticAssetPolicy):
                 if MARKER_FOLDER in entry.path:
                     continue
 
-                relative = os.path.relpath(entry.path, root)
+                relative = os.path.relpath(entry.path, collector.root)
 
                 if entry.is_file():
-                    collector.collect(root, name, entry, relative)
+                    collector.collect(path, name, entry, relative)
+                elif entry.is_dir():
+                    recurse(collector, entry.path)
 
+        r = AssetResolver()
+        for name, asset_spec in self.views.items():
+
+            root = r.resolve(asset_spec).abspath()
+            collector = CopyAndHashCollector(root, self.settings)
+            recurse(collector, root)
             results = collector.finish()
 
         # Expose for testing

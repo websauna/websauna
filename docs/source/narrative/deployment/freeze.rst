@@ -31,7 +31,18 @@ New Python package versions are released every day. Sooner or later one of your 
 
 ``requirements.txt`` maintains the list of absolute version numbers. When pip uses it to fetch the packages, it always gets the same version you had when developing the application, not possible incompatible latest version.
 
+Advanced
+========
+
+Tracking Websauna master
+------------------------
+
+If you need to run your application against Websauna master (or any Git revision) you can edit ``websauna`` dependency in ``requirements.txt``::
+
+    -e git+git@github.com:websauna/websauna.git@master#egg=websauna
+
 More information
 ================
 
 `Declaring dependencies in Python <http://blog.ziade.org/2013/04/13/declaring-dependencies-in-python/>`_.
+

@@ -30,3 +30,18 @@ Example::
 More info
 
 * http://www.postgresql.org/docs/9.4/interactive/view-pg-locks.html
+
+Dropping database sessions
+--------------------------
+
+In the case you have dangling PSQL sessions and you need to operations these sessions prevent you can force the session drop:
+
+.. code-block:: console
+
+    ws-db-shell conf/staging.ini
+
+And then:
+
+.. code-block:: sql;
+
+    SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = 'TARGET_DB' AND pid <> pg_backend_pid();

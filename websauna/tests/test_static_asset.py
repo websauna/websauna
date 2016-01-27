@@ -2,6 +2,7 @@ import shutil
 
 import os
 import pytest
+from flaky import flaky
 from pyramid.config import Configurator
 from websauna.system import DefaultStaticAssetPolicy
 from websauna.system.devop.cmdline import init_websauna
@@ -39,6 +40,7 @@ def test_collect_static_asset():
     assert collected["websauna-static"]["pyramid-32x32.png"] == 'perma-asset/pyramid-32x32.c453183eee6627ff09e49f0384cededd.png'
 
 
+@flaky
 def test_map_static_asset(browser, caching_web_server):
     """Use collected information to return static URLs"""
 

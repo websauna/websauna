@@ -8,5 +8,16 @@ How to get your site from local development to production.
 
     intro
     requirements
+    features
+    install
+    git
+    freeze
+    usage
+    settings
+    ini
+    email
     staging
+    postinfo
+    providers/amazon
+    troubleshooting
 

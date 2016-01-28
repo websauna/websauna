@@ -433,9 +433,21 @@ pyramid_redis
 pyramid_mailer
 --------------
 
+``pyramid_mailer`` is underlying component used by :ref:`email out <mail>`. Also see :ref:`websauna.mailer` setting.
+
 `See pyramid_mailer configuration <http://docs.pylonsproject.org/projects/pyramid-mailer/en/latest/#configuration>`_.
 
-Also see :ref:`websauna.mailer`.
+mail.default_sender_name
+++++++++++++++++++++++++
+
+Set up envelope name for the sender. See
+
+Example:
+
+.. code-block:: ini
+
+    mail.default_sender = no-reply@example.com
+    mail.default_sender_name = Example Technologies
 
 sqlalchemy
 ----------

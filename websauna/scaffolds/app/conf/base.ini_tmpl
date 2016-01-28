@@ -17,6 +17,7 @@ websauna.user_models_module = websauna.system.user.models
 
 # pyramid_mailer settings
 mail.default_sender = no-reply@example.com
+mail.default_sender_name = {{project}} team
 
 
 

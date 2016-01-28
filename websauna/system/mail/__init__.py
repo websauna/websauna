@@ -1,4 +1,6 @@
 """Sending out HTML and plain text email."""
+from email.header import Header
+from email.utils import formataddr
 
 from pyramid.renderers import render
 
@@ -46,6 +48,12 @@ def send_templated_mail(request, recipients, template, context, sender=None):
 
     if not sender:
         sender = request.registry.settings["mail.default_sender"]
+
+        # Add enveloped From:
+        sender_name =  request.registry.settings.get("mail.default_sender_name")
+        if sender_name:
+            sender = formataddr((str(Header(sender_name, 'utf-8')), sender))
+
 
     # Inline CSS styles
     html_body = premailer.transform(html_body)

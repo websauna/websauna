@@ -31,6 +31,7 @@ Install packaged roles we are going to use::
 
     ansible-galaxy install --roles-path=galaxy \
         ANXS.postgresql \
+        ANXS.logwatch \
         Stouts.foundation \
         Stouts.nginx \
         Stouts.redis \

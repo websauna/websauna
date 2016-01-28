@@ -1,4 +1,6 @@
 """Sign up form service."""
+import logging
+
 from zope.interface import implementer
 from pyramid.httpexceptions import HTTPNotFound, HTTPFound
 from pyramid.renderers import render_to_response
@@ -13,6 +15,9 @@ from websauna.system.mail import send_templated_mail
 from websauna.system.user.events import UserCreated
 from websauna.system.user.interfaces import IUser, IRegistrationService
 from websauna.system.user.utils import get_user_registry, get_login_service
+
+
+logger = logging.getLogger(__name__)
 
 
 
@@ -68,6 +73,8 @@ class DefaultRegistrationService:
             'link': self.request.route_url('activate', code=activation_code),
             'expiration_hours': int(expiration_seconds/3600),
         }
+
+        logger.info("Sending sign up email to %s", user.email)
 
         # TODO: Broken abstraction, we assume user.email is a attribute
         send_templated_mail(self.request, [user.email], "login/email/activate", context)

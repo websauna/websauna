@@ -1,4 +1,18 @@
-{# HTML email header #}
+{# HTML email header.
+
+.. note ::
+
+  If you wish to use the company logo here, so that it actually shows up in the opened email, don't serve it from your own server. Instead upload the logo to Google Drive and hot link it there. GMail and other email applications are little bit picky where they allow images come from.
+
+For raw ``<img src>`` link translate the Google Drive sharing link. From::
+
+  https://drive.google.com/file/d/0B6nei6GpGxGsb1hnWHlBRFJhxxx/view?usp=sharing
+
+To::
+
+  https://drive.google.com/uc?id=0B6nei6GpGxGsb1hnWHlBRFJhxxx
+
+#}
 <tr>
     <td class="right-align">
         <h2><a href="{{ 'home'|route_url }}">{{ site_name }}</a></h2>

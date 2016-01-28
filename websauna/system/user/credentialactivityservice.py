@@ -41,7 +41,7 @@ class DefaultCredentialActivityService:
         user, token, expiration_seconds = reset_info
 
         link = request.route_url('reset_password', code=token)
-        context = dict(link=link, user=user, expiration_hours=expiration_seconds/3600)
+        context = dict(link=link, user=user, expiration_hours=int(expiration_seconds/3600))
         send_templated_mail(request, [email,], "login/email/forgot_password", context=context)
 
         messages.add(request, msg="Please check your email to continue password reset.", kind='success', msg_id="msg-check-email")

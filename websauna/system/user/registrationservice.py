@@ -66,7 +66,7 @@ class DefaultRegistrationService:
 
         context = {
             'link': self.request.route_url('activate', code=activation_code),
-            'expiration_hours': expiration_seconds/3600,
+            'expiration_hours': int(expiration_seconds/3600),
         }
 
         # TODO: Broken abstraction, we assume user.email is a attribute

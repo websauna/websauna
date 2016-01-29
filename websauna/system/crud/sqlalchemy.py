@@ -1,4 +1,5 @@
 from pyramid.interfaces import IRequest
+from websauna.system.http import Request
 from . import CRUD as _CRUD
 from . import Resource as _Resource
 
@@ -71,7 +72,7 @@ class CRUD(_CRUD):
         return obj
 
 
-def sqlalchemy_deleter(context, request):
+def sqlalchemy_deleter(view: object, context: Resource, request: Request):
     """A view callback to delete item in SQLAlchemy CRUD.
 
     """

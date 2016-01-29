@@ -31,7 +31,7 @@ class FormGenerator:
 
     :param schema_customizer: is callback ``customize_schema(schema=schema, request=request, context=context, mode=mode, model=model)`` and can dynamically adjust generated form schema after its generation. Customizers edits schema in place and does not return anything.
 
-    :param bind_schema: is callback ``bind_schema(schema=schema, request=request, context=context, mode=mode, model=model)``. It should call ``schema.bind()`` and pass any extra arguments for Colander schema binding. By default we usually pass::
+    :param schema_binder: is callback ``bind_schema(schema=schema, request=request, context=context, mode=mode, model=model)``. It should call ``schema.bind()`` and pass any extra arguments for Colander schema binding. By default we usually pass::
 
         schema.bind(request=request, context=context)
 

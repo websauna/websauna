@@ -202,7 +202,7 @@ class UserDelete(admin_views.Delete):
     Drop user sessions on invocation.
     """
     def deleter(self, context, request):
-        sqlalchemy_deleter(context, request)
+        sqlalchemy_deleter(self, context, request)
         kill_user_sessions(request, context.get_object(), "user_deleted")
 
 

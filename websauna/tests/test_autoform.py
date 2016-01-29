@@ -230,3 +230,32 @@ def test_question_listing(browser: DriverAPI, tutorial_req, web_server, dbsessio
 
     b.visit("{}/admin/models/question/listing".format(web_server))
     assert b.is_text_present("What is love")
+
+
+def test_question_delete(browser: DriverAPI, tutorial_req, web_server, dbsession):
+    """Delete question and make sure it deletes related choices.."""
+
+    from .tutorial import Question
+    from .tutorial import Choice
+
+    with transaction.manager:
+        q = Question(question_text="What is love")
+        dbsession.add(q)
+        dbsession.flush()
+
+        c = Choice(choice_text="Baby don't hurt me", question=q)
+        dbsession.add(c)
+        dbsession.flush()
+        q_slug = uuid_to_slug(q.uuid)
+
+    b = browser
+    create_logged_in_user(dbsession, tutorial_req.registry, web_server, browser, admin=True)
+
+    b.visit("{}/admin/models/question/{}".format(web_server, q_slug))
+    b.find_by_css("#btn-crud-delete").click()
+    b.find_by_css("#btn-delete-yes").click()
+
+    with transaction.manager:
+        assert dbsession.query(Question).count() == 0
+        assert dbsession.query(Choice).count() == 0
+

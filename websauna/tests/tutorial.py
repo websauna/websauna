@@ -32,8 +32,14 @@ class Question(Base):
     #: When this question was published
     published_at = Column(UTCDateTime, default=None)
 
-    #: Relationship mapping between question and choice
-    choices = relationship("Choice", back_populates="question", lazy="dynamic")
+    #: Relationship mapping between question and choice.
+    #: Each choice can have only question.
+    #: Deleteing question deletes its choices.
+    choices = relationship("Choice",
+                           back_populates="question",
+                           lazy="dynamic",
+                           cascade="all, delete-orphan",
+                           single_parent=True)
 
     def is_recent(self):
         return self.published_at >= now() - datetime.timedelta(days=1)

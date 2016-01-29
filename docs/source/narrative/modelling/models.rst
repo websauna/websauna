@@ -12,7 +12,7 @@ Websauna data modeling are based on :term:`SQLALchemy` library. SQLAlchemy provi
 Getting started
 ===============
 
-See :ref:`Getting started <gettingstarted>` tutorial for more handheld introduction.
+See :ref:`Websauna's getting started <gettingstarted>` tutorial for more handheld introduction. Peek also into SQLAlchemy's `Object Relation Tutorial <http://docs.sqlalchemy.org/en/latest/orm/tutorial.html>`_.
 
 Creating models
 ===============
@@ -58,13 +58,13 @@ Below is a destructing of the example code.
 Base class
 ----------
 
-Websauna provides a model base class :py:class:`websauna.system.model.meta.Base`. If you inherit from this base class all your models become automatically part of migration and initialization cycle. However you are free to choose not to do so, for example if you are integrating with a legacy base. There are several complex use cases where different base classes are needed.
+Websauna provides a model base class :py:class:`websauna.system.model.meta.Base`. If you inherit from this base class all your models become automatically part of migration and initialization cycle. However you are free to choose not to do so, for example if you are integrating with a legacy base. There are several complex use cases where different base classes may be needed.
 
 If you are planning to build a reusable addon you may choose to declare your model as:
 
 .. code-block::
 
-    class Question:
+    class Question:  # <-- It's just plain Python class
 
         #: The table in the database
         __tablename__ = "question"
@@ -74,7 +74,7 @@ If you are planning to build a reusable addon you may choose to declare your mod
 Columns
 -------
 
-Each of your
+Each of your TODO
 
 Date and time
 -------------
@@ -84,15 +84,50 @@ It is recommended that you store dates and datetimes only in :term:`UTC`. For mo
 Running counter primary key, UUID or both?
 ------------------------------------------
 
-TODO
+Websauna uses extensively :term:`UUID`, or more specifically UUID version 4, for ids. They provide 122 bit of non-guessable randomness.
+
+Secure-wise the best practice is to use UUID based primary keys and ``id`` is a UUID type:
+
+.. code-block:: python
+
+    class Asset(Base):
+
+        __tablename__ = "asset"
+
+        id = Column(UUID(as_uuid=True),
+            primary_key=True,
+            server_default=sqlalchemy.text("uuid_generate_v4()"),)
+
+
+However the downside of this approach is that you need to install a server-side PostgreSQL extension:
+
+.. code-block:: sql
+
+    create EXTENSION if not EXISTS "uuid-ossp";
+
+... and also ids are not very human friendly. Accessing objects in shell sessions or communicating ids over a phone is tricky.
+
 
 Created and updated at timestamps
 ---------------------------------
 
+The following is a common pattern to add created and updated at timestamps to your models. They provide much convenience when it comes down to diagnose and track issues:
+
+.. code-block:: python
+
+    from websauna.system.model.columns import UTCDateTime
+
+    class User:
+
+        #: When this account was created
+        created_at = Column(UTCDateTime, default=now)
+
+        #: When the account data was updated last time
+        updated_at = Column(UTCDateTime, onupdate=now)
+
 .. note ::
 
     You can also generate these timestamps on database-side, see ``server_default`` in SQLAlchemy documentation.
-
 
 Accessing item
 ==============

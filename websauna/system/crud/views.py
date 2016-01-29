@@ -7,20 +7,17 @@ from pyramid.renderers import render
 from pyramid.request import Request
 from pyramid.response import Response
 from pyramid.view import view_config
-from pyramid_deform import CSRFSchema
 from sqlalchemy.orm import Query
-
-from websauna.compat import typing
 
 import deform
 
+from websauna.compat import typing
 from websauna.system.core import messages
-from websauna.system.form.csrf import add_csrf
-from websauna.system.form.fieldmapper import DefaultFieldMapper, EditMode
-from websauna.system.form.resourceregistry import ResourceRegistry
+from websauna.system.form import interstitial
+from websauna.system.form.fieldmapper import EditMode
 
-from . import sqlalchemy, Resource
 from . import paginator
+from . import Resource
 from . import CRUD
 
 
@@ -110,9 +107,9 @@ class CRUDView:
 
 
 class Listing(CRUDView):
-    """View class to render item list in CRUD."""
+    """List items in CRUD."""
 
-    #: Instance of websauna.crud.listing.Table describing how the list should be rendered
+    #: Instance of :py:class:`websauna.crud.listing.Table` describing how the list should be rendered
     table = None
 
     #: How the result of this list should be split to pages
@@ -160,7 +157,7 @@ class Listing(CRUDView):
         template_context["batch"] = batch
         template_context["count"] = total_items
 
-    @view_config(context=sqlalchemy.CRUD, name="listing", renderer="crud/listing.html", permission='view')
+    @view_config(context=CRUD, name="listing", renderer="crud/listing.html", permission='view')
     def listing(self):
         """View for listing model contents in CRUD."""
 
@@ -198,16 +195,15 @@ class Listing(CRUDView):
 
 
 class FormView(CRUDView):
-    """A base class for views which utilize ColanderAlchemy to view/edit SQLAlchemy model instances."""
+    """An abstract base class for form-based CRUD views.
 
-    #: If the child class is not overriding the rendering loop, point this to a template which provides the page frame and ``crud_content`` block.
+    Use Deform form library. This views is abstract and it does not have dependency to any underlying model system like SQLAlchemy.
+    """
+    #: If the child class is not overriding the rendering loop, point this to a template which provides the page frame and ``crud_content`` block. For example use see :py:class:`websauna.system.user.adminviews.UserAdd`.
     base_template = None
 
-    #: List of included model fields which are mapped to form fields for this view
-    includes = ["id",]
-
-    #: Field mapper defines how form fields are generated from the SQLAlchemy model. For more information see py:mod:`websauna.system.crud.field`.
-    field_mapper = DefaultFieldMapper()
+    #: This is an instance of :py:class:`websauna.system.crud.formgenerator.FormGenerator`. For SQLAlchemy models it is :py:class:`websauna.system.crud.formgenerator.SQLAlchemyFormGenerator`. Form generator describers how a CRUD model is turned to a Deform form. It is called by :py:meth:`create_form`. For example use cases see e.g. :py:class:`websauna.system.user.adminviews.UserAdd`.
+    form_generator = None
 
     def __init__(self, context:Resource, request:Request):
         """
@@ -217,39 +213,10 @@ class FormView(CRUDView):
         self.context = context
         self.request = request
 
-    def bind_schema(self, schema: colander.Schema) -> colander.Schema:
-        """Bind extra arguments to colander schema, so that validators and other deferred things can use them.
-
-        By default we pass ``self.request`` and ``self.context``
-        """
-        return schema.bind(request=self.request, context=self.context)
-
     def create_form(self, mode:EditMode, buttons=(), nested=None) -> deform.Form:
-        """Automatically create a Deform form based on the underlying SQLALchemy model.
-
-        We read ``self.includes`` for field names and colander.SchemaNode objects which should appear in the form.
-
-        The automatically generated form schema can be customized by subclass ``customize_schema()`` and ``bind_schema()`` hooks.
-
-        :param buttons: Passed to Deform as form buttons
-
-        :param nested: Recurse to SQLAlchemy relationships and try to build widgets and subforms for them. TODO: This is likely to go away.
-        """
         model = self.get_model()
-        includes = self.includes
-
-        schema = self.field_mapper.map(mode, self.request, self.context, model, includes, nested=nested)
-
-        # Make sure we have CSRF token
-        add_csrf(schema)
-
-        self.customize_schema(schema)
-
-        schema = self.bind_schema(schema)
-
-        # Create the form instance using the default resource registry
-        form = deform.Form(schema, buttons=buttons, resource_registry=ResourceRegistry(self.request))
-        return form
+        assert getattr(self, "form_generator", None), "Class {} must define a form_generator".format(self)
+        return self.form_generator.generate_form(request=self.request, context=self.context, model=model, mode=mode, buttons=buttons)
 
     @abstractmethod
     def get_form(self):
@@ -257,12 +224,6 @@ class FormView(CRUDView):
 
         Subclasses most override this, call ``create_form()`` and pass correct edit mode and buttons.
         """
-
-    def bind_schema(self, schema:colander.Schema) -> colander.Schema:
-        """Initialize Colander field dynamic default values. By default, don't do anything.
-        By default pass ``request`` and ``context`` to schema.
-        """
-        return schema.bind(request=self.request, context=self.context)
 
     def get_crud(self) -> CRUD:
         """Get CRUD manager object for this view."""
@@ -296,10 +257,7 @@ class FormView(CRUDView):
 
 
 class Show(FormView):
-    """Read-only view to SQLAlchemy model instance using Deform form generated by ColanderAlchemy.
-    """
-
-    includes = []
+    """Show one instance of a model."""
 
     resource_buttons = [TraverseLinkButton(id="edit", name="Edit", view_name="edit")]
 
@@ -309,7 +267,7 @@ class Show(FormView):
     def get_form(self):
         return self.create_form(EditMode.show, buttons=())
 
-    @view_config(context=sqlalchemy.Resource, name="show", renderer="crud/show.html", permission='view')
+    @view_config(context=Resource, name="show", renderer="crud/show.html", permission='view')
     def show(self):
         """View for showing an individual object."""
 
@@ -332,7 +290,7 @@ class Show(FormView):
 
 
 class Edit(FormView):
-    """Edit SQLAlchemy model instance using Deform form generated by ColanderAlchemy.
+    """Edit model instance using Deform form..
 
     The call order of functions
 
@@ -344,8 +302,6 @@ class Edit(FormView):
     """
 
     resource_buttons = [TraverseLinkButton(id="show", name="Show", view_name="show")]
-
-    includes = []
 
     def get_title(self):
         return "Editing #{}".format(self.get_object().id)
@@ -376,7 +332,7 @@ class Edit(FormView):
         """Store the data from the form on the object."""
         form.schema.objectify(appstruct, obj)
 
-    @view_config(context=sqlalchemy.Resource, name="edit", renderer="crud/edit.html", permission='edit')
+    @view_config(context=Resource, name="edit", renderer="crud/edit.html", permission='edit')
     def edit(self):
         """View for showing an individual object."""
 
@@ -418,10 +374,7 @@ class Edit(FormView):
 
 
 class Add(FormView):
-    """Create a new SQLAlchemy instance."""
-
-    #: List of SQLAlchemy and JSONProperty field names automatically mapped to a form
-    includes = []
+    """Create a new item in CRUD."""
 
     def get_title(self):
         return "Add new {}".format(self.get_crud().singular_name)
@@ -456,7 +409,7 @@ class Add(FormView):
         # Redirect back to view page after edit page has succeeded
         return HTTPFound(self.request.resource_url(resource, "show"))
 
-    @view_config(context=sqlalchemy.CRUD, name="add", renderer="crud/add.html", permission='add')
+    @view_config(context=CRUD, name="add", renderer="crud/add.html", permission='add')
     def add(self):
         """View for showing an individual object."""
 
@@ -507,3 +460,58 @@ class Add(FormView):
 
         return dict(form=rendered_form, context=self.context, title=title, crud=crud, base_template=base_template, resource_buttons=self.get_resource_buttons())
 
+
+class Delete:
+    """Delete one item within a CRUD with a confirmation screen.
+
+    This is an abstract item delete implementation; you must either set :py:attr:`deleter` callback or override :py:meth:`yes`.
+    """
+    base_template = None
+
+    #: callback ``deleter(request, context)`` which is called to perform the actual model specific delete operation.
+    deleter = None
+
+    def __init__(self, context: Resource, request: Request):
+        self.context = context
+        self.request = request
+
+    def get_crud(self) -> CRUD:
+        return self.context.__parent__
+
+    def get_model(self) -> object:
+        return self.context.get_model()
+
+    def delete_item(self):
+        """User picked YEAH LET'S DO IT."""
+        if not self.deleter:
+            raise NotImplementedError("The subclass must implement actual delete method or give deleter callback.")
+
+        self.deleter(self.context, self.request)
+
+        messages.add(self.request, "Deleted {}".format(self.context.get_title()), msg_id="msg-item-deleted", kind="success")
+
+        return HTTPFound(self.request.resource_url(self.get_crud(), "listing"))
+
+    def cancel_delete(self):
+        """Permanent data destruction is bad.
+
+        Redirect user back to the show view.
+        """
+        return HTTPFound(self.request.resource_url(self.context, "show"))
+
+    @view_config(context=Resource, name="delete", renderer="crud/delete.html", permission='delete')
+    def delete(self):
+        """Delete view endpoint."""
+
+        choices = (
+            interstitial.Choice("Yes", self.delete_item, id="btn-delete-yes"),
+            interstitial.Choice("No", self.cancel_delete, id="btn-delete-no"),
+        )
+
+        if self.request.method == "POST":
+            return interstitial.process_interstitial(self.request, choices)
+
+        # Expose base_template to the template rendering
+        base_template = self.base_template
+
+        return locals()

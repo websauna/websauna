@@ -70,3 +70,11 @@ class CRUD(_CRUD):
 
         return obj
 
+
+def sqlalchemy_deleter(context, request):
+    """A view callback to delete item in SQLAlchemy CRUD.
+
+    """
+    obj = context.get_object()
+    dbsession = request.dbsession
+    dbsession.delete(obj)

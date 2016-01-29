@@ -30,7 +30,8 @@ class Admin(Resource):
         (Allow, 'group:admin', 'add'),
         (Allow, 'group:admin', 'view'),
         (Allow, 'group:admin', 'edit'),
-        (Allow, 'superuser:supseruser', 'shell'),
+        (Allow, 'group:admin', 'delete'),
+        (Allow, 'superuser:superuser', 'shell'),
     ]
 
     def __init__(self, request):

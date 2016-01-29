@@ -9,9 +9,11 @@ from pyramid.view import view_config
 
 from websauna.system.admin.utils import get_admin_url_for_sqlalchemy_object
 from websauna.system.core import messages
+from websauna.system.crud.sqlalchemy import sqlalchemy_deleter
 from websauna.system.crud.views import TraverseLinkButton
 from websauna.system.form.fieldmapper import EditMode
 from websauna.system.form.fields import defer_widget_values
+from websauna.system.crud.formgenerator import SQLAlchemyFormGenerator
 from websauna.system.user.models import User
 from websauna.system.user.schemas import group_vocabulary, GroupSet, validate_unique_user_email
 from websauna.utils.time import now
@@ -22,6 +24,13 @@ from websauna.system.admin import views as admin_views
 from .admins import UserAdmin
 from .admins import GroupAdmin
 from . import events
+
+
+def kill_user_sessions(request, user, operation):
+    # Notify session to drop this user
+    user.last_auth_sensitive_operation_at = now()
+    e = events.UserAuthSensitiveOperation(request, user, operation)
+    request.registry.notify(e)
 
 
 @panel_config(name='admin_panel', context=UserAdmin, renderer='admin/user_panel.html')
@@ -83,6 +92,8 @@ class UserShow(admin_views.Show):
                 colander.SchemaNode(GroupSet(), name="groups", widget=defer_widget_values(deform.widget.CheckboxChoiceWidget, group_vocabulary, css_class="groups"))
                 ]
 
+    form_generator = SQLAlchemyFormGenerator(includes=includes)
+
     def get_title(self):
         return "{} #{}".format(self.get_object().friendly_name, self.get_object().id)
 
@@ -94,13 +105,15 @@ class UserShow(admin_views.Show):
 class UserEdit(admin_views.Edit):
     """Edit one user in admin interface."""
 
-    includes = admin_views.Edit.includes + [
-                "enabled",
-                colander.SchemaNode(colander.String(), name='username'),  # Make username required field
-                colander.SchemaNode(colander.String(), name='full_name', missing=""),
-                "email",
-                colander.SchemaNode(GroupSet(), name="groups", widget=defer_widget_values(deform.widget.CheckboxChoiceWidget, group_vocabulary, css_class="groups"))
-                ]
+    includes = [
+        "enabled",
+        colander.SchemaNode(colander.String(), name='username'),  # Make username required field
+        colander.SchemaNode(colander.String(), name='full_name', missing=""),
+        "email",
+        colander.SchemaNode(GroupSet(), name="groups", widget=defer_widget_values(deform.widget.CheckboxChoiceWidget, group_vocabulary, css_class="groups"))
+        ]
+
+    form_generator = SQLAlchemyFormGenerator(includes=includes)
 
     def save_changes(self, form:deform.Form, appstruct:dict, user:User):
         """Save the user edit and reflect if we need to drop user session."""
@@ -111,16 +124,12 @@ class UserEdit(admin_views.Edit):
         super(UserEdit, self).save_changes(form, appstruct, user)
 
         # Notify authentication system to drop all sessions for this user
-        e = None
         if enabled_changes:
-            e = events.UserAuthSensitiveOperation(self.request, user, "enabled_change")
+            kill_user_sessions(self.request, user, "enabled_change")
         elif email_changes:
-            e = events.UserAuthSensitiveOperation(self.request, user, "email_change")
+            kill_user_sessions(self.request, user, "email_change")
         elif username_changes:
-            e = events.UserAuthSensitiveOperation(self.request, user, "username_change")
-
-        if e:
-            self.request.registry.notify(e)
+            kill_user_sessions(self.request, user, "username_change")
 
     def get_title(self):
         return "{} #{}".format(self.get_object().friendly_name, self.get_object().id)
@@ -136,7 +145,6 @@ class UserAdd(admin_views.Add):
 
     #: TODO: Not sure how we should manage with explicit username - it's not used for login so no need to have a point to ask
 
-
     includes = [
         # "username", --- usernames are never exposed anymore
         colander.SchemaNode(colander.String(), name="email", validator=validate_unique_user_email),
@@ -145,9 +153,11 @@ class UserAdd(admin_views.Add):
         colander.SchemaNode(GroupSet(), name="groups", widget=defer_widget_values(deform.widget.CheckboxChoiceWidget, group_vocabulary, css_class="groups"))
     ]
 
+    form_generator = SQLAlchemyFormGenerator(includes=includes)
+
     def get_form(self):
         # TODO: Still not sure how handle nested values on the automatically generated add form. But here we need it for groups to appear
-        return self.create_form(EditMode.add, buttons=("add", "cancel",), nested=True)
+        return self.create_form(EditMode.add, buttons=("add", "cancel",))
 
     def add_object(self, obj):
         """Flush newly created object to persist storage."""
@@ -168,12 +178,11 @@ class UserSetPassword(admin_views.Edit):
         colander.SchemaNode(colander.String(), name='password', widget=deform.widget.CheckedPasswordWidget(css_class="password-widget")),
     ]
 
+    form_generator = SQLAlchemyFormGenerator(includes=includes)
+
     def save_changes(self, form:deform.Form, appstruct:dict, obj:User):
         super(UserSetPassword, self).save_changes(form, appstruct, obj)
-
-        # Notify session to drop this user
-        e = events.UserAuthSensitiveOperation(self.request, obj, "password_change")
-        self.request.registry.notify(e)
+        kill_user_sessions(self.request, obj, "password_change")
 
     def do_success(self):
         messages.add(self.request, kind="success", msg="Password changed.", msg_id="msg-password-changed")
@@ -183,6 +192,18 @@ class UserSetPassword(admin_views.Edit):
     @view_config(context=UserAdmin.Resource, route_name="admin", name="set-password", renderer="crud/edit.html", permission='edit')
     def set_password(self):
         return super(admin_views.Edit, self).edit()
+
+
+
+@view_overrides(context=UserAdmin.Resource)
+class UserDelete(admin_views.Delete):
+    """Delete user view.
+
+    Drop user sessions on invocation.
+    """
+    def deleter(self, context, request):
+        sqlalchemy_deleter(context, request)
+        kill_user_sessions(request, context.get_object(), "user_deleted")
 
 
 @view_overrides(context=GroupAdmin)
@@ -212,6 +233,8 @@ class GroupShow(admin_views.Show):
         "updated_at"
     ]
 
+    form_generator = SQLAlchemyFormGenerator(includes=includes)
+
     @view_config(context=GroupAdmin.Resource, route_name="admin", name="show", renderer="crud/show.html", permission='view')
     def show(self):
         return super(GroupShow, self).show()
@@ -224,6 +247,8 @@ class GroupAdd(admin_views.Add):
         "description"
     ]
 
+    form_generator = SQLAlchemyFormGenerator(includes=includes)
+
     @view_config(context=GroupAdmin, route_name="admin", name="add", renderer="crud/add.html", permission='add')
     def add(self):
         return super(GroupAdd, self).add()
@@ -231,10 +256,12 @@ class GroupAdd(admin_views.Add):
 
 class GroupEdit(admin_views.Edit):
 
-    includes = admin_views.Edit.includes + [
+    includes = [
         "name",
         "description"
     ]
+
+    form_generator = SQLAlchemyFormGenerator(includes=includes)
 
     @view_config(context=GroupAdmin.Resource, route_name="admin", name="edit", renderer="crud/edit.html", permission='edit')
     def edit(self):

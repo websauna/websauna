@@ -2,7 +2,6 @@
 
 Also encapsulate :term:`colanderalchemy` so that we don't need to directly expose it in the case we want to get rid of it later.
 """
-from enum import Enum
 import logging
 
 import colander
@@ -25,22 +24,9 @@ from websauna.compat.typing import Tuple
 from websauna.compat.typing import Optional
 
 from . import fields
-
+from .editmode import EditMode
 
 logger = logging.getLogger(__name__)
-
-
-class EditMode(Enum):
-    """Different edit modes for where a form can be."""
-
-    #: Generate form for viewing contents (read-only)
-    show = 0
-
-    #: Generated form for creating a new object
-    add = 1
-
-    #: Generated form for editing an existing object
-    edit = 2
 
 
 class ColumnToFieldMapper(ABC):
@@ -62,7 +48,7 @@ class ColumnToFieldMapper(ABC):
         """
 
 
-class DefaultFieldMapper(ColumnToFieldMapper):
+class DefaultSQLAlchemyFieldMapper(ColumnToFieldMapper):
     """The default SQLAlchemy to form field and widget mapping implementation.
 
     We support

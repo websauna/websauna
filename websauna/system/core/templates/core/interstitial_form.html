@@ -1,0 +1,19 @@
+{# Interstital promps like yes/no screens snippet.
+
+It is usually used in a situations like delete confirmations (yes/no) or password confirmations (ask password for security reasons before the action can continue).
+
+See :py:mod:`websauna.system.form.interstitial` for more information.
+#}
+
+<form method="POST">
+  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+  {% for choice in choices  %}
+    <button type="submit" id="{{ choice.id }}" name="{{ choice.id }}" class="{{ choice.css_class or 'btn btn-default' }}">
+      {% if choice.icon_class %}
+        <i class="{{ choice.icon_class }}"></i>
+      {% endif %}
+      {{ choice.label }}
+    </button>
+  {% endfor %}
+</form>
+

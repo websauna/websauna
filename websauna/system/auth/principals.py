@@ -36,7 +36,11 @@ def resolve_principals(session_token: str, request: Request) -> Optional[List[st
         principals = ['group:{}'.format(g.name) for g in user_registry.get_groups(user)]
 
         # Allow superuser permission
-        if user.username in superusers or user.email in superusers or (admin_as_superuser and "group:admin" in principals):
+        if user.username in superusers or user.email in superusers:
+            # Superuser explicitly listed in the configuration
+            principals.append("superuser:superuser")
+        elif admin_as_superuser and ("group:admin" in principals):
+            # Automatically promote admins to superusers when doing local development
             principals.append("superuser:superuser")
 
         return principals

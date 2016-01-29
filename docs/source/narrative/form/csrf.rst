@@ -30,7 +30,9 @@ Then later you can use it as::
 Hand-written forms
 ------------------
 
-Include ``csrf_token`` in ``<form>``::
+Include ``csrf_token`` in ``<form>``:
+
+.. code-block:: html+jinja
 
     <form method="POST">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">

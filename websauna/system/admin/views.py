@@ -7,10 +7,13 @@ from websauna.system.admin.modeladmin import ModelAdmin, ModelAdminRoot
 from websauna.system.admin.utils import get_admin
 from websauna.system.crud import views as crud_views
 from websauna.system.crud import listing
+from websauna.system.crud.sqlalchemy import sqlalchemy_deleter
 from websauna.system.crud.views import TraverseLinkButton
+from websauna.system.crud.formgenerator import SQLAlchemyFormGenerator
 from websauna.system.notebook.views import launch_context_sensitive_shell
 
 from websauna.system.core.panel import render_panel
+from websauna.viewconfig import view_overrides
 
 
 @view_config(route_name='admin_home', renderer='admin/admin.html', permission='view')
@@ -70,8 +73,11 @@ class Show(crud_views.Show):
     """Default show view for model admin."""
     base_template = "admin/base.html"
 
+    form_generator = SQLAlchemyFormGenerator()
+
     resource_buttons = [
         TraverseLinkButton(id="edit", name="Edit", view_name="edit", permission="edit"),
+        TraverseLinkButton(id="delete", name="Delete", view_name="delete", permission="delete"),
         TraverseLinkButton(id="shell", name="Shell", view_name="shell", permission="shell", tooltip="Open IPython Notebook shell and have this item prepopulated in obj variable."),
     ]
 
@@ -103,6 +109,8 @@ class Edit(crud_views.Edit):
     """Default edit vie for model admin."""
     base_template = "admin/base.html"
 
+    form_generator = SQLAlchemyFormGenerator()
+
     @view_config(context=ModelAdmin.Resource, name="edit", renderer="crud/edit.html", route_name="admin", permission='edit')
     def edit(self):
         # We override this method just to define admin route_name traversing
@@ -113,10 +121,22 @@ class Add(crud_views.Add):
     """Default add view for model admin."""
     base_template = "admin/base.html"
 
+    form_generator = SQLAlchemyFormGenerator()
+
     @view_config(context=ModelAdmin, name="add", renderer="crud/add.html", route_name="admin", permission='add')
     def add(self):
         # We override this method just to define admin route_name traversing
         return super(Add, self).add()
+
+
+@view_overrides(context=ModelAdmin.Resource, route_name="admin")
+class Delete(crud_views.Delete):
+    """Delete view for SQLAlchemy model admins."""
+
+    base_template = "admin/base.html"
+
+    deleter = sqlalchemy_deleter
+
 
 
 @view_config(context=ModelAdmin, name="", route_name="admin", permission='view')

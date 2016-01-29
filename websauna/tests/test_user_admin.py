@@ -250,3 +250,50 @@ def test_set_enabled(browser:DriverAPI, victim_browser, web_server, init, dbsess
     b2.fill("password", "secret")
     b2.find_by_name("login_email").click()
     assert b2.is_element_present_by_css("#msg-you-are-logged-in")
+
+
+def test_delete_user_confirm(browser, web_server, init, dbsession):
+    """Delete a user."""
+
+    b = browser
+
+    create_logged_in_user(dbsession, init.config.registry, web_server, browser, admin=True)
+
+    # Create another user who we are going to delete
+    with transaction.manager:
+        create_user(dbsession, init.config.registry, email="foobar@example.com")
+
+    b.find_by_css("#nav-admin").click()
+    b.find_by_css("#latest-user-shortcut").click()
+    b.find_by_css("#btn-crud-delete").click()
+    b.find_by_css("#btn-delete-yes").click()
+    assert b.is_element_present_by_css("#msg-item-deleted")
+
+    with transaction.manager:
+        assert dbsession.query(User).count() == 1
+
+
+def test_delete_user_cancel(browser, web_server, init, dbsession):
+    """Delete a user, but back off on the confirmation screen."""
+
+    b = browser
+
+    create_logged_in_user(dbsession, init.config.registry, web_server, browser, admin=True)
+
+    # Create another user who we are going to delete
+    with transaction.manager:
+        create_user(dbsession, init.config.registry, email="foobar@example.com")
+
+    b.find_by_css("#nav-admin").click()
+    b.find_by_css("#latest-user-shortcut").click()
+    b.find_by_css("#btn-crud-delete").click()
+    b.find_by_css("#btn-delete-no").click()
+
+    # Back to the show page
+    assert b.is_element_present_by_css("#crud-show")
+
+    with transaction.manager:
+        assert dbsession.query(User).count() == 2
+
+
+

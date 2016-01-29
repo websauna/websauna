@@ -12,5 +12,11 @@
                 Edit
             </a>
         {% endif %}
+
+        {% if request.has_permission("delete", instance) %}
+            <a href="{{ instance|model_url('delete') }}" class="btn-crud-listing-delete">
+                Delete
+            </a>
+        {% endif %}
     </div>
 </td>

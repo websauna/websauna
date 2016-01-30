@@ -146,6 +146,16 @@ Iterating query
 Updating items
 ==============
 
+.. **When I need to commit?**
+
+
+
+.. note ::
+
+    **Why there is no save()?**
+
+    :term:`SQLAlchemy` has a :term:`state management` mechanism. It tracks what objects you have modified or added via ``dbsession.add()``. On a succesfull commit, all of these changes are written to a database and you do not need to explicitly list what changes need to be saved.
+
 Deleting items
 ==============
 

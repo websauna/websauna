@@ -31,13 +31,23 @@ def facebook_app(request):
     return request.app
 
 
+_web_server = None
+
 @pytest.fixture(scope="module")
 def web_server(request, facebook_app):
     """Run a web server with Facebook login settings."""
 
+    # We cache the web server here, so that @flaky doesn't try to recreate it in the same port
+    # when Zuckerberg's high quality product fails
+    global _web_server
+
     # customized_port must match one in Facebook app settings
-    web_server = customized_web_server(request, facebook_app, customized_port=6662)
-    return web_server()
+    if not _web_server:
+        web_server_factory = customized_web_server(request, facebook_app, customized_port=6662)
+        _web_server = web_server_factory()
+
+    return _web_server
+
 
 
 def do_facebook_login(browser):

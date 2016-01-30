@@ -72,6 +72,6 @@ For more information see :py:meth:`websauna.system.form.csrf.check_csrf_token`.
 Disabling CSRF check
 --------------------
 
-For individual views you can use :py:func:`websauna.system.core.csrf.csrf_exempt` decorator.
+You can disable CSRF check for individual vies with :py:func:`websauna.system.core.csrf.csrf_exempt` decorator.
 
 If your site needs more comprehensive whitelisting strategy you can implement your own :py:func:`websauna.system.core.csrf._check_csrf`. This is configured in :py:meth:`websauna.system.Initializer.configure_forms`.

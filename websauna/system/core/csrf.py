@@ -21,11 +21,13 @@ import hmac
 import urllib.parse
 
 from pyramid.httpexceptions import HTTPForbidden, HTTPMethodNotAllowed
+from pyramid.interfaces import IRequest
 from pyramid.session import check_csrf_token
 from websauna.system.http import Request
 
 from websauna.system.http.header import add_vary
-
+from websauna.utils.traverseattribute import traverse_attribute
+from zope.interface import Interface, alsoProvides
 
 REASON_NO_ORIGIN = "Origin checking failed - no Origin or Referer."
 REASON_BAD_ORIGIN = "Origin checking failed - {} does not match {}."
@@ -36,40 +38,70 @@ class InvalidCSRF(HTTPForbidden):
     pass
 
 
+class IExemptCSRF(Interface):
+    """Marker interface applied to a view function or one of its wrappers to exempt from CSRF exemption."""
 
-def csrf_exempt_request(view):
-    @functools.wraps(view)
-    def wrapped(request):
-        request._process_csrf = False
-        return view(request)
-    return wrapped
+
+def guess_request(view, *args, **kwargs):
+    """Extract request from view arguments.
+
+    Pyramid may place request as the first or second argumetn depending if view gets a context argument."""
+
+    request = kwargs.get("request")
+    if request:
+        return request
+
+    first_arg = args[0]
+    if IRequest.providedBy(first_arg):
+        return first_arg
+
+    if len(args) >= 2:
+        second_arg = args[1]
+        if IRequest.providedBy(second_arg):
+            return second_arg
+
+    raise AssertionError("Could not determine request argument for view: {} args: {} kwargs: {}".format(view, args, kwargs))
 
 
 def csrf_exempt(view):
-    @functools.wraps(view)
-    def wrapped(context, request):
-        request._process_csrf = False
-        return view(context, request)
-    return wrapped
+    """Exclude view from default CSRF check.
 
+    This allows HTTP POSTs to view without the default CSRF token check.
 
-def csrf_protect(view_or_scope):
-    scope = None
-    if isinstance(view_or_scope, str):
-        scope = view_or_scope
+    Example::
 
-    def inner(view):
-        @functools.wraps(view)
-        def wrapped(context, request):
-            request._process_csrf = True
-            request._csrf_scope = scope
-            return view(context, request)
-        return wrapped
+        from pyramid.view import view_config
+        from websauna.system.core.csrf import csrf_exempt
 
-    if scope is None:
-        return inner(view_or_scope)
-    else:
-        return inner
+        @view_config(route_name="csrf_exempt_sample")
+        @csrf_exempt
+        def csrf_exempt_sample(request):
+            assert request.method == "POST"
+            return Response("OK")
+
+    """
+    alsoProvides(view, IExemptCSRF)
+    return view
+
+# This is copy-paste, not integrated or developed
+#
+# def csrf_protect(view_or_scope):
+#     scope = None
+#     if isinstance(view_or_scope, str):
+#         scope = view_or_scope
+#
+#     def inner(view):
+#         @functools.wraps(view)
+#         def wrapped(context, request):
+#             request._process_csrf = True
+#             request._csrf_scope = scope
+#             return view(context, request)
+#         return wrapped
+#
+#     if scope is None:
+#         return inner(view_or_scope)
+#     else:
+#         return inner
 
 
 def _check_csrf(request: Request):
@@ -127,6 +159,14 @@ def csrf_mapper_factory(mapper):
     class CSRFMapper(mapper):
 
         def __call__(self, view):
+
+            # Check if any view or wrapped function marks view for exclusion
+            for wrapped in traverse_attribute(view, "__wrapped__"):
+                if IExemptCSRF.providedBy(wrapped):
+                    # Don't wrap this with CSRF checker
+                    return super().__call__(view)
+
+            # Ok looks like we need to add CSRF checker for this view
             view = super().__call__(view)
 
             @functools.wraps(view)
@@ -134,6 +174,8 @@ def csrf_mapper_factory(mapper):
                 # Assign our view to an innerview function so that we can
                 # modify it inside of the wrapped function.
                 innerview = view
+
+                # Could not find a marker telling us to exempt
 
                 # Check if we're processing CSRF for this request at all or
                 # if it has been exempted from CSRF.

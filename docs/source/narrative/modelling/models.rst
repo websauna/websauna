@@ -74,7 +74,7 @@ If you are planning to build a reusable addon you may choose to declare your mod
 Columns
 -------
 
-Each of your TODO
+TODO
 
 Date and time
 -------------
@@ -142,6 +142,12 @@ Iterating query
 ---------------
 
 .. _cascade:
+
+Updating items
+==============
+
+Deleting items
+==============
 
 Cascades
 ========

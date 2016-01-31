@@ -6,7 +6,6 @@ Frontend and templating
 
     views
     templates
-    templatecontext
     request
     traversal
     tweens

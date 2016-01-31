@@ -37,11 +37,11 @@ def test_login(web_server:str, browser:DriverAPI, dbsession:Session, init:Initia
     b.find_by_css("#nav-sign-in").click()
 
     # Link gives us the login form
-    assert b.is_element_visible_by_css("#login-form")
+    assert b.is_element_present_by_css("#login-form")
 
     b.fill("username", EMAIL)
     b.fill("password", PASSWORD)
     b.find_by_name("login_email").click()
 
     # After login we see a profile link to our profile
-    assert b.is_element_visible_by_css("#nav-logout")
+    assert b.is_element_present_by_css("#nav-logout")

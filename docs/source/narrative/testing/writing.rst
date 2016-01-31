@@ -2,234 +2,169 @@
 Writing tests
 =============
 
+.. contents:: :local:
+
 Testing patterns
 ================
 
-Basic functional testing pattern
---------------------------------
+Here is explained some of the test basics.
 
-The tests usually follow the following format
+Basic integration testing pattern
+---------------------------------
 
-* Initialize py.test test with the fixtures needed to run the test: database, web server, browser
+* py.test is launched with :ref:`test.ini` which contains settings your Websauna application users during the testing, e.g. the name of SQL database where tests write and read data.
 
-* Create data needed to run the test through direct SQLAlchemy model manipulation, including the test user
+* You have your tests as ``myapp/tests/test_xxx.py`` files. How you split test functions to individual files is up to you.
 
-* Perform the test in the test browser through Splinter interaction
+* test function comes with the :term:`test fixtures <test fixture>` arguments needed to run the test. Usually they are
 
-Example test::
+    * ``dbsession`` clean PostgreSQL where all of your model tables are automatically created. See :py:func:`websauna.tests.conftest.dbsession`.
 
-    import transaction
+    * ``web server`` - a string pointing to ``http://localhost:8543`` or any other address where a web server is running WSGI application with settings from ``test.ini``. See :py:func:`websauna.tests.conftest.web_server`.
 
-    from websauna.system import DBSession
-    from websauna.tests.utils import login
+    * ``browser`` - a :term:`Splinter` browser instance. It's Firefox by default. You can change it to Chrome with ``py.test --splinter-webdriver=chrome`` argument. See :py:func:`pytest_splinter.plugin.browser`.
 
-    from trees import usermodels
+    * ``init`` expose :py:class:`websauna.system.Initializer` instance of your Websauna application for testing. This is usually required for tests to access ``init.registry`` or ``init.config``. See :py:func:`websauna.tests.conftest.init`.
 
+* When test is reading or writing a database with must happen inside a ``transaction.manager`` context manager.
 
-    def test_set_arrival_message(web_server, browser, dbsession, init):
-        """Set the Driver arrival message."""
+* You can use ``assert`` statement to check that the database values are what you expect or that page elements what you expect are present. `Using plain assert statement is a py.test speciality <http://pytest.org/latest/assert.html>`_. py.test will convert assert statement to something else which gives you a diff output of diverting results.
 
-        b = browser
+* You need to know :term:`CSS` basics (ids and classes) to be able to identify the elements on the page being tested.
 
-        # Initialize test by creating an user and making him a member of driver group
-        with transaction.manager:
-            user = create_user()
-            g = usermodels.Group(name="driver")
-            DBSession.flush()
-            g.users.append(user)
+Example test which comes with the default :ref:`scaffold` (``myapp/tests/test_login.py``):
 
-        # Login in user we just created
-        login(web_server, browser)
+.. code-block:: python
 
-        # Go to driver profile
-        b.find_by_css("#nav-profile").click()
-        b.find_by_css("#nav-profile-driver").click()
-
-        # Update settings
-        b.fill("arrival_message", "Driver will be here shortly")
-        b.find_by_name("save").click()
-
-        # Check settings were saved successfully
-        assert b.is_text_present("Driver settings saved")
-        assert b.find_by_name("arrival_message").value == "Driver will be here shortly"
-
-
-Testing form submissions
-------------------------
-
-Preface: You want to test your form submission works in success and error situations.
-
-Example form handler view::
-
-    """Subscribe to newsletter."""
-    import logging
-
-    import deform
-    import deform.widget
-    import colander as c
-
-    from pyramid.httpexceptions import HTTPTooManyRequests
-    from pyramid_deform import CSRFSchema
-    from tomb_routes import simple_route
-
-    from websauna.system.core import messages
-    from websauna.system.mail import send_templated_mail
-    from websauna.system.model import now
-    from websauna.system.form import rollingwindow
-
-    from trees.models import NewsletterSubscriber
-
-    #: Which session flag tells that the visitor already went through newsletter dialog
-    SESSION_SUBSCRIBE_KEY = "subscribed_newsletter"
-
-
-    logger = logging.getLogger(__name__)
-
-
-    class SubscribeNewsLetter(CSRFSchema):
-
-        email = c.SchemaNode(
-            c.String(),
-            validator=c.Email(),
-            widget=deform.widget.TextInputWidget(template="textinput_placeholder", type="email",  placeholder="Type in your email here"),
-        )
-
-
-    def get_newsletter_form(request):
-        schema = SubscribeNewsLetter().bind(request=request)
-        form = deform.Form(schema, buttons=("subscribe", ))
-        return form
-
-
-    @simple_route("/newsletter", route_name="newsletter", renderer='views/newsletter.html', append_slash=False)
-    def newsletter(request):
-        """Subscribe to news letter from handling."""
-
-        form = get_newsletter_form(request)
-        rendered_form = form.render()
-
-        if request.method == "POST":
-
-            # Limit to 60 subscriptions / hour
-            limit = int(request.registry.settings.get("trees.newsletter_subscription_limit", 60))
-
-            if rollingwindow.check(request.registry, "invite_friends", window=3600, limit=limit):
-                # Alert devops through Sentry
-                logger.warn("Newsletter subscription overflow")
-                return HTTPTooManyRequests("Too many subscriptions to the newsletter. Please wait 10 minutes and try again.")
-
-            if "subscribe" in request.POST:
-                controls = request.POST.items()
-                try:
-                    appstruct = form.validate(controls)
-
-                    email = appstruct["email"]
-                    referrer = request.referrer
-                    ip = request.client_addr
-
-                    subscription, created = NewsletterSubscriber.get_or_create_subscriber(email, referrer, ip)
-
-                    # Send email on subsequent submissions as there might have been failed email delivery
-                    send_templated_mail(request, [email], "views/email/welcome", locals())
-
-                    if created:
-                       messages.add(request, kind="success", msg="Thank you! Check your inbox {} for information and coupon code.".format(email))
-                    else:
-                        messages.add(request, kind="error", msg="Email address {} is already subscribed.".format(email))
-
-                except deform.ValidationFailure as e:
-                    rendered_form = e.render()
-
-        return locals()
-
-Then you can bang it with the following functional test case::
+    """An example login test case."""
 
     import transaction
 
-    from trees.models import NewsletterSubscriber
-    from websauna.system.model import DBSession
+    from sqlalchemy.orm.session import Session
+    from splinter.driver import DriverAPI
+
+    from websauna.tests.utils import create_user
+    from websauna.tests.utils import EMAIL  # this is example@example.com
+    from websauna.tests.utils import PASSWORD  # this is random letters
+    from websauna.system import Initializer
 
 
+    def test_login(web_server:str, browser:DriverAPI, dbsession:Session, init:Initializer):
+        """Login as a user to the site.
 
-    def test_subscribe_newsletter(dbsession, web_server, browser):
-        """Visitor can subscribe to a newsletter."""
+        This is a functional test. Prepare the test by creating one user in the database. Then try to login as this user by using Splinter test browser.
 
-        b = browser
-        b.visit(web_server + "/newsletter")
+        :param web_server: Functional web server py.test fixture - this string points to a started web server with test.ini configuration.
 
-        b.fill("email", "foobar@example.com")
-        b.find_by_name("subscribe").click()
+        :param browser: A Splinter web browser used to execute the tests. By default ``splinter.driver.webdriver.firefox.WebDriver``, but can be altered with py.test command line options for pytest-splinter.
 
-        # Displayed as a message after succesful form subscription
-        assert b.is_text_present("Thank you!")
+        :param dbsession: Active SQLAlchemy database session for the test run.
 
-        # Check we get an entry
+        :param init: Websauna Initializer which ramps up the environment with the default ``test.ini`` and exposes the test config.
+        """
+
         with transaction.manager:
-            assert DBSession.query(NewsletterSubscriber).count() == 1
-            subscription = DBSession.query(NewsletterSubscriber).first()
-            assert subscription.email == "foobar@example.com"
-            assert subscription.ip == "127.0.0.1"
+            # Create a dummy example@example.com user we test
+            create_user(dbsession, init.config.registry, email=EMAIL, password=PASSWORD)
 
-
-
-    def test_subscribe_newsletter_twice(dbsession, web_server, browser):
-        """The second newsletter subscription attempt gives error message."""
-
+        # Direct Splinter browser to the website
         b = browser
-        b.visit(web_server + "/newsletter")
-        b.fill("email", "foobar@example.com")
-        b.find_by_name("subscribe").click()
+        b.visit(web_server)
 
-        # And again
-        b.visit(web_server + "/newsletter")
-        b.fill("email", "foobar@example.com")
-        b.find_by_name("subscribe").click()
+        # This link should be in the top navigation
+        b.find_by_css("#nav-sign-in").click()
 
-        # Error message displayed if the user tries to subscribe twice
-        assert b.is_text_present("already subscribed")
+        # Link gives us the login form
+        assert b.is_element_present_by_css("#login-form")
 
-        # Check we don't get double entry
-        with transaction.manager:
-            assert DBSession.query(NewsletterSubscriber).count() == 1
-
-Checking if email has been sent
--------------------------------
-
-Make sure your tests use stdout mailer, as set in your ``test.ini``::
-
-    websauna.mailer = websauna.system.mail.StdoutMailer
-
-Then follow the example to how to detect outgoing mail happening outside the main test thread::
-
-    import transaction
-
-    from websauna.tests.utils import create_user, EMAIL, PASSWORD
-    from websauna.system.mail.utils import get_mailer
-    from websauna.tests.utils import wait_until
-
-
-    def test_invite_by_email(web_server, browser, dbsession, init):
-
-        b = browser
-        with transaction.manager:
-            create_user()
-
-        # Reset test mailer at the beginnign of the test
-        mailer = get_mailer(init.config.registry)
-        mailer.send_count = 0
-
-        # Login
-        b.visit(web_server + "/login")
         b.fill("username", EMAIL)
         b.fill("password", PASSWORD)
-        b.find_by_name("Log_in").click()
+        b.find_by_name("login_email").click()
 
-        # We should waiting for the payment m
-        b.find_by_css("#nav-invite-friends").click()
+        # After login we see a profile link to our profile
+        assert b.is_element_present_by_css("#nav-logout")
 
-        b.fill("email", "example@example.com")
-        b.find_by_name("invite").click()
 
-        # Transaction happens in another thread and mailer does do actual sending until the transaction is finished. We need to wait in the test main thread to see this to happen.
-        wait_until(callback=lambda: mailer.send_count, expected=1)
+Useful Splinter functions
+=========================
 
+You'll find following :term:`Splinter` driver API functions useful when writing tests. `See Splinter documentation for full information <http://splinter.readthedocs.org/>`__.
+
+* :py:meth:`splinter.driver.DriverAPI.visit`. - open a web page by URL
+
+* :py:meth:`splinter.driver.DriverAPI.is_element_present_by_css`.
+
+* :py:meth:`splinter.driver.DriverAPI.is_visible_present_by_css`. (explicitly check if we can interact with the element e.g. in the case of :term:`JavaScript` dialogs.
+
+* :py:meth:`splinter.driver.DriverAPI.fill`. - fill in a form field
+
+* :py:meth:`splinter.driver.DriverAPI.find_by_name`. - find a form element by its name
+
+* :py:meth:`splinter.driver.ElementAPI.click`. - click a selected element
+
+* :py:meth:`splinter.driver.DriverAPI.is_text_present`. - check if a text string is present on the page. Use scarcely, as this function is very slow. Prefer explicit CSS id checks if possible.
+
+Inspecting page elements during test
+====================================
+
+How do you get known to all CSS element ids, form input names and other page elements you are using in the test?
+
+* Put a Python pdb breakpoint in a line where you want to write an assert
+
+* Run test
+
+* Test execution stops at the breakpoint
+
+* Use Firefox (or Chrome) Web developer tools and Inspector tool to browse the page.
+
+Here is a test from above with a PDB breakpoint where we want to identify how to check if a login form is present on the page:
+
+.. code-block:: python
+
+    def test_login(web_server:str, browser:DriverAPI, dbsession:Session, init:Initializer):
+
+        with transaction.manager:
+            # Create a dummy example@example.com user we test
+            create_user(dbsession, init.config.registry, email=EMAIL, password=PASSWORD)
+
+        # Direct Splinter browser to the website
+        b = browser
+        b.visit(web_server)
+
+        # This link should be in the top navigation
+        b.find_by_css("#nav-sign-in").click()
+
+        # Link gives us the login form
+        import pdb ; pdb.set_trace()
+        assert b.is_element_visible_by_css("???")
+
+Now when you run the test the execution stops on debugger line::
+
+    ==== test session starts ====
+    platform darwin -- Python 3.4.2, pytest-2.8.7, py-1.4.31, pluggy-0.3.1
+    rootdir: /Users/mikko/code/trees/myapp, inifile:
+    plugins: splinter-1.6.7, flaky-3.0.3, cov-1.8.1, timeout-0.4
+    collected 1 items
+
+    myapp/tests/test_login.py
+    >>>>>>>>>> PDB set_trace (IO-capturing turned off) >>>>>>>>>>>>>
+    [44] > /Users/mikko/code/trees/myapp/myapp/tests/test_login.py(42)test_login()
+    -> assert b.is_element_visible_by_css("#login-form")
+    (Pdb++)
+
+The test browser (Firefox) should have opened when the test run starts. Now switch to Firefox and you should see the page being tested.
+
+.. image:: ../images/test-inspect-1.png
+    :width: 640px
+
+Choose *Tools* -> *Web Developer* -> *Inspector* (This is also available from Firefox right click menu):
+
+.. image:: ../images/test-inspect-2.png
+    :width: 640px
+
+Now you can use Inspect tool to examine the page :term:`DOM` tree and find the id of ``<form>`` element:
+
+.. image:: ../images/test-inspect-3.png
+    :width: 640px
+
+Pick the id from the inspector and use it with :py:meth:`splinter.driver.DriverAPI.is_element_present_by_css`.

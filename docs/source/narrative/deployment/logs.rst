@@ -2,7 +2,6 @@
 Logs
 ====
 
-
 Checking production logs
 ========================
 
@@ -19,3 +18,5 @@ To see the traceback for these exceptions in production you can do:
     # Shows last 50 rows of uWSGI log
     tail -n 50 logs/uwsgi.log
 
+
+See :doc:`post deployment information <./postinfo>` for all available log files.

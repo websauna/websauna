@@ -3,11 +3,16 @@
 Glossary
 ========
 
+Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>`__.
+
 .. glossary::
     :sorted:
 
     ACID
         In computer science, ACID (Atomicity, Consistency, Isolation, Durability) is a set of properties that guarantee that database transactions are processed reliably. `More info <https://en.wikipedia.org/wiki/ACID>`__.
+
+    ACL
+        An access control list (ACL), with respect to a computer file system, is a list of permissions attached to an object. An ACL specifies which users or system processes are granted access to objects, as well as what operations are allowed on given objects. `Read about ACL in Pyramid <http://docs.pylonsproject.org/projects/pyramid/en/1.0-branch/narr/security.html#elements-of-an-acl>`__.
 
     admin
         The admin section of a Websauna site. Logged in users with admin privileges can go to this section and see and edit all the site data. :doc:`Read Websauna admin documentation <../narrative/crud/admin>`.
@@ -53,13 +58,16 @@ Glossary
         Cascading Style Sheets (CSS) is a style sheet language used for describing the presentation of a document written in a markup language. It's most often used to set the visual style of web pages and user interfaces written in HTML and XHTML. `More info <https://en.wikipedia.org/wiki/Cascading_Style_Sheets>`__.
 
     deform
-        A form framework suggested by Websauna. :doc:`Read Websauna form documentation <../narrative/form/form>`. `See widget samples <http://demo.substanced.net/deformdemo/>`_. `More info <http://deform.readthedocs.org/en/latest/>`__.
+        A form framework suggested by Websauna. :doc:`Read Websauna form documentation <../narrative/form/form>`. `See widget samples <http://demo.substanced.net/deformdemo/>`__. `More info <http://deform.readthedocs.org/en/latest/>`__.
 
     development
         Development is the stage of the deployment when the developer is locally working on the code on a local machine. See :ref:`development.ini`.
 
     duplicity
         Duplicity backs directories by producing encrypted tar-format volumes and uploading them to a remote or local file server. Because duplicity uses librsync, the incremental archives are space efficient and only record the parts of files that have changed since the last backup. Because duplicity uses GnuPG to encrypt and/or sign these archives, they will be safe from spying and/or modification by the server. `More info <http://duplicity.nongnu.org/>`__.
+
+    DOM
+        The Document Object Model (DOM) is a cross-platform and language-independent convention for representing and interacting with objects in parsed HTML, XHTML, and XML documents. The nodes of every document are organized in a tree structure, called the DOM tree. Objects in the DOM tree may be addressed and manipulated by using methods on the objects. The public interface of a DOM is specified in its application programming interface (API). `More information <https://en.wikipedia.org/wiki/Document_Object_Model>`__.
 
     DoS
         In computing, a denial-of-service (DoS) attack is an attempt to make a machine or network resource unavailable to its intended users, such as to temporarily or indefinitely interrupt or suspend services of a host connected to the Internet. A distributed denial-of-service (DDoS) is where the attack source is more than one–and often thousands of-unique IP addresses. `More information <https://en.wikipedia.org/wiki/Denial-of-service_attack>`__.
@@ -88,8 +96,14 @@ Glossary
     IPython Notebook
         A powerful browser based shell for a Python. Popular in scientific community and data analysis. See `IPython Notebook site <http://ipython.org/notebook.html>`__ for more information.
 
+    HTML
+        HyperText Markup Language, commonly referred to as HTML, is the standard markup language used to create web pages. Along with :term:`CSS`, and :term:`JavaScript`, HTML is a cornerstone technology, used by most websites to create visually engaging webpages, user interfaces for web applications, and user interfaces for many mobile applications. `More information <https://en.wikipedia.org/wiki/HTML>`__.
+
     isolation level
         How database handles transactions where there is a :term:`race condition`. See also :term:`ACID`.
+
+    JavaScript
+        JavaScript is a high-level, dynamic, untyped, and interpreted programming language. It has been standardized in the ECMAScript language specification. Alongside :term:`HTML` and :term:`CSS`, it is one of the three essential technologies of World Wide Web content production; the majority of websites employ it and it is supported by all modern web browsers without plug-ins. `More information <https://en.wikipedia.org/wiki/JavaScript>`__.
 
     Jinja
         Jinja2 is a modern and designer-friendly templating language for Python, modelled after Django’s templates. It is fast, widely used and secure with the optional sandboxed template execution environment. `Read more <http://jinja.pocoo.org/docs/dev//>`__.
@@ -102,6 +116,9 @@ Glossary
 
     Less
         Less is a :term:`CSS` pre-processor, meaning that it extends the CSS language, adding features that allow variables, mixins, functions and many other techniques that allow you to make CSS that is more maintainable, themable and extendable. `Read more <http://lesscss.org/>`__.
+
+    mock
+        Using mock allows you to replace parts of your system under test with mock objects and make assertions about how they have been used. In :term:`Python` this is done using `Mock library <https://pypi.python.org/pypi/mock>`__.
 
     model
         A model is a Python class describing :term:`persistent` data structure. A model provides convenient Python API to manipulate your data, so that save and load it into a :term:`database`. :doc:`More information <../narrative/modelling/models>`.
@@ -148,6 +165,9 @@ Glossary
     pytest
         pytest is a mature full-featured Python testing tool that provides easy no-boilerplate testing, scales from simple unit to complex functional testing and integrates with other testing methods and tools. `More information <https://en.wikipedia.org/wiki/Deployment_environment#Production>`__.
 
+    Python
+        Python is a programming language that lets you work quickly and integrate systems more effectively. `Learn more <https://www.python.org/>`__.
+
     PostgreSQL
         The world's most advanced open source database. PostgreSQL is a powerful, open source object-relational database system. It has more than 15 years of active development and a proven architecture that has earned it a strong reputation for reliability, data integrity, and correctness. `More information <http://postgresql.org/>`__.
 
@@ -166,8 +186,14 @@ Glossary
     resource
         In :term:`traversal` resource class presents one path part of the hierarchy. More information in :doc:`traversal documentation <../narrative/frontend/traversal>`
 
+    Robot Framework
+        Robot Framework is a generic test automation framework for acceptance testing and acceptance test-driven development (ATDD). It has easy-to-use tabular test data syntax and it utilizes the keyword-driven testing approach. Its testing capabilities can be extended by test libraries implemented either with Python or Java, and users can create new higher-level keywords from existing ones using the same syntax that is used for creating test cases. `More information <http://robotframework.org/>`__.
+
     sanity check
         Sanity check is a Websauna feature which prevents starting up a website in a state where Python code is inconsistent with databases. It checks all databases are up and models are correctly declared in the database. See :ref:`websauna.sanity_check` setting for more info.
+
+    SSH
+        Secure Shell, or SSH, is a cryptographic (encrypted) network protocol to allow remote login and other network services to operate securely over an unsecured network. `More information <https://en.wikipedia.org/wiki/Secure_Shell>`__.
 
     scaffold
         A project skeleton which generates a starting point for your application. Websauna uses `Pyramid scaffolding <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/scaffolding.html>`__ for its ``websauna_app`` and ``websauna_addon`` scaffols.
@@ -202,6 +228,9 @@ Glossary
     state management
         :term:`SQLAlchemy` database session keeps automatically track of objects you have modified.
         `More information <http://docs.sqlalchemy.org/en/latest/orm/session_state_management.html>`__.
+
+    test fixture
+        The purpose of test fixtures is to provide a fixed baseline upon which tests can reliably and repeatedly execute. This pattern is extensively used by :term:`pytest`. `More information <http://pytest.org/latest/fixture.html>`__.
 
     testing
         Testing is the development face when automated test suite is executed against your application. See :ref:`test.ini` configuration reference. See :doc:`How to write and run tests <../narrative/testing/writing>`.

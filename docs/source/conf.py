@@ -307,6 +307,7 @@ intersphinx_mapping = {
     'jinja2': ('http://docs.pylonsproject.org/projects/pyramid-jinja2/en/latest/', None),
     'pylonswebframework': ('http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/', None),
     'python': ('http://docs.python.org/3', None),
+    'splinter': ('http://splinter.readthedocs.org/en/latest/', None),
     'sqla': ('http://docs.sqlalchemy.org/en/latest', None),
     'tm': ('http://docs.pylonsproject.org/projects/pyramid_tm/en/latest/',         None),
     'toolbar':         ('http://docs.pylonsproject.org/projects/pyramid-debugtoolbar/en/latest', None),

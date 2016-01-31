@@ -18,6 +18,7 @@ How to get your site from local development to production.
     email
     staging
     postinfo
+    logs
     providers/amazon
     troubleshooting
 

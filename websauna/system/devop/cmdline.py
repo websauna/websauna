@@ -54,3 +54,28 @@ def init_websauna(config_uri: str, sanity_check: bool=False) -> Request:
 
     return pyramid_env["request"]
 
+
+
+def init_websauna_script_env(config_uri: str) -> dict:
+    """Initialize Websauna WSGI application for a IPython notebook.
+
+    :param config_uri: Path to config INI file
+
+    :return: Dictionary of shell variables
+    """
+
+    monkey_patch_paster_config_parser()
+
+    setup_logging(config_uri)
+
+    bootstrap_env = bootstrap(config_uri, options=dict(sanity_check=False))
+    app = bootstrap_env["app"]
+    initializer = getattr(app, "initializer", None)
+    assert initializer is not None, "Configuration did not yield to Websauna application with Initializer set up"
+
+    pyramid_env = scripting.prepare(registry=app.initializer.config.registry)
+    pyramid_env["app"] = app
+    pyramid_env["initializer"] = initializer
+
+    return pyramid_env
+

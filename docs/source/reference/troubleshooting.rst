@@ -4,7 +4,7 @@ Troubleshooting
 
 This chapter contains common issues and how to diagnose them.
 
-..
+.. contents:: :local:
 
 Database connection hangs
 -------------------------
@@ -45,3 +45,22 @@ And then:
 .. code-block:: sql;
 
     SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = 'TARGET_DB' AND pid <> pg_backend_pid();
+
+
+Notebook doesn't get context variables
+--------------------------------------
+
+If your IPython Notebook (web) fails to start with the default variables filled it is usually due to ``ImportError`` in the variable definitions.
+
+* Log in to your server
+
+* Find the IPython Notebook startup file, usually located like::
+
+    /srv/pyramid/myapp/notebooks/user-1/.ipython/profile_default/startup/startup.py
+
+* Execute ``startup.py`` directly from a Notebook prompt
+
+.. code-block:: pycon
+    >>> exec(open("/srv/pyramid/myapp/notebooks/user-1/.ipython/profile_default/startup/startup.py").read())
+
+This should show the actual error which causes the context information failure. Then fix your startup script.

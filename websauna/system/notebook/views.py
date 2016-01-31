@@ -7,6 +7,20 @@ from pyramid_notebook.views import notebook_proxy as _notebook_proxy
 from websauna.system.core.csrf import csrf_exempt
 from websauna.system.model.meta import Base
 
+# Don't do changedir as it doesn't work. TODO: fix bad change_dir in upstream
+WEBSAUNA_BOOSTRAP = """
+import os
+
+from pyramid_notebook.utils import change_directory
+from websauna.system.devop.cmdline import init_websauna_script_env
+
+# Our development.ini, production.ini, etc.
+config_file = '{}'
+
+script_env = init_websauna_script_env(config_file)
+globals().update(script_env)
+"""
+
 
 #: Include our database session in notebook so it is easy to query stuff right away from the prompt
 SCRIPT = """
@@ -20,6 +34,7 @@ GREETING="""
 * **sqlalchemy** - sqlachemy module
 * **dbsession** - SQLAlchemy database session
 * **now()** - UTC time as timezone aware datetime object
+* **initializer** - websauna.system.Initializer instance
 """
 
 
@@ -37,7 +52,7 @@ def launch_context_sensitive_shell(request, extra_script="", extra_greeting=""):
     # Get the reference to our Pyramid app config file and generate Notebook
     # bootstrap startup.py script for this application
     config_file = global_config["__file__"]
-    startup.make_startup(nb, config_file)
+    startup.make_startup(nb, config_file, bootstrap_py=WEBSAUNA_BOOSTRAP)
     startup.add_script(nb, SCRIPT)
     startup.add_greeting(nb, GREETING)
 

@@ -6,6 +6,7 @@ Forms
 
     form
     autoform
+    sql
     csrf
     resourceregistry
     throttling

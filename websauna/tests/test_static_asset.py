@@ -62,7 +62,7 @@ def test_map_static_asset(browser, caching_web_server):
         shutil.rmtree(cache)
 
     # Run static asset collecteor
-    execute_command(["ws-collect-static", STATIC_CONF_FILE], folder=os.getcwd())
+    execute_command(["ws-collect-static", STATIC_CONF_FILE], folder=os.getcwd(), timeout=30.0)
 
     b = browser
     b.visit(caching_web_server)

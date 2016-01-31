@@ -8,6 +8,7 @@ References
     templatecontext
     config
     commands
+    playbook
     troubleshooting
     glossary
 

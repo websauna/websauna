@@ -15,6 +15,7 @@
 * We have separate variable files for required, optional an default variables
 
 """
+import sys
 
 import os
 
@@ -200,13 +201,13 @@ def find_yaml_commented_vars(playbook_file: str):
 
             if not comment:
                 if key != "config_description":
-                    print("No description provided for a variable {}".format(key))
+                    print("No description provided for a variable {}".format(key), file=sys.stderr)
                     comment = "No description provided at the moment."
 
             vars[key] = {"comment": comment, "value": value}
 
     if not "config_description" in vars:
-        print("Playbook doesn't provide config_description ", playbook_file)
+        print("Playbook doesn't provide config_description ", playbook_file, file=sys.stderr)
 
     config_description = vars.pop("config_description", None)
     if config_description:

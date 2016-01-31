@@ -1,3 +1,4 @@
+import os
 from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
 from pyramid_notebook import startup
@@ -9,8 +10,8 @@ from websauna.system.model.meta import Base
 
 # Don't do changedir as it doesn't work. TODO: fix bad change_dir in upstream
 WEBSAUNA_BOOSTRAP = """
-import os
 from pkg_resources import load_entry_point
+from pyramid_notebook.utils import change_directory
 
 # We need to use this to trigger a proper namespaced package loading
 # due to different approaches between pip / easy_install / python setup.py develop
@@ -20,10 +21,12 @@ entry_point  = load_entry_point('websauna', 'console_scripts', 'ws-shell')
 from websauna.system.devop.cmdline import init_websauna_script_env
 
 # Our development.ini, production.ini, etc.
-config_file = '{}'
+config_file = '{config_uri}'
 
-script_env = init_websauna_script_env(config_file)
-globals().update(script_env)
+with change_directory('{cwd}'):
+    script_env = init_websauna_script_env(config_file)
+    globals().update(script_env)
+
 """
 
 
@@ -57,7 +60,7 @@ def launch_context_sensitive_shell(request, extra_script="", extra_greeting=""):
     # Get the reference to our Pyramid app config file and generate Notebook
     # bootstrap startup.py script for this application
     config_file = global_config["__file__"]
-    startup.make_startup(nb, config_file, bootstrap_py=WEBSAUNA_BOOSTRAP)
+    startup.make_startup(nb, config_file, bootstrap_py=WEBSAUNA_BOOSTRAP, cwd=os.getcwd())
     startup.add_script(nb, SCRIPT)
     startup.add_greeting(nb, GREETING)
 

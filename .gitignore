@@ -26,6 +26,7 @@ alembic.ini
 docs/source/api/*
 docs/source/reference/templates.rst
 docs/source/reference/templatecontext.rst
+docs/source/reference/playbook.rst
 docs/source/api/index.rst
 
 # Visual Paradigm backups

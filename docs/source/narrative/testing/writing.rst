@@ -113,6 +113,8 @@ You'll find following :term:`Splinter` driver API functions useful when writing 
 
 * :py:meth:`splinter.driver.DriverAPI.is_text_present`. - check if a text string is present on the page. Use scarcely, as this function is very slow. Prefer explicit CSS id checks if possible.
 
+* :py:meth:`websauna.tests.utils.create_logged_in_user`. - Create a new user and make it log in to the site using a given ``browser``
+
 Inspecting page elements during test
 ====================================
 

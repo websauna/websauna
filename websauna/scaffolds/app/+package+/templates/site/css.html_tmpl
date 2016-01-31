@@ -7,7 +7,7 @@
 <link href="//netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
 
 {# Include some default Websauna styles #}
-<link rel="stylesheet" href="{{ 'websauna.system:static/theme.css'|static_url }}">
+<link rel="stylesheet" href="{[ 'websauna.system:static/theme.css'|static_url ]}">
 
 {# Include {{package}} package theme #}
 <link rel="stylesheet" href="{[ '{{package}}:static/theme.css'|static_url ]}">

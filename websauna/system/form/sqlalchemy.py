@@ -221,6 +221,13 @@ class UUIDModelSet(ModelSet):
 
     match_column = "uuid"
 
+    def __init__(self, model: type=None, match_column: str=None):
+        if model:
+            self.model = model
+
+        if match_column:
+            self.match_column = match_column
+
     def preprocess_cstruct_values(self, node, cstruct):
         """Parse incoming form values to Python objects if needed.
         """

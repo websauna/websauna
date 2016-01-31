@@ -10,8 +10,13 @@ from websauna.system.model.meta import Base
 # Don't do changedir as it doesn't work. TODO: fix bad change_dir in upstream
 WEBSAUNA_BOOSTRAP = """
 import os
+from pkg_resources import load_entry_point
 
-from pyramid_notebook.utils import change_directory
+# We need to use this to trigger a proper namespaced package loading
+# due to different approaches between pip / easy_install / python setup.py develop
+# (it doesn't matter which entry point we load as long as it's from websauna package)
+entry_point  = load_entry_point('websauna', 'console_scripts', 'ws-shell')
+
 from websauna.system.devop.cmdline import init_websauna_script_env
 
 # Our development.ini, production.ini, etc.

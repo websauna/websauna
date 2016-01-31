@@ -110,9 +110,14 @@ def outindent(jinja_ctx, context: str, **kw):
     """Jinja filter to add 4 spaces to the beginning of each line."""
 
     # YAML parsers exposes lists as is
-    if type(context) == list:
+    if isinstance(context, CommentedSeq):
+        result = ""
+        for item in context:
+            result += " - " + str(item) + "\n"
+        context = result
 
-        context = "\n - ".join(context)
+    if type(context) != str:
+        context = str(context)
 
     lines = context.split("\n")
     new_lines = ["    " + line for line in lines]
@@ -148,16 +153,28 @@ def flatten_comment(seq):
         if not item:
             continue
         if isinstance(item, CommentToken):
+
+            # Mangle away # comment start from the line
             s = item.value
             s = s.strip(" ")
             s = s.lstrip("#")
             s = s.rstrip("\n")
+
+            if s.startswith(" "):
+                s = s[1:]
+
             result.append(s)
 
     if result:
-        return "\n".join(result)
+        raw_comment = "\n".join(result)
     else:
         return ""
+
+    section_header = raw_comment.rfind("---")
+    if section_header >= 0:
+        raw_comment = raw_comment[section_header + 3:]
+
+    return raw_comment
 
 
 
@@ -196,6 +213,9 @@ def find_yaml_commented_vars(playbook_file: str):
         description = config_description["value"]
     else:
         description = "No description"
+
+    vars = OrderedDict(sorted(vars.items(), key=lambda x: x[0]))
+
     return {"description": description, "vars": vars}
 
 

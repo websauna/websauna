@@ -387,7 +387,18 @@ websauna.site_time_zone
 
 See :py:func:`websauna.system.core.vars.site_time_zone`.
 
-Default: :term:`UTC`
+Default: :term:`UTC`.
+
+.. _websauna.template_debugger:
+
+websauna.template_debugger
+--------------------------
+
+Which debugger to invoke when hitting ``{{ debug() }}`` inside a page template.
+
+See :ref:`debug <vars-debug>` template variable.
+
+Default: ``pdb.set_trace`` in :ref:`development.ini`, otherwise turned off.
 
 websauna.test_web_server_port
 -----------------------------
@@ -401,15 +412,6 @@ Default: ``8521``.
 .. _celery-config:
 
 Configuration from other packages
-
-websauna.template_debugger
---------------------------
-
-Which debugger to invoke when hitting ``{{ debug() }}`` inside a page template.
-
-See :ref:`debug <vars-debug>` template variable.
-
-Default: ``pdb.set_trace`` in :ref:`development.ini`, otherwise turned off.
 
 Celery
 ------

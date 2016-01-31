@@ -85,6 +85,15 @@ Example test which comes with the default :ref:`scaffold` (``myapp/tests/test_lo
         assert b.is_element_present_by_css("#nav-logout")
 
 
+How tests know about fixtures?
+------------------------------
+
+Fixures are just Python function argument names, so how the pytest gets to know where the fixtures are coming from?
+
+When a test run starts, pytest scans both pytest plugins and test folders under a test. If any test folders contains a file named ``conftest.py`` pytest imports it. This file has functions with ``@pytest.fixture`` decorator to mark possible fixture test functions can use.
+
+The default ``conftest.py`` is placed in your project by a Websauna application :term:`scaffold`. See :py:mod:`websauna.tests.conftest` for examples.
+
 Useful Splinter functions
 =========================
 

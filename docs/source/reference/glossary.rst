@@ -117,6 +117,9 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
     Less
         Less is a :term:`CSS` pre-processor, meaning that it extends the CSS language, adding features that allow variables, mixins, functions and many other techniques that allow you to make CSS that is more maintainable, themable and extendable. `Read more <http://lesscss.org/>`__.
 
+    Mandrill
+        Mandrill is a reliable, scalable, and secure delivery API for transactional emails from websites and applications. It's ideal for sending data-driven transactional emails, including targeted e-commerce and personalized one-to-one messages. `More information <http://mandrill.com/>`__.
+
     mock
         Using mock allows you to replace parts of your system under test with mock objects and make assertions about how they have been used. In :term:`Python` this is done using `Mock library <https://pypi.python.org/pypi/mock>`__.
 
@@ -149,6 +152,9 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
 
     playbook
         Playbooks are Ansible’s configuration, deployment, and orchestration language. They can describe a policy you want your remote systems to enforce, or a set of steps in a general IT process. `Read more <http://docs.ansible.com/ansible/playbooks.html>`__.
+
+    Postfix
+        Postfix attempts to be fast, easy to administer, and secure mail server. `More information <http://www.postfix.org/>`__.
 
     Pyramid
         Low level web framework Python doing request routing, configuration, sessions and such. See `Pyramid documentation <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/introduction.html>`__.

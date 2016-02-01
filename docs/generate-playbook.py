@@ -30,6 +30,10 @@ TEMPLATE="""
 Playbook variables
 ==================
 
+.. _playbook-vars:
+
+This is a reference of available Ansible Playbook variables for ``websauna.ansible`` playbook. See :ref:`deployment documentation <deployment>` for more information.
+
 .. raw:: html
 
     <!-- Make TOC more readable -->
@@ -68,12 +72,6 @@ Playbook variables
 
 
 .. contents:: :local:
-
-Introduction
-============
-
-SEE :ref:`deployment documentation <deployment>` for Ansible playbook guide.
-
 
 {% for title, module in modules.items() %}
 
@@ -201,7 +199,7 @@ def find_yaml_commented_vars(playbook_file: str):
 
             if not comment:
                 if key != "config_description":
-                    print("No description provided for a variable {}".format(key), file=sys.stderr)
+                    print("No description provided for a variable {} in {}".format(key, playbook_file), file=sys.stderr)
                     comment = "No description provided at the moment."
 
             vars[key] = {"comment": comment, "value": value}
@@ -222,6 +220,7 @@ def find_yaml_commented_vars(playbook_file: str):
 
 # Assume we have checked out websauna.ansible to the same folder as websauna
 modules = OrderedDict()
+modules["Required"] = find_yaml_commented_vars("../../websauna.ansible/required.yml")
 modules["Optional"] = find_yaml_commented_vars("../../websauna.ansible/optional.yml")
 modules["Default"] = find_yaml_commented_vars("../../websauna.ansible/default.yml")
 

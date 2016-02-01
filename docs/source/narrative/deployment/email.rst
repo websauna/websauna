@@ -7,6 +7,8 @@ Introduction
 
 Playbook configures a local :term:`Postfix` mail server on the server. For the convenience, it is recommended to use free :term:`Mandrill` account as upstream SMTP server.
 
+.. _mandrill:
+
 Setting up email
 ================
 

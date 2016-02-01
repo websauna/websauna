@@ -12,11 +12,17 @@ Ansible is driven by a :term:`playbook` which is effectively a linear script of 
 Installation
 ============
 
-Git clone the repository from Github::
+Websauna's playbook ``websauna.ansible`` is provided in a separate :term:`Git` repository. See `websauna.ansible Git repository <https://github.com/websauna/websauna.ansible>`_.
+
+Clone the repository from Github to get started with your Playbook:
+
+.. code-block:: console
 
     git co git@github.com:websauna/websauna.ansible.git
 
-Create a virtual environment for Ansible. This must be separate from any other virtual environment you are working with::
+Create a :term:`virtual environment` for Ansible. This must be a separate from the virtual environment of your application due to Python version differences:
+
+.. code-block:: console
 
     cd websauna.ansible
     virtualenv -p python2.7 venv
@@ -25,9 +31,11 @@ Create a virtual environment for Ansible. This must be separate from any other v
 
 .. note ::
 
-    Ansible runs on Python 2.x only for now. Ansible is a Red Hat product. Red Hat is committed to support Python 2.4 for their enterprise users. As long as Python 2.4 is supported, it is impossible to upgrade Ansible to support Python 3.x due to syntax incompatibilities.
+    Ansible runs on Python 2.x only. Ansible is a Red Hat product. Red Hat is committed to support Python 2.4 for their enterprise users. As long as Python 2.4 is supported, it is impossible to upgrade Ansible to support Python 3.x due to syntax incompatibilities.
 
-Install packaged roles we are going to use::
+Install packaged roles we are going to use inside a cloned playbook. They will be dropped in ``galaxy`` folder inside the playbook folder:
+
+.. code-block:: console
 
     ansible-galaxy install --roles-path=galaxy \
         ANXS.postgresql \
@@ -38,7 +46,7 @@ Install packaged roles we are going to use::
         Stouts.python
 
 
-Create a vault with password. Vault is a secrets file where Ansible stores non-public configuration variables. To avoid retyping the password every time, the default password storing location is in ``~/websauna-ansible-vault.txt`` configured in ``ansible.cfg``:
+Create an Ansible :term:`vault` with a password. The vault is a secrets file where Ansible stores non-public configuration variables. To avoid retyping the password every time, the password is saved in plaintext in your home folder or any other safe location. The default password storing location is in ``~/websauna-ansible-vault.txt`` as configured in ``ansible.cfg``:
 
 .. code-block:: console
 

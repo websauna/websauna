@@ -32,10 +32,4 @@ Besides being able to use command line and program Python, as you have successfu
 Hosting providers
 -----------------
 
-Below are some hosting providers where you can get a server
-
-* `Amazon EC2, t2.micro <https://aws.amazon.com/ec2/pricing/>`_ ($7/mo., eglible to free sign up offer).
-
-* `DigitalOcean <https://www.digitalocean.com/>`_ $10/mo.
-
-* `Hetzner <https://www.hetzner.de/>`_. German, European. Starts around 7€ / mo.
+If you do not have a server yet see :doc:`suggested hosting providers <providers/index>` list.

@@ -92,12 +92,12 @@ This is a reference of available Ansible Playbook variables for ``websauna.ansib
 {{ content.comment }}
 
 {% if content.value %}
-Default value::
+*Default value*::
 
 {{ content.value|outindent }}
 
 {% else %}
-Default value not set.
+*Default value not set.*
 {% endif %}
 
 {% endfor %}

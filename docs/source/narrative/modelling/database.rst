@@ -1,3 +1,5 @@
+.. _persistent:
+
 ================
 Database and SQL
 ================

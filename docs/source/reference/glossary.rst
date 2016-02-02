@@ -129,6 +129,9 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
     migration
         Data migration refers to procedure of changing how data is stored in your database - adding new data columns or changing how old columns behave. It is usually performed one time batch operation per database. Read :doc:`Websauna migrations documentation <../narrative/ops/migrations>`. `More info <https://en.wikipedia.org/wiki/Data_migration>`__.
 
+    Nginx
+        NGINX is a free, open-source, high-performance HTTP server and reverse proxy, as well as an IMAP/POP3 proxy server. NGINX is known for its high performance, stability, rich feature set, simple configuration, and low resource consumption. `More information <https://www.nginx.com/>`__.
+
     notebook
         This refers to :term:`IPython Notebook`. More specifically, in the context of Websauna, the :doc:`the IPython Notebook shell you can open through the website <../narrative/misc/notebook>`.
 
@@ -213,6 +216,10 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
     session fixation
         Session Fixation is an attack that permits an attacker to hijack a valid user session. The attack explores a limitation in the way the web application manages the session ID, more specifically the vulnerable web application. When authenticating a user, it doesn’t assign a new session ID, making it possible to use an existent session ID. `More information <https://www.owasp.org/index.php/Session_fixation>`__.
 
+    shared hosting
+        Shared web hosting service refers to a web hosting service where many websites reside on one web server connected to the Internet. This is generally the most economical option for hosting, as the overall cost of server maintenance is amortized over many customers. `More information <https://en.wikipedia.org/wiki/Shared_web_hosting_service>`__.
+
+
     slug
         Slug is a descriptive part of the URL that is there to make URL more (human) readable.
         `More information <http://stackoverflow.com/questions/427102/what-is-a-slug-in-django>`__.
@@ -235,6 +242,9 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
         :term:`SQLAlchemy` database session keeps automatically track of objects you have modified.
         `More information <http://docs.sqlalchemy.org/en/latest/orm/session_state_management.html>`__.
 
+    TDD
+        Test-driven development (TDD) is a software development process that relies on the repetition of a very short development cycle: first the developer writes an (initially failing) automated test case that defines a desired improvement or new function, then produces the minimum amount of code to pass that test, and finally refactors the new code to acceptable standards. `https://en.wikipedia.org/wiki/Test-driven_development>`__.
+
     test fixture
         The purpose of test fixtures is to provide a fixed baseline upon which tests can reliably and repeatedly execute. This pattern is extensively used by :term:`pytest`. `More information <http://pytest.org/latest/fixture.html>`__.
 
@@ -252,6 +262,9 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
 
     UTC
         Coordinated Universal, abbreviated as UTC, is the primary time standard by which the world regulates clocks and time. It is, within about 1 second, mean solar time at 0° longitude;[1] it does not observe daylight saving time. `More information <https://en.wikipedia.org/wiki/Coordinated_Universal_Time>`__.
+
+    uWSGI
+        The uWSGI project aims at developing a full stack for application servers for various programming languages. Protocols, proxies, process managers and monitors are all implemented using a common api and a common configuration style. `More information <https://uwsgi-docs.readthedocs.org/en/latest/#>`__.
 
     view
         A "view callable" is a callable Python object which is associated with a view configuration; it returns a response object. A view callable accepts a single argument: request, which will be an instance of a :term:`request` object. An alternate calling convention allows a view to be defined as a callable which accepts a pair of arguments: context object and :term:`request`: this calling convention is useful for traversal-based applications in which a context is always very important. A view callable is the primary mechanism by which a developer writes user interface code within :term:`Pyramid`. See :doc:`view documentation for more information <../narrative/frontend/views>`.

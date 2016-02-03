@@ -2,6 +2,7 @@
 import datetime
 import json
 
+import arrow
 from pyramid.config import Configurator
 from pyramid.renderers import render
 from pyramid.threadlocal import get_current_request
@@ -69,6 +70,31 @@ def filter_datetime(jinja_ctx, context, **kw):
         text = text + " ({})".format(tz)
 
     return text
+
+
+
+@contextfilter
+def arrow_format(jinja_ctx, context, *args, **kw):
+    """Format datetime using Arrow formatter string.
+
+    Context must be a time/datetime object.
+
+    :term:`Arrow` is a Python helper library for parsing and formatting datetimes.
+
+    Example:
+
+    .. code-block:: html+jinja
+
+        <li>
+          Offer created at {{ offer.created_at|arrow_format('YYYYMMDDHHMMss') }}
+        </li>
+
+    `See Arrow formatting <http://crsmithdev.com/arrow/>`__.
+    """
+    assert len(args) == 1, "We take exactly one formatter argument, got {}".format(args)
+    assert isinstance(context, (datetime.datetime, datetime.time)), "Got context {}".format(context)
+    a = arrow.get(context)
+    return a.format(fmt=args[0])
 
 
 @contextfilter
@@ -155,7 +181,7 @@ def timestruct(jinja_ctx, context, **kw):
 
 
 @contextfilter
-def fromtimestamp(jinja_ctx, context, **kw):
+def from_timestamp(jinja_ctx, context, **kw):
     """Convert UNIX datetime to timestamp.
 
     Example:
@@ -163,7 +189,7 @@ def fromtimestamp(jinja_ctx, context, **kw):
     .. code-block:: html+jinja
 
         <p>
-            Prestodoctor license expires: {{ prestodoctor.recommendation.expires|fromtimestamp(timezone="US/Pacific")|friendly_time }}
+            Prestodoctor license expires: {{ prestodoctor.recommendation.expires|from_timestamp(timezone="US/Pacific")|friendly_time }}
         </p>
 
     :param context: UNIX timestamps as float as seconds since 1970
@@ -234,6 +260,7 @@ def includeme(config):
     include_filter(config, "escape_js", escape_js)
     include_filter(config, "timestruct", timestruct)
     include_filter(config, "to_json", to_json)
-    include_filter(config, "fromtimestamp", fromtimestamp)
+    include_filter(config, "from_timestamp", from_timestamp)
+    include_filter(config, "arrow_format", arrow_format)
 
 

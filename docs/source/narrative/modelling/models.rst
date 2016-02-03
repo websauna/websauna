@@ -120,14 +120,14 @@ The following is a common pattern to add created and updated at timestamps to yo
     class User:
 
         #: When this account was created
-        created_at = Column(UTCDateTime, default=now)
+        created_at = Column(UTCDateTime, default=now, nullable=False)
 
         #: When the account data was updated last time
-        updated_at = Column(UTCDateTime, onupdate=now)
+        updated_at = Column(UTCDateTime, onupdate=now, nullable=True)
 
 .. note ::
 
-    You can also generate these timestamps on database-side, see ``server_default`` in SQLAlchemy documentation.
+    You can also generate these timestamps using database functions, see ``server_default`` in SQLAlchemy documentation.
 
 Accessing item
 ==============

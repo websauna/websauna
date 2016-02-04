@@ -11,12 +11,33 @@ Websauna applications run on any webserver supporting Python's :term:`WSGI` prot
 
 Websauna is geared towards custom business applications and assumes the application team has full control over a server. A :term:`shared hosting` is possible, but problematic, because in these kind of environments it's often challenging to install required software packages or run background workers. Thus, a full server is recommended for production installations unless you have considerable Python hosting experience. Luckily Linux virtual machines go almost free nowadays. See :ref:`hosting providers` for suggestions.
 
-Default Ansible playbook automatisation
-=======================================
+Ansible playbook automatisation
+===============================
 
-Setting up a full functioning application server from a scratch to a secured state is cumbersome tasks. Websauna uses a tool called :term:`Ansible` to automatize this for. Ansible comes with its server setup scriptiong, called a playbook. The default ``websauna.ansible`` playbook works like this:
+Websauna provides an automated server deployment using :term:`Ansible` tool.
 
-* Have your Websauna application source code committed to a Git repository, private or public
+.. note ::
+
+    **Why ansible?**
+
+    Ansible is a popular deployment automatisation tool. Setting up a functional web server, especially when security is concerned, is a difficult and cumbersome task. Doing tasks by hand may take a day from an advanced sysadmin. Doing your first Linux server setup may take days.
+
+    Websauna's Ansible playbooks brings the essence of a well configured Python web server to an automated process.
+
+    * Commit your source code to a :term:`Git` version control
+
+    * Playbook sets up a server and deploys your application from Git
+
+    The scripted Ansible deployments, playbooks, use linear scripting and are easy to understand even for sysadmin people with no programming background. Furthermore Ansible is written in Python and uses the same Jinja 2 template language as Websauna itself.
+
+People with considerable sysadmin experience or custom deployment requirements are still free to do their own thing. Deploying Websauna is not different from deploying any WSGI application (Pyramid, Flask, Django). Even if you are doing this you can gain insight from default playbook, as playbooks are easy to read and understand for humans too.
+
+How does Websauna's playbook work
+---------------------------------
+
+The playbook is distributed as a separate `websauna.ansible git repository clone <http://github.com/websauna/websauna.ansible>`_.
+
+* Have your application source code committed to a Git repository, private or public
 
 * Take any pristine Linux server with :term:`SSH` access
 
@@ -24,20 +45,22 @@ Setting up a full functioning application server from a scratch to a secured sta
 
 * The playbook takes a SSH connection to the server and runs :term:`playbook` to set up the stack for you
 
-* 30 minutes later your site is running in production, with high security and high performance setup
+* 30-60 minutes later your site is running in production, with sane security and performance defaults
 
-.. note ::
-
-    The current playbook is only tested with Ubuntu Linux 14.04. Making it to work other Linux distributions may require minor modifications.
-
-Deployment architecture
-=======================
+Deployment process
+==================
 
 .. image :: ../images/deployment-model.png
     :width: 640px
 
 
-The deployment model described here is common *development, testing, staging, production* process how new application features are developed and deployed. The default Websauna playbook supports this model. To work with this model you need at least one developer who knows how to use :term:`Git` version control and a server where you will run your website.
+Websauna follows a common *development, testing, staging, production* deployment process defining how new application features are developed and deployed.
+
+* Websauna application scaffold and configuration files support this model
+
+* Websauna Ansible playbook supports this model
+
+To work with this model you need at least one developer who knows how to use :term:`Git` version control and a server where you will run your website.
 
 * The model emphasises the fact you have always a working source code state in a version control and you can take a step back if something fails.
 

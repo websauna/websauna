@@ -47,6 +47,8 @@ The playbook is distributed as a separate `websauna.ansible git repository clone
 
 * 30-60 minutes later your site is running in production, with sane security and performance defaults
 
+* Playbook can perform update for the existing site by pulling in the new version of source code, running database migrations and gracefully restarting all services.
+
 Deployment process
 ==================
 

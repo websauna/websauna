@@ -58,7 +58,7 @@ def do_facebook_login(browser):
     assert fb_user, "Please configure your Facebook secrets as environment variables to run the tests"
     fb_password = os.environ["FACEBOOK_PASSWORD"]
 
-    assert b.is_text_present("Facebook Login")
+    assert browser.is_element_present_by_css(".login_form_label")
 
     # FB login
     b.fill("email", fb_user)
@@ -75,7 +75,7 @@ def do_facebook_login(browser):
 def do_facebook_login_if_facebook_didnt_log_us_already(browser):
     """Facebook doesn't give us login dialog again as the time is so short, or Authomatic does some caching here?."""
 
-    if browser.is_text_present("Facebook Login"):
+    if browser.is_element_present_by_css(".login_form_label"):
         do_facebook_login(browser)
     else:
         # Clicking btn-facebook-login goes directly through to the our login view
@@ -97,7 +97,6 @@ def test_facebook_first_login(web_server, browser, dbsession):
     b.find_by_css(".btn-login-facebook").click()
 
     do_facebook_login_if_facebook_didnt_log_us_already(browser)
-
     assert b.is_element_present_by_css("#msg-you-are-logged-in")
 
     # See that we got somewhat sane data

@@ -13,13 +13,15 @@ Websaunan uses an :term:`SQL` database. :term:`SQLAlchemy` object relations mapp
 
 By default, :term:`PostgreSQL` database software is recommended, though Websauna is compatible, but not tested, with all databases supported by SQLAlchemy.
 
+.. _dbsession:
+
 Accessing database session
 ==========================
 
 All database operations are done through a SQLAlchemy session (:py:class:`sqlalchemy.orm.Session`).
 
 Session in a HTTP request processing
-++++++++++++++++++++++++++++++++++++
+------------------------------------
 
 Session is exposed as :py:attr:`websauna.system.http.Request.dbsession` attribute::
 
@@ -30,7 +32,7 @@ Session is exposed as :py:attr:`websauna.system.http.Request.dbsession` attribut
 ``request.dbsession`` transaction is bound to HTTP request lifecycle. If HTTP request success, the transaction is commited. If HTTP request fails due to a raised exception, but not due to error value return from view, the transaction is rolled back and nothing is written into a database.
 
 Session from other SQLAlchemy model instances
-+++++++++++++++++++++++++++++++++++++++++++++
+---------------------------------------------
 
 This is a common pattern when writing model APIs. You have an existing database object and you want to query related objects. In this case you can grab the session from the existing object using :py:meth:`sqlalchemy.orm.Session.object_session`.
 
@@ -52,7 +54,7 @@ Example::
             return uoa
 
 Session in a command line application
-+++++++++++++++++++++++++++++++++++++
+-------------------------------------
 
 Use :py:func:`websauna.system.devop.cmdline.init_websauna` to create a dummy :py:class:`websauna.system.http.Request` object. It will expose request in similar fashion as for HTTP request.
 
@@ -67,7 +69,7 @@ You need to manually manage transaction lifecycle as there is no real HTTP reque
 
 
 Session in tasks
-++++++++++++++++
+----------------
 
 For :doc:`asynchronous tasks <../misc/task>` session is available through :py:class:`websauna.system.http.Request` given as an compulsory argument for tasks. Transaction-aware tasks maintain their own transction lifecycle and there is no need to invoke transaction manager or commit manually::
 
@@ -79,7 +81,7 @@ For :doc:`asynchronous tasks <../misc/task>` session is available through :py:cl
         u.username = "set by celery"
 
 Session in shell
-++++++++++++++++
+----------------
 
 Session in shell (:term:`notebook`, :ref:`ws-shell`) is available through ``dbsession`` variable. You need to commit the transaction at the end of your shell session using :py:func:`transaction.commit`.
 

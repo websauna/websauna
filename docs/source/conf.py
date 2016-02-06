@@ -124,6 +124,16 @@ html_theme = "sphinx_rtd_theme"
 
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
+# Add Edit on Github link
+html_context = {
+    'display_github' : True,
+    'github_user': "websauna",
+    'github_repo': "websauna",
+    'github_version': "master",
+    'conf_py_path': "/docs/source/",
+    'page_source_suffix': '.rst',
+}
+
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.

@@ -29,6 +29,9 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
     Authomatic
         Authomatic is a framework agnostic library for Python web applications with a minimalistic but powerful interface which simplifies authentication of users by third party providers like Facebook or Twitter through standards like OAuth and OpenID. `More info <http://peterhudec.github.io/authomatic/>`__.
 
+    Base64
+        Base64 is a group of similar binary-to-text encoding schemes that represent binary data in an ASCII string format by translating it into a radix-64 representation. More information <https://en.wikipedia.org/wiki/Base64>`__.
+
     Bootstrap
         Bootstrap is the most popular HTML, CSS, and JS framework for developing responsive, mobile first projects on the web. `More informatin <http://getbootstrap.com/>`__.
 
@@ -204,9 +207,6 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
     sanity check
         Sanity check is a Websauna feature which prevents starting up a website in a state where Python code is inconsistent with databases. It checks all databases are up and models are correctly declared in the database. See :ref:`websauna.sanity_check` setting for more info.
 
-    SSH
-        Secure Shell, or SSH, is a cryptographic (encrypted) network protocol to allow remote login and other network services to operate securely over an unsecured network. `More information <https://en.wikipedia.org/wiki/Secure_Shell>`__.
-
     scaffold
         A project skeleton which generates a starting point for your application. Websauna uses `Pyramid scaffolding <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/scaffolding.html>`__ for its ``websauna_app`` and ``websauna_addon`` scaffols.
 
@@ -222,7 +222,6 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
     shared hosting
         Shared web hosting service refers to a web hosting service where many websites reside on one web server connected to the Internet. This is generally the most economical option for hosting, as the overall cost of server maintenance is amortized over many customers. `More information <https://en.wikipedia.org/wiki/Shared_web_hosting_service>`__.
 
-
     slug
         Slug is a descriptive part of the URL that is there to make URL more (human) readable.
         `More information <http://stackoverflow.com/questions/427102/what-is-a-slug-in-django>`__.
@@ -237,6 +236,13 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
 
     Splinter
         Splinter is an open source tool for testing web applications using Python. It lets you automate browser actions, such as visiting URLs and interacting with their items. `More information <http://splinter.readthedocs.org/>`__.
+
+    SSH
+        Secure Shell, or SSH, is a cryptographic (encrypted) network protocol to allow remote login and other network services to operate securely over an unsecured network. `More information <https://en.wikipedia.org/wiki/Secure_Shell>`__.
+
+    SSH agent
+        SSH is a protocol allowing secure remote login to a computer on a network using public-key cryptography. SSH client programs typically run for the duration of a remote login session and are configured to look for the user's private key in a file in the user's home directory (e.g., .ssh/id_rsa). For added security, it is common to store the private key in an encrypted form, where the encryption key is computed from a passphrase that the user has memorized. Because typing the passphrase can be tedious, many users would prefer to enter it just once per local login session. The most secure place to store the unencrypted key is in program memory, and in Unix-like operating systems, memory is normally associated with a process. A normal SSH client process cannot be used to store the unencrypted key because SSH client processes only last the duration of a remote login session. Therefore, users run a program called ``ssh-agent`` that runs the duration of a local login session, stores unencrypted keys in memory, and communicates with SSH clients using a Unix domain socket. . `More information <https://en.wikipedia.org/wiki/Ssh-agent>`__.
+
 
     staging
         Staging site, in website design, is a website used to assemble, test and review its newer versions before it is moved into production. This phase follows the development phase. The staging phase of the software life-cycle is often tested in an environment (hardware and software) that mirrors that of the production environment. :doc:`Websauna staging configuration <../reference/config>`. `More information <https://en.wikipedia.org/wiki/Staging_site>`__.

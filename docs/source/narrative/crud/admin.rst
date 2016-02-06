@@ -586,7 +586,7 @@ Below is an example using `Light Bootstrap Dashboard <http://www.creative-tim.co
 
 The custom sidebar pulls the contents of *Data* admin menu:
 
-.. codeblock:: html+jinja
+.. code-block:: html+jinja
 
     <ul class="nav">
       <li>

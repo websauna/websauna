@@ -19,7 +19,7 @@ Creating models
 
 The basic model creation pattern is same as in SQLAlchemy (`SQLAlchemy declarative model documentation <http://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/basic_use.html#defining-attributes>`_):
 
-.. code-block::
+.. code-block:: python
 
     import sys
     import datetime
@@ -62,7 +62,7 @@ Websauna provides a model base class :py:class:`websauna.system.model.meta.Base`
 
 If you are planning to build a reusable addon you may choose to declare your model as:
 
-.. code-block::
+.. code-block:: python
 
     class Question:  # <-- It's just plain Python class
 
@@ -71,10 +71,14 @@ If you are planning to build a reusable addon you may choose to declare your mod
 
 ... and then let later the addon consumer to plug-in the model of base class of their choice in :py:class:`websauna.system.Initializer.configure_instrumented_models` by using :py:class:`websauna.system.model.utils.attach_model_to_base`.
 
-Ids: Running counter primary key, UUID or both?
------------------------------------------------
+Primary keys: UUID, running counter or both?
+--------------------------------------------
 
-Websauna uses extensively :term:`UUID`, or more specifically UUID version 4 (random), for ids. They give a 122 bit non-guessable integer as an id and a primary key.
+Websauna has extensively support for using :term:`UUID`, or more specifically UUID version 4 (random), for primary key ids. UUID v4 gives you a 122 bit non-guessable integer with 6 bit for error checking.
+
+.. note ::
+
+    One should never expose a running counter database keys, like a running counter ``id`` to the world. Leaking ids also leaks business intelligence like number of users or number of orders. Furthermore a guessable ids give a malicious party to an ability to guess URL endpoints, scrape data and and exploit other known weaknesses effectively. If possible it is recommended that you do not have  any running counter ids on your models to avoid the issue altogether.
 
 UUID primary keys
 +++++++++++++++++
@@ -99,6 +103,42 @@ However the downside of this approach is that you need to install a server-side 
     create EXTENSION if not EXISTS "uuid-ossp";
 
 ... and also ids are not very human friendly. Accessing objects in shell sessions or communicating ids over a phone is tricky.
+
+Converting UUIDs to Base64 strings and back
++++++++++++++++++++++++++++++++++++++++++++
+
+The default string format of an UUID id is longish and not very URL friendly:
+
+.. code-block:: pycon
+
+    >>> import uuid
+
+    >>> u = uuid.uuid4()
+
+    >>> str(u)
+    '234a7847-2a08-41ef-8443-5194fd089ca1'
+
+For using UUIDs in web context, Websauna offers two helper methods to UUID :term:`Base64` string presentation
+
+* :py:func:`websauna.utils.slug.uuid_to_slug`
+
+* :py:func:`websauna.utils.slug.slug_to_uuid`
+
+Example:
+
+.. code-block:: pycon
+
+    >>> from websauna.utils import slug
+
+    >>> string_id = slug.uuid_to_slug(u)
+
+    # Compact base64 encoded form
+    >>> str(string_id)
+    I0p4RyoIQe-EQ1GU_QicoQ
+
+    # Back to UUID object
+    >>> print(slug.slug_to_uuid('I0p4RyoIQe-EQ1GU_QicoQ'))
+    234a7847-2a08-41ef-8443-5194fd089ca1
 
 Running counter id primary key and UUID column
 ++++++++++++++++++++++++++++++++++++++++++++++
@@ -141,6 +181,21 @@ Only running counter as a primary key
 
 If you have legacy data it is possible to use only running counter ids when referring to data. This includes running counter ids in links too. This is discouraged as this may expose a lot of busines sensitive information (number of users, number of orders) to third parties.
 
+Example:
+
+.. code-block:: python
+
+    from sqlalchemy import Column, String, Integer, ForeignKey
+
+
+    class BasicIdModel(Base):
+
+        #: The table in the database
+        __tablename__ = "basic_id_model"
+
+        #: Database primary key for the row (running counter)
+        id = Column(Integer, autoincrement=True, primary_key=True)
+
 Columns
 -------
 
@@ -166,9 +221,8 @@ Date and time
 
 It is recommended that you store dates and datetimes only in :term:`UTC`. For more information see :ref:`Date and time <datetime>` chapter.
 
-
-Created and updated at timestamps
----------------------------------
+Created and updated timestamps
+------------------------------
 
 The following is a common pattern to add created and updated at timestamps to your models. They provide much convenience when it comes down to diagnose and track issues:
 
@@ -188,17 +242,155 @@ The following is a common pattern to add created and updated at timestamps to yo
 
     You can also generate these timestamps using database functions, see ``server_default`` in SQLAlchemy documentation.
 
-Accessing item
-==============
+Accessing single item
+=====================
 
-By UUID
--------
+First see :ref:`dbsession` information how to get access to database session in different contexts. ``dbsession`` is the root of all SQL queries.
 
-By id
------
+By primary key
+--------------
 
-Iterating query
----------------
+Use :py:meth:`sqlalchemy.orm.Query.get`. Example model:
+
+.. code-block:: python
+
+    class Asset(Base):
+
+        __tablename__ = "asset"
+
+        id = Column(UUID(as_uuid=True),
+            primary_key=True,
+            server_default=sqlalchemy.text("uuid_generate_v4()"),)
+
+You can get an object using a :base64:
+
+    # Use get() as a shorthand method to get one object by primary key
+    >>> from .model import Asset
+    >>> from websauna.utils.slug import slug_to_uuid
+    >>> uuid = slug_to_uuid('I0p4RyoIQe-EQ1GU_QicoQ')
+    >>> dbsession.query(Asset).get(uuid)
+    <Asset>
+
+Or if your primary key is a running counter id object:
+
+.. code-block:: python
+
+    class Question(Base):
+
+        #: The table in the database
+        __tablename__ = "question"
+
+        #: Database primary key for the row (running counter)
+        id = Column(Integer, autoincrement=True, primary_key=True)
+
+.. code-block:: pycon
+
+    # Use get() as a shorthand method to get one object by primary key
+    >>> dbsession.query(Question).get(1)
+    #1: What's up?
+
+Non-primary key access
+----------------------
+
+You can use :py:meth:`sqlalchemy.orm.Query.filter_by` (keyword arguments) or :py:meth:`sqlalchemy.orm.Query.filter` (column object arguments).
+
+:py:meth:`sqlalchemy.orm.Query.one_or_none` returns exactly one or None items. For multiple items an error is raised:
+
+.. code-block:: pycon
+
+    >>> dbsession.query(Question).filter_by(id=1).one_or_none()
+    #1: What's up?
+
+:py:meth:`sqlalchemy.orm.Query.first` returns the first item (of multiple items) or ``None``:
+
+.. code-block:: pycon
+
+    >>> dbsession.query(Question).filter(Question.id==1).first()
+    #1: What's up?
+
+:py:meth:`sqlalchemy.orm.Query.first` returns the first item (of multiple items) or ``None``:
+
+.. code-block:: pycon
+    >>> dbsession.query(Question).filter(Question.id==1).first()
+    #1: What's up?
+
+:py:meth:`sqlalchemy.orm.Query.one` returns one item and raises an error in the case if there are no items or multiple items:
+
+.. code-block:: pycon
+
+    >>> dbsession.query(Question).filter(Question.id==1).one()
+    #1: What's up?
+
+Accessing multiple items
+========================
+
+The usual access pattern is that you construct a :py:class:`sqlalchemy.orm.Query` object.
+
+* You may join other tables to the query using :py:meth:`sqlalchemy.orm.Query.join` over relationships
+
+Examples models are in :ref:`tutorial <gettingstarted>`.
+
+All items of a model
+--------------------
+
+.. code-block:: pycon
+
+    # Let's use model from tutorial
+    >> from myapp.models import Question
+
+    >>> dbsession.query(Question).all()
+    [#1: What is love?, #2: Where is love?, #3: Why there is love?]
+
+:py:class:`sqlalchemy.orm.Query` is an iterable object, use it with ``for``:
+
+.. code-block:: pycon
+
+    >>> for q in dbsession.query(Question): print(q.id, q.uuid, q.question_text)
+    1 d51a3bda-321a-4dfa-b54e-87a5c7a5f5c1 What is love?
+    2 fc75588b-90c4-4df0-bd0f-cbcad62f4e7f Where is love?
+    3 1e40fd40-bb13-44da-ad4a-e298eaebe0d2 Why there is love?
+
+Filtering queries
+-----------------
+
+You narrow down your query using :py:meth:`sqlalchemy.orm.Query.filter_by` (keyword arguments) or :py:meth:`sqlalchemy.orm.Query.filter` (column object arguments).
+
+Using direct keywords with :py:meth:`sqlalchemy.orm.Query.filter_by`:
+
+.. code-block:: pycon
+
+    >>> dbsession.query(Question).filter_by(id=1).first()
+    #1: What's up?
+
+Using column objects with :py:meth:`sqlalchemy.orm.Query.filter` and Python comparison operators:
+
+.. code-block:: pycon
+
+    >>> dbsession.query(Question).filter(Question.id >= 2).all()
+    [#2: Where is love?, #3: Why there is love?]
+
+Text matching query with :py:meth:`sqlalchemy.schema.Column.like`:
+
+.. code-block:: pycon
+
+    >>> dbsession.query(Question).filter(Question.question_text.like('What%')).all()
+    [#1: What's up?]
+
+Using :py:func:`sqlalchehmy.sql.expression.extract` for complex value matching:
+
+.. code-block:: pycon
+
+    >>> dbsession.query(Question).filter(sqlalchemy.extract('year', Question.published_at) == now().year).all()
+    [#1: What's up?]
+
+Relationship queries
+--------------------
+
+TODO
+
+.. note ::
+
+    When you are accessing child items over a relationship attribute, the resulting objct depends if the relationship is set as ``relationship(lazy='dynamic')`` (gives :py:class:`sqlalchemy.orm.Query` object or the default ``relationship(lazy='select')`` (gives a list). This is important if you want to further filter down the list.
 
 .. _cascade:
 
@@ -207,7 +399,7 @@ Updating items
 
 .. **When I need to commit?**
 
-
+    TODO
 
 .. note ::
 

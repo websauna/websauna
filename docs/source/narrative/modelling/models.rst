@@ -17,7 +17,7 @@ See :ref:`Websauna's getting started <gettingstarted>` tutorial for more handhel
 Creating models
 ===============
 
-The basic pattern of a model creation is the following:
+The basic model creation pattern is same as in SQLAlchemy (`SQLAlchemy declarative model documentation <http://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/basic_use.html#defining-attributes>`_):
 
 .. code-block::
 
@@ -58,7 +58,7 @@ Below is a destructing of the example code.
 Base class
 ----------
 
-Websauna provides a model base class :py:class:`websauna.system.model.meta.Base`. If you inherit from this base class all your models become automatically part of migration and initialization cycle. However you are free to choose not to do so, for example if you are integrating with a legacy base. There are several complex use cases where different base classes may be needed.
+Websauna provides a model base class :py:class:`websauna.system.model.meta.Base`. If you inherit from this base class all your models become part of migration and application initialization cycle. However you are free to choose not to do so, for example if you are integrating with a legacy code base. There are several complex use cases where different base classes may be needed.
 
 If you are planning to build a reusable addon you may choose to declare your model as:
 
@@ -71,22 +71,15 @@ If you are planning to build a reusable addon you may choose to declare your mod
 
 ... and then let later the addon consumer to plug-in the model of base class of their choice in :py:class:`websauna.system.Initializer.configure_instrumented_models` by using :py:class:`websauna.system.model.utils.attach_model_to_base`.
 
-Columns
--------
+Ids: Running counter primary key, UUID or both?
+-----------------------------------------------
 
-TODO
+Websauna uses extensively :term:`UUID`, or more specifically UUID version 4 (random), for ids. They give a 122 bit non-guessable integer as an id and a primary key.
 
-Date and time
--------------
+UUID primary keys
++++++++++++++++++
 
-It is recommended that you store dates and datetimes only in :term:`UTC`. For more information see :ref:`Date and time <datetime>` chapter.
-
-Running counter primary key, UUID or both?
-------------------------------------------
-
-Websauna uses extensively :term:`UUID`, or more specifically UUID version 4, for ids. They provide 122 bit of non-guessable randomness.
-
-Secure-wise the best practice is to use UUID based primary keys and ``id`` is a UUID type:
+Secure-wise the best practice is to use UUID ``id`` as a primary key:
 
 .. code-block:: python
 
@@ -106,6 +99,72 @@ However the downside of this approach is that you need to install a server-side 
     create EXTENSION if not EXISTS "uuid-ossp";
 
 ... and also ids are not very human friendly. Accessing objects in shell sessions or communicating ids over a phone is tricky.
+
+Running counter id primary key and UUID column
+++++++++++++++++++++++++++++++++++++++++++++++
+
+This approach is a combination of both traditional running counter ids (human readable) and non-guessable UUIDs. This is also the approach :ref:`tutorial <gettingstarted>` takes:
+
+.. code-block:: python
+
+    from sqlalchemy import Column, String, Integer, ForeignKey
+    from sqlalchemy.dialects.postgresql import UUID
+
+
+    class Question(Base):
+
+        #: The table in the database
+        __tablename__ = "question"
+
+        #: Database primary key for the row (running counter)
+        id = Column(Integer, autoincrement=True, primary_key=True)
+
+        #: Publicly exposed non-guessable
+        uuid = Column(UUID(as_uuid=True), default=uuid4)
+
+
+    class Choice(Base):
+
+        # ...
+
+        #: Which question this choice is part of
+        question_id = Column(Integer, ForeignKey('question.id'))
+        question = relationship("Question", back_populates="choices", uselist=False)
+
+
+* ``id`` is used internally in foreign keys and not exposed anywhere else than admin. This allows human operators to easily discuss and cognitively track down database rows having issues. For example, you get nice running counter in user admin based on the order of sign ups.
+
+* ``uuid`` is used in all external links. A malicious party cannot potentially guess the URL of any edit form and thus they cannot launch attacks against predefnied URLs.
+
+Only running counter as a primary key
++++++++++++++++++++++++++++++++++++++
+
+If you have legacy data it is possible to use only running counter ids when referring to data. This includes running counter ids in links too. This is discouraged as this may expose a lot of busines sensitive information (number of users, number of orders) to third parties.
+
+Columns
+-------
+
+For available model column types see
+
+* `Column and Data types <http://docs.sqlalchemy.org/en/latest/core/types.html>`_ in SQLAlchemy documentation
+
+* `PostgreSQL ARRAY <http://docs.sqlalchemy.org/en/latest/dialects/postgresql.html#array-types>`_
+
+* `PostgreSQL JSON  <http://docs.sqlalchemy.org/en/latest/dialects/postgresql.html#json-types>`_
+
+* `PostgreSQL ENUM <http://docs.sqlalchemy.org/en/latest/dialects/postgresql.html#enum-types>`_
+
+* :py:class:`sqlalchemy.dialects.postgresql.INET`
+
+* :py:class:`sqlalchemy.dialects.postgresql.UUID`
+
+* :py:class:`sqlalchemy.dialects.postgresql.JSONB`
+
+
+Date and time
+-------------
+
+It is recommended that you store dates and datetimes only in :term:`UTC`. For more information see :ref:`Date and time <datetime>` chapter.
 
 
 Created and updated at timestamps

@@ -44,19 +44,22 @@ def uuid_to_slug(uuid_: uuid.UUID) -> str:
     return encoded.decode("utf-8").rstrip('=\n').replace('/', '_').replace("+", "-")
 
 
-def slug_to_uuid(slug:str) -> str:
-    """Convert UUID URL slug to UUID object.
+def slug_to_uuid(slug: str) -> str:
+    """Convert UUID URL slug string to UUID object.
 
     This method raises `ValueError` if slug cannot be converted to UUID:
 
-    try:
-        delivery_uuid = slug_to_uuid(serica_data["cartID"])
-    except ValueError as e:
-        return HTTPNotFound("UUId was not a well-formed base64 encoded slug")
+    .. code-block:: python
+
+        try:
+            # Is like 'I0p4RyoIQe-EQ1GU_QicoQ'
+            delivery_uuid = slug_to_uuid(art_data["cartID"])
+        except SlugDecodeError as e:
+            return HTTPNotFound("UUID was not a well-formed base64 encoded slug") from e
 
     :param slug: Base64 string presentation of UUID
 
-    :raise: SlugError if the is an issue to decode slug
+    :raise: SlugDecodeError if the is an issue to decode slug
     """
 
     assert type(slug) == str

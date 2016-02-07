@@ -80,12 +80,40 @@ Websauna has extensively support for using :term:`UUID`, or more specifically UU
 
     One should never expose a running counter database keys, like a running counter ``id`` to the world. Leaking ids also leaks business intelligence like number of users or number of orders. Furthermore a guessable ids give a malicious party to an ability to guess URL endpoints, scrape data and and exploit other known weaknesses effectively. If possible it is recommended that you do not have  any running counter ids on your models to avoid the issue altogether.
 
+
+UUID column support in databases
+++++++++++++++++++++++++++++++++
+
+PostgreSQL and SQLAlchemy have a a native :py:class:`sqlalchemy.dialects.postgresql.UUID` column. For other databases you might want to try a backend agnostic GUID (`see sqlalchemy_utils.types.uuid.UUIDType <https://sqlalchemy-utils.readthedocs.org/en/latest/data_types.html#sqlalchemy_utils.types.uuid.UUIDType>`_).
+
+For complete UUID support it's better to let the database, not your application, generate primary key UUIDs. This way UUIDs are generated correctly even if other non-Python applications use the same database.
+
+PostgreSQL has a `uuid-ossp <http://www.postgresql.org/docs/devel/static/uuid-ossp.html>`_ extension for generating UUIDs.
+
+To enable this extension you must run the following command in :ref:`ws-db-shell` after creating a database:
+
+.. code-block:: sql
+
+    create EXTENSION if not EXISTS "uuid-ossp";
+
+After this, the following works in a column definition:
+
+.. code-block:: python
+
+    uuid = Column(UUID(as_uuid=True),
+                server_default=sqlalchemy.text("uuid_generate_v4()"),)
+
 UUID primary keys
 +++++++++++++++++
 
-Secure-wise the best practice is to use UUID ``id`` as a primary key:
+Secure-wise, the best practice is to use a random UUID ``id`` as a primary key:
 
 .. code-block:: python
+
+    import sqlalchemy
+    from sqlalchemy.dialects.postgresql import UUID
+    from sqlalchemy import Column
+
 
     class Asset(Base):
 
@@ -95,14 +123,9 @@ Secure-wise the best practice is to use UUID ``id`` as a primary key:
             primary_key=True,
             server_default=sqlalchemy.text("uuid_generate_v4()"),)
 
+As UUIDs are random, one cannot accidentally leak information about item URLs or counts.
 
-However the downside of this approach is that you need to install a server-side PostgreSQL extension:
-
-.. code-block:: sql
-
-    create EXTENSION if not EXISTS "uuid-ossp";
-
-... and also ids are not very human friendly. Accessing objects in shell sessions or communicating ids over a phone is tricky.
+The downside is that UUIDs are not very human readable. Accessing objects in shell sessions or communicating ids verbally is tricky. If you need a human readable ID you can generate another shorter string for this purpose.
 
 Converting UUIDs to Base64 strings and back
 +++++++++++++++++++++++++++++++++++++++++++
@@ -176,8 +199,8 @@ This approach is a combination of both traditional running counter ids (human re
 
 * ``uuid`` is used in all external links. A malicious party cannot potentially guess the URL of any edit form and thus they cannot launch attacks against predefnied URLs.
 
-Only running counter as a primary key
-+++++++++++++++++++++++++++++++++++++
+Running counter as a primary key
+++++++++++++++++++++++++++++++++
 
 If you have legacy data it is possible to use only running counter ids when referring to data. This includes running counter ids in links too. This is discouraged as this may expose a lot of busines sensitive information (number of users, number of orders) to third parties.
 
@@ -311,6 +334,7 @@ You can use :py:meth:`sqlalchemy.orm.Query.filter_by` (keyword arguments) or :py
 :py:meth:`sqlalchemy.orm.Query.first` returns the first item (of multiple items) or ``None``:
 
 .. code-block:: pycon
+
     >>> dbsession.query(Question).filter(Question.id==1).first()
     #1: What's up?
 

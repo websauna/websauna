@@ -2,35 +2,28 @@
 
 We provide UUID to Base64 encoded string and back coding.
 
-.. note ::
-
-    The internal implementation is subject to change to more efficient encoding. It is not recommended to use these as persistent URLs.
-
-More info about slugs
-
-* http://stackoverflow.com/questions/427102/what-is-a-slug-in-django
+`More information what term slug means <http://stackoverflow.com/questions/427102/what-is-a-slug-in-django>`_.
 """
 
 import uuid
-
 import binascii
-
 import base64
+
 
 class SlugDecodeError(Exception):
     """Raised when you pass invalid b64 slug data."""
 
 
 def uuid_to_slug(uuid_: uuid.UUID) -> str:
-    """Create a URL slug from UUID.
-
-    Courtesy of MJ: # http://stackoverflow.com/a/12270917/315168
+    """Convert UUID object to a compact base64 string presentation.
 
     .. note ::
 
         Slugs are supposed to be human readable. We are stretching that definition here a bit.
 
     :param uuid_: UUID object
+
+    :return: String like ''I0p4RyoIQe-EQ1GU_QicoQ'
     """
 
     # Catch some common typing errors
@@ -70,4 +63,3 @@ def slug_to_uuid(slug: str) -> str:
         return uuid.UUID(bytes=bytes)
     except (ValueError, binascii.Error) as e:
         raise SlugDecodeError("Cannot decode supposed B64 slug: {}".format(slug)) from e
-

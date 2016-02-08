@@ -1,58 +1,15 @@
 """Adaption of tomb_routes.
 
-.. note ::
-
-    This code lived in a separate repository https://github.com/TombProject/tomb_routes  However some modifications had to be made and the original author could not be reached. This code leaves here for now until we can get changes accepted to upstream.
-
+This code is adoption of tomb_routes https://github.com/TombProject/tomb_routes created by John Anderson.
 """
+
 from pyramid.interfaces import IViewMapperFactory
 from pyramid.path import DottedNameResolver
-import inspect
-
-
-ACCEPT_RENDERER_MAP = {
-    'json': 'application/json',
-    'string': 'text/plain',
-}
-
-
-class MatchdictMapper(object):
-    def __init__(self, **kwargs):
-        self.view_settings = kwargs
-        self.attr = self.view_settings.get('attr')
-        self.blacklist = [
-            'optional_slash',
-        ]
-
-    def __call__(self, view):
-        def wrapper(context, request):
-            kwargs = request.matchdict.copy()
-            for k in self.blacklist:
-                if k in kwargs:
-                    del kwargs[k]
-
-            if inspect.isclass(view):
-                arg_len = len(inspect.getargspec(view.__init__).args)
-                if arg_len == 2:
-                    inst = view(request)
-                elif arg_len == 3:
-                    inst = view(context, request)
-                else:
-                    raise Exception("Class should accept `context` and "
-                                    "`request` args only")
-                meth = getattr(inst, self.attr)
-                return meth(**kwargs)
-            else:
-                return view(request, **kwargs)
-
-        return wrapper
 
 
 def add_simple_route(
         config, path, target,
-        append_slash=True,
-        append_matchdict=True,
-        default_accept='text/html',
+        append_slash=False,
         *args, **kwargs
 ):
     """Configuration directive that can be used to register a simple route to
@@ -135,7 +92,7 @@ def add_simple_route(
 
     kwargs['route_name'] = route_name
 
-    if append_matchdict and 'mapper' not in kwargs:
+    if 'mapper' not in kwargs:
         # This should default to 'websauna.system.core.csrf.csrf_mapper_factory.<locals>.CSRFMapper'>
         mapper = config.registry.queryUtility(IViewMapperFactory)
         kwargs['mapper'] = mapper

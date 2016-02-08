@@ -66,7 +66,7 @@ class Initializer:
         #: Flag to tell if we need to do sanity check for redis sessiosn
         self._has_redis_sessions = False
 
-    def create_configurator(self):
+    def create_configurator(self) -> Configurator:
         """Create Pyramid Configurator instance."""
         configurator = Configurator(settings=self.settings)
 
@@ -726,7 +726,7 @@ class Initializer:
         return app
 
 
-def get_init(global_config, settings, init_cls=None):
+def get_init(global_config, settings, init_cls=None) -> Initializer:
     """Get Initializer class instance for WSGI-like app.
 
     TODO: Deprecated. Use Pyramid's ``bootstrap()`` instead.

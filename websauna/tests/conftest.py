@@ -26,7 +26,18 @@ from websauna.utils.qualname import get_qual_name
 
 
 @pytest.fixture(scope='session')
-def ini_settings(request) -> dict:
+def test_config_path(request) -> str:
+    """A py.test fixture to get test INI configuration file path from py.test command line."""
+
+    assert getattr(request.config.option, "ini", None), "You need to give --ini test.ini command line option to py.test to find our test settings"
+
+    config_uri = os.path.abspath(request.config.option.ini)
+
+    return config_uri
+
+
+@pytest.fixture(scope='session')
+def ini_settings(request, test_config_path) -> dict:
     """Load INI settings for test run from py.test command line.
 
     Example:
@@ -37,18 +48,14 @@ def ini_settings(request) -> dict:
     :return: Adictionary representing the key/value pairs in an ``app`` section within the file represented by ``config_uri``
     """
 
-    if not getattr(request.config.option, "ini", None):
-        raise RuntimeError("You need to give --ini test.ini command line option to py.test to find our test settings")
-
     from websauna.utils.configincluder import monkey_patch_paster_config_parser
     monkey_patch_paster_config_parser()
 
-    config_uri = os.path.abspath(request.config.option.ini)
-    setup_logging(config_uri)
-    config = get_appsettings(config_uri)
+    setup_logging(test_config_path)
+    config = get_appsettings(test_config_path)
 
     # To pass the config filename itself forward
-    config["_ini_file"] = config_uri
+    config["_ini_file"] = test_config_path
 
     return config
 

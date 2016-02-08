@@ -50,6 +50,7 @@ class simple_route(object):
         @simple_route('/path/to/view', renderer='myapp/example.html')
         def view_callable(request):
             return {'message': 'Hello'}
+
     """
 
     def __init__(self, path, *args, **kwargs):

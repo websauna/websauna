@@ -85,11 +85,6 @@ def add_simple_route(
     if 'accept' in kwargs:
         val = kwargs.pop('accept')
         route_kwargs['accept'] = val
-    else:
-        # Disable */* by default, only accept 'text/html'
-        renderer = kwargs.get('renderer', 'html')
-        acceptor = ACCEPT_RENDERER_MAP.get(renderer, default_accept)
-        route_kwargs['accept'] = acceptor
 
     # Make it possible to custom_predicates = in the simple_route
     custom_predicates = kwargs.pop('custom_predicates', None)

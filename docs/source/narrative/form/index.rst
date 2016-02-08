@@ -6,6 +6,7 @@ Forms
 
     form
     autoform
+    upload
     sql
     csrf
     resourceregistry

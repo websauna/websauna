@@ -51,6 +51,9 @@ class simple_route(object):
         def view_callable(request):
             return {'message': 'Hello'}
 
+    Some things to notice
+
+    * By default ``append_slash`` option is set to false.
     """
 
     def __init__(self, path, *args, **kwargs):

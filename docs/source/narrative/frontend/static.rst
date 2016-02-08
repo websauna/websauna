@@ -49,6 +49,8 @@ Development web server runs without caching
 
 The development web server using :ref:`development.ini` does not have any kind of cache busting configured. HTTP responses do not have cache headers. Static URLs are not mangled in whatsoever manner.
 
+.. _cachebust:
+
 Default cache busting mechanism
 ===============================
 

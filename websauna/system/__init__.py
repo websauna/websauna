@@ -405,7 +405,14 @@ class Initializer:
 
     @event_source
     def configure_forms(self):
-        """Configure subsystems for rendering Deform forms."""
+        """Configure subsystems for rendering Deform forms.
+
+        * Deform templates
+
+        * Deform JS and CSS
+
+        * CSRf view mapper
+        """
 
         from pyramid.config.views import DefaultViewMapper
         from websauna.system.form.resources import DefaultFormResources
@@ -426,6 +433,7 @@ class Initializer:
         mapper = self.config.registry.queryUtility(IViewMapperFactory)
         if mapper is None:
             mapper = DefaultViewMapper
+
         self.config.set_view_mapper(csrf_mapper_factory(mapper))
 
     @event_source

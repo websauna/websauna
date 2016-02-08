@@ -26,6 +26,15 @@ Jinja primer
 
 To learn how :term:`Jinja` template language works read `Jinja Template Designer Documentation <http://jinja.pocoo.org/docs/dev/templates/>`_.
 
+.. _block:
+
+Blocks
+======
+
+Base templates consist of blocks which you can fill in.
+
+See :doc:`template reference <../../reference/templates>` for available blocks.
+
 Filters and context variables
 =============================
 
@@ -180,7 +189,7 @@ The usual process to add an image on your website is
 
 * Include image file in ``static`` folder of your application
 
-* Refer to this image using :ref:`static_url` filter in your template.
+* Refer to this image using :ref:`static_url <filter-static_url>` filter in your template.
 
 Example:
 

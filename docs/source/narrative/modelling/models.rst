@@ -103,6 +103,8 @@ After this, the following works in a column definition:
     uuid = Column(UUID(as_uuid=True),
                 server_default=sqlalchemy.text("uuid_generate_v4()"),)
 
+Read blog post `UUID Primary Keys in PostgreSQL <https://blog.starkandwayne.com/2015/05/23/uuid-primary-keys-in-postgresql/>_.
+
 UUID primary keys
 +++++++++++++++++
 

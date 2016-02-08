@@ -5,6 +5,7 @@
     This code lived in a separate repository https://github.com/TombProject/tomb_routes  However some modifications had to be made and the original author could not be reached. This code leaves here for now until we can get changes accepted to upstream.
 
 """
+from pyramid.interfaces import IViewMapperFactory
 from pyramid.path import DottedNameResolver
 import inspect
 import venusian
@@ -80,6 +81,7 @@ def add_simple_route(
     route_name = target.__name__
     route_name_count = 0
 
+    # Arguments passed to route
     route_kwargs = {}
 
     if 'accept' in kwargs:
@@ -135,7 +137,9 @@ def add_simple_route(
     kwargs['route_name'] = route_name
 
     if append_matchdict and 'mapper' not in kwargs:
-        kwargs['mapper'] = MatchdictMapper
+        # This should default to 'websauna.system.core.csrf.csrf_mapper_factory.<locals>.CSRFMapper'>
+        mapper = config.registry.queryUtility(IViewMapperFactory)
+        kwargs['mapper'] = mapper
 
     config.add_view(target, *args, **kwargs)
     config.commit()

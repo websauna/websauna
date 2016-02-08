@@ -8,7 +8,6 @@
 from pyramid.interfaces import IViewMapperFactory
 from pyramid.path import DottedNameResolver
 import inspect
-import venusian
 
 
 ACCEPT_RENDERER_MAP = {
@@ -144,8 +143,6 @@ def add_simple_route(
     config.add_view(target, *args, **kwargs)
     config.commit()
     config.route_prefix = orig_route_prefix
-
-
 
 
 def includeme(config):

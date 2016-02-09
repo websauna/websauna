@@ -27,7 +27,10 @@ from websauna.utils.qualname import get_qual_name
 
 @pytest.fixture(scope='session')
 def test_config_path(request) -> str:
-    """A py.test fixture to get test INI configuration file path from py.test command line."""
+    """A py.test fixture to get test INI configuration file path from py.test command line.
+
+    :return: Absolute path to test.ini file
+    """
 
     assert getattr(request.config.option, "ini", None), "You need to give --ini test.ini command line option to py.test to find our test settings"
 
@@ -45,7 +48,7 @@ def ini_settings(request, test_config_path) -> dict:
          py.test yourpackage -s --ini=test.ini
 
 
-    :return: Adictionary representing the key/value pairs in an ``app`` section within the file represented by ``config_uri``
+    :return: A dictionary representing the key/value pairs in an ``app`` section within the file represented by ``config_uri``
     """
 
     from websauna.utils.configincluder import monkey_patch_paster_config_parser
@@ -91,14 +94,6 @@ def app(request, ini_settings: dict, **settings_overrides) -> Router:
     return data["app"]
 
 
-@pytest.fixture(scope='function')
-def test_case_ini_settings(request):
-    """Pass INI settings to a test class as self.config."""
-    config = ini_settings(request)
-    request.instance.config = config
-    return config
-
-
 @pytest.fixture(scope='session')
 def init(request, app):
     """Access to the default :py:class:`websauna.system.Initializer` instance created from ``test.ini``.
@@ -114,10 +109,19 @@ def registry(request, app):
     return app.initializer.config.registry
 
 
-def custom_dbsession(request, app: Router, transaction_manager=transaction.manager) -> Session:
+def create_test_dbsession(request, settings: dict, transaction_manager=transaction.manager) -> Session:
+    """Create a test database session and setup database.
+
+    Create and drop all tables when called. Add teardown function py.test to drop all tables during teardown.
+
+    :param request: py.test test request
+    :param settings: test.ini app settings
+    :param transaction_manager:
+    :return: New database session
+    """
     from websauna.system.model.meta import Base
 
-    dbsession = create_dbsession(app.initializer.config.registry.settings, manager=transaction_manager)
+    dbsession = create_dbsession(settings, manager=transaction_manager)
     engine = dbsession.get_bind()
 
     with transaction.manager:
@@ -168,7 +172,7 @@ def dbsession(request, app) -> Session:
 
     :return: A SQLAlchemy session instance you can use to query database.
     """
-    return custom_dbsession(request, app)
+    return create_test_dbsession(request, app.initializer.config.registry.settings)
 
 
 @pytest.fixture()

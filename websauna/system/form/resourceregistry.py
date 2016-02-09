@@ -25,7 +25,7 @@ class ResourceRegistry(_ResourceRegistry):
     * https://developers.google.com/web/fundamentals/performance/critical-rendering-path/adding-interactivity-with-javascript#parser-blocking-vs-asynchronous-javascript
     """
 
-    def __init__(self, request):
+    def __init__(self, request: Request):
         # Load default resoucres from configuration
         form_resources = request.registry.getUtility(IFormResources)
         self.registry = form_resources.get_default_resources().copy()
@@ -42,7 +42,7 @@ class ResourceRegistry(_ResourceRegistry):
         for js_url in self.get_widget_js_urls(request, form):
             on_demand_resource_renderer.request_resource("js", js_url, js_requires_head=True)
 
-    def get_widget_js_urls(self, request, form):
+    def get_widget_js_urls(self, request: Request, form: Form):
         """Generate JS and CSS tags for a widget.
 
         For demo purposes only - you might have something specific to your application here.
@@ -54,7 +54,7 @@ class ResourceRegistry(_ResourceRegistry):
         js_links = [request.static_url(r) for r in js_resources]
         return js_links
 
-    def get_widget_css_urls(self, request, form):
+    def get_widget_css_urls(self, request: Request, form: Form):
         """Generate JS and CSS tags for a widget.
 
         For demo purposes only - you might have something specific to your application here.

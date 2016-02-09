@@ -60,14 +60,17 @@ class DefautDataTestModel(Base):
     data = Column(JSONB, default={"default_value_1": 1, "default_value_2": 2})
 
 
-@pytest.mark.usefixtures("test_case_ini_settings")
 class TestJSON(unittest.TestCase):
     """JSONB fields and properties."""
+
+    @pytest.fixture(autouse=True)
+    def load_settings(self, ini_settings):
+        self.settings = ini_settings
 
     def setUp(self):
 
         # Create a threadh-local automatic session factory
-        self.session = create_dbsession(self.config)
+        self.session = create_dbsession(self.settings)
         self.engine = self.session.get_bind()
 
         # Load Bitcoin models to play around with

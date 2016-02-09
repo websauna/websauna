@@ -9,7 +9,7 @@ Resource registry, widget CSS and JavaScript
 Introduction
 ============
 
-:term:`Deform` supports a resource registry allowing widgets to signal they want particular :term`CSS` and :term:`JavaScript` files to be present in page rendering. E.g. a date picker widget tells it needs date picking JavaScript and CSS files to be present in rendered :term:`HTML`. Then these static assets will be placed in the `<head>` section of HTML.
+:term:`Deform` supports a resource registry allowing widgets to signal they want particular :term:`CSS` and :term:`JavaScript` files to be present in page rendering. E.g. a date picker widget tells it needs date picking JavaScript and CSS files to be present in rendered :term:`HTML`. Then these static assets will be placed in the `<head>` section of HTML.
 
 .. note ::
 

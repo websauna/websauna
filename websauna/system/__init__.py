@@ -169,9 +169,6 @@ class Initializer:
         self.config.add_jinja2_renderer('.css')
         self.config.add_jinja2_renderer('.xml')
 
-        # Some Horus templates need still Mako in place - TODO: remove this when all templates are converted
-        self.config.include('pyramid_mako')
-
         self.config.include("websauna.system.core.templatecontext")
         self.config.include("websauna.system.core.vars")
 
@@ -280,8 +277,15 @@ class Initializer:
     def configure_database(self):
         """Configure database.
 
+        * Set up base model
+
+        * Set up database session
+
+        * Set up transaction machinery
+
         Calls py:func:`websauna.system.model.meta.includeme`.
         """
+        self.config.include("pyramid_tm")
         self.config.include(".model.meta")
 
     @event_source
@@ -313,7 +317,7 @@ class Initializer:
             self.config.scan(notfound)
 
         # Internal server error must be only activated in the production mode, as it clashes with pyramid_debugtoolbar
-        if "pyramid_debugtoolbar" not in aslist(settings["pyramid.includes"]):
+        if "pyramid_debugtoolbar" not in aslist(settings.get("pyramid.includes", [])):
             from websauna.system.core.views import internalservererror
             self.config.scan(internalservererror)
 

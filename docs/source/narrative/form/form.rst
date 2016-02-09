@@ -182,3 +182,8 @@ Here is an example data-driven validator::
 
     class MySchema(CSRFSchema):
         email = colander.SchemaNode(colander.String(), validator=validate_unique_user_email)
+
+Widget CSS and JavaScript
+-------------------------
+
+See :ref:`resource registry <resource-registry>`.

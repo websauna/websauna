@@ -501,7 +501,14 @@ class Initializer:
 
     @event_source
     def configure_user(self):
-        """Configure user model, sign in and sign up subsystem."""
+        """Configure user model, sign in and sign up subsystem.
+
+        * User services
+
+        * Sign in and sign up templates and views
+
+        * User events
+        """
         from websauna.system.user import views
         from websauna.system.user import subscribers
         from websauna.system.user.loginservice import DefaultLoginService
@@ -515,9 +522,6 @@ class Initializer:
         registry.registerAdapter(factory=DefaultLoginService, required=(IRequest,), provided=ILoginService)
         registry.registerAdapter(factory=DefaultCredentialActivityService, required=(IRequest,), provided=ICredentialActivityService)
         registry.registerAdapter(factory=DefaultRegistrationService, required=(IRequest,), provided=IRegistrationService)
-
-        # Configure user models base package
-        # TODO: Get rid of Horus
 
         self.config.add_jinja2_search_path('websauna.system:user/templates', name='.html')
         self.config.add_jinja2_search_path('websauna.system:user/templates', name='.txt')

@@ -148,8 +148,8 @@ Example: check if a user has permission to view :term:`admin`:
     {% endif %}
   {% endif %}
 
-Linking
-=======
+URLs
+====
 
 Traversing links
 ----------------
@@ -178,6 +178,20 @@ The actual view definition looks like:
     def sms_user(context, request):
         user = context.get_object()
         # ...
+
+Variables in URLs
+-----------------
+
+Below is an example how to use template variable in :ref:`static_url <filter-static_url>`:
+
+.. code-block:: html+jinja
+
+    {% set img=product_description.images.0 %}
+    {% set full_img='trees:static/theme/img/product/' ~ img  %}
+
+    <div id="product-page-header" style="background-image: url({{ full_img|static_url }});">
+        <!-- Use product image as the background image for the page -->
+    </div>
 
 Images
 ======

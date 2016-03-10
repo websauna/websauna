@@ -64,7 +64,7 @@ from websauna.compat.typing import Callable
 from websauna.compat.typing import Optional
 
 #: List of unbound methods that are marked as advisors
-_advisor_methods = dict()
+_advisor_methods = defaultdict(list)
 
 #: Bound methods to be called when the join point is executed as [joint point name] -> (role, bound_method,)  mappings
 _event_source_hooks = []
@@ -139,7 +139,7 @@ def after(target_event_source: Callable):
 
         name = wrapped._event_source_name
 
-        _advisor_methods[advisor_method] = (AdvisorRole.after, name,)
+        _advisor_methods[advisor_method].append((AdvisorRole.after, name,))
         return advisor_method
 
     return _outer
@@ -158,7 +158,7 @@ def before(target_event_source: Callable):
 
         name = wrapped._event_source_name
 
-        _advisor_methods[advisor_method] = (AdvisorRole.before, name,)
+        _advisor_methods[advisor_method].append((AdvisorRole.before, name,))
         return advisor_method
 
     return _outer
@@ -176,12 +176,14 @@ def bind_events(source: object, target: object):
 
     cls = target.__class__
 
-    # Store bounnd advisors on the object using a private attribute
-    source._advisor_mappings = defaultdict(list)
+    # Store bound advisors on the object using a private attribute
+    mappings = getattr(source, "_advisor_mappings", None)
+    if not mappings:
+        source._advisor_mappings = mappings = defaultdict(list)
 
     for name, bound_advisor_method in inspect.getmembers(target, predicate=inspect.ismethod):
         unbound_method = bound_advisor_method.__func__
-        if unbound_method in _advisor_methods:
 
-            role, name = _advisor_methods[unbound_method]
-            source._advisor_mappings[name].append((role, bound_advisor_method))
+        if unbound_method in _advisor_methods:
+            for role, name in _advisor_methods[unbound_method]:
+                mappings[name].append((role, bound_advisor_method))

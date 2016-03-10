@@ -10,7 +10,7 @@ Prerequisites
 Installation
 ============
 
-Install to a Python virtual environment using pip command in an editable mode.
+This installation method assumes you the author of the {{project}} application and wish to develop it. Below are instructions to to install the package to a Python virtual environment using pip command in an editable mode.
 
 Example::
 
@@ -18,7 +18,12 @@ Example::
     virtualenv venv
     source venv/bin/activate
 
-    pip install -e myapp
+    # Make sure pip itself is up-to-date
+    pip install -U pip
+
+    # Install the package and its dependencies to a currently
+    # activated virtualenv from the folder with setup.py file
+    pip install -e "."
 
 Running the website
 ===================
@@ -28,8 +33,13 @@ Local development machine
 
 Example (OSX / Homebrew)::
 
+    # Create PostgreSQL database
     psql create {{package}}_dev
+
+    # Write table schemas for models
     ws-sync-db development.ini
+
+    # Start web server
     pserve -c development.ini --reload
 
 Running the test suite

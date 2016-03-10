@@ -6,6 +6,7 @@ from types import ModuleType
 from sqlalchemy.ext.declarative import instrument_declarative
 
 
+
 def secure_uuid():
     """Create a non-conforming 128-bit random version 4 UUID.
 
@@ -82,11 +83,18 @@ def attach_model_to_base(ModelClass:type, Base:type, ignore_reattach:bool=True):
 def attach_models_to_base_from_module(mod:ModuleType, Base:type):
     """Attach all models in a Python module to SQLAlchemy base class.
 
-    All models must declare ``__tablename__`` property.
+    The attachable models must declare ``__tablename__`` property and must not have existing ``Base`` class in their inheritance.
     """
 
     for key in dir(mod):
         value = getattr(mod, key)
         if inspect.isclass(value):
+
+            # TODO: We can't really check for SQLAlchemy declarative base class as it's usually run-time generated and may be out of our control
+            if any(base.__name__ == "Base" for base in inspect.getmro(value)):
+                # Already inhertis from SQALchemy declarative Base
+                continue
+
             if hasattr(value, "__tablename__"):
+                # This declares table but is not attached to any base yet
                 attach_model_to_base(value, Base)

@@ -71,3 +71,12 @@ Example::
     def includeme(config: Configurator):
         init = AddonInitializer(config)
         init.run()
+
+Creating addon migrations
+-------------------------
+
+When you manipulate addon models and add new fields you need to create migrations specific to addon.
+
+Easiest way to do this is to develop against addon :ref:`development.ini` and use addon specific development database.
+
+TODO

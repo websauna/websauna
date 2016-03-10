@@ -1,4 +1,4 @@
-This is a Python package for {{project}}.
+This is a Python package for {{project}}, an addon for `Websauna framework <https://websauna.org>`_.
 
 Prerequisites
 =============
@@ -10,18 +10,18 @@ Prerequisites
 Installation
 ============
 
-Install to a Python virtual environment using pip command in an editable mode.
+Local development mode
+-----------------------
 
-Example::
+Activate the virtual environment of your Websauna application.
+
+Then::
 
     cd {{package}}  # This is the folder with setup.py file
-    virtualenv venv
-    source venv/bin/activate
+    pip install -e .
 
-    pip install -e myapp
-
-Running the website
-===================
+Running the development website
+===============================
 
 Local development machine
 -------------------------
@@ -35,16 +35,18 @@ Example (OSX / Homebrew)::
 Running the test suite
 ======================
 
-Example::
-
-    # Install testing dependencies
-    pip install ".[dev,test]"
+First create test database::
 
     # Create database used for unit testing
     psql create {{package}}_test
 
-    # Run test suite using py.test running
-    py.test websauna/myaddon/tests --ini test.ini
+Install test and dev dependencies (run in the folder with ``setup.py``)::
+
+    pip install -e ".[dev,test]"
+
+Run test suite using py.test running::
+
+    py.test websauna/{{ package }}/tests --ini test.ini
 
 More information
 ================

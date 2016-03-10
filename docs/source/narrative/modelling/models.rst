@@ -96,6 +96,12 @@ To enable this extension you must run the following command in :ref:`ws-db-shell
 
     create EXTENSION if not EXISTS "uuid-ossp";
 
+Or just from the command line:
+
+.. code-block:: console
+
+    echo 'create EXTENSION if not EXISTS "uuid-ossp";' | ws-db-shell conf/development.ini
+
 After this, the following works in a column definition:
 
 .. code-block:: python

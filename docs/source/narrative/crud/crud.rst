@@ -209,11 +209,82 @@ Listing view is provided by :py:class:`websauna.system.crud.views.Listing`. It u
 
 * The context of a listing view is :py:class:`websauna.system.crud.CRUD`
 
-* For an example listing view, see :ref:`overriding listing view in admin example <override-listing>`.
-
 * Stock user listing view py:class:`websauna.system.user.adminviews.UserListing`
 
 * Listing reads the data for the list by setting up and iterating a query coming from :py:meth:`websauna.system.crud.CRUD.get_query`
+
+Customizing columns
+-------------------
+
+Below are some examples how to customize listing columns
+
+.. code-block:: python
+
+    import arrow
+    from decimal import Decimal
+
+    from pyramid_layout.panel import panel_config
+    from websauna.system.admin.utils import get_admin_url_for_sqlalchemy_object
+    from websauna.system.crud import listing
+    from websauna.system.http import Request
+    from websauna.viewconfig import view_overrides
+    from websauna.system.admin.views import Listing as DefaultListing
+    from websauna.system.admin.views import Show as DefaultShow
+
+    from .models import Card, BoxEventType, Box, BoxEvent
+    from . import admins
+
+
+    def get_serial_number(view, column, card: Card):
+        return ' '.join('{:02x}'.format(x) for x in card.serial_number)
+
+    def get_balance(view, column, card: Card):
+        return card.denormalized_balance.quantize(Decimal("1.00"))
+
+
+    def get_last_seen(view, column, card: Card):
+        return arrow.get(card.updated_at).format("YYYY-MM-DD")
+
+
+    @view_overrides(context=admins.CardAdmin)
+    class CardListingListing(DefaultListing):
+        """User listing modified to show the user hometown based on geoip of last login IP."""
+        table = listing.Table(
+            columns = [
+                listing.Column("serial_number", "Serial number", getter=get_serial_number),
+                listing.Column("denormalized_balance", "Balance", getter=get_balance),
+                listing.Column("last_seen", "Last seen", getter=get_last_seen),
+            ]
+        )
+
+
+
+    def get_location(view, column, box):
+        """Get the name of the location of the box from the last install event."""
+
+        last_install_event = box.events.filter(BoxEvent.event_type == BoxEventType.activated).order_by(BoxEvent.happened_at.desc()).first()
+        if last_install_event:
+            return last_install_event.event_data["owner_address"]
+        else:
+            return ""
+
+
+    @view_overrides(context=admins.BoxAdmin)
+    class CardListingListing(DefaultListing):
+        """User listing modified to show the user hometown based on geoip of last login IP."""
+        table = listing.Table(
+            columns = [
+                listing.Column("denormalized_name", "Owner"),
+                listing.Column("location", "Location", getter=get_location),
+                listing.Column("last_seen", "Last incoming data", getter=get_last_seen),
+            ]
+        )
+
+
+More examples
+-------------
+
+* For an example listing view, see :ref:`overriding listing view in admin example <override-listing>`.
 
 Add view
 ========

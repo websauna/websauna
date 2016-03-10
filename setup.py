@@ -78,6 +78,7 @@ setup(
         "ipython[notebook]<4",
         "pyramid_ipython",
         "scandir",  # os.scandir backport for py3.4
+        "python-slugify", # ASCII slug generation
 
         # Time handling
         "arrow",

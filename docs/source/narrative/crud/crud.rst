@@ -44,7 +44,7 @@ For example here is an URL from the tutorial::
 
     http://localhost:6543/admin/models/choice/zYkpKEkpSvq02tPjL_ko8Q/show
 
-Below is how CRUD is formed. It consists of four :term:`resource` classes (see :py:class`websauna.system.core.traversal.Resource`) and one :term:`view`.
+Below is how CRUD is formed. It consists of four :term:`resource` classes (see :py:class:`websauna.system.core.traversal.Resource`) and one :term:`view`.
 
 * ``admin`` is the default admin interface root of the site, see :py:class:`websauna.system.admin.admin.Admin`
 

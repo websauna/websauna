@@ -12,6 +12,11 @@ Below are some hosting providers where you can get a server
 
 * `Hetzner <https://www.hetzner.de/>`_. German, European. Starts around 7€ / mo.
 
+* `Vultr <https://www.vultr.com/>`_. Similar to DigitalOcean, but cheaper and more flexible. Starts at $5 / mo.
+
+* `Linode <https://www.linode.com/>`_. Rock solid, old scool hosting company. $10 / mo.
+
+
 Detailed instructions
 =====================
 

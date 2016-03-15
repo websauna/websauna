@@ -442,6 +442,13 @@ Updating items
 Deleting items
 ==============
 
+Simple delete example
+
+.. code-block:: Python
+
+    # Delete all items
+
+
 Cascades
 ========
 

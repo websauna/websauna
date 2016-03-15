@@ -38,7 +38,7 @@ Create ``setup-test-secrets.bash`` (git ignored) with following content::
     export FACEBOOK_USER
     export FACEBOOK_PASSWORD
 
-Enable it in your shell:
+Enable it in your shell::
 
     source setup-test-secrets.bash
 

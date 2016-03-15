@@ -11,13 +11,15 @@ Websauna uses Python's :py:mod:`logging` subsystem.
 Logging from your code
 ======================
 
-Use the standard module-level ``logger`` pattern::
+Use the standard module-level ``logger`` pattern:
+
+.. code-block:: python
 
     import logging
 
     # ... Imports go here ...
 
-    logger = logging.getLogger(__name__
+    logger = logging.getLogger(__name__)
 
     # ... later in your code ...
 

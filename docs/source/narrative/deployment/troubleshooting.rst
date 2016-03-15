@@ -22,7 +22,7 @@ Test shell::
 
 This will usually show import errors.
 
-Test local ewb server::
+Test local web server::
 
     ws-pserve conf/production.ini
 

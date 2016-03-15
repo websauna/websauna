@@ -13,7 +13,9 @@ Create a virtualenv and install the latest master from Github using pip.
 Running tests
 -------------
 
-Unit tests are `PyTest based <http://pytest.org/>`_. They use `Selenium browser automation framework <selenium-python.readthedocs.org/>`_ and  `Splinter simplified element interatcion <https://splinter.readthedocs.org/en/latest/>`_.
+Unit tests are `PyTest based <http://pytest.org/>`_. They use `Selenium browser automation framework
+<http://selenium-python.readthedocs.org/>`_ and `Splinter simplified element interatcion
+<https://splinter.readthedocs.org/en/latest/>`_.
 
 First test run
 ++++++++++++++

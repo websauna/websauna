@@ -93,4 +93,4 @@ If that doesn't work, try::
 
 from source.
 
-There are subte differences between the two methods, this should always work.
+There are subtle differences between the two methods, this should always work.

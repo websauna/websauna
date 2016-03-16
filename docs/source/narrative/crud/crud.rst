@@ -120,7 +120,7 @@ Form creation process is following for CRUDs manageing SQLAlchemy based data
 
     schema.bind(request=request, context=context)
 
-Example schema declaration (:py:class:`websauna.system.useradmin.adminviews.UserEdit):
+Example schema declaration (:py:class:`websauna.system.useradmin.adminviews.UserEdit`):
 
 .. code-block:: python
 

@@ -100,7 +100,7 @@ You can change the name of the attribute. For example if your model has UUID bas
 Form schema generation
 ----------------------
 
-*Show*, *edit* and *add* views have a form schema which describes how individual object is shown or edited. Form schema uses :doc`form autogeneration <../form/autoform>`, though you can manually specify the schema.
+*Show*, *edit* and *add* views have a form schema which describes how individual object is shown or edited. Form schema uses :doc:`form autogeneration <../form/autoform>`, though you can manually specify the schema.
 
 Form creation process is following for CRUDs manageing SQLAlchemy based data
 

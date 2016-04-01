@@ -29,8 +29,11 @@ class Menu:
         return any(entry.is_enabled(request) for entry in self.entries.values())
 
     def get_entries(self) -> List:
-        """Get Entry objects to be rendered in this menu."""
-        return self.entries.values()
+        """Get Entry objects to be rendered in this menu.
+
+        Sort return by natural name order.
+        """
+        return sorted(self.entries.values(), key=lambda e: e.label)
 
     def get_entry(self, id):
         """Get any of registered menu entries by its id."""

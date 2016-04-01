@@ -22,6 +22,9 @@ from websauna.system.user.models import User
 
 HERE = os.path.dirname(__file__)
 
+#: Selector we use to detect if we are on the Facebook login page
+FACEBOOK_LOGIN_TEST_CSS = "#pageFooter"
+
 
 @pytest.fixture(scope="module")
 def facebook_app(request):
@@ -32,6 +35,7 @@ def facebook_app(request):
 
 
 _web_server = None
+
 
 @pytest.fixture(scope="module")
 def web_server(request, facebook_app):
@@ -49,7 +53,6 @@ def web_server(request, facebook_app):
     return _web_server
 
 
-
 def do_facebook_login(browser):
     """Splinter yourself in to the Facebook app."""
     b = browser
@@ -58,12 +61,12 @@ def do_facebook_login(browser):
     assert fb_user, "Please configure your Facebook secrets as environment variables to run the tests"
     fb_password = os.environ["FACEBOOK_PASSWORD"]
 
-    assert browser.is_element_present_by_css(".login_form_label")
+    assert browser.is_element_present_by_css(FACEBOOK_LOGIN_TEST_CSS)
 
     # FB login
     b.fill("email", fb_user)
     b.fill("pass", fb_password)
-    b.find_by_css("input[name='login']").click()
+    b.find_by_css("button[name='login']").click()
 
     # FB allow app confirmation dialog - this is only once per user unless you reset in in your FB profile
     if b.is_text_present("will receive the following info"):
@@ -75,7 +78,7 @@ def do_facebook_login(browser):
 def do_facebook_login_if_facebook_didnt_log_us_already(browser):
     """Facebook doesn't give us login dialog again as the time is so short, or Authomatic does some caching here?."""
 
-    if browser.is_element_present_by_css(".login_form_label"):
+    if browser.is_element_present_by_css(FACEBOOK_LOGIN_TEST_CSS):
         do_facebook_login(browser)
     else:
         # Clicking btn-facebook-login goes directly through to the our login view
@@ -147,7 +150,6 @@ def test_facebook_second_login(web_server, browser, dbsession):
     b.find_by_css("#nav-logout").click()
 
 
-
 @pytest.mark.skipif("FACEBOOK_USER" not in os.environ, reason="Give Facebook user/pass as environment variables")
 @flaky
 def test_facebook_login_disabled_user(web_server, browser, dbsession, init):
@@ -169,4 +171,3 @@ def test_facebook_login_disabled_user(web_server, browser, dbsession, init):
     do_facebook_login_if_facebook_didnt_log_us_already(browser)
 
     assert b.is_element_present_by_css("#msg-cannot-login-social-media-user")
-

@@ -606,3 +606,38 @@ The custom sidebar pulls the contents of *Data* admin menu:
         {% endfor %}
       {% endwith %}
     </ul>
+
+Customizing admin landing page
+==============================
+
+You can override :ref:`admin/admin.html <template-admin/admin.html>` template.
+
+Below is an example of minor admin landing page customization.
+
+.. code-block:: html+jinja
+
+    {% extends "admin/base.html" %}
+
+    {% block admin_content %}
+    <div id="admin-main">
+      {# Comment we changed the intro text a bit #}
+      <p>Welcome to Your Mege Corporation dashboard, {{ request.user.friendly_name }}</p>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+
+        {# Add a custom fixed header on the top of panels #}
+        <div class="panel panel-default panel-admin">
+          <div class="panel-body">
+            <h2>Current production</h2>
+            {# TODO: Add production graphs here #}
+          </div>
+        </div>
+
+        {% for panel in panels %}
+            {{panel|safe}}
+        {% endfor %}
+      </div>
+    </div>
+    {% endblock admin_content %}

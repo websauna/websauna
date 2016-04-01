@@ -1,4 +1,5 @@
 """Default template variables."""
+import datetime
 
 from pyramid.events import BeforeRender
 
@@ -148,6 +149,34 @@ def _now(request, registry, settings):
 
     """
     return now
+
+
+@var("timedelta")
+def _timedelta(request, registry, settings):
+    """Expose Python timedelta class to templates, so you can do relative time calculations.
+
+    For more information see :py:class:`datetime.timedelta`.
+
+    Example:
+
+    .. code-block: html+jinja
+
+        <div class="panel panel-default panel-admin">
+          <div class="panel-body">
+            <h2>
+                Current power generation
+                (as generated {{ (now() - timedelta(days=14))|arrow_format("YYYY-MM-DD")}}*)
+            </h2>
+
+            <div id="super-nice-graph"></div>
+
+            <p>* Incoming data delayed two weeks</p>
+
+          </div>
+        </div>
+
+    """
+    return datetime.timedelta
 
 
 @var("debug")

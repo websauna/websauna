@@ -5,14 +5,17 @@ import transaction
 import logging
 
 from pyramid.view import view_config
-
+from websauna.system.core.csrf import csrf_exempt
 
 logger = logging.getLogger(__name__)
 
 
 @view_config(context=Exception)
+@csrf_exempt
 def internal_server_error(context, request):
     """Generate the default internal server error page when exception falls through from a view.
+
+    This view is marked as CSRF exempt, so that HTTP POST requests to API endpoints do not cause additional Bad CSRF exception when HTTP 500 Internal server error is raised.
 
     Also see https://github.com/Pylons/pyramid_tm/issues/40
     """

@@ -162,6 +162,7 @@ def csrf_mapper_factory(mapper):
 
             # Check if any view or wrapped function marks view for exclusion
             for wrapped in traverse_attribute(view, "__wrapped__"):
+                # print(view, wrapped)
                 if IExemptCSRF.providedBy(wrapped):
                     # Don't wrap this with CSRF checker
                     return super().__call__(view)

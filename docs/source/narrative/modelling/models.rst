@@ -230,22 +230,7 @@ Example:
 Columns
 -------
 
-For available model column types see
-
-* `Column and Data types <http://docs.sqlalchemy.org/en/latest/core/types.html>`_ in SQLAlchemy documentation
-
-* `PostgreSQL ARRAY <http://docs.sqlalchemy.org/en/latest/dialects/postgresql.html#array-types>`_
-
-* `PostgreSQL JSON  <http://docs.sqlalchemy.org/en/latest/dialects/postgresql.html#json-types>`_
-
-* `PostgreSQL ENUM <http://docs.sqlalchemy.org/en/latest/dialects/postgresql.html#enum-types>`_
-
-* :py:class:`sqlalchemy.dialects.postgresql.INET`
-
-* :py:class:`sqlalchemy.dialects.postgresql.UUID`
-
-* :py:class:`sqlalchemy.dialects.postgresql.JSONB`
-
+See :ref:`columns`.
 
 Date and time
 -------------

@@ -83,7 +83,12 @@ Create ``myproject`` folder which contains ``venv`` folder for virtual environme
     cd myproject
     virtualenv -p python3.5 venv  # We assume you have Python 3.5 installed
     source venv/bin/activate
-    pip install websauna
-    # or if you want the Github master
-    # pip install -e "git+https://github.com/websauna/websauna.git@master#egg=websauna"
+
+    # Install Websauna from pypi.python.org
+    # NOT RELEASED YET
+    # Use command below
+    # pip install websauna
+
+    # Install Github development version of Websauna
+    pip install -e "git+https://github.com/websauna/websauna.git@master#egg=websauna"
 

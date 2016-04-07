@@ -4,7 +4,7 @@
 Getting started
 ===============
 
-Welcome to Websauna tutorial. This tutorial tells you how to get started with Websauna framework to develop your own website website.
+Welcome to Websauna tutorial. This tutorial tells you how to get started with Websauna framework to develop your own website.
 
 .. image:: images/welcome.png
     :width: 640px

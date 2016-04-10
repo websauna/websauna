@@ -79,14 +79,31 @@ Edit ``admins.py`` file of ``myapp.py`` and add the following code:
             def get_title(self):
                 return self.get_object().choice_text
 
+Then make sure your ``__init__.py`` has the following:
+
+.. code-block:: python
+
+    class Initializer:
+
+        ...
+
+        def configure_model_admins(self):
+            """Register the models of this application."""
+
+            # Call parent which registers user and group admins
+            super(Initializer, self).configure_model_admins()
+
+            # Scan our admins
+            from . import admins
+            self.config.scan(admins)
 
 The process breakdown of adding model admins is
 
-* Create ``admin.py`` file where you place your model admins
+* Create ``admins.py`` file where you place your model admins
 
 * Create a :py:class:`websauna.system.admin.modeladmin.ModelAdmin` subclass for each model you wish to show in admin interface
 
-* Decorate this class with :py:class:`websauna.system.admin.modeladmin.model_admin` class decorator
+* Decorate this class with :py:class:`websauna.system.admin.modeladmin.model_admin` class decorator for configuration scan
 
 * In the ``__init__.py`` of your application import your admin module and run ``config.scan(admin)`` for it. The app :ref:`scaffold` should include this behavior in the default generated ``__init__.py``
 
@@ -94,9 +111,9 @@ In the example, we declare two classes per each model. Here is a breakdown for *
 
 * ``@model_admin(traverse_id="question")`` tells that this model admin is registered under ``/admin/question`` URL.
 
-* Class ``myapp.admins.QuestionAdmin`` is a :term:`resource` for question model admin root itself. This resource provides add question and list questions views for all questions in the database.
+* Class ``myapp.admins.QuestionAdmin`` is a :term:`resource` for question model admin root itself. This resource provides add question and list questions views for all questions in the database, like URL ``/admin/question/add``.
 
-* Class ``myapp.admins.QuestionAdmin.Resource`` is a :term:`resource` for individual questions. It maps :term:`SQLAlchemy` model instance to ``/admin/question/xxxx`` URLs, so that each model instance gets its own user friendly URL path. This resource provides view question, edit question and delete question views for individual question instances.
+* Class ``myapp.admins.QuestionAdmin.Resource`` is a :term:`resource` for individual questions. It maps :term:`SQLAlchemy` model instance to ``/admin/question/xxxx`` URLs, so that each model instance gets its own user friendly URL path. This resource provides view question, edit question and delete question views for individual question instances, like URL ``/admin/question/xxx/edit``.
 
 Visiting admin
 ==============
@@ -116,22 +133,20 @@ You can add new choices. For the choice you can choose the appropriate question 
 .. image:: images/add_choice.png
     :width: 640px
 
-.. note ::
-
-    TODO: Currently there is not possibility to add and edit question choices inline from the question page. This will change in the future versions.
-
 Further information
 ===================
 
 Read :ref:`admin` documentation. Read :ref:`CRUD` documentation.
 
-`More examples how to register models to your admin interface in websauna.wallet package <https://github.com/websauna/websauna.wallet/blob/master/websauna/wallet/admins.py>`_.
-
 Some examples how to customize and override views in admin interfaces
 
-* :py:mod:`websauna.system.user.admin` module
+* :py:mod:`websauna.system.user.admins` module
 
 * :py:mod:`websauna.system.user.adminviews` module
 
-* `websauna.wallet package <https://github.com/websauna/websauna.wallet/blob/master/websauna/wallet/adminviews.py>`_
+* websauna.wallet package `admins.py <https://github.com/websauna/websauna.wallet/blob/master/websauna/wallet/admins.py>`_.
+and `adminviews.py <https://github.com/websauna/websauna.wallet/blob/master/websauna/wallet/adminviews.py>`_
 
+.. note ::
+
+    TODO: Currently there is not possibility to add and edit question choices inline from the question page. This will change in the future versions.

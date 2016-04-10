@@ -3,7 +3,7 @@
 {% block admin_content %}
 <div id="admin-main">
   {# Comment we changed the intro text a bit #}
-  <p>Welcome to <strong>Newco Example Company</strong> solar power dashboard, <strong>{{ request.user.friendly_name }}</strong>!</p>
+  <p>Welcome to Wattcoin dashboard, {{ request.user.friendly_name }}</p>
 </div>
 
 <div class="row">
@@ -12,9 +12,11 @@
     {# Add a custom fixed header on the top of panels #}
     <div class="panel panel-default panel-admin">
       <div class="panel-body">
-        <div id="curve_chart" style="width: 800px; height: 400px"></div>
+        <h2>Current power generation (as generated {{ (now() - timedelta(days=14))|arrow_format("YYYY-MM-DD")}}*)</h2>
 
-        <p><small>* Incoming data delayed two weeks</small></p>
+        <div id="curve_chart" style="width: 900px; height: 500px"></div>
+
+        <p>* Incoming data delayed two weeks</p>
 
       </div>
     </div>
@@ -27,7 +29,7 @@
 {% endblock admin_content %}
 
 
-{% block body_end_script %}
+{% block custom_script %}
   {{ super () }}
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <script type="text/javascript">
@@ -38,18 +40,17 @@
 
       function drawChart() {
         var data = google.visualization.arrayToDataTable([
-          ['Week', 'Solar output (kWh)', 'Load (consumption) (kWh)'],
-          ['2016-02-01',  2000,  1200],
-          ['2016-02-07',  2300,  1400],
-          ['2016-02-14',  2400,  1400],
-          ['2016-02-21',  2200,  1550]
+          ['Year', 'Sales', 'Expenses'],
+          ['2004',  1000,      400],
+          ['2005',  1170,      460],
+          ['2006',  660,       1120],
+          ['2007',  1030,      540]
         ]);
 
         var options = {
-          title: 'Current power generation (as generated 2016-02-21*)',
+          title: 'Company Performance',
           curveType: 'function',
-          legend: { position: 'bottom' },
-          chartArea: {left:0, top:40, width:'100%',height:'75%'}
+          legend: { position: 'bottom' }
         };
 
         var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));

@@ -22,7 +22,7 @@ Before moving forward it's important to understand different test types
 
 * **Unit tests** are laser precise tests which stress out a single function or algorithm. Unit tests often :term:`mock` out parts of the framework and external dependencies for a test run. Websauna itself barely contains any unit tests, because it integrates other components to a high level framework and those components have their own test suites.
 
-* **Functional tests** test one view or views in a separation from others. They either invoke the view using a test request instead of a normal HTTP request object and then parse the response codes and payload. An example of functional test is :py:func:`webauna.tests.test_csrf.test_csrf_exempt`.
+* **Functional tests** test one view or views in a separation from others. They either invoke the view using a test request instead of a normal HTTP request object and then parse the response codes and payload. An example of functional test is :py:func:`websauna.tests.test_csrf.test_csrf_exempt`.
 
 * **Integration tests** are the heavy ones. Integration tests ramp up the whole framework for running tests. They usually launch a web browser and have a database for running. Test perform high level actions like "Login to a website" and "press an Add item button" and "fill in the form". :term:`Splinter` is an excellent library for integration testing. An example test is a :py:func:`websauna.tests.test_facebook.test_facebook_first_login` which authenticates a Websauna user against a Facebook and see the user logs in to the site correctly. This test does not mock out anything, but actually checks that facebook.com works with Websauna.
 
@@ -31,7 +31,7 @@ Before moving forward it's important to understand different test types
 Testing in Websauna
 ===================
 
-Websauna uses a :term`py.test` testing framework, with term :term:`Splinter` browser emulation library.
+Websauna uses a :term:`py.test` testing framework, with term :term:`Splinter` browser emulation library.
 
 * py.test provides advanced test running capabilities with markers for test exclusion and scope of a test
 

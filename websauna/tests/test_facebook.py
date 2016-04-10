@@ -98,7 +98,6 @@ def test_facebook_first_login(web_server, browser, dbsession):
     assert b.is_element_visible_by_css("#login-form")
 
     b.find_by_css(".btn-login-facebook").click()
-
     do_facebook_login_if_facebook_didnt_log_us_already(browser)
     assert b.is_element_present_by_css("#msg-you-are-logged-in")
 

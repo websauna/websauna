@@ -180,6 +180,9 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
     pytest
         pytest is a mature full-featured Python testing tool that provides easy no-boilerplate testing, scales from simple unit to complex functional testing and integrates with other testing methods and tools. `More information <https://en.wikipedia.org/wiki/Deployment_environment#Production>`__.
 
+    pytest-splinter
+        :term:`Splinter` integration for :term:`pytest` based test suites. `More information <https://github.com/pytest-dev/pytest-splinter>`__.
+
     Python
         Python is a programming language that lets you work quickly and integrate systems more effectively. `Learn more <https://www.python.org/>`__.
 

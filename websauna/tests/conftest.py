@@ -9,6 +9,7 @@ import pyramid.testing
 import pytest
 import transaction
 from pyramid.router import Router
+from pytest_splinter.plugin import Browser
 
 from sqlalchemy.orm.session import Session
 
@@ -23,6 +24,7 @@ from websauna.system.model.meta import create_dbsession
 from websauna.compat.typing import Optional
 from websauna.compat.typing import Callable
 from websauna.utils.qualname import get_qual_name
+from websauna.utils.configincluder import IncludeAwareConfigParser
 
 
 @pytest.fixture(scope='session')
@@ -51,16 +53,88 @@ def ini_settings(request, test_config_path) -> dict:
     :return: A dictionary representing the key/value pairs in an ``app`` section within the file represented by ``config_uri``
     """
 
+    # This enables our INI inclusion mechanism
+    # TODO: Don't use get_appsettings() from paster, but create a INI includer compatible version
     from websauna.utils.configincluder import monkey_patch_paster_config_parser
     monkey_patch_paster_config_parser()
 
+    # Setup Python logging from the INI
     setup_logging(test_config_path)
+
+    # Read [app] section
     config = get_appsettings(test_config_path)
 
     # To pass the config filename itself forward
     config["_ini_file"] = test_config_path
 
     return config
+
+
+@pytest.fixture
+def browser(request, browser_instance_getter, ini_settings) -> Browser:
+    """Websauna specic browser fixtures.
+
+    This is a py.test fixture to create a :term:`pytest-splinter` based browser instance. It is configured with splinter settings from an INI ``[splinter]`` section.
+
+    .. note ::
+
+        These will override any command line options given.
+
+    .. note ::
+
+        This is a temporary mechanism and will be phased out with INI based configuration.
+
+    Example in ``test.ini``::
+
+        [splinter]
+        make_screenshot_on_failure = false
+
+    For list of possible settings see this function source code.
+
+    More information
+
+    * https://github.com/pytest-dev/pytest-splinter/blob/master/pytest_splinter/plugin.py
+    """
+
+    splinter_command_line_args = [
+        "splinter_session_scoped_browser",
+        "splinter_browser_load_condition",
+        "splinter_browser_load_timeout",
+        "splinter_download_file_types",
+        "splinter_driver_kwargs",
+        "splinter_file_download_dir",
+        "splinter_firefox_profile_preferences",
+        "splinter_firefox_profile_directory",
+        "splinter_make_screenshot_on_failure",
+        "splinter_remote_url",
+        "splinter_screenshot_dir",
+        "splinter_selenium_implicit_wait",
+        "splinter_wait_time",
+        "splinter_selenium_socket_timeout",
+        "splinter_selenium_speed",
+        "splinter_webdriver_executable",
+        "splinter_window_size",
+        "splinter_browser_class",
+        "splinter_clean_cookies_urls",
+    ]
+
+    # Cache read settings on a function attribute
+    full_config = getattr(browser, "full_config", None)
+    if not full_config:
+        parser = IncludeAwareConfigParser()
+        parser.read(ini_settings["_ini_file"])
+        full_config = browser.full_config = parser
+
+    # If INI provides any settings override splinter defaults
+    for arg in splinter_command_line_args:
+        ini_setting_name = arg.replace("splinter_", "")
+        # Read setting from splinter section
+        arg_value = full_config.get("splinter", ini_setting_name, fallback=None)
+        if arg_value:
+            setattr(request.config.option, arg, arg_value)
+
+    return browser_instance_getter(request, browser)
+
 
 
 def get_app(ini_settings: dict, extra_init: Optional[Callable] = None) -> Router:

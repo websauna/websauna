@@ -57,5 +57,8 @@ If you are running multiple tests and want to abort after first failing test use
 
     py.test myapp --ini conf/test.ini -x
 
+Splinter settings
+=================
 
+Websauna uses :term:`Splinter` and :term`pytest-splinter` packages for browser based testing. Besides normal *pytest-splinter* command line based configuration, Websauna supports INI based configuration. For more information see :py:func:`websauna.tests.conftest.browser`.
 

@@ -164,7 +164,7 @@ Save the changes. Restart your :term:`notebook` session by shutting it down and 
 
     # If we want to raise an exception when the row does
     # not exist we can use
-    >>> dbsession.query(Question).filter(id=2).one()
+    >>> dbsession.query(Question).filter(Question.id==2).one()
     Traceback (most recent call last):
         ...
     NoResultFound: No row was found for one()

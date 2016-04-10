@@ -1,8 +1,8 @@
+.. _secrets:
+
 =======
 Secrets
 =======
-
-.. _secrets:
 
 Secret files are configuration files which contain sensitive material. Additional measurements must be taken that this material is not leaked. For example protection measurements include
 

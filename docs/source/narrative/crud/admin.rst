@@ -88,7 +88,7 @@ Make sure ``admins.py`` is scanned in your :py:class:`websauna.system.Initialize
 
 Now we can see the first peak on the model admin:
 
-.. image-source:: ../images/model-admin-1.png
+.. image:: ../images/model-admin-1.png
     :width: 640px
 
 The default listing view output is still messy, because the listing view doesn't know what columns to show. Let's fix this. Let's create a new file ``adminviews.py``:

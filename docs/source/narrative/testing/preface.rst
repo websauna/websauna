@@ -31,7 +31,7 @@ Before moving forward it's important to understand different test types
 Testing in Websauna
 ===================
 
-Websauna uses a :term:`py.test` testing framework, with term :term:`Splinter` browser emulation library.
+Websauna uses a :term:`pytest` testing framework, with term :term:`Splinter` browser emulation library.
 
 * py.test provides advanced test running capabilities with markers for test exclusion and scope of a test
 

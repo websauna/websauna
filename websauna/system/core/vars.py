@@ -80,7 +80,7 @@ def site_tag_line(request, registry, settings):
 def site_email_prefix(request, registry, settings):
     """Expose website URL from ``websauna.site_email_prefix`` config variable to templates.
 
-    This is used as the subject prefix in outgoing email. E.g. if the value is ``SuperSite``you'll email subjects::
+    This is used as the subject prefix in outgoing email. E.g. if the value is ``SuperSite`` you'll email subjects::
 
         [SuperSite] Welcome to www.supersite.com
 

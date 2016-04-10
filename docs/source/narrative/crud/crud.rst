@@ -1,3 +1,5 @@
+.. _CRUD:
+
 ====
 CRUD
 ====
@@ -5,7 +7,7 @@ CRUD
 Introduction
 ============
 
-Websauna comes with :term:`CRUD` which allows you to build create-read-update-delete user interfaces easily for your models.
+Websauna comes with :term:`CRUD` (create-read-update-delete) subsystem which allows you to quickly build user interfaces to edit your data through automatically or manually generated web forms.
 
 * CRUD comes with built-in support :term:`SQLAlchemy` models, but can be used any kind of model library or databaes
 

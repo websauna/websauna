@@ -278,6 +278,9 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
     uWSGI
         The uWSGI project aims at developing a full stack for application servers for various programming languages. Protocols, proxies, process managers and monitors are all implemented using a common api and a common configuration style. `More information <https://uwsgi-docs.readthedocs.org/en/latest/#>`__.
 
+    vault
+        A vault is a generic term that refers to a file or a service that contains protected secrets, like passwords and private keys.
+
     view
         A "view callable" is a callable Python object which is associated with a view configuration; it returns a response object. A view callable accepts a single argument: request, which will be an instance of a :term:`request` object. An alternate calling convention allows a view to be defined as a callable which accepts a pair of arguments: context object and :term:`request`: this calling convention is useful for traversal-based applications in which a context is always very important. A view callable is the primary mechanism by which a developer writes user interface code within :term:`Pyramid`. See :doc:`view documentation for more information <../narrative/frontend/views>`.
 

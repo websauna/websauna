@@ -71,6 +71,8 @@ If you are planning to build a reusable addon you may choose to declare your mod
 
 ... and then let later the addon consumer to plug-in the model of base class of their choice in :py:class:`websauna.system.Initializer.configure_instrumented_models` by using :py:class:`websauna.system.model.utils.attach_model_to_base`.
 
+.. uuid-security:
+
 Primary keys: UUID, running counter or both?
 --------------------------------------------
 
@@ -109,7 +111,7 @@ After this, the following works in a column definition:
     uuid = Column(UUID(as_uuid=True),
                 server_default=sqlalchemy.text("uuid_generate_v4()"),)
 
-Read blog post `UUID Primary Keys in PostgreSQL <https://blog.starkandwayne.com/2015/05/23/uuid-primary-keys-in-postgresql/>_.
+Read blog post `UUID Primary Keys in PostgreSQL <https://blog.starkandwayne.com/2015/05/23/uuid-primary-keys-in-postgresql/>`_.
 
 UUID primary keys
 +++++++++++++++++
@@ -170,6 +172,8 @@ Example:
     # Back to UUID object
     >>> print(slug.slug_to_uuid('I0p4RyoIQe-EQ1GU_QicoQ'))
     234a7847-2a08-41ef-8443-5194fd089ca1
+
+.. _running-counter-id:
 
 Running counter id primary key and UUID column
 ++++++++++++++++++++++++++++++++++++++++++++++

@@ -13,11 +13,9 @@ Enter notebook
 
 You can enter notebook in two ways
 
-* *Shell* link in the top navigation bar opens a global notebook session
+* *Shell* link in the top navigation bar opens a generic notebook session
 
-* Each item in admin interface has its own *shell* link which oepns a notebook session prepopulated with this item
-
-In this tutorial we are going to use the latter way. Go to admin and click your own user. Then click *Shell* link next to *Set password*.
+* *Shell* button on the object of an :ref:`admin` interface opens notebook session prepopulated with this particular item
 
 .. note ::
 
@@ -29,9 +27,13 @@ In this tutorial we are going to use the latter way. Go to admin and click your 
 Using shell
 -----------
 
-Let's change the name of your user through shell.
+Let's change the name of your user through the notebook.
 
-Shell exposes the current admin item as ``obj`` variable as shown in the shell instructions.
+* Navigate to your user object in admin interface *Admin > Models > Users > [your user]*
+
+* Press *Shell* button next to *Edit* button and *Set password* Buttons. **Note**: This is different Shell button from one at the top navigation.
+
+Now Notebook exposes the currently browser item as ``obj`` variable.
 
 .. image:: images/notebook.png
     :width: 640px

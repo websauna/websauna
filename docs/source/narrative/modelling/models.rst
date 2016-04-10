@@ -560,3 +560,4 @@ Below is an example of get or create pattern which creates two foreign key neste
 .. note ::
 
     This was written before any PostgreSQL UPSERT support in SQLAlchemy.
+

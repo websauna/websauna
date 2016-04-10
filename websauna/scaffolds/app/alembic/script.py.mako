@@ -14,6 +14,7 @@ depends_on = ${repr(depends_on)}
 
 import datetime
 import websauna.system.model.columns
+from sqlalchemy.types import Text  # Needed from proper creation of JSON fields as Alembic inserts astext_type=Text() row
 
 from alembic import op
 import sqlalchemy as sa

@@ -78,3 +78,28 @@ More information
 * http://stackoverflow.com/questions/10059345/sqlalchemy-unique-across-multiple-columns
 
 * http://stackoverflow.com/questions/26092756/sqlalchemy-enforcing-a-two-column-unique-constraint-where-one-column-needs-to
+
+Enums
+=====
+
+:term:`SQLAlchemy` 1.1 support native Python enums for :term:`PostgreSQL`.
+
+TODO: Show enum patterns
+
+Listing enums
+-------------
+
+:term`PostgreSQL` client like :ref:`ws-db-shell` can list enums with the command::
+
+    \dT+
+
+Renaming enums
+---------------
+
+:term:`Alembic` migration scripts cannot detect enum item changes. You can manually rename enums using the syntax
+
+.. code-block:: sql
+
+    UPDATE pg_enum SET enumlabel = 'new_enum_label'  WHERE enumlabel = 'old_enum_label' AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'my_enum_name')
+
+`More information <http://stackoverflow.com/a/12628411/315168>`_.

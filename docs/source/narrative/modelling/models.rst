@@ -280,6 +280,8 @@ Use :py:meth:`sqlalchemy.orm.Query.get`. Example model:
 
 You can get an object using a :base64:
 
+.. code-block:: python
+
     # Use get() as a shorthand method to get one object by primary key
     >>> from .model import Asset
     >>> from websauna.utils.slug import slug_to_uuid

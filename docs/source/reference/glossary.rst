@@ -30,7 +30,7 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
         Authomatic is a framework agnostic library for Python web applications with a minimalistic but powerful interface which simplifies authentication of users by third party providers like Facebook or Twitter through standards like OAuth and OpenID. `More info <http://peterhudec.github.io/authomatic/>`__.
 
     Base64
-        Base64 is a group of similar binary-to-text encoding schemes that represent binary data in an ASCII string format by translating it into a radix-64 representation. More information <https://en.wikipedia.org/wiki/Base64>`__.
+        Base64 is a group of similar binary-to-text encoding schemes that represent binary data in an ASCII string format by translating it into a radix-64 representation. More information `<https://en.wikipedia.org/wiki/Base64>`__.
 
     Bootstrap
         Bootstrap is the most popular HTML, CSS, and JS framework for developing responsive, mobile first projects on the web. `More informatin <http://getbootstrap.com/>`__.

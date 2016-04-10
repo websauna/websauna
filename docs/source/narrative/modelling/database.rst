@@ -26,7 +26,7 @@ Session in a HTTP request processing
 Session is exposed as :py:attr:`websauna.system.http.Request.dbsession` attribute::
 
     def my_view(request):
-        dbsession = request
+        dbsession = request.dbsession
         user = dbsession.query(User).get(1)
 
 ``request.dbsession`` transaction is bound to HTTP request lifecycle. If HTTP request success, the transaction is commited. If HTTP request fails due to a raised exception, but not due to error value return from view, the transaction is rolled back and nothing is written into a database.

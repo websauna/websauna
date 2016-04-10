@@ -21,7 +21,9 @@ Otherwise you get an error ``ImportError: No module named 'websauna.viewconfig'`
 Running tests
 -------------
 
-Unit tests are `PyTest based <http://pytest.org/>`_. They use `Selenium browser automation framework <selenium-python.readthedocs.org/>`_ and  `Splinter simplified element interatcion <https://splinter.readthedocs.org/en/latest/>`_.
+Unit tests are `PyTest based <http://pytest.org/>`_. They use `Selenium browser automation framework
+<http://selenium-python.readthedocs.org/>`_ and `Splinter simplified element interatcion
+<https://splinter.readthedocs.org/en/latest/>`_.
 
 First test run
 ++++++++++++++
@@ -44,7 +46,7 @@ Create ``setup-test-secrets.bash`` (git ignored) with following content::
     export FACEBOOK_USER
     export FACEBOOK_PASSWORD
 
-Enable it in your shell:
+Enable it in your shell::
 
     source setup-test-secrets.bash
 

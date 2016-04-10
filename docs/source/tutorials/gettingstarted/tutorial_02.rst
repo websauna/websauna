@@ -92,3 +92,10 @@ Create ``myproject`` folder which contains ``venv`` folder for virtual environme
     # Install Github development version of Websauna
     pip install -e "git+https://github.com/websauna/websauna.git@master#egg=websauna"
 
+If that doesn't work, try::
+
+    python setup.py develop
+
+from source.
+
+There are subtle differences between the two methods, this should always work.

@@ -96,6 +96,8 @@ Raw pyramid_mail API
 
 Sending out test mail with raw pyramid_mailer:
 
+.. code-block:: python
+
     from pyramid_mailer import get_mailer
     from pyramid_mailer.message import Message
 

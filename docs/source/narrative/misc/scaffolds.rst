@@ -26,4 +26,4 @@ Maintain independent migration history.
 Advanced
 ========
 
-See :py:mod`websauna.scaffolds` package.
+See :py:mod:`websauna.scaffolds` package.

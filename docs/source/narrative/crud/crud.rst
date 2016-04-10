@@ -44,7 +44,7 @@ For example here is an URL from the tutorial::
 
     http://localhost:6543/admin/models/choice/zYkpKEkpSvq02tPjL_ko8Q/show
 
-Below is how CRUD is formed. It consists of four :term:`resource` classes (see :py:class`websauna.system.core.traversal.Resource`) and one :term:`view`.
+Below is how CRUD is formed. It consists of four :term:`resource` classes (see :py:class:`websauna.system.core.traversal.Resource`) and one :term:`view`.
 
 * ``admin`` is the default admin interface root of the site, see :py:class:`websauna.system.admin.admin.Admin`
 
@@ -100,7 +100,7 @@ You can change the name of the attribute. For example if your model has UUID bas
 Form schema generation
 ----------------------
 
-*Show*, *edit* and *add* views have a form schema which describes how individual object is shown or edited. Form schema uses :doc`form autogeneration <../form/autoform>`, though you can manually specify the schema.
+*Show*, *edit* and *add* views have a form schema which describes how individual object is shown or edited. Form schema uses :doc:`form autogeneration <../form/autoform>`, though you can manually specify the schema.
 
 Form creation process is following for CRUDs manageing SQLAlchemy based data
 
@@ -120,7 +120,7 @@ Form creation process is following for CRUDs manageing SQLAlchemy based data
 
     schema.bind(request=request, context=context)
 
-Example schema declaration (:py:class:`websauna.system.useradmin.adminviews.UserEdit):
+Example schema declaration (:py:class:`websauna.system.useradmin.adminviews.UserEdit`):
 
 .. code-block:: python
 

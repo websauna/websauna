@@ -34,7 +34,7 @@ Creating your admin user
 
 On a shell where your project virtual environment is activated, cd to a folder with ``development.ini`` and type::
 
-    ws-create-user development.ini myemail@example.com
+    ws-create-user conf/development.ini myemail@example.com
 
 This will prompt you to give a password for the new user. Because this is the first user of the site the user becomes an administrator.
 

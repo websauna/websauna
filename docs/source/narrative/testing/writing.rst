@@ -12,7 +12,7 @@ Here is explained some of the test basics.
 Basic integration testing pattern
 ---------------------------------
 
-* py.test is launched with :ref:`test.ini` which contains settings your Websauna application users during the testing, e.g. the name of SQL database where tests write and read data.
+* py.test is launched with :ref:`test.ini` which contains settings your Websauna application uses during the testing, e.g. the name of SQL database where tests write and read data.
 
 * You have your tests as ``myapp/tests/test_xxx.py`` files. How you split test functions to individual files is up to you.
 

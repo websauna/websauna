@@ -33,7 +33,7 @@ chapter, so that the template contains an HTML ``<form>`` element:
           </div>
         {% endif %}
 
-        <form class="form-vote" action="{{ 'detail'|route_url(question_uuid=question.uuid|uuid_to_slug) }}" method="post">
+        <form class="form-vote" action="{{ 'vote'|route_url(question_uuid=question.uuid|uuid_to_slug) }}" method="post">
           <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
 

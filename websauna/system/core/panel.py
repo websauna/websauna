@@ -11,7 +11,10 @@ from zope.interface import providedBy
 # Jinja 2 adoption of render_panel
 # TODO: make this configurable in upstream
 def render_panel(context, request, name='', *args, **kw):
-    """
+    """Render a panel.
+
+    TODO: Clean this up
+
     Renders the named panel, returning a `unicode` object that is the
     rendered HTML for the panel.  The panel is looked up using the current
     context (or the context given as keyword argument, to override the
@@ -21,6 +24,10 @@ def render_panel(context, request, name='', *args, **kw):
     context, request and any additional parameters passed into the
     `render_panel` call.  In case a panel isn't found, `None` is returned.
     """
+
+    if not "controls" in kw:
+        kw["controls"] = True
+
     adapters = request.registry.adapters
     panel = adapters.lookup((providedBy(context),), IPanel, name=name)
     assert panel, "Could not find panel {}".format(name)

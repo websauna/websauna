@@ -18,45 +18,51 @@
         </div>
     {% endblock controls %}
 
-    {% if count %}
-        <div class="table-responsive">
-            <table class="table listing listing-{{crud.id}}">
-                <thead>
-                    {% for column in columns %}
-                        {%  include column.header_template %}
-                    {% endfor %}
-                </thead>
+    {% block listing %}
+        {# List all CRUD items in a table #}
+        {% if count %}
+            <div class="table-responsive">
+                <table class="table listing listing-{{crud.id}}">
+                    <thead>
+                        {% for column in columns %}
+                            {%  include column.header_template %}
+                        {% endfor %}
+                    </thead>
 
-                <tbody>
-                    {% for obj in query %}
-                        <tr class="crud-row crud-row-{{ obj.id }}">
-                            {% with instance=crud.wrap_to_resource(obj) %}
-                                {% for column in columns  %}
-                                    {% include column.body_template %}
-                                {% endfor %}
-                            {% endwith %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% endif %}
-
-    <div class="row">
-        <div class="col-md-12 text-muted text-center">
-
-        {% if not count %}
-            <p id="crud-listing-no-items">
-                No items
-            </p>
-        {% else %}
-
-            <div id="crud-listing-count">
-                Total {{count}} items
+                    <tbody>
+                        {% for obj in query %}
+                            <tr class="crud-row crud-row-{{ obj.id }}">
+                                {% with instance=crud.wrap_to_resource(obj) %}
+                                    {% for column in columns  %}
+                                        {% include column.body_template %}
+                                    {% endfor %}
+                                {% endwith %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         {% endif %}
+    {% endblock %}
+
+    {% block count %}
+        {# Display total count of items #}
+        <div class="row">
+            <div class="col-md-12 text-muted text-center">
+
+            {% if not count %}
+                <p id="crud-listing-no-items">
+                    No items
+                </p>
+            {% else %}
+
+                <div id="crud-listing-count">
+                    Total {{count}} items
+                </div>
+            {% endif %}
+            </div>
         </div>
-    </div>
+    {% endblock %}
 
 
     {#

@@ -16,6 +16,8 @@ from websauna.compat import typing
 from websauna.utils import html
 from websauna.utils import slug
 
+from websauna.system.core.panel import render_panel as _render_panel
+
 
 @contextfilter
 def uuid_to_slug(jinja_ctx, context, **kw):
@@ -152,6 +154,36 @@ def to_json(jinja_ctx, context, safe=True):
 
 
 @contextfilter
+def render_panel(jinja_ctx, context, name, **kwargs):
+    """Render a panel inline in a template.
+
+    Allows placing :ref:`admin panels <admin-panel>` in templates directly.
+
+    Example how to include panel at the top of admin CRUD listing template:
+
+    .. code-block:: html+jinja
+
+        {% block title %}
+
+          <h1>{{title}}</h1>
+
+          {{ context|render_panel(name="admin_panel", controls=False) }}
+
+        {% endblock %}
+
+    :param context: Any resource object, like ModelAdmin instance
+
+    :param name: registered panel name, like ``admin_panel``
+
+    :param kwargs: Passed to the panel function as is
+
+    :return: HTML string of the rendered panel
+    """
+    request = jinja_ctx.get('request') or get_current_request()
+    return _render_panel(context, request, name="admin_panel", **kwargs)
+
+
+@contextfilter
 def timestruct(jinja_ctx, context, **kw):
     """Render both humanized time and accurate time.
 
@@ -262,5 +294,6 @@ def includeme(config):
     include_filter(config, "to_json", to_json)
     include_filter(config, "from_timestamp", from_timestamp)
     include_filter(config, "arrow_format", arrow_format)
+    include_filter(config, "render_panel", render_panel)
 
 

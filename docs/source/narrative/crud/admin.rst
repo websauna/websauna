@@ -229,10 +229,26 @@ Example::
     # Get a context view named "edit" for this resource
     edit_link = request.resource_url(resource, "edit")
 
-Creating an admin panel
-=======================
+.. _admin-panel:
 
-Panel shows summary information about one model on the landing page of the admin (dashboard).
+Creating admin panels
+=====================
+
+Websauna admin interface supports panels.
+
+* Panel shows summary information on the landing page of the admin interface.
+
+* Panels can be rendered inline using :ref:`render_panel() filter <filter-render_panel>`.
+
+* Panels are registered using :py:func:`pyramid_layout.panel.panel_config` decorator that is picked up by ``config.scan()``
+
+Panel is a ``callback(context, request, **kwargs)``
+
+* ``context`` is any :term:`resource`, like *ModelAdmin* instance
+
+* ``request`` is :py:class:`websauna.system.http.request.Request`
+
+* ``kwargs`` is a dictionary of rendering hints that are passed to the rendering context as is By default contains one item ``controls`` which can be set to ``False`` to disable
 
 Below is an example how one can customize this panel. We use ``UserOwnedAccount`` model in this example.
 
@@ -253,7 +269,7 @@ First create ``panels.py``:
 
 
     @panel_config(name='admin_panel', context=admins.UserAccountAdmin, renderer='admin/user_owned_account_panel.html')
-    def user_owned_account(context, request):
+    def user_owned_account(context, request, **kwargs):
         """Admin panel for Users."""
 
         dbsession = request.dbsession
@@ -275,7 +291,7 @@ First create ``panels.py``:
         # so it knows how to render buttons
         model_admin = context
 
-        return locals()
+        return dict(locals(), **kwargs)
 
 Make sure you scan ``panels.py`` in your :py:class:`websauna.system.Initializer`:
 

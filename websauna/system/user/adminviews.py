@@ -34,7 +34,7 @@ def kill_user_sessions(request, user, operation):
 
 
 @panel_config(name='admin_panel', context=UserAdmin, renderer='admin/user_panel.html')
-def user_admin_panel(context, request):
+def user_admin_panel(context, request, **kwargs):
     """Admin panel for Users."""
 
     dbsession = request.dbsession
@@ -48,7 +48,7 @@ def user_admin_panel(context, request):
     latest_user = dbsession.query(model).order_by(model.id.desc()).first()
     latest_user_url = get_admin_url_for_sqlalchemy_object(admin, latest_user)
 
-    return locals()
+    return dict(locals(), **kwargs)
 
 
 class UserListing(admin_views.Listing):

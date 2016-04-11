@@ -34,7 +34,7 @@ def admin(request):
 
 
 @panel_config(name='admin_panel', context=ModelAdmin, renderer='admin/model_panel.html')
-def default_model_admin_panel(context, request):
+def default_model_admin_panel(context, request, **kwargs):
     """Generic panel for any model admin.
 
     Display count of items in the database.
@@ -43,7 +43,7 @@ def default_model_admin_panel(context, request):
     count = model_admin.get_query().count()
     admin = model_admin.__parent__
     title = model_admin.title
-    return locals()
+    return dict(locals(), **kwargs)
 
 
 class Listing(crud_views.Listing):

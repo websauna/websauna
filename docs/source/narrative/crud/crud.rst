@@ -4,6 +4,8 @@
 CRUD
 ====
 
+.. contents:: :local:
+
 Introduction
 ============
 
@@ -344,6 +346,54 @@ Delete allows to remove one existing item.
 * The default SQLAlchemy delete callback in admin is :py:func:`websauna.system.crud.sqlalchemy.sqlalchemy_deleter`.
 
 * Delete can be defined as *cascading* in :term:`SQLAlchemy` model. With this model set up deleting the item will delete all related items too. See :ref:`cascade`.
+
+Customizing templates
+=====================
+
+For minor customizations it is often enough to override the page template of a default CRUD view.
+
+The process for this is
+
+* Subclass the view base class. E.g. for listing view in :ref:`admin` this would be :py:class:`websauna.system.admin.views.Listing` in ``adminviews.py``.
+
+* Declare new ``@view_config`` decorator for its view rendering method and use your CRUD resource as a ``context``. In this example we override :py:meth:`websauna.system.admin.views.Listing.listing`. Then we simply call return the :py:func:`super` call of the parent class.
+
+* Change the ``renderer`` argument to the path of your template
+
+* Make use ``config.scan()`` picks up the module (``adminviews.py``) in ``__init__.py``
+
+Example ``adminviews.py``:
+
+.. code-block:: python
+
+    from pyramid.view import view_config
+    from websauna.system.admin.views import Listing as DefaultListing
+
+    from . import admins
+
+
+    class XXXListing(DefaultListing):
+        """Overrides listing view template for XXX model.""
+
+        @view_config(context=admins.XXXAdmin, name="listing", renderer="admin/xxx_listing.html", route_name="admin", permission='view')
+        def listing(self):
+            return super().listing()
+
+
+Here is what ``xxx_listing.html`` looks like:
+
+.. code-block:: html+jinja
+
+    {% extends 'crud/listing.html' %}
+
+    {% block crud_content %}
+
+        <h1>Extra content at the top of page goes here</h1>
+
+        {{ super() }}
+    {% endblock crud_content %}
+
+Consult :ref:`template reference <templates>` for templates to override.
 
 Resource buttons
 ================

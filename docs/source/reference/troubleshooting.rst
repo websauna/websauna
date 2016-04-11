@@ -65,3 +65,13 @@ If your IPython Notebook (web) fails to start with the default variables filled 
     >>> exec(open("/srv/pyramid/myapp/notebooks/user-1/.ipython/profile_default/startup/startup.py").read())
 
 This should show the actual error which causes the context information failure. Then fix your startup script.
+
+
+Table 'xxx' is already defined for this MetaData instance during unit tests
+---------------------------------------------------------------------------
+
+You see SQLAlchemy error like below during the test run::
+
+    sqlalchemy.exc.InvalidRequestError: Table 'xxx' is already defined for this MetaData instance.  Specify 'extend_existing=True' to redefine options and columns on an existing Table object.
+
+This happens due to earlier error with SQLAlchemy initialization. Scroll up in the logs to see the actual error.

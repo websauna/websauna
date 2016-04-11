@@ -1,15 +1,22 @@
 {% extends base_template if base_template is defined else 'crud/base_crud.html' %}
 
 {% block crud_content %}
-    {% if title %}
-        <h1>{{title}}</h1>
-    {% endif %}
 
-    <div class="row">
-        <div class="col-md-12">
-           {% include "crud/resource_controls.html" %}
+    {% block title %}
+        {# Page title and any content around it #}
+        {% if title %}
+            <h1>{{title}}</h1>
+        {% endif %}
+    {% endblock %}
+
+    {% block controls %}
+        {# Top control bar with buttons #}
+        <div class="row">
+            <div class="col-md-12">
+               {% include "crud/resource_controls.html" %}
+            </div>
         </div>
-    </div>
+    {% endblock controls %}
 
     {% if count %}
         <div class="table-responsive">

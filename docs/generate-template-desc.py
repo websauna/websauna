@@ -12,6 +12,9 @@ import websauna.system.crud
 import websauna.system.admin
 
 TEMPLATE="""
+
+.. _templates:
+
 =========
 Templates
 =========

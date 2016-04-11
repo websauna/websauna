@@ -85,7 +85,7 @@ def do_facebook_login_if_facebook_didnt_log_us_already(browser):
         pass
 
 
-@pytest.mark.skipif("FACEBOOK_USER" not in os.environ, reason="Give Facebook user/pass as environment variables")
+@pytest.mark.skipif(not os.environ.get("FACEBOOK_USER"), reason="Give Facebook user/pass as environment variables")
 @flaky
 def test_facebook_first_login(web_server, browser, dbsession):
     """Login an user."""
@@ -113,7 +113,7 @@ def test_facebook_first_login(web_server, browser, dbsession):
     b.find_by_css("#nav-logout").click()
 
 
-@pytest.mark.skipif("FACEBOOK_USER" not in os.environ, reason="Give Facebook user/pass as environment variables")
+@pytest.mark.skipif(not os.environ.get("FACEBOOK_USER"), reason="Give Facebook user/pass as environment variables")
 @flaky
 def test_facebook_second_login(web_server, browser, dbsession):
     """Login second time through Facebook and see our first_login flag is unset.
@@ -149,7 +149,7 @@ def test_facebook_second_login(web_server, browser, dbsession):
     b.find_by_css("#nav-logout").click()
 
 
-@pytest.mark.skipif("FACEBOOK_USER" not in os.environ, reason="Give Facebook user/pass as environment variables")
+@pytest.mark.skipif(not os.environ.get("FACEBOOK_USER"), reason="Give Facebook user/pass as environment variables")
 @flaky
 def test_facebook_login_disabled_user(web_server, browser, dbsession, init):
     """Logged in user which is not enabled should give an error.."""

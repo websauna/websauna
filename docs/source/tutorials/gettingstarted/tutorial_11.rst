@@ -107,13 +107,20 @@ create a version which also allows process the votes. Edit the following to ``my
     from websauna.system.core import messages
     # ...
 
-    @simple_route("/questions/{question_uuid}", route_name="detail", renderer="myapp/detail.html", custom_predicates=(decode_uuid,))
-    def detail(request: Request, question_uuid: UUID):
+    @simple_route("/questions/{question_uuid}", route_name="detail", renderer="myapp/detail.html")
+    def detail(request: Request):
+
+        # Convert base64 encoded UUID string from request path to Python UUID object
+        question_uuid = slug_to_uuid(request.matchdict["question_uuid"])
+
         question = request.dbsession.query(Question).filter_by(uuid=question_uuid).first()
         if not question:
             raise HTTPNotFound()
 
         if request.method == "POST":
+
+            # Check that CSRF token was good
+            check_csrf_token(request)
 
             question = request.dbsession.query(Question).filter_by(uuid=question_uuid).first()
             if not question:
@@ -195,8 +202,12 @@ Then let's modify our ``results`` view function::
     from myapp.models import Choice
     # ...
 
-    @simple_route("/questions/{question_uuid}/results", route_name="results", renderer="myapp/results.html", custom_predicates=(decode_uuid,))
-    def results(request: Request, question_uuid: UUID):
+    @simple_route("/questions/{question_uuid}/results", route_name="results", renderer="myapp/results.html")
+    def results(request: Request):
+
+        # Convert base64 encoded UUID string from request path to Python UUID object
+        question_uuid = slug_to_uuid(request.matchdict["question_uuid"])
+
         question = request.dbsession.query(Question).filter_by(uuid=question_uuid).first()
         if not question:
             raise HTTPNotFound()

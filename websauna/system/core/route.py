@@ -32,7 +32,6 @@ def decode_uuid(info: dict, request: Request, marker_string="uuid") -> bool:
             try:
                 match[key] = slug_to_uuid(value)
             except SlugDecodeError as e:
-                import pdb ; pdb.set_trace()
                 raise DecodeUUIDException("Tried to decode segment name {} value {} from base64 to UUID. Not possible.".format(key, value)) from e
 
     return True

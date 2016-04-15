@@ -17,15 +17,15 @@ def csrf_sample(request):
     return Response("OK")
 
 
-@view_config(route_name="csrf_exempt_sample")
-@csrf_exempt
+@view_config(route_name="csrf_exempt_sample", require_csrf=False)
 def csrf_exempt_sample(request):
     assert request.method == "POST"
     return Response("OK")
 
 
-@view_config(route_name="csrf_exempt_sample_context")
-@csrf_exempt
+@view_config(route_name="csrf_exempt_sample_context", require_csrf=False)
 def csrf_exempt_sample_context(context, request):
     assert request.method == "POST"
     return Response("OK")
+
+

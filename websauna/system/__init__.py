@@ -1,12 +1,20 @@
 """Websauna framework initialization routine."""
 import sys
-import logging
-import os
-from pyramid_deform import configure_zpt_renderer
-from websauna.system.http.static import DefaultStaticAssetPolicy
 
+# Check Python version
 assert sys.version_info >= (3,4), "Websauna needs Python 3.4 or newer"
 
+from distutils.version import LooseVersion
+import pkg_resources
+
+# Check Pyramid  version
+pyramid_ver = LooseVersion(pkg_resources.get_distribution("pyramid").version).version
+if pyramid_ver[0] == 1:
+    assert pyramid_ver[0] >= 1 and pyramid_ver[1] >= 7, "Pyramid version 1.7 or newer required"
+
+import logging
+
+from pyramid_deform import configure_zpt_renderer
 from pyramid.config import Configurator
 from pyramid.interfaces import IDebugLogger, IViewMapperFactory, IRequest
 from pyramid.path import DottedNameResolver
@@ -18,6 +26,7 @@ from websauna.utils.autoevent import event_source
 from websauna.system.admin.modeladmin import configure_model_admin
 from websauna.system.model.utils import attach_model_to_base
 from websauna.utils.configincluder import IncludeAwareConfigParser
+from websauna.system.http.static import DefaultStaticAssetPolicy
 
 
 class SanityCheckFailed(Exception):
@@ -407,6 +416,11 @@ class Initializer:
         # Add request.admin variable
         self.config.add_request_method(get_admin, 'admin', reify=True)
 
+    def configure_csrf(self):
+        """Configure cross-site request forgery subsystem."""
+        from websauna.system.core.csrf import csrf_mapper_factory
+        self.config.registry.settings["pyramid.require_default_csrf"] = True
+
     @event_source
     def configure_forms(self):
         """Configure subsystems for rendering Deform forms.
@@ -421,7 +435,6 @@ class Initializer:
         from pyramid.config.views import DefaultViewMapper
         from websauna.system.form.resources import DefaultFormResources
         from websauna.system.form.interfaces import IFormResources
-        from websauna.system.core.csrf import csrf_mapper_factory
 
         # Make Deform widgets aware of our widget template paths
         configure_zpt_renderer(["websauna.system:form/templates/deform"])
@@ -432,13 +445,6 @@ class Initializer:
         # Overrides for Deform 2 stock JS and CSS
         default_form_resources = DefaultFormResources()
         self.config.registry.registerUtility(default_form_resources, IFormResources)
-
-        # Configure CSRF protection
-        mapper = self.config.registry.queryUtility(IViewMapperFactory)
-        if mapper is None:
-            mapper = DefaultViewMapper
-
-        self.config.set_view_mapper(csrf_mapper_factory(mapper))
 
     @event_source
     def configure_crud(self):
@@ -625,6 +631,7 @@ class Initializer:
         self.configure_static()
 
         # Forms
+        self.configure_csrf()
         self.configure_forms()
         self.configure_crud()
 

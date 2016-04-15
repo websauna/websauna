@@ -10,6 +10,7 @@ import sqlalchemy
 
 from abc import ABC, abstractmethod
 from sqlalchemy import Column
+from sqlalchemy import LargeBinary
 from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID, JSONB, INET
 from sqlalchemy.orm import RelationshipProperty, Mapper
 from sqlalchemy.sql.type_api import TypeEngine
@@ -25,6 +26,15 @@ from websauna.compat.typing import Optional
 
 from . import fields
 from .editmode import EditMode
+
+
+# TODO: Clean this up when getting rid of colanderalchemy
+try:
+    # Temporary support to supress problematic form generation with geoalchemy
+    from geoalchemy2 import Geometry
+except ImportError:
+    Geometry = ()
+
 
 logger = logging.getLogger(__name__)
 
@@ -71,6 +81,10 @@ class DefaultSQLAlchemyFieldMapper(ColumnToFieldMapper):
 
         The relationship must be foreign_key and the remote must offer ``uuid`` attribute which we use as a vocabulary key..
         """
+
+        if isinstance(rel.argument, Mapper):
+            # TODO: How to handle this kind of relationships
+            return TypeOverridesHandling.drop
 
         remote_model = rel.argument()
 
@@ -147,6 +161,12 @@ class DefaultSQLAlchemyFieldMapper(ColumnToFieldMapper):
                 return TypeOverridesHandling.drop, {}
 
             return colander.String(), {}
+        elif isinstance(column_type, LargeBinary):
+            # Can't edit binary
+            return TypeOverridesHandling.drop, {}
+        elif isinstance(column_type, Geometry):
+            # Can't edit geometry
+            return TypeOverridesHandling.drop, {}
         elif isinstance(column_type, INET):
             return colander.String(), {}
         else:

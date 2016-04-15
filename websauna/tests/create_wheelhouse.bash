@@ -26,7 +26,12 @@ pip install -q -U pip
 
 # We do the messages three phases as otherwise Travis considers our build stalled after 10m and I hope this solves this
 echo "Installing project core dependencies."
+
+# Pyramid master
+pip install "https://github.com/Pylons/pyramid/archive/master.zip"
+
 pip install -q .
+
 echo "Installing project test dependencies."
 pip install -q ".[test]"
 echo "Installing project dev dependencies."

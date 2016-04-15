@@ -418,7 +418,6 @@ class Initializer:
 
     def configure_csrf(self):
         """Configure cross-site request forgery subsystem."""
-        from websauna.system.core.csrf import csrf_mapper_factory
         self.config.registry.settings["pyramid.require_default_csrf"] = True
 
     @event_source

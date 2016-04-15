@@ -2,8 +2,6 @@
 from pyramid.response import Response
 from pyramid.view import view_config
 
-from websauna.system.core.csrf import csrf_exempt
-
 
 @view_config(route_name="home")
 def home(request):

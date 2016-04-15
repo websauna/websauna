@@ -5,7 +5,6 @@ from pyramid import testing
 from pyramid.config.views import DefaultViewMapper
 from pyramid.exceptions import BadCSRFToken
 from pyramid.testing import DummySession
-from websauna.system.core.csrf import csrf_mapper_factory
 from webtest import TestApp
 
 from . import csrfsamples

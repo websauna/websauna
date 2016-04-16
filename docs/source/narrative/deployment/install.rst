@@ -45,6 +45,8 @@ Install packaged roles we are going to use inside a cloned playbook. They will b
         Stouts.redis \
         Stouts.python
 
+Creating Ansible vault
+======================
 
 Create an Ansible :term:`vault` with a password. The vault is a secrets file where Ansible stores non-public configuration variables. To avoid retyping the password every time, the password is saved in plaintext in your home folder or any other safe location. The default password storing location is in ``~/websauna-ansible-vault.txt`` as configured in ``ansible.cfg``:
 
@@ -57,4 +59,27 @@ Create an Ansible :term:`vault` with a password. The vault is a secrets file whe
     # Create a secrets.yml vault for your project
     ansible-vault create secrets.yml
 
-This will open your text editor and let you edit the vault in an unencrypted format. When you quit your text editor the vault content is saved. For now you can leave it empty and just save the empty file.
+This will open your text editor and let you edit the vault in an unencrypted format.
+
+* You do not need to add anything in this file for now. It will be filled in later in the instructions.
+
+* Save file
+
+* Quit your text editor to get back to the command line
+
+Using alternative text editor with Ansible vault
+------------------------------------------------
+
+You can specify any command line compatible editor for vault editing. For example on OSX one could do:
+
+.. code-block:: console
+
+    # Use default OSX text edit as vault editor
+    export EDITOR="/usr/bin/open -n -W -a /Applications/TextEdit.app"
+
+    # Create a secrets.yml vault for your project using TextEdit
+    ansible-vault create secrets.yml
+
+`More information using UNIX EDITOR environment variable (Ubuntu) <http://askubuntu.com/questions/432524/how-do-i-find-and-set-my-editor-environment-variable>`_.
+
+`More information using UNIX EDITOR environment variable (OSX) <http://stackoverflow.com/questions/3539594/change-the-default-editor-for-files-opened-in-the-terminal-e-g-set-it-to-text>`_.

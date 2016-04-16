@@ -2,8 +2,82 @@
 Usage
 =====
 
+Create playbook
+===============
+
+Create a new playbook file. This can directly in ``websauna.ansible`` root folder. In this example we call the file ``platybook-myapp.yml``
+
+.. code-block:: yaml
+
+    # Playbook which ramps up myapp tutorial site inside a Vagrant virtual machine
+
+    - hosts: myapp_production
+      gather_facts: true
+
+      # These need to be set up before reading default.yml - more variables are generated based on these
+      vars:
+        - package_name: myapp
+        - site_id: myapp
+        - websocket: on
+        - mandrill: on
+        - ssl: off
+        - cloudflare: off
+        - new_relic: off
+        - letsenrypt: off
+        - backup: off
+        - notify_email: mikko@example.com
+        - server_email: no-reply@example.com
+        - git_repository: git@github.com:websauna/myapp.git
+        - git_branch: master
+        - site_mode: production
+        - ini_secrets_file: production-secrets.ini
+        - server_name: myapp.example.com
+        - server_email_domain: example.com
+
+      pre_tasks:
+
+        # Load default vars based on playbook.yml input
+        - include_vars: default.yml
+          tags: site, smtp
+
+        # Load default vars based on playbook.yml input
+        - include_vars: secrets.yml
+          tags: site, smtp
+
+      roles:
+      - websauna.preflight
+      - websauna.users
+      - websauna.ssh
+      - websauna.shell
+      - websauna.harden
+      - websauna.smtp
+      - ANXS.postgresql
+      - ANXS.logwatch
+      - Stouts.nginx
+      - Stouts.redis
+      - Stouts.python
+      - websauna.site
+      - websauna.postflight
+
+Create hosts inventory
+======================
+
+Ansible inventory file tells what servers are available for the deployment. In our playbook we use a hosts inventory file called ``hosts.ini`` for the inventory.
+
+Create a ``hosts.ini`` file. This can directly in ``websauna.ansible`` root folder.
+
+Place the following in this file. This example is for :ref:`Amazon EC2 <ec2>` server:
+
+.. code-block:: ini
+
+    [default]
+    myapp_production ansible_ssh_host=1.2.3.4 ansible_ssh_user=ubuntu www_ip=172.1.2.3
+
+
 SSH agent forwarding
 ====================
+
+SSH agent forwarding enables the remote server to use your local SSH credentials. This is required e.g. from Ansible to access private Github repositories from the remote server.
 
 You need to `enable SSH agent forwarding <https://opensourcehacker.com/2012/10/24/ssh-key-and-passwordless-login-basics-for-developers/>`_, so that Ansible uses your locally configured SSH key. With this setup, the server never stores any private keys and they are safely on your own computer. Ansible uses SSH agent to make remote connections from the server to e.g. a Github to fetch source code of your application.
 
@@ -19,25 +93,21 @@ Usually the command to add a key into a SSH agent is along the lines::
 
 Likewise, `you need to have set up your public key on your Git repository service like Github <https://help.github.com/articles/generating-ssh-keys/>`_.
 
-Create playbook
-===============
-
-Example TODO:
-
-.. code-block:: yaml
-
-
 Run playbook
 ============
 
-TODO
+Make sure Ansible specific virtual environment is activated. Run from command line:
+
+.. code-block:: console
+
+    ansible-playbook -i hosts.ini playbook-myapp.yml
 
 Update runs
 ===========
 
-For subsequent playbook runs: If you need to only update Python files, dependencies and static assets, instead of building the server from a scratch, you can use ``site_update`` tag::
+For subsequent playbook runs: If your server configuration has not changed, and you need to only update application files and migrations, instead of building the server from a scratch, you can use ``site`` tag to run tasks specific to this::
 
-     ansible-playbook -i hosts.ini playbook-myapp.yml -t site-update
+     ansible-playbook -i hosts.ini playbook-myapp.yml -t site
 
 This considerably cuts down playbook execution time.
 

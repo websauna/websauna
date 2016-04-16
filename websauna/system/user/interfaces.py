@@ -30,14 +30,14 @@ class IGroup(Interface):
 
 
 class IUserModel(Interface):
-    """Register utility registration which marks active User SQLAlchemy model."""
+    """Register utility registration which marks active User SQLAlchemy model class."""
 
 
 class IGroupModel(Interface):
-    """Register utility registration which marks active Group SQLAlchemy model."""
+    """Register utility registration which marks active Group SQLAlchemy model class."""
 
 class IActivationModel(Interface):
-    """Register utility registration which marks active Activation SQLAlchemy model."""
+    """Register utility registration which marks active Activation SQLAlchemy model class."""
 
 
 class IAuthomatic(Interface):
@@ -154,3 +154,35 @@ class IRegistrationService(Interface):
     TODO: Interface not described yet, see :py:class:`websauna.system.user.registrationservice.DefaultRegistrationService`.
 
     """
+
+
+class ILoginSchema(Interface):
+    pass
+
+
+class ILoginForm(Interface):
+    pass
+
+
+class IRegisterSchema(Interface):
+    pass
+
+
+class IRegisterForm(Interface):
+    pass
+
+
+class IForgotPasswordForm(Interface):
+    pass
+
+
+class IForgotPasswordSchema(Interface):
+    pass
+
+
+class IResetPasswordForm(Interface):
+    pass
+
+
+class IResetPasswordSchema(Interface):
+    pass

@@ -9,7 +9,6 @@ import logging
 
 from pyramid.session import check_csrf_token
 from pyramid.view import view_config
-from pyramid.url import route_url
 from pyramid.httpexceptions import HTTPFound, HTTPMethodNotAllowed
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.settings import aslist
@@ -17,46 +16,47 @@ from pyramid.settings import aslist
 
 import deform
 
-from horus.interfaces import ILoginForm
-from horus.interfaces import ILoginSchema
-from horus.interfaces import IRegisterForm
-from horus.interfaces import IRegisterSchema
-from horus.interfaces import IForgotPasswordForm
-from horus.interfaces import IForgotPasswordSchema
-from horus.interfaces import IResetPasswordForm
-from horus.interfaces import IResetPasswordSchema
-from horus import views as horus_views
-
-from websauna.system.user.utils import get_login_service, get_oauth_login_service, get_credential_activity_service, get_registration_service
 from websauna.system.core import messages
+from .utils import get_login_service, get_oauth_login_service, get_credential_activity_service, get_registration_service
 from .interfaces import AuthenticationFailure, CannotResetPasswordException
+from .interfaces import ILoginForm
+from .interfaces import ILoginSchema
+from .interfaces import IRegisterForm
+from .interfaces import IRegisterSchema
+from .interfaces import IForgotPasswordForm
+from .interfaces import IForgotPasswordSchema
+from .interfaces import IResetPasswordForm
+from .interfaces import IResetPasswordSchema
 
 logger = logging.getLogger(__name__)
 
 
 
-class RegisterController(horus_views.RegisterController):
+class RegisterController:
 
     def __init__(self, request):
-        super(RegisterController, self).__init__(request)
-        schema = request.registry.getUtility(IRegisterSchema)
-        self.schema = schema().bind(request=self.request)
-
-        sign_up_button = deform.Button(name="sign_up", title="Sign up with email", css_class="btn-lg btn-block")
-
-        form = request.registry.getUtility(IRegisterForm)
-        self.form = form(self.schema, buttons=(sign_up_button,))
+        self.request = request
 
     @view_config(route_name='register', renderer='login/register.html')
     def register(self):
 
-        social_logins = aslist(self.settings.get("websauna.social_logins", ""))
+        settings = self.request.registry.settings
+
+        schema = self.request.registry.getUtility(IRegisterSchema)
+        schema = schema().bind(request=self.request)
+
+        sign_up_button = deform.Button(name="sign_up", title="Sign up with email", css_class="btn-lg btn-block")
+
+        form_class = self.request.registry.getUtility(IRegisterForm)
+        form = form_class(schema, buttons=(sign_up_button,))
+
+        social_logins = aslist(settings.get("websauna.social_logins", ""))
 
         if self.request.method == 'GET':
             if self.request.user:
                 return HTTPFound(location=self.after_register_url)
 
-            return {'form': self.form.render(), 'social_logins': social_logins}
+            return {'form': form.render(), 'social_logins': social_logins}
 
         elif self.request.method != 'POST':
             return
@@ -64,7 +64,7 @@ class RegisterController(horus_views.RegisterController):
         # If the request is a POST:
         controls = self.request.POST.items()
         try:
-            captured = self.form.validate(controls)
+            captured = form.validate(controls)
         except deform.ValidationFailure as e:
             return {'form': e.render(), 'errors': e.error.children, 'social_logins': social_logins}
 
@@ -82,14 +82,19 @@ class RegisterController(horus_views.RegisterController):
         return registration_service.activate_by_email(code)
 
 
-class AuthController(horus_views.AuthController):
+class AuthController:
+    """Views for login and logout routes."""
 
     def __init__(self, request):
-        super(AuthController, self).__init__(request)
 
+        self.request = request
+        self.settings = self.request.registry.settings
+
+        # Resolve login form schema
         schema = request.registry.getUtility(ILoginSchema)
         self.schema = schema().bind(request=self.request)
 
+        # Create login form
         form = request.registry.getUtility(ILoginForm)
 
         # XXX: Bootstrap classes leak into Deform here
@@ -110,8 +115,6 @@ class AuthController(horus_views.AuthController):
             return {'form': self.form.render(), "social_logins": social_logins}
 
         elif self.request.method == 'POST':
-
-            check_csrf_token(self.request)
 
             try:
                 controls = self.request.POST.items()
@@ -141,7 +144,7 @@ class AuthController(horus_views.AuthController):
 
 
         else:
-            raise AssertionError("Unknown HTTP method")
+            raise HTTPMethodNotAllowed("Unknown HTTP method")
 
     @view_config(route_name='registration_complete', renderer='login/registration_complete.html')
     def registration_complete(self):
@@ -169,8 +172,10 @@ class AuthController(horus_views.AuthController):
         return login_service.logout()
 
 
-class ForgotPasswordController(horus_views.ForgotPasswordController):
-    """TODO: This view is going to see a rewrite."""
+class ForgotPasswordController:
+
+    def __init__(self, request):
+        self.request = request
 
     @view_config(route_name='forgot_password', renderer='login/forgot_password.html')
     def forgot_password(self):
@@ -181,9 +186,12 @@ class ForgotPasswordController(horus_views.ForgotPasswordController):
         form = req.registry.getUtility(IForgotPasswordForm)
         form = form(schema)
 
+        settings = self.request.registry.settings
+        forgot_password_redirect_view = self.request.route_url(settings.get('horus.forgot_password_redirect', 'index'))
+
         if req.method == 'GET':
             if req.user:
-                return HTTPFound(location=self.forgot_password_redirect_view)
+                return HTTPFound(forgot_password_redirect_view)
             else:
                 return {'form': form.render()}
 
@@ -212,6 +220,7 @@ class ForgotPasswordController(horus_views.ForgotPasswordController):
 
         User arrives on the page and enters the new password.
         """
+
         schema = self.request.registry.getUtility(IResetPasswordSchema)
         schema = schema().bind(request=self.request)
 

@@ -103,34 +103,22 @@ class Initializer:
         self.config.registry.registerUtility(pyramid_debug_logger, IDebugLogger)
 
     @event_source
-    def configure_horus(self):
-        """Configure user and group SQLAlchemy models, login and sign up views."""
+    def configure_user_forms(self):
+        """Configure forms and schemas used for login and such."""
 
-        # Avoid importing horus if not needed as it will bring in its own SQLAlchemy models and dirties our SQLAlchemy initialization
-
-        # TODO: This will be removed
-
-        from hem.interfaces import IDBSession
-        from horus.interfaces import IRegisterSchema
-        from horus.interfaces import ILoginSchema
-        from horus.interfaces import IForgotPasswordSchema
-        from horus import IResetPasswordSchema
-        from websauna.system.user.interfaces import IUserModel, IGroupModel
+        from websauna.system.user import interfaces
         from websauna.system.user import schemas
-        from websauna.system.user import horus as horus_init
+        from websauna.system.user.forms import DefaultUserForm
 
-        # Tell horus which SQLAlchemy scoped session to use:
-        registry = self.config.registry
-        registry.registerUtility(None, IDBSession)
+        self.config.registry.registerUtility(schemas.RegisterSchema, interfaces.IRegisterSchema)
+        self.config.registry.registerUtility(schemas.LoginSchema, interfaces.ILoginSchema)
+        self.config.registry.registerUtility(schemas.ResetPasswordSchema, interfaces.IResetPasswordSchema)
+        self.config.registry.registerUtility(schemas.ForgotPasswordSchema, interfaces.IForgotPasswordSchema)
 
-        # self.config.include("horus")
-        horus_init.includeme(self.config)
-
-        # self.config.scan_horus(users_models)
-        self.config.registry.registerUtility(schemas.RegisterSchema, IRegisterSchema)
-        self.config.registry.registerUtility(schemas.LoginSchema, ILoginSchema)
-        self.config.registry.registerUtility(schemas.ResetPasswordSchema, IResetPasswordSchema)
-        self.config.registry.registerUtility(schemas.ForgotPasswordSchema, IForgotPasswordSchema)
+        self.config.registry.registerUtility(DefaultUserForm, interfaces.ILoginForm)
+        self.config.registry.registerUtility(DefaultUserForm, interfaces.IRegisterForm)
+        self.config.registry.registerUtility(DefaultUserForm, interfaces.IForgotPasswordForm)
+        self.config.registry.registerUtility(DefaultUserForm, interfaces.IResetPasswordForm)
 
     @event_source
     def configure_mailer(self):
@@ -473,11 +461,9 @@ class Initializer:
         Connect chosen user model to SQLAlchemy model Base. Also set up :py:class:`websauna.system.user.usermixin.SiteCreator` logic - what happens when the first user logs in.
         """
 
-        from horus.interfaces import IActivationClass
-        from horus.interfaces import IUserClass
+        from websauna.system.model.meta import Base
 
         from websauna.system.user import models
-        from websauna.system.model.meta import Base
         from websauna.system.user.interfaces import IGroupModel, IUserModel, ISiteCreator
         from websauna.system.user.usermixin import SiteCreator
         from websauna.system.user.userregistry import DefaultEmailBasedUserRegistry
@@ -494,14 +480,10 @@ class Initializer:
         registry.registerUtility(models.Group, IGroupModel)
         registry.registerUtility(models.Activation, IActivationModel)
 
-        # TODO: Legacy Horus compatibiltiy
-        registry.registerUtility(models.User, IUserClass)
-
         site_creator = SiteCreator()
         registry.registerUtility(site_creator, ISiteCreator)
 
-        # TODO: Get rid of Horus
-        registry.registerUtility(models.Activation, IActivationClass)
+        # Which user registry we are using
         registry.registerAdapter(factory=DefaultEmailBasedUserRegistry, required=(IRequest,), provided=IUserRegistry)
 
     @event_source
@@ -657,7 +639,7 @@ class Initializer:
         # Sessions and users
         self.configure_sessions()
         self.configure_user()
-        self.configure_horus()
+        self.configure_user_forms()
         self.configure_user_models()
         self.configure_authentication()
         self.configure_federated_login()

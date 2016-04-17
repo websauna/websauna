@@ -70,6 +70,8 @@ Troubleshooting email
 
 The usual reason for outbound email failure is due to fact that Postfix host name and domain setup does not match the whitelisted domains in the upstream transactional email service.
 
+Log in to your server over SSH to inspect the issues. Run the troubleshooting commands as ``root``.
+
 Below is the command line to send some mail to yourself:
 
 .. code-block:: console

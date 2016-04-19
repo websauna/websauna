@@ -52,6 +52,7 @@ def test_pserve(app_scaffold, dev_db, browser):
         execute_venv_command("cd myapp && ws-pserve conf/development.ini --stop-daemon --pid-file=test_pserve.pid", app_scaffold)
 
 
+@flaky  # On Travis there might be abnormal delays in this test
 def test_pyramid_debugtoolbar(app_scaffold, dev_db, browser):
     """Pyramid debug toolbar should be effective with the default development ws-pserve."""
 
@@ -128,6 +129,7 @@ def test_app_sanity_check_fail(app_scaffold, dev_db):
     execute_venv_command("cd myapp && ws-pserve conf/development.ini", app_scaffold, assert_exit=1)
 
 
+@flaky  # DB dump on Travis might hung?
 def test_dump_db(app_scaffold, dev_db):
     """Test database dump."""
     execute_venv_command("cd myapp && ws-sync-db conf/development.ini", app_scaffold)

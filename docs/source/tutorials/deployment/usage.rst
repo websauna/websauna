@@ -71,15 +71,22 @@ Create hosts inventory
 
 Ansible inventory file tells what servers are available for the deployment. In our playbook we use a hosts inventory file called ``hosts.ini`` for the inventory.
 
-Create a ``hosts.ini`` file. This can directly in ``websauna.ansible`` root folder.
-
-Place the following in this file. This example is for :ref:`Amazon EC2 <ec2>` server:
+Create a ``hosts.ini`` file. This can directly in ``websauna.ansible`` root folder. Place the following in the file. This example is for :ref:`Amazon EC2 <ec2>` server:
 
 .. code-block:: ini
 
     [default]
     myapp_production ansible_ssh_host=1.2.3.4 ansible_ssh_user=ubuntu www_ip=172.1.2.3
 
+For each server the information you need in this point is:
+
+* ``ansible_ssh_host``: :term`SSH` IP address your server is listening to.
+
+* ``www_ip``: IP address your where server accepts HTTP/HTTPS connections. For :ref:`Amazon EC2 <ec2>` server these two are different.
+
+* ``ansible_ssh_user``: What is the UNIX username SSH uses to log in. This user must have term:`sudo`: access.
+
+* Make sure your hosting provider has firewall open for inboud SSH, HTTP and HTTPS ports.
 
 SSH agent forwarding
 ====================

@@ -4,7 +4,7 @@
 Getting started
 ===============
 
-Welcome to Websauna tutorial. This tutorial tells you how to get started with Websauna framework to develop your own website.
+Welcome to Websauna tutorial. This tutorial shows you how to get started with Websauna framework to develop your own web application with minimal :term:`CRUD` for question/choice survey site.
 
 .. image:: images/welcome.png
     :width: 640px

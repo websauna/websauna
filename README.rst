@@ -35,6 +35,10 @@ Websauna is a full stack application framework aimed for building consumer and b
 | |versions|| |latest|  |
 +-----------+-----------+
 
+`Documentation <https://websauna.org/>`_.
+
+`Installation <https://websauna.org/tutorials/gettingstarted/index.html>`_.
+
 What it is?
 ===========
 

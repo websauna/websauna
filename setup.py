@@ -66,7 +66,7 @@ setup(
     install_requires=[
 
         # Pyramid dependencies
-        'pyramid>1.6.1',
+        'pyramid>=1.7a1',
         'waitress',
         'websauna.viewconfig',
         'pyramid_redis_sessions',

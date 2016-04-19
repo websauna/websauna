@@ -3,6 +3,7 @@ import time
 
 import os
 import pytest
+from flaky import flaky
 from splinter.driver import DriverAPI
 import transaction
 
@@ -30,6 +31,7 @@ def web_server(request, tutorial_req):
     return web_server()
 
 
+@flaky
 def test_add_question(browser: DriverAPI, tutorial_req, web_server, dbsession):
     """Adding questions should be succesful."""
 

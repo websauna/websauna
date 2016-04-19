@@ -87,6 +87,9 @@ def test_addon_pytest(addon_scaffold, addon_test_db):
     # Install test requirements
     execute_venv_command("pip install '.[test]'", addon_scaffold, timeout=2 * 60, cd_folder="websauna.myaddon")
 
+    # XXX: Looks like a new pip bug - we need to explicitly install websauna[test]? and dependencies are not respected
+    execute_venv_command("pip install 'websauna[test]'", addon_scaffold, timeout=2 * 60, cd_folder="websauna.myaddon")
+
     # Execute one functional test
     execute_venv_command("py.test --ini test.ini websauna/myaddon/tests", addon_scaffold, timeout=1 * 60, cd_folder="websauna.myaddon")
 

@@ -5,13 +5,11 @@ import transaction
 import logging
 
 from pyramid.view import view_config
-from websauna.system.core.csrf import csrf_exempt
 
 logger = logging.getLogger(__name__)
 
 
-@view_config(context=Exception)
-@csrf_exempt
+@view_config(context=Exception, require_csrf=False)
 def internal_server_error(context, request):
     """Generate the default internal server error page when exception falls through from a view.
 

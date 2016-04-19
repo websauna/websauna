@@ -5,7 +5,6 @@ from pyramid import testing
 from pyramid.config.views import DefaultViewMapper
 from pyramid.exceptions import BadCSRFToken
 from pyramid.testing import DummySession
-from websauna.system.core.csrf import csrf_mapper_factory
 from webtest import TestApp
 
 from . import csrfsamples
@@ -21,11 +20,13 @@ def csrf_app(request):
     session = DummySession()
 
     config = testing.setUp()
-    config.set_view_mapper(csrf_mapper_factory(DefaultViewMapper))
+    config.registry.settings["pyramid.require_default_csrf"] = True
     config.add_route("home", "/")
     config.add_route("csrf_sample", "/csrf_sample")
     config.add_route("csrf_exempt_sample", "/csrf_exempt_sample")
     config.add_route("csrf_exempt_sample_context", "/csrf_exempt_sample_context")
+    config.add_route("csrf_sample_double_argument", "/csrf_sample_double_argument/{arg}")
+    config.add_route("csrf_exempt_sample_double_argument", "/csrf_exempt_sample_double_argument/{arg}")
     config.scan(csrfsamples)
 
     # We need sessions in order to use CSRF feature
@@ -72,3 +73,5 @@ def test_csrf_exempt(csrf_app: TestApp, session: DummySession):
 
     resp = csrf_app.post("/csrf_exempt_sample_context")
     assert resp.status_code == 200
+
+

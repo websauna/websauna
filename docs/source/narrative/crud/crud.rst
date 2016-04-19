@@ -331,6 +331,66 @@ Show view shows one item. It is read only and doesn't allow user to change any v
 
 * The context of a add view is :py:class:`websauna.system.crud.CRUD.Resource` or its subclasses
 
+Show view customization example
+-------------------------------
+
+Here is a short example how to play around with *Show* view in :ref:`admin`. It assumes the underlying :ref:`model <models>` has columns ``id``, ``denormalized_name`` and ``location``.
+
+Example ``adminviews.py``:
+
+.. code-block:: python
+
+    import colander
+    import deform
+
+    from websauna.system.crud.formgenerator import SQLAlchemyFormGenerator
+    from websauna.system.form.fields import UUID
+    from websauna.system.form.widgets import FriendlyUUIDWidget
+
+    # Import our admin resources
+    from . import admins
+
+
+    @view_overrides(context=admins.BoxAdmin.Resource)
+    class BoxShow(DefaultShow):
+        """Show a single box installation."""
+
+        # List all fields appearing on the show form
+        includes = [
+            # Map 'id' UUID column to human title "Device id" by declaring a field and widget
+            colander.SchemaNode(UUID(), name='id', title="Device id", widget=FriendlyUUIDWidget()),
+
+            # Map 'denormalized_name' string column to human title "Owner" by declaring a field and widget
+            colander.SchemaNode(colander.String(), name='denormalized_name', title="Owner", widget=deform.widget.TextInputWidget()),
+
+            # Pass column 'location' using default field mappings
+            "location"
+        ]
+
+        #: Declare form generation which maps all these fields
+        form_generator = SQLAlchemyFormGenerator(includes=includes)
+
+        def get_title(self):
+            """Use denormalized_name field as the page heading."""
+            return self.get_object().denormalized_name
+
+Generating faux fields
+----------------------
+
+Sometimes it is useful to generate faux fields with constant values for paper prototyping purposes. You can exploit :py:class:`colander.SchemeNode` ``default`` argument for this.
+
+Example:
+
+.. code-block:: python
+
+    includes = [
+        ...
+        colander.SchemaNode(colander.String(), name='dummy1', title="Age", default="25"),
+        colander.SchemaNode(colander.String(), name='dummy2', title="Household size", default="5"),
+        ...
+    ]
+
+
 Edit view
 =========
 

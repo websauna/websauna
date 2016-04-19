@@ -9,11 +9,7 @@ Introduction
 
 Cross-site request forgery (:term:`CSRF`)  is a mechanism to prevent malicious sites stealing and manipulating your user data.
 
-Websauna enables CSRF protection to all views by default. This is done by settings the default :term:`view mapper` in :py:meth:`websauna.system.Initializer.configure_forms`.
-
-.. note ::
-
-    If you use a custom view mapper remember to include CSRF behavior in them.
+Websauna enables CSRF protection to all views by default `using Pyramid's CSRF mechanism < http://docs.pylonsproject.org/projects/pyramid/en/master/narr/sessions.html#preventing-cross-site-request-forgery-attacks>`_.
 
 Deform forms
 ------------
@@ -81,6 +77,14 @@ For more information see :py:meth:`websauna.system.form.csrf.check_csrf_token`.
 Disabling CSRF check
 --------------------
 
-You can disable CSRF check for individual vies with :py:func:`websauna.system.core.csrf.csrf_exempt` decorator.
+You can disable the CSRF check for individual views by setting ``require_csrf=False`` in view config.
 
-If your site needs more comprehensive whitelisting strategy you can implement your own :py:func:`websauna.system.core.csrf._check_csrf`. This is configured in :py:meth:`websauna.system.Initializer.configure_forms`.
+Example:
+
+.. code-block:: python
+
+    # Allows POST with csrf_token field
+    @view_config(route_name="csrf_exempt_sample", require_csrf=False)
+    def csrf_exempt_sample(request):
+        return Response("OK")
+

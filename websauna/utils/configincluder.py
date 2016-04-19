@@ -112,7 +112,7 @@ class IncludeAwareConfigParser(configparser.SafeConfigParser):
 
 
 # Monkey-patched python.paster.setup_logging()
-def setup_logging(config_uri, fileConfig=fileConfig,
+def setup_logging(config_uri, global_conf=None, fileConfig=fileConfig,
                   configparser=configparser):
     """
     Set up logging via the logging module's fileConfig function with the
@@ -156,7 +156,6 @@ def monkey_patch_paster_config_parser():
     loadwsgi.NicerConfigParser.process_includes = IncludeAwareConfigParser.process_includes
     loadwsgi.NicerConfigParser.read_include = IncludeAwareConfigParser.read_include
     loadwsgi.NicerConfigParser.resolve = IncludeAwareConfigParser.resolve
-
 
     paster.setup_logging = setup_logging
     loadwsgi.NicerConfigParser._monkey_patched = True

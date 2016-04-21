@@ -27,6 +27,8 @@ Add two new varibles::
 
 In your playbook file make sure staging behavior is turned on:
 
+.. code-block:: yaml
+
     vars:
-    ...
+    # ...
     - site_mode: staging

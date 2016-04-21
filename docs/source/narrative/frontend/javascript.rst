@@ -118,7 +118,7 @@ Exposing view variables to JavaScript
 
 Supposedly one wants to access Python data in JavaScript code. You can do this by returning Javascript objects as dictionaries from the view and then include them as JavaScript globals using `<script>` tag.
 
-It's best to use ``custom_script`` template block before closing ``<body>`` to include all the variables.
+It's best to use ``extra_body_end`` template block before closing ``<body>`` to include all the variables.
 
 First return data as Python dictionaries from your view::
 
@@ -128,7 +128,7 @@ First return data as Python dictionaries from your view::
 
 Then expose this data to JavaScript by converting it to a JSON object. Please note that due to security concerns we need to pay special attention when embedding data inside ``<script>`` tags::
 
-    {% block custom_script %}
+    {% block extra_body_end %}
     <script>
         // This global object holds al exposed variables
         window.opt = window.opt || {};
@@ -137,7 +137,7 @@ Then expose this data to JavaScript by converting it to a JSON object. Please no
 
 You can also expose URLs so that JavaScript can do AJAX calls or ``window.location`` redirects::
 
-    {% block custom_script %}
+    {% block extra_body_end %}
     <script>
         window.opt = window.opt || {};
         window.opt.pricingURL = "{{ 'price_phone_order'|route_url }}";

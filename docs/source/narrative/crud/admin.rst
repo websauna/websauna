@@ -596,7 +596,7 @@ Below is an example using `Light Bootstrap Dashboard <http://www.creative-tim.co
 
     {% endblock %}
 
-    {% block custom_script %}
+    {% block extra_body_end %}
       <script src="{{ 'websauna.system:static/admin.js'|static_url }}"></script>
     {% endblock %}
 

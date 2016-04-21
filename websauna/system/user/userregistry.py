@@ -49,6 +49,11 @@ class DefaultEmailBasedUserRegistry:
 
         Uses password hasher registered in :py:meth:`websauna.system.Initializer.configure_password`.
         """
+
+        if not user.hashed_password:
+            # User password not set, always fail
+            return False
+
         hasher = self.registry.getUtility(IPasswordHasher)
         return hasher.verify_password(user.hashed_password, password)
 

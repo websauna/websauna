@@ -5,27 +5,27 @@ from pyramid.registry import Registry
 from websauna.system.user.interfaces import IGroupModel, IUserModel, IAuthomatic, ISocialLoginMapper, ISiteCreator, ILoginService, IActivationModel, IOAuthLoginService, IUserRegistry, ICredentialActivityService, IRegistrationService
 
 
-def get_user_class(registry) -> IUserModel:
+def get_user_class(registry: Registry) -> IUserModel:
     user_class = registry.queryUtility(IUserModel)
     return user_class
 
 
-def get_group_class(registry) -> IGroupModel:
+def get_group_class(registry: Registry) -> IGroupModel:
     group_class = registry.queryUtility(IGroupModel)
     return group_class
 
 
-def get_activation_model(registry) -> IActivationModel:
+def get_activation_model(registry: Registry) -> IActivationModel:
     activation_model = registry.queryUtility(IActivationModel)
     return activation_model
 
 
-def get_site_creator(registry) -> ISiteCreator:
+def get_site_creator(registry: Registry) -> ISiteCreator:
     site_creator = registry.queryUtility(ISiteCreator)
     return site_creator
 
 
-def get_authomatic(registry) -> Authomatic:
+def get_authomatic(registry: Registry) -> Authomatic:
     """Get active Authomatic instance from the registry.
 
     This is registed in ``Initializer.configure_authomatic()``.
@@ -36,7 +36,7 @@ def get_authomatic(registry) -> Authomatic:
     return instance
 
 
-def get_social_login_mapper(registry, provider_id:str) -> ISocialLoginMapper:
+def get_social_login_mapper(registry: Registry, provider_id:str) -> ISocialLoginMapper:
     """Get a named social login mapper.
 
     Example::

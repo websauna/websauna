@@ -157,35 +157,59 @@ class IRegistrationService(Interface):
 
 
 class ILoginSchema(Interface):
-    pass
+    """Colander schema used for sign in form.
+
+    See :py:meth:`websauna.system.Initializer.configure_user_forms`.
+    """
 
 
 class ILoginForm(Interface):
-    pass
+    """Deform form used for sign in form.
+
+    See :py:meth:`websauna.system.Initializer.configure_user_forms`.
+    """
 
 
 class IRegisterSchema(Interface):
-    pass
+    """Colander schema used for sign upform.
+
+    See :py:meth:`websauna.system.Initializer.configure_user_forms`.
+    """
 
 
 class IRegisterForm(Interface):
-    pass
+    """Deform form used for sign upform.
 
+    See :py:meth:`websauna.system.Initializer.configure_user_forms`.
+    """
 
 class IForgotPasswordForm(Interface):
-    pass
+    """Deform form used for Forgot password form.
+
+    See :py:meth:`websauna.system.Initializer.configure_user_forms`.
+    """
 
 
 class IForgotPasswordSchema(Interface):
-    pass
+    """Colander schema used for Forgot password form.
+
+    See :py:meth:`websauna.system.Initializer.configure_user_forms`.
+    """
+
 
 
 class IResetPasswordForm(Interface):
-    pass
+    """Deform form used for Reset password form.
+
+    See :py:meth:`websauna.system.Initializer.configure_user_forms`.
+    """
 
 
 class IResetPasswordSchema(Interface):
-    pass
+    """Colander schema used for Reset password form.
+
+    See :py:meth:`websauna.system.Initializer.configure_user_forms`.
+    """
 
 
 
@@ -195,7 +219,7 @@ class IPasswordHasher(Interface):
     Used by :py:meth:`websauna.system.models.usermixin.UserMixin._set_password`.
     """
 
-    def hash_password(plain_text):
+    def hash_password(plain_text) -> str:
         """Generate a hash presentation for plain text password.
 
         This is to be stored in database.
@@ -203,10 +227,10 @@ class IPasswordHasher(Interface):
         :return: A hasher internal string format. Usually contains number of cycles, hashed password and salt string.
         """
 
-    def verify_password(hashed_password, plain_text):
+    def verify_password(hashed_password, plain_text) -> bool:
         """Verify a password.
 
         Compare if inputed password matches one stored in the dabase.
 
-        :return: True if the password matches
+        :return: True if the password matches, False otherwise.
         """

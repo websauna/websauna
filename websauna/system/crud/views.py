@@ -379,7 +379,7 @@ class Add(FormView):
     def get_title(self):
         return "Add new {}".format(self.get_crud().singular_name)
 
-    def get_form(self):
+    def get_form(self) -> object:
         return self.create_form(EditMode.add, buttons=("add", "cancel",))
 
     def get_crud(self) -> CRUD:
@@ -393,6 +393,10 @@ class Add(FormView):
         """Create new empty object to be populated from the form."""
         model = self.get_model()
         return model()
+
+    def initialize_object(self, form, appstruct: dict, obj: object):
+        """Record values from the form on a freshly created object."""
+        form.schema.objectify(appstruct, obj)
 
     def add_object(self, obj):
         """Flush newly created object to persist storage."""
@@ -435,9 +439,7 @@ class Add(FormView):
                     del appstruct["id"]
 
                 obj = self.create_object()
-
-                form.schema.objectify(appstruct, obj)
-
+                self.initialize_object(form, appstruct, obj)
                 # We do not need to explicitly call save() or commit() as we are using Zope transaction manager
                 self.add_object(obj)
 

@@ -1,10 +1,11 @@
 """Default login service implementation."""
-from horus.views import get_config_route
+
 from pyramid.httpexceptions import HTTPFound
 from pyramid.response import Response
 from pyramid.security import remember, forget
 from pyramid.settings import asbool
 from websauna.system.core import messages
+from websauna.system.core.route import get_config_route
 from websauna.system.http import Request
 from websauna.system.user.usermixin import UserMixin
 from websauna.utils.time import now

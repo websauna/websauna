@@ -1,10 +1,8 @@
 import deform
 import deform.widget as w
 import colander as c
+from pyramid_deform import CSRFSchema
 
-
-from hem.schemas import CSRFSchema
-from horus.schemas import unique_email
 from websauna.system.form.sqlalchemy import convert_query_to_tuples, UUIDModelSet
 from websauna.system.user.utils import get_user_registry
 from websauna.system.user.utils import get_group_class, get_user_class
@@ -42,8 +40,18 @@ def validate_unique_user_email(node, value, **kwargs):
     request = node.bindings["request"]
     dbsession = request.dbsession
     User = get_user_class(request.registry)
-    if dbsession.query(User).filter_by(email=value).first():
+    value = value.strip()
+    if dbsession.query(User).filter_by(email=value).one_or_none():
         raise c.Invalid(node, "Email address already taken")
+
+
+def email_exists(node, val):
+    '''Colander validator that ensures a User exists with the email.'''
+    request = node.bindings['request']
+    User = request.registry.getUtility(IUserClass)
+    exists = request.dbsession.query(User).filter(User.email.ilike(val)).one_or_none()
+    if not exists:
+        raise c.Invalid(node, "Email does not: {}".format(val))
 
 
 class GroupSet(UUIDModelSet):
@@ -62,7 +70,7 @@ class RegisterSchema(CSRFSchema):
     email = c.SchemaNode(
         c.String(),
         title='Email',
-        validator=c.All(c.Email(), unique_email),
+        validator=c.All(c.Email(), validate_unique_user_email),
         widget=w.TextInputWidget(size=40, maxlength=260, type='email'))
 
     password = c.SchemaNode(

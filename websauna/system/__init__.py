@@ -14,7 +14,6 @@ if pyramid_ver[0] == 1:
 
 import logging
 
-from pyramid_deform import configure_zpt_renderer
 from pyramid.config import Configurator
 from pyramid.interfaces import IDebugLogger, IViewMapperFactory, IRequest
 from pyramid.path import DottedNameResolver
@@ -419,9 +418,9 @@ class Initializer:
         * CSRf view mapper
         """
 
-        from pyramid.config.views import DefaultViewMapper
         from websauna.system.form.resources import DefaultFormResources
         from websauna.system.form.interfaces import IFormResources
+        from websauna.system.form.deform import configure_zpt_renderer
 
         # Make Deform widgets aware of our widget template paths
         configure_zpt_renderer(["websauna.system:form/templates/deform"])

@@ -1,8 +1,8 @@
 import deform
 import deform.widget as w
 import colander as c
-from pyramid_deform import CSRFSchema
 
+from websauna.system.form.schema import CSRFSchema
 from websauna.system.form.sqlalchemy import convert_query_to_tuples, UUIDModelSet
 from websauna.system.user.utils import get_user_registry
 from websauna.system.user.utils import get_group_class, get_user_class

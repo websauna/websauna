@@ -46,7 +46,7 @@ And now we want to user to select from his or her customers on a Deform form:
 
     import colander
     import deform
-    from pyramid_deform import CSRFSchema
+    from websauna.system.form.schema import CSRFSchema
     from websauna.system.form.sqlalchemy import UUIDModelSet, convert_query_to_tuples
     from websauna.system.core.route import simple_route
 

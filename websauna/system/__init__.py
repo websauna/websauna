@@ -525,6 +525,24 @@ class Initializer:
         self.config.add_route('activate', '/activate/{code}')
 
     @event_source
+    def configure_password(self):
+        """Configure system password hashing solution.
+
+        By default use Argon 2
+
+        * https://github.com/hynek/argon2_cffi
+
+        For more information see :py:mod:`websauna.system.user.password`
+        """
+        from websauna.system.user.password import Argon2Hasher
+        from websauna.system.user.interfaces import IPasswordHasher
+
+        hasher = Argon2Hasher()
+
+        registry = self.config.registry
+        registry.registerUtility(hasher, IPasswordHasher)
+
+    @event_source
     def configure_model_admins(self):
         import websauna.system.user.admins
         import websauna.system.user.adminviews
@@ -641,6 +659,7 @@ class Initializer:
         self.configure_user()
         self.configure_user_forms()
         self.configure_user_models()
+        self.configure_password()
         self.configure_authentication()
         self.configure_federated_login()
 

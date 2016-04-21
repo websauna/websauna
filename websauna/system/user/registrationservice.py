@@ -7,8 +7,6 @@ from pyramid.renderers import render_to_response
 from pyramid.response import Response
 from pyramid.settings import asbool
 
-from horus.events import NewRegistrationEvent, RegistrationActivatedEvent
-
 from websauna.system.core import messages
 from websauna.system.http import Request
 from websauna.system.mail import send_templated_mail
@@ -16,9 +14,10 @@ from websauna.system.user.events import UserCreated
 from websauna.system.user.interfaces import IUser, IRegistrationService
 from websauna.system.user.utils import get_user_registry, get_login_service
 
+from .events import NewRegistrationEvent, RegistrationActivatedEvent
+
 
 logger = logging.getLogger(__name__)
-
 
 
 @implementer(IRegistrationService)

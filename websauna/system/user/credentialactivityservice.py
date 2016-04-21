@@ -1,14 +1,18 @@
-from horus.events import PasswordResetEvent
+from zope.interface import implementer
+
 from horus.views import get_config_route
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.response import Response
+
 from websauna.system.core import messages
 from websauna.system.http import Request
 from websauna.system.mail import send_templated_mail
 from websauna.system.user.events import UserAuthSensitiveOperation
 from websauna.system.user.interfaces import ICredentialActivityService, CannotResetPasswordException, IUser
 from websauna.system.user.utils import get_user_registry
-from zope.interface import implementer
+from .events import PasswordResetEvent
+
+
 
 
 @implementer(ICredentialActivityService)

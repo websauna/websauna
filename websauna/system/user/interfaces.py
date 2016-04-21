@@ -186,3 +186,27 @@ class IResetPasswordForm(Interface):
 
 class IResetPasswordSchema(Interface):
     pass
+
+
+
+class IPasswordHasher(Interface):
+    """A utility for hashing passwords.
+
+    Used by :py:meth:`websauna.system.models.usermixin.UserMixin._set_password`.
+    """
+
+    def hash_password(plain_text):
+        """Generate a hash presentation for plain text password.
+
+        This is to be stored in database.
+
+        :return: A hasher internal string format. Usually contains number of cycles, hashed password and salt string.
+        """
+
+    def verify_password(hashed_password, plain_text):
+        """Verify a password.
+
+        Compare if inputed password matches one stored in the dabase.
+
+        :return: True if the password matches
+        """

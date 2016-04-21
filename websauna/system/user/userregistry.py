@@ -3,7 +3,7 @@ from datetime import timedelta
 
 from sqlalchemy import func
 from websauna.system.user import events
-from websauna.system.user.interfaces import IUserRegistry, IUser
+from websauna.system.user.interfaces import IUserRegistry, IUser, IPasswordHasher
 from websauna.system.user.usermixin import UserMixin, GroupMixin
 from websauna.system.user.utils import get_user_class, get_activation_model
 
@@ -35,9 +35,22 @@ class DefaultEmailBasedUserRegistry:
         """Currently configured User SQLAlchemy model."""
         return get_activation_model(self.registry)
 
+    def set_password(self, user, password):
+        """Hash a password for persistent storage.
+
+        Uses password hasher registered in :py:meth:`websauna.system.Initializer.configure_password`.
+        """
+        hasher = self.registry.getUtility(IPasswordHasher)
+        hashed = hasher.hash_password(password)
+        user.hashed_password = hashed
+
     def verify_password(self, user, password):
-        """Validate user password."""
-        return user.verify_password(password)
+        """Validate user password.
+
+        Uses password hasher registered in :py:meth:`websauna.system.Initializer.configure_password`.
+        """
+        hasher = self.registry.getUtility(IPasswordHasher)
+        return hasher.verify_password(user.hashed_password, password)
 
     def get_by_username(self, username):
         return self.dbsession.query(self.User).filter(func.lower(self.User.username) == username.lower()).first()
@@ -90,7 +103,6 @@ class DefaultEmailBasedUserRegistry:
         self.dbsession.flush()
         user.activation = activation
         return [activation.code, activation_token_expiry_seconds]
-
 
     def get_authenticated_user_by_username(self, username, password) -> Optional[UserMixin]:
         """Authenticate incoming user.
@@ -154,14 +166,24 @@ class DefaultEmailBasedUserRegistry:
 
     def reset_password(self, user: UserMixin, password: str):
         """Reset user password and clear all pending activation issues."""
-        user.password = password
+
+        self.set_password(user, password)
+
         if not user.activated_at:
             user.activated_at = now()
         self.dbsession.delete(user.activation)
 
     def sign_up(self, registration_source: str, user_data: dict) -> UserMixin:
-        """Sign up a new user through registration form."""
+        """Sign up a new user through registration form.
+
+        """
+
+        password = user_data.pop("password", None)
+
         u = self.User(**user_data)
+
+        if password:
+            self.set_password(u, password)
 
         self.dbsession.add(u)
         self.dbsession.flush()

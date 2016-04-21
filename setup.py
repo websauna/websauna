@@ -94,7 +94,7 @@ setup(
         "pgcli",
 
         # User management
-        "horus",
+        "argon2_cffi",
         "authomatic",
 
         # Email

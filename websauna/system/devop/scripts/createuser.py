@@ -6,6 +6,7 @@ import sys
 
 from websauna.system.devop.cmdline import init_websauna
 from websauna.system.user.events import UserCreated
+from websauna.system.user.interfaces import IPasswordHasher
 from websauna.system.user.utils import get_user_class, get_site_creator
 
 import transaction
@@ -42,7 +43,8 @@ def main(argv=sys.argv):
 
     with transaction.manager:
         u = User(email=argv[2], username=argv[2])
-        u.password = password
+        hasher = request.registry.getUtility(IPasswordHasher)
+        u.hashed_password = hasher.hash_password(password)
         u.registration_source = "command_line"
         u.activated_at = now()
         dbsession.add(u)

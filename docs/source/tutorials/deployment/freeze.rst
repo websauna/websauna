@@ -10,19 +10,14 @@ Before you can start deploying your application you first must freeze it Python 
 How to perform a freeze
 =======================
 
-In your application package root folder do::
+In your application package root folder run the freeze command. Change ``myapp`` to your package name::
 
 .. code-block:: console
 
-    pip freeze > requirements.txt
-
-If your virtual environment is polluted and you have not kept one virtual environment per project it is suggested to create a new virtual environment from the scratch and run ``pip install -e .``.
-
-Edit ``requirements.txt`` and remove the line which refers your own project (``myapp`` in this case)::
-
-    -e git+git@bitbucket.org:miohtama/myapp.git@fa8f22c25a8cdfa1d151f61b54b2c8ed8c35defd#egg=myapp
+    pip freeze --local | grep -v myapp > requirements.txt
 
 Then commit this file.
+
 
 What happens without freezing?
 ==============================
@@ -33,6 +28,11 @@ New Python package versions are released every day. Sooner or later one of your 
 
 Advanced
 ========
+
+Cleaning up virtualenv
+----------------------
+
+If your virtual environment is polluted and you have not kept one virtual environment per project it is suggested to create a fresh virtual environment from the scratch. Then run ``pip install -e .`` for your web application package when this new environment is activated and it only pulls dependencies actually used by your web applicaiton.
 
 Tracking Websauna master
 ------------------------

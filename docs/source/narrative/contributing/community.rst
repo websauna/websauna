@@ -29,7 +29,7 @@ Gitter offers a native IRC bridge. You can connect to this chat via IRC:
 
 * You get your personal IRC server connection details after logging in with your Github account.
 
-* Use SSL and your personal server password connect to irc.gitter.im
+* Use SSL and your personal server password connect to irc.gitter.im (note: this is *not** the same as irc.freenode.net server)
 
 * Join channel ``#websauna/websauna``
 

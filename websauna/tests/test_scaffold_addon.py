@@ -9,6 +9,7 @@ import time
 
 import os
 import pytest
+from flaky import flaky
 
 from .scaffold import execute_venv_command, insert_content_after_line
 from .scaffold import replace_file
@@ -46,6 +47,7 @@ def addon_scaffold(request, app_scaffold):
     return folder
 
 
+@flaky
 def test_addon_pserve(addon_scaffold, addon_dev_db, browser):
     """Install and configure demo app for addon an and see if pserve starts."""
 

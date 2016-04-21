@@ -39,6 +39,8 @@ Websauna is a full stack application framework aimed for building consumer and b
 
 `Installation <https://websauna.org/tutorials/gettingstarted/index.html>`_.
 
+`Chat <file:///Users/mikko/code/wattcoin/websauna/docs/build/html/narrative/contributing/community.html>`_.
+
 What it is?
 ===========
 

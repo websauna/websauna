@@ -7,7 +7,13 @@ Welcome to Websauna, a full stack Python application framework.
 
     This is a work in progress project and documentation. There is no official release yet.
 
-`View Websauna on Github <https://github.com/websauna/websauna>`_.
+`Documentation <https://websauna.org/>`_.
+
+`Installation <https://websauna.org/tutorials/gettingstarted/index.html>`_.
+
+`Chat <file:///Users/mikko/code/wattcoin/websauna/docs/build/html/narrative/contributing/community.html>`_.
+
+`Github repository <https://github.com/websauna/websauna>`_.
 
 Table of contents
 =================

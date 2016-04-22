@@ -234,7 +234,7 @@ def test_forget_password_expired_token(web_server, browser, dbsession, init):
 def test_customize_login(paster_config):
     """Customizing login form works."""
 
-    class CustomLoginForm(deform.Form):
+    class CustomLoginForm(DefaultLoginForm):
 
         def __init__(self, *args, **kwargs):
             login_button = Button(name="login_email", title="Login by fingerprint", css_class="btn-lg btn-block")

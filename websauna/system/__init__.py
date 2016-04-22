@@ -103,18 +103,22 @@ class Initializer:
 
     @event_source
     def configure_user_forms(self):
-        """Configure forms and schemas used for login and such."""
+        """Configure forms and schemas used for login and such.
+
+        :ref:`See documentation example <customize-user-form>`.
+        """
 
         from websauna.system.user import interfaces
         from websauna.system.user import schemas
         from websauna.system.user.forms import DefaultUserForm
+        from websauna.system.user.forms import DefaultLoginForm
 
         self.config.registry.registerUtility(schemas.RegisterSchema, interfaces.IRegisterSchema)
         self.config.registry.registerUtility(schemas.LoginSchema, interfaces.ILoginSchema)
         self.config.registry.registerUtility(schemas.ResetPasswordSchema, interfaces.IResetPasswordSchema)
         self.config.registry.registerUtility(schemas.ForgotPasswordSchema, interfaces.IForgotPasswordSchema)
 
-        self.config.registry.registerUtility(DefaultUserForm, interfaces.ILoginForm)
+        self.config.registry.registerUtility(DefaultLoginForm, interfaces.ILoginForm)
         self.config.registry.registerUtility(DefaultUserForm, interfaces.IRegisterForm)
         self.config.registry.registerUtility(DefaultUserForm, interfaces.IForgotPasswordForm)
         self.config.registry.registerUtility(DefaultUserForm, interfaces.IResetPasswordForm)
@@ -457,7 +461,7 @@ class Initializer:
     def configure_user_models(self):
         """Plug in user models.
 
-        Connect chosen user model to SQLAlchemy model Base. Also set up :py:class:`websauna.system.user.usermixin.SiteCreator` logic - what happens when the first user logs in.
+        This initialization step connects chosen user model to SQLAlchemy model Base. Also set up :py:class:`websauna.system.user.usermixin.SiteCreator` logic - what happens when the first user logs in.
         """
 
         from websauna.system.model.meta import Base

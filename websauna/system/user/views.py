@@ -17,6 +17,7 @@ from pyramid.settings import aslist
 import deform
 
 from websauna.system.core import messages
+from websauna.system.core.route import get_config_route
 from .utils import get_login_service, get_oauth_login_service, get_credential_activity_service, get_registration_service
 from .interfaces import AuthenticationFailure, CannotResetPasswordException
 from .interfaces import ILoginForm
@@ -82,94 +83,96 @@ class RegisterController:
         return registration_service.activate_by_email(code)
 
 
-class AuthController:
-    """Views for login and logout routes."""
+@view_config(route_name='login', renderer='login/login.html')
+def login(request):
+    """Default login view implementation."""
 
-    def __init__(self, request):
+    login_redirect_view = get_config_route(request, "websauna.login_redirect")
 
-        self.request = request
-        self.settings = self.request.registry.settings
+    # Create login form schema
+    schema = request.registry.getUtility(ILoginSchema)
+    schema = schema().bind(request=request)
 
-        # Resolve login form schema
-        schema = request.registry.getUtility(ILoginSchema)
-        self.schema = schema().bind(request=self.request)
+    # Create login form
+    form = request.registry.getUtility(ILoginForm)
+    form = form(schema)
+    settings = request.registry.settings
 
-        # Create login form
-        form = request.registry.getUtility(ILoginForm)
+    social_logins = aslist(settings.get("websauna.social_logins", ""))
 
-        # XXX: Bootstrap classes leak into Deform here
-        login_button = deform.Button(name="login_email", title="Login with email", css_class="btn-lg btn-block")
-        self.form = form(self.schema, buttons=(login_button,))
+    # Process form
+    if request.method == "POST":
 
-        # If the form is embedded on other pages force it go to right HTTP POST endpoint
-        self.form.action = request.route_url("login")
+        try:
+            controls = request.POST.items()
+            captured = form.validate(controls)
+        except deform.ValidationFailure as e:
+            return {
+                'form': e.render(),
+                'errors': e.error.children
+            }
 
-    @view_config(route_name='login', renderer='login/login.html')
-    def login(self):
+        username = captured['username']
+        password = captured['password']
+        login_service = get_login_service(request)
 
-        social_logins = aslist(self.settings.get("websauna.social_logins", ""))
+        try:
+            return login_service.authenticate_credentials(username, password, login_source="login_form")
+        except AuthenticationFailure as e:
 
-        if self.request.method == 'GET':
-            if self.request.user:
-                return HTTPFound(location=self.login_redirect_view)
-            return {'form': self.form.render(), "social_logins": social_logins}
+            # Tell user they cannot login at the moment
+            messages.add(request, msg=str(e), msg_id="msg-authentication-failure", kind="error")
 
-        elif self.request.method == 'POST':
+            return {
+                'form': form.render(appstruct=captured),
+                'errors': [e],
+                "social_logins": social_logins
+            }
+    else:
+        # HTTP get, display login form
+        if request.user:
+            # Already logged in
+            return HTTPFound(location=login_redirect_view)
 
-            try:
-                controls = self.request.POST.items()
-                captured = self.form.validate(controls)
-            except deform.ValidationFailure as e:
-                return {
-                    'form': e.render(),
-                    'errors': e.error.children
-                }
-
-            username = captured['username']
-            password = captured['password']
-            login_service = get_login_service(self.request)
-
-            try:
-                return login_service.authenticate_credentials(username, password, login_source="login_form")
-            except AuthenticationFailure as e:
-
-                # Tell user they cannot login at the moment
-                messages.add(self.request, msg=str(e), msg_id="msg-authentication-failure", kind="error")
-
-                return {
-                    'form': self.form.render(appstruct=captured),
-                    'errors': [e],
-                    "social_logins": social_logins
-                }
+        # Display login form
+        return {'form': form.render(), "social_logins": social_logins}
 
 
-        else:
-            raise HTTPMethodNotAllowed("Unknown HTTP method")
+@view_config(route_name='registration_complete', renderer='login/registration_complete.html')
+def registration_complete(request):
+    """After activation initial login screen."""
 
-    @view_config(route_name='registration_complete', renderer='login/registration_complete.html')
-    def registration_complete(self):
-        """After activation initial login screen."""
+    # Create login form schema
+    schema = request.registry.getUtility(ILoginSchema)
+    schema = schema().bind(request=request)
 
-        self.form.action = self.request.route_url('login')
-        return {"form": self.form.render()}
+    # Create login form
+    form = request.registry.getUtility(ILoginForm)
+    form = form(schema)
+    settings = request.registry.settings
 
-    @view_config(route_name='login_social')
-    def login_social(self):
-        """Login using OAuth and any of the social providers."""
+    # Make sure we POST to right endpoint
+    form.action = request.route_url('login')
 
-        # Get the internal provider name URL variable.
-        provider_name = self.request.matchdict.get('provider_name')
-        oauth_login_service = get_oauth_login_service(self.request)
-        assert oauth_login_service, "OAuth not configured for {}".format(provider_name)
-        return oauth_login_service.handle_request(provider_name)
+    return {"form": form.render()}
 
-    @view_config(permission='authenticated', route_name='logout')
-    def logout(self):
-        # Don't allow <img src="http://server/logout">
-        assert self.request.method == "POST"
-        check_csrf_token(self.request)
-        login_service = get_login_service(self.request)
-        return login_service.logout()
+
+@view_config(route_name='login_social')
+def login_social(request):
+    """Login using OAuth and any of the social providers."""
+
+    # Get the internal provider name URL variable.
+    provider_name = request.matchdict.get('provider_name')
+    oauth_login_service = get_oauth_login_service(request)
+    assert oauth_login_service, "OAuth not configured for {}".format(provider_name)
+    return oauth_login_service.handle_request(provider_name)
+
+
+@view_config(permission='authenticated', route_name='logout')
+def logout(request):
+    assert request.method == "POST"
+    login_service = get_login_service(request)
+    return login_service.logout()
 
 
 class ForgotPasswordController:

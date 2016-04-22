@@ -1,6 +1,11 @@
 from datetime import timedelta
 
 import transaction
+from deform import Button
+from webtest import TestApp
+
+import websauna
+from websauna.system.user.forms import DefaultLoginForm
 from websauna.tests.utils import create_user
 from websauna.tests.utils import EMAIL
 from websauna.tests.utils import PASSWORD
@@ -224,3 +229,39 @@ def test_forget_password_expired_token(web_server, browser, dbsession, init):
 
     b.visit("{}/reset-password/{}".format(web_server, activation_code))
     assert b.is_element_present_by_css("#not-found")
+
+
+def test_customize_login(paster_config):
+    """Customizing login form works."""
+
+    class CustomLoginForm(deform.Form):
+
+        def __init__(self, *args, **kwargs):
+            login_button = Button(name="login_email", title="Login by fingerprint", css_class="btn-lg btn-block")
+            kwargs['buttons'] = (login_button,)
+            super().__init__(*args, **kwargs)
+
+    class Initializer(websauna.system.Initializer):
+
+        def configure_user_forms(self):
+
+            from websauna.system.user import interfaces
+
+            # This will set up all default forms as shown in websauna.system.Initializer.configure_user_forms
+            super(Initializer, self).configure_user_forms()
+
+            # Override the default login form with custom one
+            unregister_success= self.config.registry.unregisterUtility(provided=interfaces.ILoginForm)
+            assert unregister_success, "No default form register"
+            self.config.registry.registerUtility(CustomLoginForm, interfaces.ILoginForm)
+
+
+    global_config, app_settings = paster_config
+    init = Initializer(global_config, app_settings)
+    init.run()
+    app = TestApp(init.make_wsgi_app())
+    resp = app.get("/login")
+
+    assert "Login by fingerprint" in resp.text
+
+

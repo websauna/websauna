@@ -70,6 +70,51 @@ def ini_settings(request, test_config_path) -> dict:
     return config
 
 
+@pytest.fixture(scope='session')
+def paster_config(request, test_config_path, ini_settings) -> tuple:
+    """A fixture to get global config and app settings for Paster-like passing.
+
+    This is mostly useful cases where your test needs to ramp up its own :py:class:`websauna.system.Initializer`.
+
+    Example:
+
+    .. code-block::
+
+        def test_customize_login(paster_config):
+            '''Customizing login form works.'''
+
+            class CustomLoginForm(DefaultLoginForm):
+
+                def __init__(self, *args, **kwargs):
+                    login_button = Button(name="login_email", title="Login by fingerprint", css_class="btn-lg btn-block")
+                    kwargs['buttons'] = (login_button,)
+                    super().__init__(*args, **kwargs)
+
+            class Initializer(websauna.system.Initializer):
+
+                def configure_user_forms(self):
+
+                    from websauna.system.user import interfaces
+
+                    # This will set up all default forms as shown in websauna.system.Initializer.configure_user_forms
+                    super(Initializer, self).configure_user_forms()
+
+                    # Override the default login form with custom one
+                    unregister_success= self.config.registry.unregisterUtility(provided=interfaces.ILoginForm)
+                    assert unregister_success, "No default form register"
+                    self.config.registry.registerUtility(CustomLoginForm, interfaces.ILoginForm)
+
+
+            global_config, app_settings = paster_config
+            init = Initializer(global_config, app_settings)
+            init.run()
+            app = TestApp(init.make_wsgi_app())
+            resp = app.get("/login")
+    """
+    global_config = {"__file__": test_config_path}
+    return global_config, ini_settings
+
+
 @pytest.fixture
 def browser(request, browser_instance_getter, ini_settings) -> Browser:
     """Websauna specic browser fixtures.

@@ -138,6 +138,10 @@ Further information
 
 Read :ref:`admin` documentation. Read :ref:`CRUD` documentation.
 
+.. note ::
+
+    TODO: Currently there is not possibility to add and edit question choices inline from the question page. This will change in the future versions.
+
 Some examples how to customize and override views in admin interfaces
 
 * :py:mod:`websauna.system.user.admins` module
@@ -147,6 +151,3 @@ Some examples how to customize and override views in admin interfaces
 * websauna.wallet package `admins.py <https://github.com/websauna/websauna.wallet/blob/master/websauna/wallet/admins.py>`_.
 and `adminviews.py <https://github.com/websauna/websauna.wallet/blob/master/websauna/wallet/adminviews.py>`_
 
-.. note ::
-
-    TODO: Currently there is not possibility to add and edit question choices inline from the question page. This will change in the future versions.

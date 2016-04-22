@@ -1,7 +1,8 @@
 """Create nice API table of contents."""
 
+import sys
+
 import jinja2
-import types
 import pkgutil
 
 import websauna.system
@@ -104,6 +105,7 @@ def get_submodules(mod):
             continue
 
         mod_name = mod.__name__ + "." + module_name
+        print("Found module ", mod_name)
         module = pkgutil.importlib.import_module(mod_name)
         modules.append(module)
 
@@ -112,7 +114,7 @@ def get_submodules(mod):
         try:
             intro = mod.__doc__.split("\n")[0]
         except:
-            import pdb ; pdb.set_trace()
+            sys.exit("Module missing a docstring: {}".format(mod))
         results.append((mod.__name__, intro))
     return results
 

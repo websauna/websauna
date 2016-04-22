@@ -1,3 +1,5 @@
+"""Cryptographic utilities."""
+
 import string
 import random
 

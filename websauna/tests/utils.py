@@ -11,6 +11,7 @@ from selenium.webdriver.remote.webdriver import WebDriver
 import transaction
 from splinter.driver import DriverAPI
 from sqlalchemy.orm import Session
+from websauna.system.user.interfaces import IPasswordHasher
 from websauna.system.user.utils import get_site_creator
 from websauna.system.user.models import User
 
@@ -29,7 +30,12 @@ def create_user(dbsession:Session, registry:Registry, email:str=EMAIL, password:
     :param admin: If True run :py:class:`websauna.system.user.usermixin.SiteCreator` login and set the user to admin group.
     """
 
-    user = User(email=email, password=password)
+    user = User(email=email)
+
+    if password:
+        hasher = registry.getUtility(IPasswordHasher)
+        user.hashed_password = hasher.hash_password(password)
+
     user.user_registration_source = "dummy"
     dbsession.add(user)
     dbsession.flush()

@@ -25,9 +25,8 @@ Example usage:
     import colander
     import deform
     from deform import Form
-    from pyramid_deform import CSRFSchema
 
-
+    from websauna.system.form.schema import CSRFSchema
     from websauna.system.form.resourceregistry import ResourceRegistry
 
 

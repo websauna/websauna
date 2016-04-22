@@ -1,25 +1,22 @@
-"""Default user model implementations..
+"""Default user model implementations.
 
-.. note ::
+Define how User, Group, UserGroup and Activation models are in relationship together.
 
-    Horus dependencies will be killed in the future. Do not rely on them.
-
+These models are picked up in :py:meth:`websauna.system.Initializer.configure_user_models`.
 """
-import sqlalchemy as sa
-from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.ext.declarative.base import _declarative_constructor
 
-from hem.text import pluralize
-from horus import models as horus_models
-from websauna.system.user.interfaces import IGroup, IUser
-from websauna.system.user.usermixin import ActivationMixin
+import sqlalchemy as sa
+from sqlalchemy.ext.declarative.base import _declarative_constructor
 from zope.interface import implementer
+
+from websauna.system.user.interfaces import IGroup, IUser
+from websauna.system.user.usermixin import ActivationMixin, UserGroupMixin
 
 from . import usermixin
 
 
 @implementer(IUser)
-class User(usermixin.UserMixin, horus_models.UserMixin):
+class User(usermixin.UserMixin):
     """The default user implementation for Websauna.
 
     This is a concrete implementation of SQLAlchemy model.
@@ -30,47 +27,30 @@ class User(usermixin.UserMixin, horus_models.UserMixin):
 
     __init__ = _declarative_constructor
 
-    @property
-    def last_login_date(self):
-        # Our internal declaration which matches Horus way of saying the same thing
-        # TODO: Remove Horus as a dependency
-        return self.last_login_at
+    #: Current user activation instance for reset password for sign up email verification
+    activation_id = sa.Column(sa.Integer, sa.ForeignKey("user_activation.id"))
 
-    # Fix SAWarning: Unmanaged access of declarative attribute __tablename__ from non-mapped class ...
-    # Apparently one cannot refer to attributes from mixin classes.
-    @declared_attr
-    def activation_id(self):
-        return sa.Column(
-            sa.Integer,
-            sa.ForeignKey('%s.%s' % (
-                    Activation.__tablename__,
-                    self._idAttribute
-                )
-            )
-        )
+    #: SQLAlchemy relationship for above
+    activation = sa.orm.relationship('Activation', backref='user')
 
 
 @implementer(IGroup)
-class Group(usermixin.GroupMixin, horus_models.GroupMixin):
+class Group(usermixin.GroupMixin):
+
+    __tablename__ = "group"
 
     __init__ = _declarative_constructor
 
-    # Fix SAWarning: Unmanaged access of declarative attribute __tablename__ from non-mapped class ...
-    @declared_attr
-    def users(self):
-        """Relationship for users belonging to this group"""
-        return sa.orm.relationship(
-            'User',
-            secondary=UserGroup.__tablename__,
-            # order_by='%s.user.username' % UserMixin.__tablename__,
-            passive_deletes=True,
-            passive_updates=True,
-            backref=pluralize(Group.__tablename__),
-        )
+    users = sa.orm.relationship(
+        'User',
+        secondary="usergroup",
+        passive_deletes=True,
+        passive_updates=True,
+        backref="groups",
+    )
 
 
-
-class UserGroup(horus_models.UserGroupMixin):
+class UserGroup(UserGroupMixin):
     """Map one user to one group."""
 
     __tablename__ = "usergroup"
@@ -78,31 +58,11 @@ class UserGroup(horus_models.UserGroupMixin):
     # Default constructor
     __init__ = _declarative_constructor
 
-    @declared_attr
-    def user_id(self):
-
-        # Fix table name for User table, Horus bugs out PSQL
-        return sa.Column(
-            sa.Integer,
-            sa.ForeignKey('%s.%s' % (User.__tablename__,
-                                     self._idAttribute),
-                          onupdate='CASCADE',
-                          ondelete='CASCADE'),
-        )
-
-    # Fix SAWarning: Unmanaged access of declarative attribute __tablename__ from non-mapped class ...
-    @declared_attr
-    def group_id(self):
-        return sa.Column(
-            sa.Integer,
-            sa.ForeignKey('%s.%s' % (
-                Group.__tablename__,
-                self._idAttribute)
-            )
-        )
+    user_id = sa.Column(sa.ForeignKey("users.id"))
+    group_id = sa.Column(sa.ForeignKey("group.id"))
 
 
-class Activation(ActivationMixin, horus_models.ActivationMixin):
+class Activation(ActivationMixin):
     """The default implementation of user email activation token."""
 
     __tablename__ = "user_activation"

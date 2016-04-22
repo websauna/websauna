@@ -1,14 +1,16 @@
-from horus.events import PasswordResetEvent
-from horus.views import get_config_route
+from zope.interface import implementer
+
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.response import Response
+
 from websauna.system.core import messages
+from websauna.system.core.route import get_config_route
 from websauna.system.http import Request
 from websauna.system.mail import send_templated_mail
 from websauna.system.user.events import UserAuthSensitiveOperation
 from websauna.system.user.interfaces import ICredentialActivityService, CannotResetPasswordException, IUser
 from websauna.system.user.utils import get_user_registry
-from zope.interface import implementer
+from .events import PasswordResetEvent
 
 
 @implementer(ICredentialActivityService)
@@ -31,7 +33,6 @@ class DefaultCredentialActivityService:
         """
 
         request = self.request
-        dbsession = self.request.dbsession
 
         user_registry = get_user_registry(request)
 
@@ -47,8 +48,7 @@ class DefaultCredentialActivityService:
         messages.add(request, msg="Please check your email to continue password reset.", kind='success', msg_id="msg-check-email")
 
         if not location:
-            #: TODO configuration option here probable wrong
-            location = get_config_route(request, 'horus.reset_password_redirect')
+            location = get_config_route(request, 'websauna.request_password_reset_redirect')
             assert location
 
         return HTTPFound(location=location)
@@ -80,5 +80,5 @@ class DefaultCredentialActivityService:
         request.registry.notify(PasswordResetEvent(self.request, user, password))
         request.registry.notify(UserAuthSensitiveOperation(self.request, user, "password_reset"))
 
-        location = location or get_config_route(request, 'horus.reset_password_redirect')
+        location = location or get_config_route(request, 'websauna.reset_password_redirect')
         return HTTPFound(location=location)

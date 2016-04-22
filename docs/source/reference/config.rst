@@ -131,7 +131,16 @@ Example ``continuos-integration.ini`` which extends other INI files and override
 Websauna configuration variables
 ================================
 
-The following variables are available
+The following variables are available.
+
+websauna.activate_redirect
+--------------------------
+
+The Pyramid route name where the user is taken after clicking the email activation link.
+
+See :py:meth:`websauna.system.user.registrationservice.DefaultRegistrationService.activate_by_email`.
+
+Default: ``registration_complete``.
 
 .. _websauna.admin_as_superuser:
 
@@ -144,7 +153,7 @@ All members in admin group are also superusers.
 
     It is only safe to enable this settings on your local computer. Never enable this in an environment which can be accessed over Internet.
 
-Default: ``True`` in :ref:`development.ini`, ``False`` otherwise.
+Default: ``true`` in :ref:`development.ini`, ``false`` otherwise.
 
 See also :ref:`websauna.superusers`.
 
@@ -159,7 +168,7 @@ Enable this in production deployments to have never expiring URLs for all items 
 
 URLs are tagged by file MD5 hash. If the source asset file (CSS, JS image) changes a new URL is generated, invalidating the cache.
 
-Default:: ``False``.
+Default:: ``false``.
 
 More info
 
@@ -172,6 +181,62 @@ How quickly email activation and password reset token turns sour.
 
 Default: 24 hours
 
+websauna.allow_email_auth
+-------------------------
+
+Allow users to sign in by email (besides username).
+
+Default: ``true``.
+
+websauna.allowed_hosts
+----------------------
+
+Whitespace separated list of hostnames this site is allowed to respond.
+
+This is a security feature preventing direct IP access of sites.
+
+Set this to list of your production domain names::
+
+    websauna.allowed_hosts =
+        libertymusicstore.net
+        upload.libertymusicstore.net
+
+Default: ``localhost``.
+
+websauna.allow_inactive_login
+-----------------------------
+
+Allow users who have not verified their email to sig in.
+
+Default: ``false``.
+
+.. _websauna.cache_max_age_seconds:
+
+websauna.cache_max_age_seconds
+------------------------------
+
+How long :ref:`static assets <static>` are cached. Any non-zero value enables caching busting.
+
+Default: 0 (development), 2 weeks (production)
+
+websauna.autologin
+------------------
+
+Automatically sign in the user after completing the sign up form.
+
+See :py:meth:`websauna.systme.user.registrationservice.DefaultRegistrationService.sign_up`.
+
+Default: ``false``.
+
+websauna.error_test_trigger
+---------------------------
+
+If set enable a view at path ``/error-trigger`` that generates a runtime error.
+
+You can use this view to generate an error and see that your logging and error monitoring system functions correctly.
+
+Default: ``false``.
+
 websauna.global_config
 ----------------------
 
@@ -179,6 +244,116 @@ This is a reference to ``global_config`` object which is used to initialize Pyra
 
     {'__file__': '/Users/mikko/code/trees/trees/development.ini', 'here': '/Users/mikko/code/trees/trees'}
 
+
+websauna.force_utc_on_columns
+-----------------------------
+
+Enforce that all datetime values going to SQLAlchemy models are timezone-aware and in UTC timezone.
+
+It is a recommended best practice that you store only UTC dates and times in SQL databases. SQL databases themselves are very naive what comes to storing timezones are doing time operations in SQL. Storing everything in UTC and doing timezones on the application side is one way to ensure consistency.
+
+* When you set a value on datetime is must contain timezone information, naive datetime objects are not accepted
+
+* Time is converted to UTC
+
+* Datetime is stored in the database
+
+If set to to true the application will fail with assertion error if you try to store non-UTC datetime.
+
+Default: ``true``
+
+For more information see :py:mod:`websauna.system.model.sqlalchemyutcdatetime`.
+
+websauna.log_internal_server_error
+----------------------------------
+
+When the user is being served 500 internal server error (:py:func:`websauna.system.core.views.internalservererror.internal_server_error`) send the error traceback to standard Python ``logger``.
+
+Disabling this is most useful for testing where you do not want to see tracebacks polluting your log output.
+
+Default: ``true``
+
+websauna.login_after_activation
+-------------------------------
+
+Are users automatically logged in after clicking the email verification link.
+
+See :py:meth:`websauna.system.user.registrationservice.DefaultRegistrationService.activate_by_email`.
+
+Default: ``false``.
+
+websauna.login_redirect
+-----------------------
+
+The Pyramid route hame where the user is redirected after succesful login.
+
+See :py:meth:`websauna.system.user.loginservice.DefaultLoginService.authenticate_user`.
+
+Default: ``home``.
+
+websauna.logout_redirect
+------------------------
+
+The Pyramid route hame where the user is redirected after succesful login.
+
+See :py:meth:`websauna.system.user.loginservice.DefaultLoginService.logout`.
+
+Default: ``login``.
+
+.. _websauna.mailer:
+
+websauna.mailer
+---------------
+
+Choose the mail backend class.
+
+Available options
+
+* ``websauna.system.mail.mailer.StdoutMailer`` - dump email to stdout. Default in :term:`development`.
+
+* ``mail`` - use the SMTP configured for pyramid_mailer. Default in :term:`production`.
+
+* ``pyramid_mailer.mailer.DummyMailer`` - No any kind of mail out. Default in :term:`testing`.
+
+See also :py:meth:`websauna.system.Initializer.configure_mail`.
+
+See also below ``pyramid_mailer`` for configuring the actual mail server details.
+
+websauna.require_activation
+---------------------------
+
+Do user need to verify their email before they can sign in.
+
+See :py:meth:`websauna.system.user.registrationservice.DefaultRegistrationService.sign_up`.
+
+Default: ``true``.
+
+websauna.request_password_reset_redirect
+----------------------------------------
+
+The pyramid route name where the user is taken after submitting a password reset request.
+
+See :py:meth:`websauna.system.user.credentialactivityservice.DefaultCredentialActivityService.create_forgot_password_request`.
+
+Default: ``login``
+
+websauna.reset_password_redirect
+--------------------------------
+
+The pyramid route name where the user is taken after performing a password reset via email.
+
+See :py:meth:`websauna.system.user.credentialactivityservice.DefaultCredentialActivityService.create_forgot_password_request`.
+
+Default: ``login``
+
+.. _websauna.sample_html_email:
+
+websauna.sample_html_email
+--------------------------
+
+Enable ``/sample-html-email`` view for testing HTML email looks.
+
+Default: true in  :ref:`development.ini`, false otherwise
 
 
 .. _websauna.sanity_check:
@@ -203,15 +378,19 @@ List of configured social logins, or federated authentication, methods.
 
 * Each social login corresponds one entry in secrets INI file
 
-Example value::
+Example value:
+
+.. code-block:: ini
 
     websauna.social_logins =
         facebook
         twitter
 
-In which case your secrets INI would contain::
+In which case your secrets INI would contain:
 
-       [facebook]
+.. code-block:: ini
+
+        [facebook]
         class = authomatic.providers.oauth2.Facebook
         consumer_key = xxx
         consumer_secret = yyy
@@ -223,117 +402,6 @@ In which case your secrets INI would contain::
         consumer_key = xxx
         consumer_secret = yyy
         ...
-
-.. _websauna.superusers:
-
-websauna.superusers
--------------------
-
-List of superuser emails or usernames. Add your username on this list to make it super user.
-
-Example::
-
-    websauna.superusers =
-        admin
-        mikko@example.com
-
-.. warning::
-
-    Superuser permission allows executing arbitrary code on the server.
-
-More information
-
-* See :doc:`Notebook documentation <../narrative/misc/notebook>`
-
-websauna.force_utc_on_columns
------------------------------
-
-Enforce that all datetime values going to SQLAlchemy models are timezone-aware and in UTC timezone.
-
-It is a recommended best practice that you store only UTC dates and times in SQL databases. SQL databases themselves are very naive what comes to storing timezones are doing time operations in SQL. Storing everything in UTC and doing timezones on the application side is one way to ensure consistency.
-
-* When you set a value on datetime is must contain timezone information, naive datetime objects are not accepted
-
-* Time is converted to UTC
-
-* Datetime is stored in the database
-
-If set to to true the application will fail with assertion error if you try to store non-UTC datetime.
-
-Default: ``true``
-
-For more information see :py:mod:`websauna.system.model.sqlalchemyutcdatetime`.
-
-websauna.allowed_hosts
-----------------------
-
-Whitespace separated list of hostnames this site is allowed to respond.
-
-This is a security feature preventing direct IP access of sites.
-
-Set this to list of your production domain names::
-
-    websauna.allowed_hosts =
-        libertymusicstore.net
-        upload.libertymusicstore.net
-
-Default: ``localhost``.
-
-.. _websauna.cache_max_age_seconds:
-
-websauna.cache_max_age_seconds
-------------------------------
-
-How long :ref:`static assets <static>` are cached. Any non-zero value enables caching busting.
-
-Default: 0 (development), 2 weeks (production)
-
-websauna.error_test_trigger
----------------------------
-
-If set enable a view at path ``/error-trigger`` that generates a runtime error.
-
-You can use this view to generate an error and see that your logging and error monitoring system functions correctly.
-
-Default: ``False``.
-
-websauna.log_internal_server_error
-----------------------------------
-
-When the user is being served 500 internal server error (:py:func:`websauna.system.core.views.internalservererror.internal_server_error`) send the error traceback to standard Python ``logger``.
-
-Disabling this is most useful for testing where you do not want to see tracebacks polluting your log output.
-
-Default: ``True``
-
-.. _websauna.mailer:
-
-websauna.mailer
----------------
-
-Choose the mail backend class.
-
-Available options
-
-* ``websauna.system.mail.mailer.StdoutMailer`` - dump email to stdout. Default in :term:`development`.
-
-* ``mail`` - use the SMTP configured for pyramid_mailer. Default in :term:`production`.
-
-* ``pyramid_mailer.mailer.DummyMailer`` - No any kind of mail out. Default in :term:`testing`.
-
-See also :py:meth:`websauna.system.Initializer.configure_mail`.
-
-See also below ``pyramid_mailer`` for configuring the actual mail server details.
-
-.. _websauna.sample_html_email:
-
-websauna.sample_html_email
---------------------------
-
-Enable ``/sample-html-email`` view for testing HTML email looks.
-
-Default: True in  :ref:`development.ini`, false otherwise
-
 
 .. _websauna.secrets_file:
 
@@ -388,6 +456,29 @@ websauna.site_time_zone
 See :py:func:`websauna.system.core.vars.site_time_zone`.
 
 Default: :term:`UTC`.
+
+.. _websauna.superusers:
+
+websauna.superusers
+-------------------
+
+List of superuser emails or usernames. Add your username on this list to make it super user.
+
+Example:
+
+.. code-block:: ini
+
+    websauna.superusers =
+        admin
+        mikko@example.com
+
+.. warning::
+
+    Superuser permission allows executing arbitrary code on the server.
+
+More information
+
+* See :doc:`Notebook documentation <../narrative/misc/notebook>`
 
 .. _websauna.template_debugger:
 

@@ -7,14 +7,13 @@ assert sys.version_info >= (3,4), "Websauna needs Python 3.4 or newer"
 from distutils.version import LooseVersion
 import pkg_resources
 
-# Check Pyramid  version
+# Check Pyramid version
 pyramid_ver = LooseVersion(pkg_resources.get_distribution("pyramid").version).version
 if pyramid_ver[0] == 1:
     assert pyramid_ver[0] >= 1 and pyramid_ver[1] >= 7, "Pyramid version 1.7 or newer required"
 
 import logging
 
-from pyramid_deform import configure_zpt_renderer
 from pyramid.config import Configurator
 from pyramid.interfaces import IDebugLogger, IViewMapperFactory, IRequest
 from pyramid.path import DottedNameResolver
@@ -103,34 +102,22 @@ class Initializer:
         self.config.registry.registerUtility(pyramid_debug_logger, IDebugLogger)
 
     @event_source
-    def configure_horus(self):
-        """Configure user and group SQLAlchemy models, login and sign up views."""
+    def configure_user_forms(self):
+        """Configure forms and schemas used for login and such."""
 
-        # Avoid importing horus if not needed as it will bring in its own SQLAlchemy models and dirties our SQLAlchemy initialization
-
-        # TODO: This will be removed
-
-        from hem.interfaces import IDBSession
-        from horus.interfaces import IRegisterSchema
-        from horus.interfaces import ILoginSchema
-        from horus.interfaces import IForgotPasswordSchema
-        from horus import IResetPasswordSchema
-        from websauna.system.user.interfaces import IUserModel, IGroupModel
+        from websauna.system.user import interfaces
         from websauna.system.user import schemas
-        from websauna.system.user import horus as horus_init
+        from websauna.system.user.forms import DefaultUserForm
 
-        # Tell horus which SQLAlchemy scoped session to use:
-        registry = self.config.registry
-        registry.registerUtility(None, IDBSession)
+        self.config.registry.registerUtility(schemas.RegisterSchema, interfaces.IRegisterSchema)
+        self.config.registry.registerUtility(schemas.LoginSchema, interfaces.ILoginSchema)
+        self.config.registry.registerUtility(schemas.ResetPasswordSchema, interfaces.IResetPasswordSchema)
+        self.config.registry.registerUtility(schemas.ForgotPasswordSchema, interfaces.IForgotPasswordSchema)
 
-        # self.config.include("horus")
-        horus_init.includeme(self.config)
-
-        # self.config.scan_horus(users_models)
-        self.config.registry.registerUtility(schemas.RegisterSchema, IRegisterSchema)
-        self.config.registry.registerUtility(schemas.LoginSchema, ILoginSchema)
-        self.config.registry.registerUtility(schemas.ResetPasswordSchema, IResetPasswordSchema)
-        self.config.registry.registerUtility(schemas.ForgotPasswordSchema, IForgotPasswordSchema)
+        self.config.registry.registerUtility(DefaultUserForm, interfaces.ILoginForm)
+        self.config.registry.registerUtility(DefaultUserForm, interfaces.IRegisterForm)
+        self.config.registry.registerUtility(DefaultUserForm, interfaces.IForgotPasswordForm)
+        self.config.registry.registerUtility(DefaultUserForm, interfaces.IResetPasswordForm)
 
     @event_source
     def configure_mailer(self):
@@ -418,7 +405,7 @@ class Initializer:
 
     def configure_csrf(self):
         """Configure cross-site request forgery subsystem."""
-        self.config.registry.settings["pyramid.require_default_csrf"] = True
+        self.config.set_default_csrf_options(require_csrf=True)
 
     @event_source
     def configure_forms(self):
@@ -431,9 +418,9 @@ class Initializer:
         * CSRf view mapper
         """
 
-        from pyramid.config.views import DefaultViewMapper
         from websauna.system.form.resources import DefaultFormResources
         from websauna.system.form.interfaces import IFormResources
+        from websauna.system.form.deform import configure_zpt_renderer
 
         # Make Deform widgets aware of our widget template paths
         configure_zpt_renderer(["websauna.system:form/templates/deform"])
@@ -473,11 +460,9 @@ class Initializer:
         Connect chosen user model to SQLAlchemy model Base. Also set up :py:class:`websauna.system.user.usermixin.SiteCreator` logic - what happens when the first user logs in.
         """
 
-        from horus.interfaces import IActivationClass
-        from horus.interfaces import IUserClass
+        from websauna.system.model.meta import Base
 
         from websauna.system.user import models
-        from websauna.system.model.meta import Base
         from websauna.system.user.interfaces import IGroupModel, IUserModel, ISiteCreator
         from websauna.system.user.usermixin import SiteCreator
         from websauna.system.user.userregistry import DefaultEmailBasedUserRegistry
@@ -494,14 +479,10 @@ class Initializer:
         registry.registerUtility(models.Group, IGroupModel)
         registry.registerUtility(models.Activation, IActivationModel)
 
-        # TODO: Legacy Horus compatibiltiy
-        registry.registerUtility(models.User, IUserClass)
-
         site_creator = SiteCreator()
         registry.registerUtility(site_creator, ISiteCreator)
 
-        # TODO: Get rid of Horus
-        registry.registerUtility(models.Activation, IActivationClass)
+        # Which user registry we are using
         registry.registerAdapter(factory=DefaultEmailBasedUserRegistry, required=(IRequest,), provided=IUserRegistry)
 
     @event_source
@@ -541,6 +522,24 @@ class Initializer:
         self.config.add_route('reset_password', '/reset-password/{code}')
         self.config.add_route('register', '/register')
         self.config.add_route('activate', '/activate/{code}')
+
+    @event_source
+    def configure_password(self):
+        """Configure system password hashing solution.
+
+        By default use Argon 2
+
+        * https://github.com/hynek/argon2_cffi
+
+        For more information see :py:mod:`websauna.system.user.password`
+        """
+        from websauna.system.user.password import Argon2Hasher
+        from websauna.system.user.interfaces import IPasswordHasher
+
+        hasher = Argon2Hasher()
+
+        registry = self.config.registry
+        registry.registerUtility(hasher, IPasswordHasher)
 
     @event_source
     def configure_model_admins(self):
@@ -657,8 +656,9 @@ class Initializer:
         # Sessions and users
         self.configure_sessions()
         self.configure_user()
-        self.configure_horus()
+        self.configure_user_forms()
         self.configure_user_models()
+        self.configure_password()
         self.configure_authentication()
         self.configure_federated_login()
 

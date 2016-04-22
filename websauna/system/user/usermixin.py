@@ -1,13 +1,13 @@
-"""User model base definitios.
+"""Default user model field definitions.
 
-We provide abstract user base which does not plug itself in to any SQLAlchemy tables to give creater flexibility for the application.
+This module defines what fields the default user implementation can have. You can subclass these mixins and then provide your own implementation for concrete models.
 """
 
 from uuid import uuid4
 
 import datetime
-
-from sqlalchemy import inspection
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy import inspection, Integer
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import INET
@@ -17,8 +17,11 @@ from sqlalchemy import Boolean
 from sqlalchemy.orm.session import Session
 
 from websauna.system.model.columns import UTCDateTime
+from websauna.utils.crypt import generate_random_string
 from websauna.utils.time import now
 from websauna.utils.jsonb import JSONBProperty
+
+
 
 
 #: Initialze user_data JSONB structure with these fields on new User
@@ -45,23 +48,25 @@ class UserMixin:
     The user contains normal columns and then ``user_data`` JSON field where properties and non-structured data can be easily added without migrations. This is especially handy to store incoming OAuth fields from social networks. Think Facebook login data and user details.
     """
 
+    #: Running counter id of the user
+    id = Column(Integer, autoincrement=True, primary_key=True)
+
+    #: Publicly exposable ID of the user
+    uuid = Column(UUID(as_uuid=True), default=uuid4)
+
     #: Though not displayed on the site, the concept of "username" is still preversed. If the site needs to have username (think Instragram, Twitter) the user is free to choose this username after the sign up. Username is null until the initial user activation is completed after db.flush() in create_activation().
     username = Column(String(256), nullable=True, unique=True)
 
-    #: Store the salted password. This is nullable because users using social media logins may never set the password.
-    _password = Column('password', String(256), nullable=True)
+    email = Column(String(256), nullable=True, unique=True)
 
-    #: The salt used for the password. Null if no password set.
-    salt = Column(String(256), nullable=True)
+    #: Stores the password + hash + cycles as password hasher internal format.. By default uses Argon 2 format. See :py:meth:`websauna.system.Initializer.configure_password`
+    hashed_password = Column('password', String(256), nullable=True)
 
     #: When this account was created
     created_at = Column(UTCDateTime, default=now)
 
     #: When the account data was updated last time
     updated_at = Column(UTCDateTime, onupdate=now)
-
-    #: Publicly exposable ID of the user
-    uuid = Column(UUID(as_uuid=True), default=uuid4)
 
     #: When this user was activated: email confirmed or first social login
     activated_at = Column(UTCDateTime, nullable=True)
@@ -145,10 +150,6 @@ class UserMixin:
         """Check if the current session is still valid for this user."""
         return self.last_auth_sensitive_operation_at <= session_created_at
 
-    def verify_password(self, password):
-        # TODO: Remove this Horus'ism
-        return self.validate_user(self, password)
-
     def __str__(self):
         return self.friendly_name
 
@@ -162,8 +163,17 @@ class GroupMixin:
     #: Assign the first user initially to this group
     DEFAULT_ADMIN_GROUP_NAME = "admin"
 
+    #: Running counter id of the group
+    id = Column(Integer, autoincrement=True, primary_key=True)
+
     #: Publicly exposable ID of the group
     uuid = Column(UUID(as_uuid=True), default=uuid4)
+
+    #: Human readable / machine referrable name of the group
+    name = Column(String(64), unique=True)
+
+    #: Human readable description of the group
+    description = Column(String(256))
 
     #: When this group was created.
     created_at = Column(UTCDateTime, default=now)
@@ -222,6 +232,10 @@ class SiteCreator:
 
 
 class ActivationMixin:
+    """Sign up / forgot password activation code reference."""
+
+    #: Running counter id
+    id = Column(Integer, autoincrement=True, primary_key=True)
 
     #: When this group was created.
     created_at = Column(UTCDateTime, default=now)
@@ -232,6 +246,15 @@ class ActivationMixin:
     #: All activation tokens must have expiring time
     expires_at = Column(UTCDateTime, nullable=False)
 
+    code = Column(String(32), nullable=False,
+                         unique=True,
+                         default=lambda: generate_random_string(32))
+
     def is_expired(self):
         """The activation best before is past and we should not use it anymore."""
         return self.expires_at < now()
+
+
+class UserGroupMixin:
+    """Map users to groups."""
+    id = Column(Integer, autoincrement=True, primary_key=True)

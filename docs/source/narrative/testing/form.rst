@@ -19,8 +19,8 @@ Example form handler view:
     import colander as c
 
     from pyramid.httpexceptions import HTTPTooManyRequests
-    from pyramid_deform import CSRFSchema
-    from tomb_routes import simple_route
+    from websauna.system.form.schema import CSRFSchema
+    from websauna.system.core.route import simple_route
 
     from websauna.system.core import messages
     from websauna.system.mail import send_templated_mail

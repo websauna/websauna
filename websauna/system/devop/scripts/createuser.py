@@ -6,7 +6,8 @@ import sys
 
 from websauna.system.devop.cmdline import init_websauna
 from websauna.system.user.events import UserCreated
-from websauna.system.user.utils import get_user_class, get_site_creator
+from websauna.system.user.interfaces import IPasswordHasher
+from websauna.system.user.utils import get_user_class, get_site_creator, get_user_registry
 
 import transaction
 
@@ -41,8 +42,13 @@ def main(argv=sys.argv):
             sys.exit("Password did not match")
 
     with transaction.manager:
+
         u = User(email=argv[2], username=argv[2])
-        u.password = password
+
+        if password:
+            user_registry = get_user_registry(request)
+            user_registry.set_password(u, password)
+
         u.registration_source = "command_line"
         u.activated_at = now()
         dbsession.add(u)

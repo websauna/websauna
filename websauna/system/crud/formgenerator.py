@@ -5,14 +5,15 @@ This is used by CRUD/admin to create a form for a model to edit. Model doesn't n
 import colander
 import deform
 from abc import abstractmethod
-from websauna.system.form.csrf import add_csrf
 
 from websauna.compat.typing import Callable
 from websauna.compat.typing import List
+
 from websauna.system.form.fieldmapper import DefaultSQLAlchemyFieldMapper
 from websauna.system.form.resourceregistry import ResourceRegistry
 from websauna.system.form.editmode import EditMode
 from websauna.system.http import Request
+from websauna.system.form.schema import add_csrf
 
 
 def default_schema_binder(schema: colander.Schema, request: Request, context: object, **kwargs):

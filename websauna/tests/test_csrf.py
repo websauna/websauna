@@ -1,8 +1,13 @@
-"""Test CSRF functionality as functional tests."""
+"""Test CSRF functionality as functional tests.
+
+.. note ::
+
+    These tests are leftovers from < Pyramid 1.7 when Pyramid did not have flexible CSRF protection and Websauna provided its own mechanism.
+
+"""
 import pytest
 
 from pyramid import testing
-from pyramid.config.views import DefaultViewMapper
 from pyramid.exceptions import BadCSRFToken
 from pyramid.testing import DummySession
 from webtest import TestApp
@@ -20,7 +25,7 @@ def csrf_app(request):
     session = DummySession()
 
     config = testing.setUp()
-    config.registry.settings["pyramid.require_default_csrf"] = True
+    config.set_default_csrf_options(require_csrf=True)
     config.add_route("home", "/")
     config.add_route("csrf_sample", "/csrf_sample")
     config.add_route("csrf_exempt_sample", "/csrf_exempt_sample")

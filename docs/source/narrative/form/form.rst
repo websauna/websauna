@@ -46,12 +46,12 @@ Below is an example how to create and validate one form::
     from pyramid.httpexceptions import HTTPFound
     import colander
     import deform
-    import pyramid_deform
 
     from websauna.system.core import messages
+    from websauna.system.form.schema import CSRFSchema
 
 
-    class MySchema(pyramid_deform.CSRFSchema):
+    class MySchema(CSRFSchema):
         question = colander.Schema(colander.String())
 
 
@@ -168,7 +168,8 @@ Validation
 Here is an example data-driven validator::
 
     import colander
-    from pyramid_deform import CSRFSchema
+    from websauna.system.form.schema import CSRFSchema
+
 
     def validate_unique_user_email(node, value, **kwargs):
     """Make sure we cannot enter the same username twice."""

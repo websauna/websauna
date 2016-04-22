@@ -14,8 +14,10 @@ from websauna.system.crud.views import TraverseLinkButton
 from websauna.system.form.fieldmapper import EditMode
 from websauna.system.form.fields import defer_widget_values
 from websauna.system.crud.formgenerator import SQLAlchemyFormGenerator
+from websauna.system.user.interfaces import IPasswordHasher
 from websauna.system.user.models import User
 from websauna.system.user.schemas import group_vocabulary, GroupSet, validate_unique_user_email
+from websauna.system.user.utils import get_user_registry
 from websauna.utils.time import now
 from websauna.viewconfig import view_overrides
 from websauna.system.crud import listing
@@ -159,13 +161,14 @@ class UserAdd(admin_views.Add):
         # TODO: Still not sure how handle nested values on the automatically generated add form. But here we need it for groups to appear
         return self.create_form(EditMode.add, buttons=("add", "cancel",))
 
-    def add_object(self, obj):
-        """Flush newly created object to persist storage."""
+    def initialize_object(self, form, appstruct, obj: User):
+        password = appstruct.pop("password")
+        form.schema.objectify(appstruct, obj)
+        hasher = self.request.registry.getUtility(IPasswordHasher)
+        obj.hashed_password = hasher.hash_password(password)
 
-        # Users created through admin are useable right away
+        # Users created through admin are useable right away, so activate the user
         obj.activated_at = now()
-
-        super(UserAdd, self).add_object(obj)
 
 
 class UserSetPassword(admin_views.Edit):
@@ -180,8 +183,13 @@ class UserSetPassword(admin_views.Edit):
 
     form_generator = SQLAlchemyFormGenerator(includes=includes)
 
-    def save_changes(self, form:deform.Form, appstruct:dict, obj:User):
-        super(UserSetPassword, self).save_changes(form, appstruct, obj)
+    def save_changes(self, form: deform.Form, appstruct: dict, obj: User):
+
+        # Set hashed password
+        user_registry = get_user_registry(self.request)
+        user_registry.set_password(obj, appstruct["password"])
+
+        # Drop session
         kill_user_sessions(self.request, obj, "password_change")
 
     def do_success(self):

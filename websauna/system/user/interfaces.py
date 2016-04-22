@@ -1,3 +1,5 @@
+"""Define various interfaces telling how user subsystem objects interact and can be looked up from registry."""
+
 import zope
 from pyramid.interfaces import IRequest, IResponse
 
@@ -30,14 +32,14 @@ class IGroup(Interface):
 
 
 class IUserModel(Interface):
-    """Register utility registration which marks active User SQLAlchemy model."""
+    """Register utility registration which marks active User SQLAlchemy model class."""
 
 
 class IGroupModel(Interface):
-    """Register utility registration which marks active Group SQLAlchemy model."""
+    """Register utility registration which marks active Group SQLAlchemy model class."""
 
 class IActivationModel(Interface):
-    """Register utility registration which marks active Activation SQLAlchemy model."""
+    """Register utility registration which marks active Activation SQLAlchemy model class."""
 
 
 class IAuthomatic(Interface):
@@ -73,7 +75,7 @@ class ILoginService(Interface):
 
         A password check is not performed. However it is checked if user is active and such.
 
-        :param location: Override the redirect page. If none use ``horus.login_redirect``. TODO - to be changed.
+        :param location: Override the redirect page. If none use ``websauna.login_redirect``. TODO - to be changed.
 
         :param login_source: Application specific string telling where the login come from. E.g. "social_media", "signup", "login_form".
 
@@ -93,7 +95,7 @@ class ILoginService(Interface):
 
         :param user: Default login service is designed to work with UserMixin compatible user classes
 
-        :param location: Override the redirect page. If none use ``horus.login_redirect``. TODO - to be changed.
+        :param location: Override the redirect page. If none use ``websauna.login_redirect``. TODO - to be changed.
 
         :param login_source: Application specific string telling where the login come from. E.g. "social_media", "signup", "login_form".
 
@@ -154,3 +156,83 @@ class IRegistrationService(Interface):
     TODO: Interface not described yet, see :py:class:`websauna.system.user.registrationservice.DefaultRegistrationService`.
 
     """
+
+
+class ILoginSchema(Interface):
+    """Colander schema used for sign in form.
+
+    See :py:meth:`websauna.system.Initializer.configure_user_forms`.
+    """
+
+
+class ILoginForm(Interface):
+    """Deform form used for sign in form.
+
+    See :py:meth:`websauna.system.Initializer.configure_user_forms`.
+    """
+
+
+class IRegisterSchema(Interface):
+    """Colander schema used for sign upform.
+
+    See :py:meth:`websauna.system.Initializer.configure_user_forms`.
+    """
+
+
+class IRegisterForm(Interface):
+    """Deform form used for sign upform.
+
+    See :py:meth:`websauna.system.Initializer.configure_user_forms`.
+    """
+
+class IForgotPasswordForm(Interface):
+    """Deform form used for Forgot password form.
+
+    See :py:meth:`websauna.system.Initializer.configure_user_forms`.
+    """
+
+
+class IForgotPasswordSchema(Interface):
+    """Colander schema used for Forgot password form.
+
+    See :py:meth:`websauna.system.Initializer.configure_user_forms`.
+    """
+
+
+
+class IResetPasswordForm(Interface):
+    """Deform form used for Reset password form.
+
+    See :py:meth:`websauna.system.Initializer.configure_user_forms`.
+    """
+
+
+class IResetPasswordSchema(Interface):
+    """Colander schema used for Reset password form.
+
+    See :py:meth:`websauna.system.Initializer.configure_user_forms`.
+    """
+
+
+
+class IPasswordHasher(Interface):
+    """A utility for hashing passwords.
+
+    Used by :py:meth:`websauna.system.models.usermixin.UserMixin._set_password`.
+    """
+
+    def hash_password(plain_text) -> str:
+        """Generate a hash presentation for plain text password.
+
+        This is to be stored in database.
+
+        :return: A hasher internal string format. Usually contains number of cycles, hashed password and salt string.
+        """
+
+    def verify_password(hashed_password, plain_text) -> bool:
+        """Verify a password.
+
+        Compare if inputed password matches one stored in the dabase.
+
+        :return: True if the password matches, False otherwise.
+        """

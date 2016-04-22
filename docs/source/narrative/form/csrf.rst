@@ -16,21 +16,24 @@ Deform forms
 
 This explains how to include a hidden CSRF input field on your :term:`Deform` based forms.
 
-Always subclass your form schema from :py:class:`pyramid_deform.CSRFSchema`.
+Always subclass your form schema from :py:class:`websauna.system.form.schema.CSRFSchema`.
 
 Example::
 
     import colander
     import deform
-    import pyramid_deform
+    from websauna.system.form.schema import CSRFSchema
 
-    class MySchema(pyramid_deform.CSRFSchema):
+    class MySchema(CSRFSchema):
 
         question = colander.Schema(colander.String())
 
 Then later you can use it as::
 
     form = Form(MySchema)
+
+
+Alternatively you can retrofit ``csrf_token`` to an existing schema using :py:func:`websauna.system.form.schema.add_csrf`.
 
 Hand-written forms
 ------------------

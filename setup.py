@@ -66,19 +66,15 @@ setup(
     install_requires=[
 
         # Pyramid dependencies
-        'pyramid>=1.7a1',
+
+        'pyramid>=1.7a2',
         'waitress',
         'websauna.viewconfig',
         'pyramid_redis_sessions',
         'pyramid-layout',
         "deform>=2.0a2",
-        'pyramid_deform',
         "pyramid_debugtoolbar",
         "pyramid_jinja2",
-        "ipython[notebook]<4",
-        "pyramid_ipython",
-        "scandir",  # os.scandir backport for py3.4
-        "python-slugify", # ASCII slug generation
 
         # Time handling
         "arrow",
@@ -87,6 +83,7 @@ setup(
         # SQLAlchemy and database support
         "psycopg2",
         "sqlalchemy",
+        "zope.sqlalchemy",
         "alembic",
         "colanderalchemy",
         "pyramid_tm",
@@ -94,7 +91,7 @@ setup(
         "pgcli",
 
         # User management
-        "horus",
+        "argon2_cffi",
         "authomatic",
 
         # Email
@@ -108,11 +105,17 @@ setup(
         "backports.typing",
 
         # Needed by python_notebook etc. who call pyramid.paster module
+        "ipython[notebook]<4",
         "pyramid_notebook>=0.1.6",
         "PasteDeploy",
 
         # Console logging
-        "rainbow_logging_handler"
+        "rainbow_logging_handler",
+
+        # Misc
+        "scandir",  # os.scandir backport for py3.4
+        "python-slugify", # ASCII slug generation
+
     ],
 
     # List additional groups of  dependencies here (e.g. development

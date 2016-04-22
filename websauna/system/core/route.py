@@ -9,33 +9,6 @@ from websauna.compat.typing import Optional
 from .simpleroute import add_simple_route
 
 
-class DecodeUUIDException(Exception):
-    """Could not decode given UUID parameter."""
-
-
-def decode_uuid(info: dict, request: Request, marker_string="uuid") -> bool:
-    """If there is a match argument with uuid in its name convert it from Base64 encoding to UUID object.
-
-    Example usage::
-
-        @simple_route("/{question_uuid}", route_name="detail", custom_predicates=(decode_uuid,))
-        def results(request: Request, question_uuid: UUID):
-            response = "You're looking at the results of question {}."
-            return Response(response.format(question_uuid))
-
-    """
-    # TODO: Make this use the view function type annotations instead of guessing type from the name.
-    match = info['match']
-
-    for key, value in match.items():
-        if marker_string in key:
-            try:
-                match[key] = slug_to_uuid(value)
-            except SlugDecodeError as e:
-                raise DecodeUUIDException("Tried to decode segment name {} value {} from base64 to UUID. Not possible.".format(key, value)) from e
-
-    return True
-
 
 class simple_route(object):
     """A set of simple defaults for Pyramid routing.
@@ -108,3 +81,12 @@ def add_template_only_view(config: Configurator, pattern: str, name: str, templa
     config.add_view(view=_default_view, route_name=name, renderer=template)
 
 
+
+def get_config_route(request: Request, config_key: str) -> str:
+    """Route to a given URL from settings file."""
+    settings = request.registry.settings
+
+    try:
+        return request.route_url(settings[config_key])
+    except KeyError:
+        return settings[config_key]

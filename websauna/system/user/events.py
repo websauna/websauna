@@ -3,7 +3,16 @@ from websauna.system.http import Request
 from websauna.system.user.models import User
 
 
-class UserCreated:
+
+class UserEvent:
+    """User related event."""
+
+    def __init__(self, request: Request, user: User):
+        self.request = request
+        self.user = user
+
+
+class UserCreated(UserEvent):
     """User is created.
 
     Fired upon
@@ -13,12 +22,8 @@ class UserCreated:
     * When sending email activation link
     """
 
-    def __init__(self, request:Request, user:User):
-        self.request = request
-        self.user = user
 
-
-class FirstLogin:
+class FirstLogin(UserEvent):
     """User logs in to the site for the first time.
 
     Fired upon
@@ -30,13 +35,8 @@ class FirstLogin:
     Fired before :py:class:`Login`
     """
 
-    def __init__(self, request:Request, user:User):
-        self.request = request
-        self.user = user
 
-
-
-class Login:
+class Login(UserEvent):
     """User has logged in to the site.
 
     Fired upon
@@ -48,12 +48,8 @@ class Login:
     Fired after login data (last_login_ip) has been updated.
     """
 
-    def __init__(self, request:Request, user:User):
-        self.request = request
-        self.user = user
 
-
-class UserAuthSensitiveOperation:
+class UserAuthSensitiveOperation(UserEvent):
     """User authentication details have changes.
 
     All user sessions should be dropped.
@@ -75,4 +71,21 @@ class UserAuthSensitiveOperation:
         self.kind = kind
 
 
+class NewRegistrationEvent(UserEvent):
+    def __init__(self, request, user, activation, values):
+        super(NewRegistrationEvent, self).__init__(request, user)
 
+        self.activation = activation
+        self.values = values
+
+
+class RegistrationActivatedEvent(UserEvent):
+    def __init__(self, request, user, activation):
+        super(RegistrationActivatedEvent, self).__init__(request, user)
+        self.activation = activation
+
+
+class PasswordResetEvent(UserEvent):
+    def __init__(self, request, user, password):
+        super(PasswordResetEvent, self).__init__(request, user)
+        self.password = password

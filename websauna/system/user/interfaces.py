@@ -1,3 +1,5 @@
+"""Define various interfaces telling how user subsystem objects interact and can be looked up from registry."""
+
 import zope
 from pyramid.interfaces import IRequest, IResponse
 

@@ -7,7 +7,7 @@ assert sys.version_info >= (3,4), "Websauna needs Python 3.4 or newer"
 from distutils.version import LooseVersion
 import pkg_resources
 
-# Check Pyramid  version
+# Check Pyramid version
 pyramid_ver = LooseVersion(pkg_resources.get_distribution("pyramid").version).version
 if pyramid_ver[0] == 1:
     assert pyramid_ver[0] >= 1 and pyramid_ver[1] >= 7, "Pyramid version 1.7 or newer required"
@@ -405,7 +405,7 @@ class Initializer:
 
     def configure_csrf(self):
         """Configure cross-site request forgery subsystem."""
-        self.config.registry.settings["pyramid.require_default_csrf"] = True
+        self.config.set_default_csrf_options(require_csrf=True)
 
     @event_source
     def configure_forms(self):

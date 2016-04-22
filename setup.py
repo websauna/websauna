@@ -67,7 +67,7 @@ setup(
 
         # Pyramid dependencies
 
-        'pyramid>=1.7a1',
+        'pyramid>=1.7a2',
         'waitress',
         'websauna.viewconfig',
         'pyramid_redis_sessions',

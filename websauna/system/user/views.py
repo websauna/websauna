@@ -7,17 +7,15 @@
 
 import logging
 
-from pyramid.session import check_csrf_token
 from pyramid.view import view_config
-from pyramid.httpexceptions import HTTPFound, HTTPMethodNotAllowed
+from pyramid.httpexceptions import HTTPFound
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.settings import aslist
-
-
 import deform
 
 from websauna.system.core import messages
 from websauna.system.core.route import get_config_route
+from websauna.system.http import Request
 from .utils import get_login_service, get_oauth_login_service, get_credential_activity_service, get_registration_service
 from .interfaces import AuthenticationFailure, CannotResetPasswordException
 from .interfaces import ILoginForm
@@ -32,38 +30,24 @@ from .interfaces import IResetPasswordSchema
 logger = logging.getLogger(__name__)
 
 
+@view_config(route_name='register', renderer='login/register.html')
+def register(request: Request):
+    """Sign up view."""
 
-class RegisterController:
+    settings = request.registry.settings
 
-    def __init__(self, request):
-        self.request = request
+    schema = request.registry.getUtility(IRegisterSchema)
+    schema = schema().bind(request=request)
 
-    @view_config(route_name='register', renderer='login/register.html')
-    def register(self):
+    form_class = request.registry.getUtility(IRegisterForm)
+    form = form_class(schema)
 
-        settings = self.request.registry.settings
+    social_logins = aslist(settings.get("websauna.social_logins", ""))
 
-        schema = self.request.registry.getUtility(IRegisterSchema)
-        schema = schema().bind(request=self.request)
-
-        sign_up_button = deform.Button(name="sign_up", title="Sign up with email", css_class="btn-lg btn-block")
-
-        form_class = self.request.registry.getUtility(IRegisterForm)
-        form = form_class(schema, buttons=(sign_up_button,))
-
-        social_logins = aslist(settings.get("websauna.social_logins", ""))
-
-        if self.request.method == 'GET':
-            if self.request.user:
-                return HTTPFound(location=self.after_register_url)
-
-            return {'form': form.render(), 'social_logins': social_logins}
-
-        elif self.request.method != 'POST':
-            return
+    if request.method == "POST":
 
         # If the request is a POST:
-        controls = self.request.POST.items()
+        controls = request.POST.items()
         try:
             captured = form.validate(controls)
         except deform.ValidationFailure as e:
@@ -72,15 +56,18 @@ class RegisterController:
         # With the form validated, we know email and username are unique.
         del captured['csrf_token']
 
-        registration_service = get_registration_service(self.request)
+        registration_service = get_registration_service(request)
         return registration_service.sign_up(user_data=captured)
 
-    @view_config(route_name='activate')
-    def activate(self):
-        """View to activate user after clicking email link."""
-        code = self.request.matchdict.get('code', None)
-        registration_service = get_registration_service(self.request)
-        return registration_service.activate_by_email(code)
+    return {'form': form.render(), 'social_logins': social_logins}
+
+
+@view_config(route_name='activate')
+def activate(request):
+    """View to activate user after clicking email link."""
+    code = request.matchdict.get('code', None)
+    registration_service = get_registration_service(request)
+    return registration_service.activate_by_email(code)
 
 
 @view_config(route_name='login', renderer='login/login.html')
@@ -175,81 +162,73 @@ def logout(request):
     return login_service.logout()
 
 
-class ForgotPasswordController:
+@view_config(route_name='forgot_password', renderer='login/forgot_password.html')
+def forgot_password(request):
 
-    def __init__(self, request):
-        self.request = request
+    schema = request.registry.getUtility(IForgotPasswordSchema)
+    schema = schema().bind(request=request)
 
-    @view_config(route_name='forgot_password', renderer='login/forgot_password.html')
-    def forgot_password(self):
-        req = self.request
-        schema = req.registry.getUtility(IForgotPasswordSchema)
-        schema = schema().bind(request=req)
+    form = request.registry.getUtility(IForgotPasswordForm)
+    form = form(schema)
 
-        form = req.registry.getUtility(IForgotPasswordForm)
-        form = form(schema)
-
-        settings = self.request.registry.settings
-
-        if req.method == 'GET':
-            return {'form': form.render()}
+    if request.method == 'POST':
 
         # From here on, we know it's a POST. Let's validate the form
-        controls = req.POST.items()
+        controls = request.POST.items()
         try:
             captured = form.validate(controls)
         except deform.ValidationFailure as e:
             # This catches if the email does not exist, too.
             return {'form': e.render(), 'errors': e.error.children}
 
-        credential_activity_service = get_credential_activity_service(self.request)
+        credential_activity_service = get_credential_activity_service(request)
         # Process valid form
         email = captured["email"]
 
         try:
             return credential_activity_service.create_forgot_password_request(email)
         except CannotResetPasswordException as e:
-            messages.add(self.request, msg=str(e), msg_id="msg-cannot-reset-password", kind="error")
+            messages.add(request, msg=str(e), msg_id="msg-cannot-reset-password", kind="error")
             return {'form': form.render()}
 
+    return {'form': form.render()}
 
-    @view_config(route_name='reset_password', renderer='login/reset_password.html')
-    def reset_password(self):
-        """Perform the actual reset based on the email reset link.
 
-        User arrives on the page and enters the new password.
-        """
+@view_config(route_name='reset_password', renderer='login/reset_password.html')
+def reset_password(request):
+    """Perform the actual reset based on the email reset link.
 
-        schema = self.request.registry.getUtility(IResetPasswordSchema)
-        schema = schema().bind(request=self.request)
+    User arrives on the page and enters the new password.
+    """
 
-        form = self.request.registry.getUtility(IResetPasswordForm)
-        form = form(schema)
+    schema = request.registry.getUtility(IResetPasswordSchema)
+    schema = schema().bind(request=request)
 
-        code = self.request.matchdict.get('code', None)
-        credential_activity_service = get_credential_activity_service(self.request)
-        user = credential_activity_service.get_user_for_password_reset_token(code)
-        if not user:
-            raise HTTPNotFound("Invalid password reset code")
+    form = request.registry.getUtility(IResetPasswordForm)
+    form = form(schema)
 
-        if self.request.method == 'GET':
-            return {
-                'form': form.render(
-                    appstruct=dict(
-                        user=user.friendly_name
-                    )
-                )
-            }
+    code = request.matchdict.get('code', None)
+    credential_activity_service = get_credential_activity_service(request)
+    user = credential_activity_service.get_user_for_password_reset_token(code)
+    if not user:
+        raise HTTPNotFound("Invalid password reset code")
 
-        elif self.request.method == 'POST':
-            try:
-                controls = self.request.POST.items()
-                captured = form.validate(controls)
-            except deform.ValidationFailure as e:
-                return {'form': e.render(), 'errors': e.error.children}
+    if request.method == 'POST':
+        try:
+            controls = request.POST.items()
+            captured = form.validate(controls)
+        except deform.ValidationFailure as e:
+            return {'form': e.render(), 'errors': e.error.children}
 
-            password = captured['password']
+        password = captured['password']
 
-            return credential_activity_service.reset_password(code, password)
-        else:
-            raise HTTPMethodNotAllowed()
+        return credential_activity_service.reset_password(code, password)
+
+    # Question screen
+    return {
+        'form': form.render(
+            appstruct=dict(
+                user=user.friendly_name
+            )
+        )
+    }

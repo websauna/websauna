@@ -1,11 +1,11 @@
 from datetime import timedelta
 
+import deform
 import transaction
 from deform import Button
 from webtest import TestApp
 
 import websauna
-from websauna.system.user.forms import DefaultLoginForm
 from websauna.tests.utils import create_user
 from websauna.tests.utils import EMAIL
 from websauna.tests.utils import PASSWORD
@@ -234,7 +234,7 @@ def test_forget_password_expired_token(web_server, browser, dbsession, init):
 def test_customize_login(paster_config):
     """Customizing login form works."""
 
-    class CustomLoginForm(DefaultLoginForm):
+    class CustomLoginForm(deform.Form):
 
         def __init__(self, *args, **kwargs):
             login_button = Button(name="login_email", title="Login by fingerprint", css_class="btn-lg btn-block")

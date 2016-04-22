@@ -112,6 +112,7 @@ class Initializer:
         from websauna.system.user import schemas
         from websauna.system.user.forms import DefaultUserForm
         from websauna.system.user.forms import DefaultLoginForm
+        from websauna.system.user.forms import DefaultRegisterForm
 
         self.config.registry.registerUtility(schemas.RegisterSchema, interfaces.IRegisterSchema)
         self.config.registry.registerUtility(schemas.LoginSchema, interfaces.ILoginSchema)
@@ -119,7 +120,7 @@ class Initializer:
         self.config.registry.registerUtility(schemas.ForgotPasswordSchema, interfaces.IForgotPasswordSchema)
 
         self.config.registry.registerUtility(DefaultLoginForm, interfaces.ILoginForm)
-        self.config.registry.registerUtility(DefaultUserForm, interfaces.IRegisterForm)
+        self.config.registry.registerUtility(DefaultRegisterForm, interfaces.IRegisterForm)
         self.config.registry.registerUtility(DefaultUserForm, interfaces.IForgotPasswordForm)
         self.config.registry.registerUtility(DefaultUserForm, interfaces.IResetPasswordForm)
 

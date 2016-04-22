@@ -9,7 +9,7 @@ Introduction
 
 Cross-site request forgery (:term:`CSRF`)  is a mechanism to prevent malicious sites stealing and manipulating your user data.
 
-Websauna enables CSRF protection to all views by default `using Pyramid's CSRF mechanism < http://docs.pylonsproject.org/projects/pyramid/en/master/narr/sessions.html#preventing-cross-site-request-forgery-attacks>`_.
+Websauna enables CSRF protection to all views by default `using Pyramid's CSRF mechanism <http://docs.pylonsproject.org/projects/pyramid/en/master/narr/sessions.html#preventing-cross-site-request-forgery-attacks>`_.
 
 Deform forms
 ------------

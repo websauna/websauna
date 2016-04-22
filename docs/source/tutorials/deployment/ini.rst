@@ -4,7 +4,7 @@ Production INI settings
 
 Websauna is mainly driven by :term:`INI` based configuration files. Two the most important ones are
 
-* :term:`production.ini` (term:`staging.ini` for a staging deployment)
+* :ref:`production.ini` (ref:`staging.ini` for a staging deployment)
 
 * ``production-secrets.ini`` (``staging-secrets.ini`` for a staging deployment)
 

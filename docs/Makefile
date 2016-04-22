@@ -210,4 +210,7 @@ apidoc:
 publish:
 	aws s3 sync build/html s3://websauna.org
 
-world: apidoc-clean clean templatedoc filterdoc playbookdoc apidoc html publish
+publish-epub: epub
+	aws s3 cp build/epub/Websauna.epub s3://websauna.org
+
+world: apidoc-clean clean templatedoc filterdoc playbookdoc apidoc html publish publish-epub

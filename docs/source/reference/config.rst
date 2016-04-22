@@ -401,7 +401,6 @@ In which case your secrets INI would contain:
         class = authomatic.providers.oauth1.Twitter
         consumer_key = xxx
         consumer_secret = yyy
-        ...
 
 .. _websauna.secrets_file:
 

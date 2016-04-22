@@ -1,5 +1,7 @@
+.. _outbound-email:
+
 ==============
-Outgoing email
+Outbound email
 ==============
 
 .. contents:: :local:

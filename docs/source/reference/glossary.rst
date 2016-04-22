@@ -254,6 +254,10 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
         :term:`SQLAlchemy` database session keeps automatically track of objects you have modified.
         `More information <http://docs.sqlalchemy.org/en/latest/orm/session_state_management.html>`__.
 
+    Supervisor
+        Supervisor is a client/server system that allows its users to monitor and control a number of processes on UNIX-like operating systems. It shares some of the same goals of programs like launchd, daemontools, and runit. Unlike some of these programs, it is not meant to be run as a substitute for init as “process id 1”. Instead it is meant to be used to control processes related to a project or a customer, and is meant to start like any other program at boot time.
+        `More information <http://supervisord.org/>`__.
+
     TDD
         Test-driven development (TDD) is a software development process that relies on the repetition of a very short development cycle: first the developer writes an (initially failing) automated test case that defines a desired improvement or new function, then produces the minimum amount of code to pass that test, and finally refactors the new code to acceptable standards. `https://en.wikipedia.org/wiki/Test-driven_development>`__.
 

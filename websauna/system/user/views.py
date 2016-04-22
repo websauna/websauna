@@ -187,13 +187,9 @@ class ForgotPasswordController:
         form = form(schema)
 
         settings = self.request.registry.settings
-        forgot_password_redirect_view = self.request.route_url(settings.get('horus.forgot_password_redirect', 'index'))
 
         if req.method == 'GET':
-            if req.user:
-                return HTTPFound(forgot_password_redirect_view)
-            else:
-                return {'form': form.render()}
+            return {'form': form.render()}
 
         # From here on, we know it's a POST. Let's validate the form
         controls = req.POST.items()

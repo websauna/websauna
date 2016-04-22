@@ -41,8 +41,8 @@ class DefaultRegistrationService:
 
         settings = self.request.registry.settings
 
-        require_activation = asbool(settings.get('horus.require_activation', True))
-        autologin = asbool(settings.get('horus.autologin', False))
+        require_activation = asbool(settings.get('websauna.require_activation', True))
+        autologin = asbool(settings.get('websauna.autologin', False))
 
         if require_activation:
             self.create_email_activation(user)
@@ -87,12 +87,11 @@ class DefaultRegistrationService:
         """
 
         request = self.request
-        dbsession = self.request.dbsession
         settings = request.registry.settings
         user_registry = get_user_registry(request)
 
-        after_activate_url = request.route_url(settings.get('horus.activate_redirect', 'index'))
-        login_after_activation = asbool(settings.get('horus.login_after_activation', False))
+        after_activate_url = request.route_url(settings.get('websauna.activate_redirect', 'index'))
+        login_after_activation = asbool(settings.get('websauna.login_after_activation', False))
 
         user = user_registry.activate_user_by_email_token(activation_code)
         if not user:

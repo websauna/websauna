@@ -166,8 +166,6 @@ See
 
 * :py:mod:`websauna.system.user.events`
 
-* :py:mod:`horus.events`
-
 Examples
 ========
 
@@ -180,16 +178,6 @@ Getting the logged in user
 --------------------------
 
 The logged in user can be accessed ``request.user`` which gives you a :py:class:`websauna.system.user.model.User` instance. This is set to ``None`` for anonymous users.
-
-Advanced
-========
-
-Horus legacy
-------------
-
-.. note ::
-
-    Currently there are various references to Horus package internally, but they are expected to cleaned up in the future versions.
 
 
 

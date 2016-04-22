@@ -73,7 +73,7 @@ class ILoginService(Interface):
 
         A password check is not performed. However it is checked if user is active and such.
 
-        :param location: Override the redirect page. If none use ``horus.login_redirect``. TODO - to be changed.
+        :param location: Override the redirect page. If none use ``websauna.login_redirect``. TODO - to be changed.
 
         :param login_source: Application specific string telling where the login come from. E.g. "social_media", "signup", "login_form".
 
@@ -93,7 +93,7 @@ class ILoginService(Interface):
 
         :param user: Default login service is designed to work with UserMixin compatible user classes
 
-        :param location: Override the redirect page. If none use ``horus.login_redirect``. TODO - to be changed.
+        :param location: Override the redirect page. If none use ``websauna.login_redirect``. TODO - to be changed.
 
         :param login_source: Application specific string telling where the login come from. E.g. "social_media", "signup", "login_form".
 

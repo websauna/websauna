@@ -33,7 +33,6 @@ class DefaultCredentialActivityService:
         """
 
         request = self.request
-        dbsession = self.request.dbsession
 
         user_registry = get_user_registry(request)
 
@@ -49,8 +48,7 @@ class DefaultCredentialActivityService:
         messages.add(request, msg="Please check your email to continue password reset.", kind='success', msg_id="msg-check-email")
 
         if not location:
-            #: TODO configuration option here probable wrong
-            location = get_config_route(request, 'horus.reset_password_redirect')
+            location = get_config_route(request, 'websauna.request_password_reset_redirect')
             assert location
 
         return HTTPFound(location=location)
@@ -82,5 +80,5 @@ class DefaultCredentialActivityService:
         request.registry.notify(PasswordResetEvent(self.request, user, password))
         request.registry.notify(UserAuthSensitiveOperation(self.request, user, "password_reset"))
 
-        location = location or get_config_route(request, 'horus.reset_password_redirect')
+        location = location or get_config_route(request, 'websauna.reset_password_redirect')
         return HTTPFound(location=location)

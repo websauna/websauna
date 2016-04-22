@@ -47,12 +47,12 @@ class DefaultLoginService:
 
         :param username: username or email
         :param password:
-        :raise horus.exceptionsAuthenticationFailure: On login problem. TODO: Exception class to be changed.
+        :raise websauna.system.user.interfaces.AuthenticationFailure: On login problem.
         :return: User object which was picked
         """
         request = self.request
         settings = request.registry.settings
-        allow_email_auth = settings.get('horus.allow_email_auth', False)
+        allow_email_auth = settings.get('websauna.allow_email_auth', True)
 
         # Check login with username
         user_registry = get_user_registry(request)
@@ -76,8 +76,8 @@ class DefaultLoginService:
         request = self.request
         settings = request.registry.settings
 
-        require_activation = asbool(settings.get('horus.require_activation', True))
-        allow_inactive_login = asbool(settings.get('horus.allow_inactive_login', False))
+        require_activation = asbool(settings.get('websauna.require_activation', True))
+        allow_inactive_login = asbool(settings.get('websauna.allow_inactive_login', False))
 
         if (not allow_inactive_login) and require_activation and (not user.is_activated()):
             raise AuthenticationFailure('Your account is not active, please check your e-mail. If your account activation email as expired please request a password reset.')
@@ -91,7 +91,7 @@ class DefaultLoginService:
         # assert headers, "Authentication backend did not give us any session headers"
 
         if not location:
-            location = get_config_route(request, 'horus.login_redirect')
+            location = get_config_route(request, 'websauna.login_redirect')
 
         self.greet_user(user)
 
@@ -115,7 +115,7 @@ class DefaultLoginService:
 
         :param user: Default login service is designed to work with UserMixin compatible user classes
 
-        :param location: Override the redirect page. If none use ``horus.login_redirect``. TODO - to be changed.
+        :param location: Override the redirect page. If none use ``websauna.login_redirect``. TODO - to be changed.
 
         :raise: AuthenticationError
         """
@@ -140,7 +140,7 @@ class DefaultLoginService:
 
         # TODO: Horus might go
         request = self.request
-        logout_redirect_view = get_config_route(request, 'horus.logout_redirect')
+        logout_redirect_view = get_config_route(request, 'websauna.logout_redirect')
         location = location or logout_redirect_view
 
         messages.add(request, msg="You are now logged out.", kind="success", msg_id="msg-logged-out")

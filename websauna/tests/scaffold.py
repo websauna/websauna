@@ -3,8 +3,6 @@ import sys
 import subprocess
 import time
 from contextlib import closing, contextmanager
-from distutils.spawn import find_executable
-
 import os
 from tempfile import mkdtemp
 
@@ -205,7 +203,7 @@ def app_scaffold(request) -> str:
     execute_venv_command("cd {} ; pip install -e .".format(websauna_folder), folder, timeout=5*60)
 
     # Create scaffold
-    execute_venv_command("pcreate --overwrite -s websauna_app myapp", folder)
+    execute_venv_command("pcreate --ignore-conflicting-name -s websauna_app myapp", folder)
 
     # Instal package created by scaffold
     content_folder = os.path.join(folder, "myapp")

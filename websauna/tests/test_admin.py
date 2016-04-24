@@ -1,8 +1,9 @@
 import time
 
 import transaction
-from websauna.system.user.utils import get_site_creator
+from flaky import flaky
 
+from websauna.system.user.utils import get_site_creator
 from websauna.tests.utils import create_user, EMAIL, PASSWORD, create_logged_in_user
 
 
@@ -51,6 +52,7 @@ def test_non_admin_user_denied(web_server, browser, dbsession, init):
     assert b.is_element_visible_by_css("#forbidden")
 
 
+@flaky
 def test_context_sensitive_shell(web_server, browser, dbsession, init):
     """See we can open a context sensitive shell in admin."""
 

@@ -3,23 +3,22 @@
 # Create wheelhouse cache to speed up test_scaffold runs.
 # Builds a wheelhouse folder containing al dependencies.
 #
+# $PYTHON_VERSION is like python3.4 or python3.5
 
 set -e
+set -u
 # set -x
 
-if type virtualenv-3.4 ; then
-    # OSX + Homebrew
-    VIRTUALENV=virtualenv-3.4
-    PYTHON_VERSION=python3.4
-else
-    VIRTUALENV=virtualenv
-    # PYTHON_VERSION set by CI
+if [ -z "$PYTHON_VERSION" ] ; then
+    PYTHON_VERSION=python3.5
 fi
-
 
 rm -rf /tmp/wheelhouse-venv
 rm -rf wheelhouse/$PYTHON_VERSION
-$VIRTUALENV -q --no-site-packages -p $PYTHON_VERSION /tmp/wheelhouse-venv
+# $VIRTUALENV -q --no-site-packages -p $PYTHON_VERSION /tmp/wheelhouse-venv
+
+$PYTHON_VERSION -m venv /tmp/wheelhouse-venv
+
 source /tmp/wheelhouse-venv/bin/activate
 # default pip is too old for 3.4
 pip install -q -U pip
@@ -34,7 +33,7 @@ pip install -q ".[dev]"
 pip install -q wheel
 pip freeze > /tmp/wheelhouse-venv/requirements.txt
 
-# websauna 0.0 lsdevelopment not available, remove from freeze
+# websauna 0.0 development git branch should not go into freeze
 echo "$(grep -v "websauna" /tmp/wheelhouse-venv/requirements.txt)" >/tmp/wheelhouse-venv/requirements.txt
 
 # Build wheelhouse

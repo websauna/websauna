@@ -14,14 +14,7 @@ import pytest
 from websauna.compat.typing import List
 
 
-if find_executable("virtualenv-3.4"):
-    # OSX + Homebrew
-    VIRTUALENV = "virtualenv-3.4"
-    PYTHON_INTERPRETER = "python3.4"
-else:
-    # Travis
-    VIRTUALENV = "virtualenv"
-    PYTHON_INTERPRETER = "python{}.{}".format(sys.version_info.major, sys.version_info.minor)
+PYTHON_INTERPRETER = "python{}.{}".format(sys.version_info.major, sys.version_info.minor)
 
 
 def print_subprocess_fail(worker, cmdline):
@@ -199,7 +192,7 @@ def app_scaffold(request) -> str:
 
     websauna_folder = os.getcwd()
 
-    execute_command([VIRTUALENV, "-p", PYTHON_INTERPRETER, "venv"], folder, timeout=30)
+    execute_command([PYTHON_INTERPRETER, "-m", "venv", "venv"], folder, timeout=30)
 
     # PIP cannot handle pip -install .[test]
     # On some systems, the default PIP is too old and it doesn't seem to allow upgrade through wheelhouse

@@ -30,7 +30,14 @@ Install Python 3.5, Redis, PostgreSQL:
 
     brew install postgresql redis python3 libxml2
 
-Make sure ``python3`` command points to Python 3.5
+Make sure PostgreSQL and Redis run on your computer:
+
+.. code-block: console
+
+    brew services start postgresql
+    brew services start redis
+
+Make sure ``python3`` command points to Python 3.5:
 
 .. code-block:: console
 

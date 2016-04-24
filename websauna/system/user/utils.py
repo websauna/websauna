@@ -2,6 +2,7 @@ from authomatic import Authomatic
 from pyramid.interfaces import IRequest
 from pyramid.registry import Registry
 
+from websauna.system.http import Request
 from websauna.system.user.interfaces import IGroupModel, IUserModel, IAuthomatic, ISocialLoginMapper, ISiteCreator, ILoginService, IActivationModel, IOAuthLoginService, IUserRegistry, ICredentialActivityService, IRegistrationService
 
 
@@ -47,25 +48,25 @@ def get_social_login_mapper(registry: Registry, provider_id:str) -> ISocialLogin
     return registry.queryUtility(ISocialLoginMapper, name=provider_id)
 
 
-def get_login_service(request: IRequest) -> ILoginService:
+def get_login_service(request: Request) -> ILoginService:
     assert IRequest.providedBy(request)
     return request.registry.queryAdapter(request, ILoginService)
 
 
-def get_oauth_login_service(request: IRequest) -> IOAuthLoginService:
+def get_oauth_login_service(request: Request) -> IOAuthLoginService:
     assert IRequest.providedBy(request)
     return request.registry.queryAdapter(request, IOAuthLoginService)
 
 
-def get_user_registry(request: IRequest) -> IUserRegistry:
+def get_user_registry(request: Request) -> IUserRegistry:
     return request.registry.queryAdapter(request, IUserRegistry)
 
 
-def get_credential_activity_service(request: IRequest) -> ICredentialActivityService:
+def get_credential_activity_service(request: Request) -> ICredentialActivityService:
     assert IRequest.providedBy(request)
     return request.registry.queryAdapter(request, ICredentialActivityService)
 
 
-def get_registration_service(request: IRequest) -> IRegistrationService:
+def get_registration_service(request: Request) -> IRegistrationService:
     assert IRequest.providedBy(request)
     return request.registry.queryAdapter(request, IRegistrationService)

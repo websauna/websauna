@@ -1,8 +1,13 @@
+.. _notebook:
+
 ==========================
 Notebook and IPython shell
 ==========================
 
-.. _notebook:
+.. contents:: :local:
+
+Introduction
+============
 
 Websauna comes with an integrated `IPython Notebook <http://ipython.org/notebook.html>`_ shell. When it's enabled you can directly open IPython Notebook shell from your website with a single click. It also serves as more user friendly alternative for terminal based shell.
 
@@ -38,3 +43,21 @@ Customizing IPython Notebook
 ============================
 
 Notebook is configured in :py:meth:`websauna.system.Initializer.configure_notebook`.
+
+Disabling notebook
+------------------
+
+.. note::
+
+    Notebook is disabled by default in production setups using settings as described above, so this step is unnecessary unless you want to harden your configuration further.
+
+If you do not wish to use notebook functionality you can remove it from the default set up by overriding :py:meth:`websauna.system.Initializer.configure_notebook` in your application::
+
+        class Initializer(websauna.system.Initializer):
+
+            # ...
+
+            def configure_notebook(self):
+                pass  # Disable all IPython Notebook functionality
+
+

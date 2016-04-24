@@ -1,5 +1,5 @@
 import os
-
+import sys
 from setuptools import setup, find_packages
 
 
@@ -8,6 +8,13 @@ with open(os.path.join(here, 'README.rst')) as f:
     README = f.read()
 with open(os.path.join(here, 'CHANGES.rst')) as f:
     CHANGES = f.read()
+
+
+# trying to run python setup.py install or python setup.py develop
+if len(sys.argv) >= 2:
+    if sys.argv[0] == "setup.py" and sys.argv[1] in ("install", "develop"):
+        # Otherwise so much stuff would be broken later...
+        raise RuntimeError("It is not possible to install this package with setup.py. Use pip to install this package as instructed in Websauna tutorial.")
 
 
 setup(name='{{project}}',

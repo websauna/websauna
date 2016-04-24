@@ -39,7 +39,7 @@ script:
   - if [ ! "$(ls wheelhouse/$PYTHON_VERSION/*)" ] ;  then echo "Rebuilding wheelhouse cache." ; bash websauna/tests/create_wheelhouse.bash ; fi
   - pip install -q wheelhouse/$PYTHON_VERSION/*
   - pip install -q -e ".[test]"
-  - py.test --splinter-webdriver=firefox --splinter-make-screenshot-on-failure=true --ini=travis.ini --timeout=200 --durations=10 --cov-report xml --cov websauna --cov-config .coveragerc websauna
+  - py.test --splinter-webdriver=firefox --splinter-make-screenshot-on-failure=true -s --ini=travis.ini --timeout=200 --durations=10 --cov-report xml --cov websauna --cov-config .coveragerc websauna
 
 # Show version pinnings when the build as still succeeding
 after_script:

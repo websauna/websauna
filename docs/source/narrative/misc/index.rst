@@ -1,5 +1,5 @@
-Miscancellous functions
------------------------
+Other functionality
+-------------------
 
 .. toctree::
     :maxdepth: 1

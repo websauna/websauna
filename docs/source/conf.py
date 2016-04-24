@@ -42,7 +42,7 @@ extensions = [
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ['_templates', os.path.dirname(sphinx_rtd_theme.__file__)]
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
@@ -144,7 +144,7 @@ html_context = {
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-#html_title = None
+html_title = "Websauna"
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #html_short_title = None

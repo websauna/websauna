@@ -11,3 +11,4 @@ Testing
     running
     form
     mail
+    init

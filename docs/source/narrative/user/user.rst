@@ -1,10 +1,12 @@
+.. _user-services:
+
 ========================
 Users, login and sign up
 ========================
 
 Websauna provides subsystems for managing site users, logging in and signing up.
 
-.. contents :: local:
+.. contents:: :local:
 
 Introduction
 ============

@@ -7,3 +7,4 @@ Users and authentication
     user
     auth
     oauth
+    customize

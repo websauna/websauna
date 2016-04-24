@@ -42,7 +42,7 @@ def addon_scaffold(request, app_scaffold):
     content_folder = os.path.join(folder, "websauna.myaddon")
 
     # Instal package created by scaffold
-    execute_venv_command("cd websauna.myaddon && python setup.py develop", folder, timeout=5 * 60)
+    execute_venv_command("cd websauna.myaddon && pip install -e .", folder, timeout=5 * 60)
 
     return folder
 

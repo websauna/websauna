@@ -48,7 +48,6 @@ Once you are in the shell, explore the model :term:`SQLAlchemy` API:
     >>> q.id
     1
 
-
     # When the database transaction is committed, all the information
     # is permanently recorded to the database. Note that you need to call
     # transaction.commit() manually only in shell - the web code
@@ -56,8 +55,26 @@ Once you are in the shell, explore the model :term:`SQLAlchemy` API:
     # request.
     >>> transaction.commit()
 
-    # Access model field values via Python attributes.
+    # Now try to access model field values via Python attributes:
     >>> q.question_text
+    DetachedInstanceError                     Traceback (most recent call last)
+    <ipython-input-9-555cab93d97c> in <module>()
+    ----> 1 q.question_text
+    [...]
+        608             "Instance %s is not bound to a Session; "
+        609             "attribute refresh operation cannot proceed" %
+    --> 610             (state_str(state)))
+        611 
+        612     has_key = bool(state.key)
+
+    DetachedInstanceError: Instance <Question at 0x10b10a828> is not bound to a Session; attribute refresh operation cannot proceed
+
+    # What happened? Well, due to SQLAlchemy's implementation, an instance cannot survive a transaction.
+    # The solution (or workaround) is to re-fetch the instance, i.e. like so:
+    >>> q = dbsession.query(Question).get(1)
+    >>> q.question_text
+
+    # Now we can access the object again:
     "What's new?"
 
     >>> q.pubished_at

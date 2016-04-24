@@ -136,6 +136,7 @@ def test_dump_db(app_scaffold, dev_db):
     execute_venv_command("cd myapp && ws-dump-db conf/development.ini", app_scaffold)
 
 
+@flaky  # Browser doesn't come up timely on Travis
 def test_create_user(app_scaffold, dev_db, browser):
     """Test creating user from command line and logging in as this user."""
 

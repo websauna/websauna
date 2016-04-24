@@ -124,7 +124,7 @@ setup(
     # $ pip install -e .[dev,test]
     extras_require={
         'dev': ['check-manifest', 'Sphinx', 'setuptools_git', 'zest.releaser', 'sphinx-autodoc-typehints', 'pyramid_autodoc', "sphinx_rtd_theme", "sphinxcontrib-zopeext", "ruamel.yaml"],
-        'test': ['pytest>=2.8', 'coverage', 'webtest', 'pytest-splinter', 'pytest-timeout', 'pytest-cov', "codecov", "flaky"],
+        'test': ['pytest>=2.8', 'pytest-runner', 'coverage', 'webtest', 'pytest-splinter', 'pytest-timeout', 'pytest-cov', "codecov", "flaky"],
     },
 
     # To provide executable scripts, use entry points in preference to the

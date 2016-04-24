@@ -9,11 +9,13 @@ External dependencies
 
 To run Websauna on your local computer you need
 
-* PostgreSQL
+* :term:`PostgreSQL`
 
-* Redis
+* :term:`Redis`
 
-* Python 3.4 or newer
+* :term:`Python` 3.4 or newer
+
+* `libxml2 <http://www.xmlsoft.org/>`_
 
 Installing dependencies on OSX
 ------------------------------
@@ -22,9 +24,27 @@ Installing dependencies on OSX
 
 `Install Homebrew <http://brew.sh/>`_.
 
-Install Python 3.5, Redis, PostgreSQL::
+Install Python 3.5, Redis, PostgreSQL:
 
-    brew install postgresql redis python3
+.. code-block:: console
+
+    brew install postgresql redis python3 libxml2
+
+Make sure ``python3`` command points to Python 3.5
+
+.. code-block:: console
+
+    python3.5 --version
+
+Should give you::
+
+    Python 3.5.0
+
+If it  use ``brew switch`` command to upgrade
+
+.. code-block::
+
+    brew switch python3 python3.5.0   # Or any latest Python 3.5.x version
 
 Installing dependencies on Ubuntu 14.04
 ---------------------------------------
@@ -77,25 +97,29 @@ Installing Websauna Python package
 
 In this guide we create `a Python virtual environment <https://packaging.python.org/en/latest/installing/#creating-virtual-environments>`_ where Websauna package and its Python package dependencies are installed.
 
-Create ``myproject`` folder which contains ``venv`` folder for virtual environment::
+Create ``myproject`` folder and enter into it:
+
+.. code-block:: console
 
     mkdir myproject
     cd myproject
-    virtualenv -p python3.5 venv  # We assume you have Python 3.5 installed
+it st
+Then create a virtual environment where installed Python packages will be located:
+
+.. code-block:: console
+
+    # This creates venv folder with Python environment for your project
+    python3.5 -m venv venv
+
+    # This will activate the environment for your current shell session
     source venv/bin/activate
+
+    # Install Github development version of Websauna
+    pip install -e "git+https://github.com/websauna/websauna.git@master#egg=websauna"
 
     # Install Websauna from pypi.python.org
     # NOT RELEASED YET
     # Use command below
     # pip install websauna
 
-    # Install Github development version of Websauna
-    pip install -e "git+https://github.com/websauna/websauna.git@master#egg=websauna"
 
-If that doesn't work, try::
-
-    python setup.py develop
-
-from source.
-
-There are subtle differences between the two methods, this should always work.

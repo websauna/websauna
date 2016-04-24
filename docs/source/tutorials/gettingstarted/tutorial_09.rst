@@ -2,9 +2,9 @@
 Introducing admin
 =================
 
-Websauna provides automated :ref:`admin` interface allowing you easily edit your modelled data through automatically generated web interface.
+Websauna provides an automated :ref:`admin` interface allowing you easily edit your modelled data through automatically generated web interface.
 
-Manually coding an admin site, also known as back office, for your team and clients can be tedious work that doesn’t require much creativity or contain anything novel or value adding. Websauna automates the creation of admin by automatically generating data browsers and editors your models.
+Manually coding an admin site, also known as back office, for your team and clients can be tedious work that doesn’t require much creativity or contain anything novel or value adding. Websauna automates the creation of admin by automatically generating data browsers and editors for your models.
 
 Unlike other frameworks, Websauna sites can have multiple admin interfaces. For example, one could have super admin for the developers and limited admin interfaces for customers or whitelabel owners to manage their own respective users.
 

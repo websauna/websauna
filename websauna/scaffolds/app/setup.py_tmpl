@@ -10,6 +10,13 @@ with open(os.path.join(here, 'CHANGES.rst')) as f:
     CHANGES = f.read()
 
 
+# trying to run python setup.py install or python setup.py develop
+if len(sys.argv) >= 1:
+    if sys.argv[0] == "setup.py":
+        # Otherwise so much stuff would be broken later...
+        raise RuntimeError("It is not possible to install this package with setup.py. Use pip to install this package as instructed in Websauna tutorial.")
+
+
 setup(name='{{project}}',
       version='0.0',
       description='{{project}}',

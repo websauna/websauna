@@ -6,7 +6,6 @@
 # $PYTHON_VERSION is like python3.4 or python3.5
 
 set -e
-set -u
 # set -x
 
 if [ -z "$PYTHON_VERSION" ] ; then
@@ -20,6 +19,10 @@ rm -rf wheelhouse/$PYTHON_VERSION
 $PYTHON_VERSION -m venv /tmp/wheelhouse-venv
 
 source /tmp/wheelhouse-venv/bin/activate
+
+# We cannot enable set -u before virtualenv activate has been run
+set -u
+
 # default pip is too old for 3.4
 pip install -q -U pip
 

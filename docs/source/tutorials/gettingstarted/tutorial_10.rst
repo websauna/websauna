@@ -4,7 +4,7 @@ Creating your first view
 
 .. contents:: :local:
 
-:term:`View` is a Python function or class which serves certain URL endpoint. A view is a “type” of Web page in your Websauna application that generally serves a specific function and has a specific template. For example, in a blog application, you might have the following views:
+A :term:`View` is a Python function or class which serves certain URL endpoint. A view is a “type” of Web page in your Websauna application that generally serves a specific function and has a specific template. For example, in a blog application, you might have the following views:
 
 * Blog homepage – displays the latest few entries.
 
@@ -28,21 +28,21 @@ In our poll application, we’ll have the following four views:
 
 * Vote action – handles voting for a particular choice in a particular question.
 
-In Websauna, web pages and other content are delivered by views. Each view is represented by a simple Python function (or method, in the case of class-based views). Websauna will choose a view by examining the URL that’s requested (to be precise, the part of the URL after the domain name).
+In Websauna, web pages and other content are delivered by views. Each view is represented by a simple Python function (or method, in the case of class-based views). Websauna will choose a view by examining the path of the requested URL.
 
 A URL pattern is simply the general form of a URL - for example: `/newsarchive/<year>/<month>/`.
 
-This tutorial provides basic instruction in the use of routing, and you can refer to :doc:`view documentation <../../narrative/frontend/views>` for more information.
+This tutorial provides basic instructions for the use of routing, and you can refer to :doc:`view documentation <../../narrative/frontend/views>` for more information.
 
 URL dispatch
 ------------
 
-To get from a URL to a view, Websauna uses what are known as :term:`router` from :term:`Pyramid` framework. A router maps URL patterns to views. This process is called :term:`URL dispatch`. It is the more well known way of building web applications.
+To get from a URL to a view, Websauna uses what is known as a :term:`router` from :term:`Pyramid` framework. A router maps URL patterns to views. This process is called :term:`URL dispatch`. It is the more common way of building web applications.
 
 Traversal
 ---------
 
-Websauna supports also alternative routing method, called :term:`traversal`. In traversal each path part of the URL maps to a Python object. On a traditional file systems these are folders and files. In Pyramid they are called :term:`resources <resource>`. Resources offer more flexibility and often make the code more simple and elegant for the cases where hierarchial permissions are needed. E.g. all views behind a organization URL are visible for the organization members only. Organization administrators get access to priviledged part of management views. If the users are members of suborganzations they can access their specific suborganizations only.
+Websauna also supports an alternative routing method, called :term:`traversal`. In traversal each path part of the path maps to a Python object. On a traditional file systems these are folders and files. In Pyramid they are called :term:`resources <resource>`. Resources offer more flexibility and often make the code more simple and elegant for the cases where hierarchial permissions are needed. E.g. all views behind a organization URL are visible for the organization members only. Organization administrators get access to priviledged part of management views. If the users are members of suborganzations they can access their specific suborganizations only.
 
 Writing views
 -------------
@@ -56,7 +56,7 @@ TODO
 Write views that actually do something
 --------------------------------------
 
-Each view is responsible for doing one of two things:
+Each view is responsible for doing one of the following things:
 
 * Returning an :py:class:`pyramid.response.Response` object containing the content for the requested page.
 
@@ -66,7 +66,7 @@ Each view is responsible for doing one of two things:
 
 * Returning an object for ``renderer`` - this is usually a dictionary passed to templates. This is the most common case and more about this later.
 
-Your view can read records from a database, or not. It can use a template system such as Websauna’s. It can generate a PDF file, output XML, create a ZIP file on the fly, anything you want, using whatever Python libraries you want.
+Your view can read records from a database, or not. It can use a template system such as Websauna’s. It can generate a PDF file, output XML, create a ZIP file on the fly, return and accept JSON, anything you want, using whatever Python libraries you want.
 
 Because it’s convenient, let’s use SQLAlchemy’s database API, which we covered in earlier in the tutorial. Here’s one stab at a new ``home()`` view, which displays the latest 5 poll questions in the system, separated by commas, according to publication date::
 
@@ -81,7 +81,7 @@ After editing the code click yourself to your website home by clicking logo to s
 .. image:: images/question_plain.png
     :width: 640px
 
-There’s a problem here, though: the page’s design is hard-coded in the view. If you want to change the way the page looks, you’ll have to edit this Python code. So let’s use Websauna’s template system to separate the design from Python by creating a template that the view can use. By default, Websauna offers a template system called :term:`Jinja` (specifically Jinja 2). If you have been writing Django templates or any mustache-like templates with ``{{ variable }}`` declarations you should feel home.
+There’s a problem here, though: the page’s design is hard-coded in the view. If you want to change the way the page looks, you’ll have to edit this Python code. So let’s use Websauna’s template system to separate the design from Python by creating a template that the view can use. By default, Websauna offers a template system called :term:`Jinja` (specifically Jinja 2). If you have been writing Django templates or any mustache-like templates with ``{{ variable }}`` declarations you should feel right at home.
 
 Your project’s :py:meth:`websauna.system.Initializer.configure_templates` describes how Pyramid will load and render templates. In the generated project scaffold, it adds ``myapp/templates`` folder there. There already exists a template called ``myapp/home.html``.
 

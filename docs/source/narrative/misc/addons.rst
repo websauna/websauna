@@ -53,7 +53,7 @@ Example::
     from websauna.utils.autoevent import bind_events
 
 
-    class AddonInitializer(metaclass=Crosscutter):
+    class AddonInitializer:
 
         def __init__(self, config:Configurator):
             self.config = config

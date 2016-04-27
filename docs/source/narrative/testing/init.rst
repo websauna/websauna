@@ -10,5 +10,5 @@ Custom initializer tests allow you to override ``websauna.system.Initializer`` i
 Example
 =======
 
-See :py:meth:`websauna.system.tests.conftest.paster_config`.
+See :py:meth:`websauna.tests.conftest.paster_config`.
 

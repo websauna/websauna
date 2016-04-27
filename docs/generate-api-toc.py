@@ -105,7 +105,7 @@ def get_submodules(mod):
             continue
 
         mod_name = mod.__name__ + "." + module_name
-        print("Found module ", mod_name)
+        # print("Found module ", mod_name)
         module = pkgutil.importlib.import_module(mod_name)
         modules.append(module)
 

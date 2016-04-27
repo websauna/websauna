@@ -50,6 +50,8 @@ def get_redis(registry:Registry=None, url:str=None, redis_client=StrictRedis, **
     if redis is not None:
         return redis
 
+    # if no url passed, try to get it from pyramid settings
+    url = registry.settings.get('redis.sessions.url') if url is None else url
     # otherwise create a new connection
     if url is not None:
         # remove defaults to avoid duplicating settings in the `url`

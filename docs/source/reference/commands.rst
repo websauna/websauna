@@ -22,6 +22,17 @@ Example::
 
 This is a wrapped around Pyramid `pserve <http://docs.pylonsproject.org/projects/pyramid/en/latest/pscripts/pserve.html?highlight=pserve>`_ command.
 
+ws-proutes
+----------
+
+Get an overview of all registered routes.
+
+Example::
+
+    ws-proutes development.ini
+
+This is a wrapper around Pyramid's `proutes <http://docs.pylonsproject.org/projects/pyramid/en/latest/pscripts/proutes.html>`_ command.
+
 .. _ws-celery:
 
 ws-celery

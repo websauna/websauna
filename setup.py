@@ -145,6 +145,7 @@ setup(
             'ws-dump-db=websauna.system.devop.scripts.dumpdb:main',
             'ws-create-user=websauna.system.devop.scripts.createuser:main',
             'ws-celery=websauna.system.devop.scripts.celery:main',
+            'ws-proutes=websauna.system.devop.scripts.proutes:main',
             'ws-pserve=websauna.system.devop.scripts.pserve:main',
             'ws-create-table=websauna.system.devop.scripts.createtable:main',
             'ws-sanity-check=websauna.system.devop.scripts.sanitycheck:main',

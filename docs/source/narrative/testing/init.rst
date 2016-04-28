@@ -12,3 +12,4 @@ Example
 
 See :py:meth:`websauna.tests.conftest.paster_config`.
 
+§

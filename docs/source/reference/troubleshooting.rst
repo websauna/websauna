@@ -75,3 +75,27 @@ You see SQLAlchemy error like below during the test run::
     sqlalchemy.exc.InvalidRequestError: Table 'xxx' is already defined for this MetaData instance.  Specify 'extend_existing=True' to redefine options and columns on an existing Table object.
 
 This happens due to earlier error with SQLAlchemy initialization. Scroll up in the logs to see the actual error.
+
+
+ImportError: No module named websauna.system
+--------------------------------------------
+
+Example:
+
+.. code-block:: pycon
+
+    >>> import websauna.system
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    ImportError: No module named 'websauna.system'
+
+This is due to clash in different Python namespace systems (setup.py, easy_install, pip).
+
+Solution:
+
+.. code-block:: console
+
+    pip uninstall websauna
+    pip uninstall websauna.viewconfig
+    pip install websauna  # or pip -e for dev version
+    pip install websauna.viewconfig

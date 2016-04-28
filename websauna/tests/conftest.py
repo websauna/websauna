@@ -78,7 +78,7 @@ def paster_config(request, test_config_path, ini_settings) -> tuple:
 
     Example:
 
-    .. code-block::
+    .. code-block:: python
 
         def test_customize_login(paster_config):
             '''Customizing login form works.'''

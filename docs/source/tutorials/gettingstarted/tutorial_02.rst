@@ -110,7 +110,7 @@ Create ``myproject`` folder and enter into it:
 
     mkdir myproject
     cd myproject
-it st
+
 Then create a virtual environment where installed Python packages will be located:
 
 .. code-block:: console

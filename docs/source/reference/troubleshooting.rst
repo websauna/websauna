@@ -89,7 +89,7 @@ Example:
       File "<stdin>", line 1, in <module>
     ImportError: No module named 'websauna.system'
 
-This is due to clash in different Python namespace systems (setup.py, easy_install, pip).
+This is due to clash in different Python namespace systems (setup.py, easy_install, pip). If you enable edit mode for ``websauna`` you need to enable it for ``websauna.viewconfig`` package too.
 
 Solution:
 
@@ -97,5 +97,6 @@ Solution:
 
     pip uninstall websauna
     pip uninstall websauna.viewconfig
-    pip install websauna  # or pip -e for dev version
-    pip install websauna.viewconfig
+    pip install -e "git+git@github.com:websauna/websauna.git#egg=websauna"
+    pip install -e "git+git@github.com:websauna/websauna.viewconfig.git#egg=websauna.viewconfig"
+

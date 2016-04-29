@@ -71,8 +71,27 @@ class DefaultLoginService:
         """Allow easy overridingn of a welcome message."""
         messages.add(self.request, kind="success", msg="You are now logged in.", msg_id="msg-you-are-logged-in")
 
-    def authenticate_user(self, user: IUser, login_source:str, location: str=None):
-        """Make the current session logged in session for this particular user."""
+    def authenticate_user(self, user: IUser, login_source: str, location: str=None) -> Response:
+        """Make the current session logged in session for this particular user.
+
+        How to authenticate user using the login service (assuming you have done password match or related yourself):
+
+        .. code-block:: python
+
+            from websauna.system.user.utils import get_login_service
+
+            def my_view(request):
+
+                # load user model instance from database
+                # user = ...
+
+                login_service = get_login_service(request)
+                response = login_service.authenticate_user(user, "my-login-source")
+
+        :raise AuthenticationFailure: If login cannot proceed due to disabled user account, etc.
+
+        :return: HTTPResponse what should happen as post-login action
+        """
         request = self.request
         settings = request.registry.settings
 

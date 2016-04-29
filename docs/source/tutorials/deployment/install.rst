@@ -37,13 +37,7 @@ Install packaged roles we are going to use inside a cloned playbook. They will b
 
 .. code-block:: console
 
-    ansible-galaxy install --roles-path=galaxy \
-        ANXS.postgresql \
-        ANXS.logwatch \
-        Stouts.foundation \
-        Stouts.nginx \
-        Stouts.redis \
-        Stouts.python
+    ansible-galaxy install -r requirements.yml
 
 Creating Ansible vault
 ======================

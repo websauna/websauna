@@ -23,7 +23,7 @@ By default created user instances are not activated and thus cannot login. To ac
         def my_view(request):
 
             u = User(email="foobar@example.com")
-            password = None  # Do not give password
+            password = None  # Do not give password or give plain text entry here
 
             if password:
                 # How to set a password on freshly created user

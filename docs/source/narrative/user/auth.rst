@@ -2,7 +2,26 @@
 Authentication
 ==============
 
+.. contents:: :local:
+
+Introduction
+============
+
 Websuna uses session-based authentication on the default settings (:py:class:`websauna.system.auth.policy.SessionAuthenticationPolicy`). When a user logs in the logged in user id is stored in the session. All anonymous user ``request.session`` variables are carried over to logged in session.
+
+Authenticating user
+===================
+
+With username (email) and password
+----------------------------------
+
+See :py:meth:`websauna.system.user.loginservice.DefaultLoginService.check_credentials`.
+
+
+Without password check
+----------------------
+
+See :py:meth:`websauna.system.user.loginservice.DefaultLoginService.authenticate_user`.
 
 Invalidating session
 ====================

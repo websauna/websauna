@@ -1,3 +1,5 @@
+"""Defining redirects quickly."""
+
 from pyramid.httpexceptions import HTTPFound, HTTPMovedPermanently
 from slugify import slugify
 import venusian
@@ -5,14 +7,16 @@ import venusian
 from websauna.system.core.simpleroute import add_simple_route
 
 
-def redirect_view(path:str, new_path:str=None, new_route:str=None, status_code:int=302, name:str=None):
+def redirect_view(path: str, new_path: str=None, new_route: str=None, status_code: int=302, name: str=None):
     """Generate a redirect view.
 
     Assign the return value of this function to a module level variable. `configuration.scan()` will pick it up and make a redirect route.
 
     Give a new route name or direct path where requests should be redirected.
 
-    Example usage::
+    Example usage:
+
+    .. code-block:: python
 
         # Product no longer available
         _redirect = redirect_view("/old-page", new_route="home", status_code=301)

@@ -1,3 +1,5 @@
+"""Default home view for test runs."""
+
 from pyramid.view import view_config
 from websauna.system.admin.utils import get_admin
 

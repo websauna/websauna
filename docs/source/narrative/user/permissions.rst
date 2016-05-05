@@ -1,6 +1,8 @@
-=================================
-Protecting views with permissions
-=================================
+.. _permissions:
+
+===========
+Permissions
+===========
 
 .. contents:: :local:
 

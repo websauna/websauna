@@ -147,7 +147,7 @@ def test_create_user(app_scaffold, dev_db, browser):
     execute_venv_command("ws-pserve conf/development.ini --pid-file=test_pserve.pid", app_scaffold, wait_and_see=3.0, cd_folder="myapp")
 
     # Give ws-pserve some time to wake up in CI
-    time.sleep(2)
+    time.sleep(4)
 
     try:
 

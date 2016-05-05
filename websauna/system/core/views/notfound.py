@@ -1,4 +1,4 @@
-"""Default 404 handling."""
+"""Default HTTP 404 Not Found handling."""
 
 import imghdr
 import logging

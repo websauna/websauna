@@ -25,7 +25,7 @@ Templates
     <!-- Make TOC more readable -->
     <style>
 
-        #contents ul > li {
+        #contents ul > li {te
             font-weight: bold;
             margin-top: 20px;
         }

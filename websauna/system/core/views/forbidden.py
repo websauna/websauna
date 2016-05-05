@@ -1,3 +1,5 @@
+"""HTTP 403 Forbidden view."""
+
 from pyramid.renderers import render
 from pyramid.response import Response
 import transaction

@@ -1,8 +1,12 @@
+.. _config:
+
 =============
 Configuration
 =============
 
 Websauna uses `INI-based configuration files <https://en.wikipedia.org/wiki/INI_file>`_, from Paste and Pyramid legacy. To avoid copy-pasted configuration settings
+
+.. _configuration-structure:
 
 Configuration structure
 =======================

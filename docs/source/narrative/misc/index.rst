@@ -5,6 +5,7 @@ Other functionality
     :maxdepth: 1
 
     addons
+    settings
     task
     notebook
     mail

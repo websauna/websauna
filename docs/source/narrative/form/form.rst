@@ -269,7 +269,7 @@ Then you can throw in any widget template in that path as .pt file. Example ``te
         </script>
     </span>
 
-Now you can use the template with your :ref:`Deform` widget. You can give a template hint to the widget in :ref:`Colander` schema:
+Now you can use the template with your :term:`Deform` widget. You can give a template hint to the widget in :term:`Colander` schema:
 
 .. code-block:: python
 

@@ -7,13 +7,13 @@ Protecting views with permissions
 Introduction
 ============
 
-See :ref:`Pyramid` article regarding `security <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/security.html>`_.
+See :term:`Pyramid` article regarding `security <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/security.html>`_.
 
 The default Pyramid security pattern consists of
 
-* principals: list of role-like string ids given to an authenticated user based on his/her username and groups
+* *principals*: list of role-like string ids given to an authenticated user based on his/her username and groups
 
-* permissions: mapped to principals using ``__acl__`` attribute on :ref:`resource`. Each principal can be allowed or denied a specific permission.
+* *permissions*: mapped to principals using ``__acl__`` attribute on :ref:`resource`. Each principal can be allowed or denied a specific permission.
 
 * ``permission``: attribute on the view definition asking what permissions the user should have to access the :ref:`views`
 

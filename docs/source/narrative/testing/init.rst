@@ -12,4 +12,4 @@ Example
 
 See :py:meth:`websauna.tests.conftest.paster_config`.
 
-§
+See :py:mod:`websauna.tests.test_permissions`.

@@ -49,7 +49,7 @@ Should give you::
 
 If it  use ``brew switch`` command to upgrade
 
-.. code-block::
+.. code-block:: console
 
     brew switch python3 python3.5.0   # Or any latest Python 3.5.x version
 

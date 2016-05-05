@@ -15,10 +15,14 @@ class Root(Resource):
     * authenticated: Pseudopermission given to all authenticated users
 
     * superuser: equal to have SSH access to the website - can execute arbitrary Python code
+
+    For more information see :ref:`permissions`.
     """
 
     __acl__ = [
         (Allow, Authenticated, 'authenticated'),
+
+        # See Notebook
         (Allow, "superuser:superuser", 'shell'),
     ]
 

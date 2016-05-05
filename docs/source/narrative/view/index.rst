@@ -8,3 +8,4 @@ Views, HTTP and routing
     request
     traversal
     tweens
+    permissions

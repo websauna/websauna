@@ -61,5 +61,7 @@ To protect against :term:`session fixation` attacks there exist :py:class:`websa
 
 * If you implement a custom session handling listen for this event and drop all user sessions on receiving it
 
+Disabling default log in and sign up views
+==========================================
 
-
+pass

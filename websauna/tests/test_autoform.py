@@ -37,6 +37,10 @@ def test_add_question(browser: DriverAPI, tutorial_req, web_server, dbsession):
 
     b = browser
 
+    if b.driver.capabilities["browserName"] != "firefox":
+        # Fails at click and JavaScript modals for Chrome
+        pytest.skip("This test works only under Firefox WebDriver")
+
     create_logged_in_user(dbsession, tutorial_req.registry, web_server, browser, admin=True)
 
     b.visit(web_server)

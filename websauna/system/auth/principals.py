@@ -1,4 +1,5 @@
 """Resolve principals (groups and pseudo roles) for ACL."""
+from pyramid.security import Authenticated
 from pyramid.settings import asbool
 from pyramid.settings import aslist
 
@@ -18,7 +19,6 @@ def resolve_principals(session_token: str, request: Request) -> Optional[List[st
     * List super user as ``superuser:superuser`` style string
     """
 
-    # TODO: Abstract this to its own service like in Warehouse?
     user_registry = get_user_registry(request)
     user = user_registry.get_user_by_session_token(session_token)
     if not user:
@@ -33,7 +33,11 @@ def resolve_principals(session_token: str, request: Request) -> Optional[List[st
 
     if user_registry.can_login(user):
 
-        principals = ['group:{}'.format(g.name) for g in user_registry.get_groups(user)]
+        # Users always get Authenticated special principal
+        principals = [Authenticated]
+
+        # All groups for this user
+        principals += ['group:{}'.format(g.name) for g in user_registry.get_groups(user)]
 
         # Allow superuser permission
         if user.username in superusers or user.email in superusers:

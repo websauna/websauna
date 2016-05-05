@@ -215,7 +215,76 @@ Here is an example data-driven validator::
     class MySchema(CSRFSchema):
         email = colander.SchemaNode(colander.String(), validator=validate_unique_user_email)
 
+Overriding widget template
+--------------------------
+
+This example how to override a widget template for any widget. Deform internally uses Chameleon template engine (not :ref:`Jinja`)
+
+First register the folder where you have Deform templates in the :py:class:`websauna.system.Initializer` of your app. Example:
+
+.. code-block:: python
+
+        from websauna.system.form.deform import configure_zpt_renderer
+
+        # Register a template path for Deform
+        configure_zpt_renderer(["myapp:form/templates/deform"])
+
+Then you can throw in any widget template in that path as .pt file. Example ``textinput_placeholder.py`` that adds support for HTML5 placeholder attribute on ``<input>``. See how we use ``field.widget.placeholder`` attribute to pass data around:
+
+.. code-block:: html
+
+    <!--! This adds placeholder attribute support for TextInput.
+
+        TODO: Drop this template when upstream Deform gains a native support
+
+        http://stackoverflow.com/q/31019326/315168
+
+     -->
+
+    <span tal:define="name name|field.name;
+                      css_class css_class|field.widget.css_class;
+                      oid oid|field.oid;
+                      mask mask|field.widget.mask;
+                      mask_placeholder mask_placeholder|field.widget.mask_placeholder;
+                      style style|field.widget.style;
+                      placeholder field.widget.placeholder|nothing;
+                      type field.widget.type|'text';
+    "
+          tal:omit-tag="">
+        <input type="${type}" name="${name}" value="${cstruct}"
+               tal:attributes="class string: form-control ${css_class};
+                               style style;
+                               placeholder placeholder;
+                               data-placement python: getattr(field.widget, 'tooltip_placement', None);
+                               data-toggle python:'tooltip' if hasattr(field.widget, 'tooltip') else None;
+                               title field.widget.tooltip|nothing"
+               id="${oid}"/>
+        <script tal:condition="mask" type="text/javascript">
+          deform.addCallback(
+             '${oid}',
+             function (oid) {
+                $("#" + oid).mask("${mask}",
+                     {placeholder:"${mask_placeholder}"});
+             });
+        </script>
+    </span>
+
+Now you can use the template with your :ref:`Deform` widget. You can give a template hint to the widget in :ref:`Colander` schema:
+
+.. code-block:: python
+
+    class ForgotPasswordSchema(CSRFSchema):
+        """Used on forgot password view."""
+        email = c.SchemaNode(
+            c.Str(),
+            title='Email',
+            validator=c.All(c.Email(), validate_user_exists_with_email),
+            widget=w.TextInputWidget(size=40, maxlength=260, type='email', template="textinput_placeholder", placeholder="youremail@example.com"),
+            description="The email address under which you have your account.")
+
+
 Widget CSS and JavaScript
 -------------------------
 
-See :ref:`resource registry <resource-registry>`.
+To plug in CSS or JavaScript code on per widget bases see :ref:`resource registry <resource-registry>`.
+

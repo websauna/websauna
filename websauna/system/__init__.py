@@ -633,6 +633,10 @@ class Initializer:
         self.configure_templates()
         self.configure_static()
 
+        # Authentication and authorization
+        # (Must be before any views are included)
+        self.configure_authentication()
+
         # Forms
         self.configure_csrf()
         self.configure_forms()
@@ -664,7 +668,6 @@ class Initializer:
         self.configure_user_forms()
         self.configure_user_models()
         self.configure_password()
-        self.configure_authentication()
         self.configure_federated_login()
 
         # Configure web shell

@@ -1,3 +1,5 @@
+.. _traversal:
+
 =========
 Traversal
 =========
@@ -5,6 +7,8 @@ Traversal
 Websauna supports traversal pattern to map out resource trees to URLs. It is extensively used by the default :term:`CRUD` and :term:`admin` interfaces.
 
 Websauna traversal is based on `Pyramid traversal architecture <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/traversal.html>`_.
+
+.. _resource:
 
 Resources
 =========

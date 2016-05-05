@@ -1,3 +1,5 @@
+.. _views:
+
 =====
 Views
 =====
@@ -108,15 +110,6 @@ Below is a corresponding view example. :py:func:`websauna.viewconfig.view_overri
                 listing.Column("comment", "Comment"),
             ]
         )
-
-Protecting views with permissions
----------------------------------
-
-To make sure the user is logged in when accessing the view use pseudopermission ``authenticated``. Example::
-
-    @simple_route("/affiliate", route_name="affiliate", renderer="views/affiliate.html", append_slash=False, permission="authenticated")
-    def affiliate_program(request):
-
 
 Stock views
 ===========

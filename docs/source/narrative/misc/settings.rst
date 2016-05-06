@@ -50,7 +50,7 @@ For :py:class:`websauna.system.Initializer` you can use ``self.settings`` (also 
 
 Example:
 
-.. code-block::
+.. code-block:: python
 
     from pyramid.settings import asbool
 
@@ -59,10 +59,13 @@ Example:
         # ...
 
         def make_wsgi_app(self, sanity_check=True):
+
+            # Get boolean settings
             sanity_check = asbool(self.settings.get("websauna.sanity_check", True))
 
+            # Now use it
             if sanity_check:
-                self.sanity_check()
+                self.perform_sanity_check()
 
 
 More information

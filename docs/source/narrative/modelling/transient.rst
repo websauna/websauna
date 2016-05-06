@@ -72,7 +72,19 @@ Redis settings can be found in :ref:`base.ini` and `test.ini`.
 Accessing Redis
 ===============
 
-Getting a hold a Redis client can be done with :py:func:`websauna.system.core.get_redis` call.
+Getting a hold a Redis client can be done with :py:func:`websauna.system.core.redis.get_redis` call.
+
+Storing data
+============
+
+For example, see `SMS login <https://gist.github.com/miohtama/69b5c365ec5e5ddd1d0b2ad2869460e8>`_.
+
+Redis stores byte strings, not unicode strings. You must encode values yourself:
+
+.. code-block:: python
+
+    redis.set("foo", "ÅÄÖ".encode("utf-8"))
+    assert redis.get("foo").decode("utf-8") == "ÅÄÖ"
 
 Exploring Redis database
 ========================

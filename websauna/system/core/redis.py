@@ -8,37 +8,53 @@ from pyramid.config import Configurator
 from pyramid.registry import Registry
 from pyramid.threadlocal import get_current_registry
 
+from websauna.system.http import Request
 
 logger = logging.getLogger(__name__)
 
 
-def get_redis(registry:Registry=None, url:str=None, redis_client=StrictRedis, **redis_options) -> StrictRedis:
+def get_redis(request: Request=None, url: str=None, redis_client=StrictRedis, **redis_options) -> StrictRedis:
     """Get a connection to Redis.
+
+    Example:
+
+    .. code-block:: python
+
+        from websauna.system.core.redis import get_redis
+
+        def my_view(request):
+            redis = get_redis(request)
+            redis.set("myval", "foobar")
+            print(redis.get("myval))
+
+    `See Redis command documentation <http://redis.io/commands>`_.
+
+    `See Redis Python client <https://pypi.python.org/pypi/redis>`_.
 
     Compatible with *pyramid_redis_session*, see https://github.com/ericrasmussen/pyramid_redis_sessions/blob/master/pyramid_redis_sessions/connection.py
 
-    Default Redis connection handler. Once a connection is established it is
-    cached in ``registry``.
+    TODO: Currently this method does not cache/pool connections.
 
-    HTTP example:
+    :param request: HTTp request object
 
-        from websauna.system.core.redis import get_redis
-        redis = get_redis(request.registry)
-
-    Shell example::
-
-        from websauna.system.core.redis import get_redis
-        redis = get_redis(registry)
-        print(redis.keys())
-
-    :registry: Pyramid registry containing current Redis connection configuration
+    :param registry: Pyramid registry containing current Redis connection configuration. TODO: This parameter will be dropped in the future versions.
 
     :param url: An optional connection string that will be passed straight to `StrictRedis.from_url`. The connection string should be in the form redis://username:password@localhost:6379/0. If not given use the default from settings.
 
     :param redis_options: A dict of keyword args to be passed straight to `StrictRedis`
+
+    :return: Redis client
     """
 
+    if isinstance(request, Registry):
+        logger.warn("USe get_redis(request) instead of get_redis(registry)")
+        # Legacy calling convention
+        registry = request
+    else:
+        registry = request.registry
+
     if registry is None:
+        # Should not happen any longer
         logger.warn("Always pass registry explicitly to get_redis()")
         registry = get_current_registry()
 
@@ -79,7 +95,12 @@ def get_redis(registry:Registry=None, url:str=None, redis_client=StrictRedis, **
 
 
 def is_sane_redis(config:Configurator) -> bool:
-    """Check that we have a working Redis connection for session."""
+    """Check that we have a working Redis connection for session.
+
+    Execute this on startup, so we bail out without starting up with a missing Redis.
+
+    :return: True if Redis connection works
+    """
 
     try:
         redis = get_redis(config.registry)

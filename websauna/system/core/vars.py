@@ -115,7 +115,7 @@ def js_in_head(request, registry, settings):
     """Should ``<script>`` tags be placed in ``<head>`` or end of ``<body>``.
 
     """
-    on_demand_resource_renderer = getattr(request, "on_demand_resource_renderer")
+    on_demand_resource_renderer = getattr(request, "on_demand_resource_renderer", None)
     if on_demand_resource_renderer and on_demand_resource_renderer.is_js_in_head(request):
         return True
     else:
@@ -125,7 +125,7 @@ def js_in_head(request, registry, settings):
 @var("on_demand_resource_renderer")
 def on_demand_resource_renderer(request, registry, settings):
     """Active instance of :py:class:`websauna.system.core.render.OnDemandResourceRenderer` managing dynamic CSS and JS. May be None."""
-    on_demand_resource_renderer = getattr(request, "on_demand_resource_renderer")
+    on_demand_resource_renderer = getattr(request, "on_demand_resource_renderer", None)
     return on_demand_resource_renderer
 
 

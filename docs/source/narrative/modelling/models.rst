@@ -569,12 +569,10 @@ Example:
         __table__ = sa.Table('user_customer', Base.metadata,
 
             sa.Column('user_id',
-                      sa.Integer,
                       sa.ForeignKey("users.id"),
                       primary_key=True),
 
             sa.Column('customer_id',
-                      psql.UUID,
                       sa.ForeignKey("customer.id"),
                       primary_key=True)
         )
@@ -611,10 +609,6 @@ Then you can use it as:
 
     print(list(c.users))
 
-
-.. note ::
-
-    There is `an active SQLAlchemy bug #3707 <https://bitbucket.org/zzzeek/sqlalchemy/issues/3707/psycopg2-dialect-_python_uuid-should>`_ regarding this example as writing of this.
 
 Advanced
 ========

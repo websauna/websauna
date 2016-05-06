@@ -14,6 +14,7 @@ from pyramid.paster import setup_logging
 
 from sqlalchemy.ext.declarative.clsregistry import _ModuleMarker
 from alembic import context
+from sqlalchemy.testing.schema import Table
 
 from websauna.system.devop.cmdline import init_websauna
 from websauna.system.model.meta import Base
@@ -34,15 +35,17 @@ def get_migration_table_name(allowed_packages: List, current_package_name) -> st
     return "alembic_history_{}".format(table)
 
 
-def get_class_by_table_name(tablename):
-  """Return class reference mapped to table.
+def get_class_by_table(table: Table) -> type:
+    """Return class reference mapped to table.
 
-  :param tablename: String with name of table.
-  :return: Class reference or None.
-  """
-  for c in Base._decl_class_registry.values():
-    if hasattr(c, '__tablename__') and c.__tablename__ == tablename:
-      return c
+    :param tablename: String with name of table.
+    :return: Class reference or None.
+    """
+    for c in Base._decl_class_registry.values():
+        if getattr(c, "__table__", None) == table:
+            return c
+
+    return None
 
 
 def run_migrations_offline(url, target_metadata, version_table, include_object):
@@ -116,7 +119,7 @@ def consider_module_for_migration(mod:str, allowed_packages:List) -> bool:
     return any(mod.startswith(pkg) for pkg in allowed_packages)
 
 
-def get_sqlalchemy_metadata(allowed_packages:List):
+def get_sqlalchemy_metadata(allowed_packages: List):
     """Get the SQLAlchemy MetaData instance which contains declarative tables only from a certain Python packagek.
 
     We get all tables which have been registered against the current Base model. Then we grab Base.metadata and drop out all tables which we think are not part of our migration run.
@@ -126,6 +129,7 @@ def get_sqlalchemy_metadata(allowed_packages:List):
 
     # Include all SQLAlchemy models in the local namespace
     for name, klass in Base._decl_class_registry.items():
+
         if isinstance(klass, _ModuleMarker):
             continue
 
@@ -208,15 +212,17 @@ def run_alembic(package:str):
         # Try to figure out smartly table from different object types
         if type_ in ("index", "column", "foreign_key_constraint", "unique_constraint"):
             table_name = object.table.name
+            table = object.table
         elif type_ == "table":
             table_name = object.name
+            table = object
         else:
             raise RuntimeError("Don't know how to check type for migration inclusion list: {}".format(type_))
 
-        model = get_class_by_table_name(table_name)
+        model = get_class_by_table(table)
         if not model:
             # Don't know what's this... let's skip
-            print("No model available", object, type_, table_name)
+            logger.info("No model available: %s %s %s", object, type_, table_name)
             return False
 
         module = model.__module__

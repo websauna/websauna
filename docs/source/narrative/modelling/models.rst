@@ -529,6 +529,93 @@ Is almost equal to:
     m.my_event_at = dt.astimezone(datetime.timezone.utc)
 
 
+Relationships
+=============
+
+One-to-one
+----------
+
+TODO
+
+One-to-many
+-----------
+
+TODO
+
+Many-to-many
+------------
+
+A normal `SQLALchemy many-to-many pattern <http://docs.sqlalchemy.org/en/rel_0_8/orm/extensions/declarative.html#configuring-many-to-many-relationships>`_ can be used to declare relationships. However one should wrap the mapping table in an :term:`ORM` class, so that :term:`migration` script will pick it up.
+
+Example:
+
+.. code-block:: python
+
+    import sqlalchemy as sa
+    from sqlalchemy import orm
+    import sqlalchemy.dialects.postgresql as psql
+
+    from websauna.system.model.meta import Base
+
+
+    class UserCustomer(Base):
+        """Many-to-many relationship between users and customers.
+
+        We use raw ``__table__`` to define the relationship table, as per SQLAlchemy documentation: http://docs.sqlalchemy.org/en/rel_0_8/orm/extensions/declarative.html#configuring-many-to-many-relationships
+
+        However, we need to have an ORM class definition, so that our :term:`migration` scripts will pick this table up and create it properly.
+        """
+
+        __table__ = sa.Table('user_customer', Base.metadata,
+
+            sa.Column('user_id',
+                      sa.Integer,
+                      sa.ForeignKey("users.id"),
+                      primary_key=True),
+
+            sa.Column('customer_id',
+                      psql.UUID,
+                      sa.ForeignKey("customer.id"),
+                      primary_key=True)
+        )
+
+    class Customer(Base):
+        """A customer record imported from a utility company."""
+
+        __tablename__ = "customer"
+
+        #: Our id
+        id = sa.Column(psql.UUID(as_uuid=True), primary_key=True, server_default=sa.text("uuid_generate_v4()"))
+
+        #: Map customers to users and vice versa. One user phone number can address multiple customer records (across different organizations). One customer can have multiple users (corporate shared access).
+        users = orm.relationship(User,
+                                 secondary=UserCustomer.__table__,
+                                 backref=orm.backref("customers", lazy="dynamic"),
+                                 lazy="dynamic",
+                                 )
+
+Then you can use it as:
+
+.. code-block:: python
+
+    u = User()
+    u2 = User()
+    dbsession.add(u)
+    dbsession.flush()
+
+    c = Customer()
+    c.users.append(u)
+    c.users.append(u2)
+    dbsession.add(c)
+    dbsession.flush()
+
+    print(list(c.users))
+
+
+.. note ::
+
+    There is `an active SQLAlchemy bug #3707 <https://bitbucket.org/zzzeek/sqlalchemy/issues/3707/psycopg2-dialect-_python_uuid-should>`_ regarding this example as writing of this.
+
 Advanced
 ========
 

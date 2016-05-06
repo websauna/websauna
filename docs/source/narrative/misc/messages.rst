@@ -1,3 +1,5 @@
+.. _messages:
+
 ========
 Messages
 ========

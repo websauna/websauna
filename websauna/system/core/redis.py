@@ -27,6 +27,8 @@ def get_redis(request: Request=None, url: str=None, redis_client=StrictRedis, **
             redis.set("myval", "foobar")
             print(redis.get("myval))
 
+    See :ref:`transient` data documentation.
+
     `See Redis command documentation <http://redis.io/commands>`_.
 
     `See Redis Python client <https://pypi.python.org/pypi/redis>`_.
@@ -35,9 +37,7 @@ def get_redis(request: Request=None, url: str=None, redis_client=StrictRedis, **
 
     TODO: Currently this method does not cache/pool connections.
 
-    :param request: HTTp request object
-
-    :param registry: Pyramid registry containing current Redis connection configuration. TODO: This parameter will be dropped in the future versions.
+    :param request: HTTP request object. NOTE: By legacy this argument also supports Registry object. However this behaviro will be deprecated.
 
     :param url: An optional connection string that will be passed straight to `StrictRedis.from_url`. The connection string should be in the form redis://username:password@localhost:6379/0. If not given use the default from settings.
 

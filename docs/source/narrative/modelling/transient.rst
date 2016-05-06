@@ -15,7 +15,14 @@ In the context of Websauna transient data primarly means
 
 * Cache
 
-Furthermore transient data properties are along the lines of
+* Other non-critical, fast and frequently accessed data
+
+Websauna defaults to :term:`Redis` key value store for transient data storage.
+
+Differences between persistent data (SQL) and transient data (Redis)
+====================================================================
+
+Transient data properties are along the lines of
 
 * Which might not be around forever - does not satisfy ACID guarantees
 
@@ -29,12 +36,12 @@ Furthermore transient data properties are along the lines of
 
 * Might not have complex query properties like SQL, but is more key-value like
 
-The stack component for managing transient data in Websauna is Redis.
-
 Using session data
 ==================
 
-Session data is available for both logged in and anonymous users. Examples::
+Session data is available for both logged in and anonymous users. Examples:
+
+.. code-block:: python
 
     request.session["my_key"] = "value"  # Set a session value
 
@@ -42,49 +49,30 @@ Session data is available for both logged in and anonymous users. Examples::
 
     print(request.session.get("my_key")  # Get a session value, defaults to None if not yet set
 
-See also :doc:`flash messages <../misc/messages>` and :py:meth:`websauna.system.Initializer.configure_sessions`.
+See also :ref:`flash messages messages>` and :py:meth:`websauna.system.Initializer.configure_sessions`.
 
 For more information see `Sessions in Pyramid <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/sessions.html>`_.
 
-Default Redis behavior
-======================
-
-By default, Websauna uses :term:`Redis` for transient data storage.
-
-Redis database mappings
------------------------
-
-Redis database *1* is configured for local development/staging/production session and cache data.
-
-Redis database *3* is configured for local development/staging/production Celery jobs.
-
-Redis database *14* is configured for unit test session data.
-
-Redis database *15* is configured for unit test Celery jobs.
-
-See :ref:`Celery config <celery-config>` for more information.
-
-Configuration
-=============
-
-Redis settings can be found in :ref:`base.ini` and `test.ini`.
-
-Accessing Redis
-===============
+Getting Redis client
+====================
 
 Getting a hold a Redis client can be done with :py:func:`websauna.system.core.redis.get_redis` call.
 
 Storing data
 ============
 
-For example, see `SMS login <https://gist.github.com/miohtama/69b5c365ec5e5ddd1d0b2ad2869460e8>`_.
-
-Redis stores byte strings, not unicode strings. You must encode values yourself:
+Redis stores all data, including numbers, internally as byte strings. For unicode strings (default Python strings), you must encode values yourself:
 
 .. code-block:: python
 
-    redis.set("foo", "ÅÄÖ".encode("utf-8"))
-    assert redis.get("foo").decode("utf-8") == "ÅÄÖ"
+    from websauna.system.core.redis import get_redis
+
+    def my_view(request):
+        redis = get_redis(request)
+        redis.set("foo", "ÅÄÖ".encode("utf-8"))
+        assert redis.get("foo").decode("utf-8") == "ÅÄÖ"
+
+For more advanced example, see `SMS login <https://gist.github.com/miohtama/69b5c365ec5e5ddd1d0b2ad2869460e8>`_.
 
 Exploring Redis database
 ========================
@@ -97,9 +85,30 @@ If you want to explore Redis database you can use
 
 * :ref:`ws-shell` command line shell
 
+Default Redis database numbering
+================================
+
+Redis database *1* is configured for local development/staging/production session and cache data.
+
+Redis database *3* is configured for local development/staging/production Celery jobs.
+
+Redis database *14* is configured for unit test session data.
+
+Redis database *15* is configured for unit test Celery jobs.
+
+Redis settings can be found in :ref:`base.ini` and `test.ini`.
+
+Also see :ref:`Celery config <celery-config>` for more information.
+
 Backup
 ======
 
 The default :doc:`backup <../ops/backup>` script backs up Redis database by dumping it.
 
+More information
+================
+
+`See Redis command documentation <http://redis.io/commands>`_.
+
+`See Redis Python client <https://pypi.python.org/pypi/redis>`_.
 

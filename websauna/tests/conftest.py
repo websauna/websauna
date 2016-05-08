@@ -222,6 +222,30 @@ def init(request, app):
 
 @pytest.fixture(scope='session')
 def registry(request, app):
+    """Get access to registry.
+
+    Effectively returns ``app.initializer.config.registry``.
+
+    Example:
+
+    .. code-block:: python
+
+        import transaction
+        from websauna.tests.utils import create_user
+
+
+        def test_some_stuff(dbsession, registry):
+
+            with transaction.manager:
+                u = create_user(registry)
+                # Do stuff with new user
+
+    """
+    return app.initializer.config.registry
+
+
+@pytest.fixture(scope='session')
+def registry(request, app):
     """Access registry of the default app instance created from ``test.ini``.
 
     """

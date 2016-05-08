@@ -39,7 +39,7 @@ Example test which comes with the default :ref:`scaffold` (``myapp/tests/test_lo
     """An example login test case."""
 
     import transaction
-
+    from pyramid.registry import Registry
     from sqlalchemy.orm.session import Session
     from splinter.driver import DriverAPI
 
@@ -49,7 +49,7 @@ Example test which comes with the default :ref:`scaffold` (``myapp/tests/test_lo
     from websauna.system import Initializer
 
 
-    def test_login(web_server:str, browser:DriverAPI, dbsession:Session, init:Initializer):
+    def test_login(web_server: str, browser: DriverAPI, dbsession: Session, registry: Registry):
         """Login as a user to the site.
 
         This is a functional test. Prepare the test by creating one user in the database. Then try to login as this user by using Splinter test browser.
@@ -65,7 +65,7 @@ Example test which comes with the default :ref:`scaffold` (``myapp/tests/test_lo
 
         with transaction.manager:
             # Create a dummy example@example.com user we test
-            create_user(dbsession, init.config.registry, email=EMAIL, password=PASSWORD)
+            create_user(dbsession, registry, email=EMAIL, password=PASSWORD)
 
         # Direct Splinter browser to the website
         b = browser
@@ -132,11 +132,11 @@ Here is a test from above with a PDB breakpoint where we want to identify how to
 
 .. code-block:: python
 
-    def test_login(web_server:str, browser:DriverAPI, dbsession:Session, init:Initializer):
+    def test_login(web_server: str, browser: DriverAPI, dbsession: Session, registry: Registry):
 
         with transaction.manager:
             # Create a dummy example@example.com user we test
-            create_user(dbsession, init.config.registry, email=EMAIL, password=PASSWORD)
+            create_user(dbsession, registry)
 
         # Direct Splinter browser to the website
         b = browser

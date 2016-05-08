@@ -18,14 +18,35 @@ from websauna.system.user.models import User
 from websauna.compat.typing import Callable
 from websauna.utils.time import now
 
+#: Unit testing default email
 EMAIL = "example@example.com"
 
-#: The default test password
+#: Unit testing default password
 PASSWORD = "ToholamppiMadCowz585"
 
 
-def create_user(dbsession:Session, registry:Registry, email:str=EMAIL, password:str=PASSWORD, admin:bool=False) -> User:
+def create_user(dbsession: Session, registry: Registry, email: str=EMAIL, password: str=PASSWORD, admin: bool=False) -> User:
     """A helper function to create normal and admin users for tests.
+
+    Example:
+
+    .. code-block:: python
+
+        import transaction
+        from websauna.tests.utils import create_user
+
+
+        def test_some_stuff(dbsession, registry):
+
+            with transaction.manager:
+                u = create_user(registry)
+                # Do stuff with new user
+
+
+
+    :param email: User's email address. If inot given use unit testing default.
+
+    :param password: Password as plain text. If not given use unit testing default.
 
     :param admin: If True run :py:class:`websauna.system.user.usermixin.SiteCreator` login and set the user to admin group.
     """

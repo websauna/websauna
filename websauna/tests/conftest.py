@@ -1,6 +1,11 @@
-"""Support for reading Pyramid configuration files and having rollbacked transactions in tests.
+"""Various Websauna specfici py.test fixtures.
 
-https://gist.github.com/inklesspen/4504383
+* Reading test.ini settings
+
+* Setting up and tearing down database
+
+* Creating a WSGI application to test
+
 """
 
 
@@ -8,6 +13,7 @@ import os
 import pyramid.testing
 import pytest
 import transaction
+from pyramid.registry import Registry
 from pyramid.router import Router
 from pytest_splinter.plugin import Browser
 
@@ -221,10 +227,10 @@ def init(request, app):
 
 
 @pytest.fixture(scope='session')
-def registry(request, app):
+def registry(request, app) -> Registry:
     """Get access to registry.
 
-    Effectively returns ``app.initializer.config.registry``.
+    Effectively returns ``app.initializer.config.registry``. Registry is a Pyramid registry that is populated with values from :ref:`test.ini`.
 
     Example:
 

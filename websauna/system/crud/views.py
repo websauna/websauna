@@ -477,7 +477,7 @@ class Delete:
 
     This is an abstract item delete implementation; you must either set :py:attr:`deleter` callback or override :py:meth:`yes`.
     """
-    base_template = None
+    base_template = "crud/base.html"
 
     #: callback ``deleter(request, context)`` which is called to perform the actual model specific delete operation.
     deleter = None
@@ -492,12 +492,22 @@ class Delete:
     def get_model(self) -> object:
         return self.context.get_model()
 
-    def delete_item(self):
-        """User picked YEAH LET'S DO IT."""
-        if not self.deleter:
-            raise NotImplementedError("The subclass must implement actual delete method or give deleter callback.")
+    def get_object(self):
+        """Get underlying SQLAlchemy model instance from current Pyramid traversing context."""
+        return self.context.get_object()
 
-        self.deleter(self.context, self.request)
+    def delete_object(self):
+        """User picked YEAH LET'S DO IT.
+
+        First try to call ``delete`` callback if one is set. If not then fallback to :py:meth:`websauna.system.crud.CRUD.delete_object`.
+
+        http://opensourcehacker.com/wp-content/uploads/2013/04/koala.gif
+        """
+
+        if self.deleter:
+            self.deleter(self.context, self.request)
+        else:
+            self.get_crud().delete_object(self.get_object())
 
         messages.add(self.request, "Deleted {}".format(self.context.get_title()), msg_id="msg-item-deleted", kind="success")
 
@@ -515,7 +525,7 @@ class Delete:
         """Delete view endpoint."""
 
         choices = (
-            interstitial.Choice("Yes", self.delete_item, id="btn-delete-yes"),
+            interstitial.Choice("Yes", self.delete_object, id="btn-delete-yes"),
             interstitial.Choice("No", self.cancel_delete, id="btn-delete-no"),
         )
 

@@ -130,6 +130,13 @@ class CRUD(_Resource):
         else:
             return self.request.resource_url(res)
 
+    def delete_object(self, obj):
+        """Delete one item in the CRUD.
+
+        Called by delete view if no alternative logic is implemented.
+        """
+        raise NotImplementedError("The subclass must implement actual delete method or give deleter callback in Delete view.")
+
     def __getitem__(self, path) -> Resource:
         """Traverse to a model instance.
 

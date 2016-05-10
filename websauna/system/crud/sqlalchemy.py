@@ -1,4 +1,6 @@
 from pyramid.interfaces import IRequest
+
+from sqlalchemy.orm import Query, Session
 from websauna.system.http import Request
 from . import CRUD as _CRUD
 from . import Resource as _Resource
@@ -35,14 +37,14 @@ class CRUD(_CRUD):
         """Get the SQLAlchemy model instance we are managing."""
         return self.model
 
-    def get_dbsession(self):
+    def get_dbsession(self) -> Session:
         """Override to use a different database session.
 
         Default to ``request.dbsession``.
         """
         return self.request.dbsession
 
-    def get_query(self):
+    def get_query(self) -> Query:
         """Get SQLAlchemy Query object which we use to populate this listing.
 
         Views can specify their own queries - e.g. filter by user. This is just the default for everything.
@@ -50,6 +52,14 @@ class CRUD(_CRUD):
         model = self.get_model()
         dbsession = self.get_dbsession()
         return dbsession.query(model)
+
+    def delete_object(self, obj):
+        """Delete one item in the CRUD.
+
+        Called by delete view if no alternative logic is implemented.
+        """
+        dbsession = self.get_dbsession()
+        return dbsession.delete(obj)
 
     def fetch_object(self, id):
         """Pull a raw object from the database.

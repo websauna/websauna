@@ -435,7 +435,16 @@ Updating items
 Deleting items
 ==============
 
-Simple delete example
+Deleting one item
+-----------------
+
+.. code-block:: Python
+
+    # Delete all items
+
+
+Deleting multiple items
+-----------------------
 
 .. code-block:: Python
 

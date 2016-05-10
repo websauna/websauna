@@ -58,6 +58,7 @@ setup(
     packages=find_packages(exclude=['docs']),
 
     # Disabled for now - breaks workflow
+    # https://github.com/pyfidelity/setuptools-git-version/issues/4
     # automatic version generation for development releases:
     # setup_requires=[
     #    'setuptools-git >= 0',

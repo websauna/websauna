@@ -1,4 +1,4 @@
-{% extends base_template if base_template is defined else 'crud/base_crud.html' %}
+{% extends base_template %}
 
 {% block crud_content %}
 
@@ -63,7 +63,6 @@
             </div>
         </div>
     {% endblock %}
-
 
     {#
     {% block paginator %}

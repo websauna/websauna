@@ -65,41 +65,7 @@ Below is how CRUD is formed. It consists of four :term:`resource` classes (see :
 URL mapping
 -----------
 
-CRUD provides translation of SQLAlchemy object ids to URL paths and vice versa.
-
-* :py:class:`websauna.system.crud.urlmapper.Base64UUIDMapper` is recommended as it generates non-guessable URLs. It reads :term:`UUID` attribute from model and constructs Base64 encoded string of it.
-
-* :py:class:`websauna.system.crud.urlmapper.IdMapper` can be used if you want to have primary keys directly in URLs.
-
-* The behavior can be configured by setting :py:attr:`websauna.system.crud.CRUD.mapper` for your CRUD class.
-
-The default behavior is to read ``uuid`` attribute and do base64 encoding for it:
-
-.. code-block:: python
-
-    from websauna.system.crud import Base64UUIDMapper
-
-    class CRUD(_Resource):
-        mapper = Base64UUIDMapper(mapping_attribute="uuid")
-
-
-You can change the name of the attribute. For example if your model has UUID based primary key ``id`` and doesn't have a separate ``uuid`` attribute:
-
-.. code-block:: python
-
-    from websauna.system.admin.modeladmin import ModelAdmin, model_admin
-
-    from .models import UserOwnedAccount
-    from websauna.system.crud import Base64UUIDMapper
-
-    @model_admin(traverse_id="user-accounts")
-    class UserAccountAdmin(ModelAdmin):
-        """Manage user owned accounts and their balances."""
-
-        model = UserOwnedAccount
-        mapper = Base64UUIDMapper(mapping_attribute="id")
-
-
+Database items are mapped to URLs and vice versa via :ref:`URL mapping <crud-url-mapping>`.
 
 Form schema generation
 ----------------------
@@ -331,8 +297,8 @@ Show view shows one item. It is read only and doesn't allow user to change any v
 
 * The context of a add view is :py:class:`websauna.system.crud.CRUD.Resource` or its subclasses
 
-Show view customization example
--------------------------------
+Customizing field list
+----------------------
 
 Here is a short example how to play around with *Show* view in :ref:`admin`. It assumes the underlying :ref:`model <models>` has columns ``id``, ``denormalized_name`` and ``location``.
 
@@ -374,8 +340,60 @@ Example ``adminviews.py``:
             """Use denormalized_name field as the page heading."""
             return self.get_object().denormalized_name
 
-Generating faux fields
+Customizing field data
 ----------------------
+
+Below is an example where the show view has fields which do not exist on the object directly:
+
+.. code-block:: python
+
+    import colander
+
+    from websauna.system.crud.formgenerator import SQLAlchemyFormGenerator
+    from websauna.system.crud import views as basecrudviews
+
+    from xxx.models import TokenContract
+
+
+    @view_overrides(context=ContractCRUD.Resource,
+                    route_name="user-facing-contracts",
+                    permission="view")
+    class ContractShow(basecrudviews.Show):
+        """Show a single contract.
+
+        """
+
+        includes = [
+            "address",
+            "updated_at",
+            # Retrofit fields that the form generator could not automatically figure out
+            colander.SchemaNode(colander.String(), name="symbol"),
+            colander.SchemaNode(colander.String(), name="name"),
+            colander.SchemaNode(colander.String(), name="total_supply", title="Tokens total"),
+        ]
+
+        form_generator = SQLAlchemyFormGenerator(includes=includes)
+
+        def get_appstruct(self, form: deform.Form, form_context: TokenContract) -> dict:
+            """Get the dictionary that populates the form."""
+            fields = form.schema.dictify(form_context)
+            contract = form_context
+            if contract.asset:
+                fields["symbol"] = contract.asset.symbol
+                fields["name"] = contract.asset.name
+                fields["total_supply"] = contract.total_supply
+            else:
+                fields["symbol"] = "(pending data from network)"
+                fields["name"] = "(pending data from network)"
+                fields["total_supply"] = "(pending data from network)"
+            return fields
+
+        def get_title(self):
+            token_contract = self.get_object()
+            return "Contract " + bin_to_eth_address(token_contract.contract_address)
+
+Generating constant fields
+--------------------------
 
 Sometimes it is useful to generate faux fields with constant values for paper prototyping purposes. You can exploit :py:class:`colander.SchemeNode` ``default`` argument for this.
 

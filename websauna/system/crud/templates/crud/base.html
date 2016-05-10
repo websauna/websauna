@@ -1,0 +1,11 @@
+{% extends "site/base.html" %}
+
+{# All pages showing CRUD content must define this block #}
+
+{% block content %}
+  {# We put CRUD content to base content block by default #}
+
+  {% block crud_content %}
+    {# crud_content block tells where you want the CRUD to appear on your page #}
+  {% endblock %}
+{% endblock %}

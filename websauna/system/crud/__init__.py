@@ -63,7 +63,7 @@ class CRUD(_Resource):
     """
 
     # How the model is referred in templates. e.g. "User"
-    title = "xx"
+    title = "(untitled CRUD)"
 
     # TODO: This is inperfect directly copied from Django - many languages have more plural forms than two. Fix when i18n lands
     #: Helper noun used in the default placeholder texts

@@ -89,7 +89,7 @@ class CRUDView:
     This includes views having context as the listing and having context as the individual item."""
 
     #: base_template may point into a template providing ``crud_content`` block where the contents of the view is rendered. This allows you to decorate your CRUD which a specific page frame.
-    base_template = None
+    base_template = "crud/base.html"
 
     #: Instance of ResourceButtons which appear on the top right corner of this view
     resource_buttons = []
@@ -200,7 +200,7 @@ class FormView(CRUDView):
     Use Deform form library. This views is abstract and it does not have dependency to any underlying model system like SQLAlchemy.
     """
     #: If the child class is not overriding the rendering loop, point this to a template which provides the page frame and ``crud_content`` block. For example use see :py:class:`websauna.system.user.adminviews.UserAdd`.
-    base_template = None
+    base_template = "crud/base.html"
 
     #: This is an instance of :py:class:`websauna.system.crud.formgenerator.FormGenerator`. For SQLAlchemy models it is :py:class:`websauna.system.crud.formgenerator.SQLAlchemyFormGenerator`. Form generator describers how a CRUD model is turned to a Deform form. It is called by :py:meth:`create_form`. For example use cases see e.g. :py:class:`websauna.system.user.adminviews.UserAdd`.
     form_generator = None
@@ -259,7 +259,7 @@ class FormView(CRUDView):
 class Show(FormView):
     """Show one instance of a model."""
 
-    resource_buttons = [TraverseLinkButton(id="edit", name="Edit", view_name="edit")]
+    resource_buttons = [TraverseLinkButton(id="edit", name="Edit", view_name="edit", permission="edit")]
 
     def get_title(self):
         return "#{}".format(self.get_object().id)
@@ -267,15 +267,24 @@ class Show(FormView):
     def get_form(self):
         return self.create_form(EditMode.show, buttons=())
 
+    def get_form_context(self) -> object:
+        """Get the item that populates the form."""
+        return self.context.get_object()
+
+    def get_appstruct(self, form, form_context) -> dict:
+        """Get the dictionary that populates the form."""
+        return form.schema.dictify(form_context)
+
     @view_config(context=Resource, name="show", renderer="crud/show.html", permission='view')
     def show(self):
         """View for showing an individual object."""
 
-        obj = self.context.get_object()
+        obj = self.get_object()
+        form_context = self.get_form_context()
         base_template = self.base_template
 
         form = self.get_form()
-        appstruct = form.schema.dictify(obj)
+        appstruct = self.get_appstruct(form, form_context)
         rendered_form = form.render(appstruct, readonly=True)
 
         resource_buttons = self.get_resource_buttons()
@@ -301,7 +310,7 @@ class Edit(FormView):
     * ``do_success()``
     """
 
-    resource_buttons = [TraverseLinkButton(id="show", name="Show", view_name="show")]
+    resource_buttons = [TraverseLinkButton(id="show", name="Show", view_name="show", permission="view")]
 
     def get_title(self):
         return "Editing #{}".format(self.get_object().id)

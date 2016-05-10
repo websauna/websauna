@@ -1,4 +1,4 @@
-:: forms:
+.. _forms:
 
 ===========
 Form basics

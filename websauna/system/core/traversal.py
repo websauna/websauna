@@ -48,6 +48,8 @@ class Resource:
         :param name: Id of the child resource as it will appear in the URL traversing path
 
         :param allow_new_parent: If the child has alraedy a parent assigned, allow override the parent... or basically move an existing resource. You don't usually want this for in-memory resource and this is for catching bugs.
+
+        :return: The child resource
         """
 
         assert child

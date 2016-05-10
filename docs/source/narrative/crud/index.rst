@@ -8,4 +8,5 @@ Automatically creating show, add, edit and delete forms for your data.
 
     crud
     admin
-    mapping
+    mappings
+    standalone

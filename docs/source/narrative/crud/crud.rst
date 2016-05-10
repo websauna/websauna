@@ -175,6 +175,9 @@ When rendering links and buttons CRUD templates check the permissions, so that e
 Listing view
 ============
 
+.. image:: ../images/crud-listing.png
+    :width: 640px
+
 Listing view is provided by :py:class:`websauna.system.crud.views.Listing`. It uses ``Table`` and various ``Column`` classes in :py:mod:`websauna.system.crud.listing` to describe how the listing looks like.
 
 * The context of a listing view is :py:class:`websauna.system.crud.CRUD`
@@ -182,9 +185,6 @@ Listing view is provided by :py:class:`websauna.system.crud.views.Listing`. It u
 * Stock user listing view py:class:`websauna.system.user.adminviews.UserListing`
 
 * Listing reads the data for the list by setting up and iterating a query coming from :py:meth:`websauna.system.crud.CRUD.get_query`
-
-.. image:: ../images/crud-listing.png
-    :width: 640px
 
 Customizing columns
 -------------------
@@ -262,6 +262,9 @@ More examples
 Add view
 ========
 
+.. image:: ../images/crud-add.png
+    :width: 640px
+
 Add view is responsible for creating new items in the crud. It is a form based view and uses form autogeneration to create a new form.
 
 * The context of a add view is :py:class:`websauna.system.crud.CRUD` or its subclasses
@@ -269,9 +272,6 @@ Add view is responsible for creating new items in the crud. It is a form based v
 * For example, see :py:class:`websauna.system.user.adminviews.UserAdd`
 
 * Availability of *Add* button in CRUD is controlled by permissions ``add``
-
-.. image:: ../images/crud-add.png
-    :width: 640px
 
 Customizing created objects
 ---------------------------
@@ -299,12 +299,12 @@ Override ``create_object()``. Example:
 Show view
 =========
 
+.. image:: ../images/crud-show.png
+    :width: 640px
+
 Show view shows one item. It is read only and doesn't allow user to change any values.
 
 * The context of a add view is :py:class:`websauna.system.crud.CRUD.Resource` or its subclasses
-
-.. image:: ../images/crud-show.png
-    :width: 640px
 
 Customizing field list
 ----------------------

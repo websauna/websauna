@@ -21,6 +21,9 @@ This chapter describers how you can add a :ref:`CRUD` page set on your user faci
 
 The example code is guidelining and not a full, runnable, example.
 
+.. image:: ../images/crud-listing.png
+    :width: 640px
+
 Sample model
 ------------
 

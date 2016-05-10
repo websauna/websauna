@@ -9,11 +9,13 @@ from pyramid.registry import Registry
 from pyramid.threadlocal import get_current_registry
 
 from websauna.system.http import Request
+from websauna.compat.typing import Union
+
 
 logger = logging.getLogger(__name__)
 
 
-def get_redis(request: Request=None, url: str=None, redis_client=StrictRedis, **redis_options) -> StrictRedis:
+def get_redis(request_or_registry: Union[Request, Registry], url: str=None, redis_client=StrictRedis, **redis_options) -> StrictRedis:
     """Get a connection to Redis.
 
     Example:
@@ -46,12 +48,11 @@ def get_redis(request: Request=None, url: str=None, redis_client=StrictRedis, **
     :return: Redis client
     """
 
-    if isinstance(request, Registry):
-        logger.warn("USe get_redis(request) instead of get_redis(registry)")
-        # Legacy calling convention
-        registry = request
+    if isinstance(request_or_registry, Registry):
+        # Unit test calling convention
+        registry = request_or_registry
     else:
-        registry = request.registry
+        registry = request_or_registry.registry
 
     if registry is None:
         # Should not happen any longer

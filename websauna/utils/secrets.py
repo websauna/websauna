@@ -8,7 +8,6 @@ from urllib.parse import urlparse
 import pkg_resources
 
 
-
 _resource_manager = pkg_resources.ResourceManager()
 
 
@@ -20,7 +19,7 @@ def resolve(uri):
     """Resolve secrets location."""
 
     # Do we look like a relative file (no URL scheme)
-    if not "://" in uri:
+    if "://" not in uri:
         uri = "file://" + os.path.abspath(os.path.join(os.getcwd(), uri))
 
     parts = urlparse(uri)
@@ -40,11 +39,10 @@ def resolve(uri):
     return config_source
 
 
-
-def read_ini_secrets(secrets_file) -> dict:
+def read_ini_secrets(secrets_file, strict=True) -> dict:
     """Read plaintext .INI file to pick up secrets.
 
-    Dummy secrets handler which does not have encryption. Reads INI file. Creates dictionary keys in format [ini section name].[ini key name] = value.
+    Dummy secrets handler which does not have encryption. Reads INI file. Creates dictionary keys in format [ini section name].[ini key name] = value. Entries with a leading $ are environment variable expansions.
 
     Example INI contents::
 
@@ -55,6 +53,10 @@ def read_ini_secrets(secrets_file) -> dict:
         # This is a secret seed used in various OAuth related keys
         secret = CHANGEME
 
+        [facebook]
+        consumer_key = $FACEBOOK_CONSUMER_KEY
+        consumer_secret = $FACEBOOK_CONSUMER_SECRET
+
     The following ``secrets_file`` formats are supported
 
     * A path relative to the current working directory, e.g. ``test-secrets.ini``
@@ -62,6 +64,10 @@ def read_ini_secrets(secrets_file) -> dict:
     * Absolute path using ``file://`` URL: ``file:///etc/myproject/mysecrets.ini``
 
     * A path relative to deployed Python package. E.g. ``resource://websauna/test-settings.ini``
+
+    :param secrets_file: URI like ``resource://websauna/test-settings.ini``
+
+    :param strict: Bail out in the environment variable expansion if the environment variable is not. Useful e.g. for testing when all users are not assumed to know all secrets. In non-strict mode if the environment variable is missing the secret value is set to ``None``.
 
     :return: ``ConfigParser`` instance.
 
@@ -80,10 +86,9 @@ def read_ini_secrets(secrets_file) -> dict:
             if value.startswith("$"):
                 environment_variable = value[1:]
                 value = os.getenv(environment_variable, None)
-                if not value:
+                if not value and strict:
                     raise MissingSecretsEnvironmentVariable("Secrets key {} needs environment variable {} in file {} section {}".format(key, environment_variable, secrets_file, section))
 
             secrets["{}.{}".format(section, key)] = value
 
     return secrets
-

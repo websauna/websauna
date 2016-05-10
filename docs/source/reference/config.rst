@@ -373,6 +373,8 @@ See also :py:meth:`websauna.system.Initializer.sanity_check`.
 
 Default: ``true``
 
+
+
 websauna.social_logins
 ----------------------
 
@@ -416,6 +418,15 @@ Secrets file for API keys and tokens. :doc:`Read secrets documentation for more 
 The value is in URL format ``resource://PYTHON_PACKAGE_NAME/PATH_TO_INI_FILE_INSIDE_PACKAGE``.
 
 Default value: ``resource://websauna/development-secrets.ini``.
+
+websauna.secrets_strict
+-----------------------
+
+If environment variables are missing in the secrets INI file interpolation, raise an exception.
+
+See :py:func:`websauna.utils.secrets.read_ini_secrets`.
+
+Default value: ``true``
 
 websauna.site_id
 ----------------

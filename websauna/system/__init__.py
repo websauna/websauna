@@ -600,7 +600,9 @@ class Initializer:
         if not secrets_file:
             return {}
 
-        _secrets = read_ini_secrets(secrets_file)
+        strict = asbool(settings.get("websauna.secrets_strict", True))
+
+        _secrets = read_ini_secrets(secrets_file, strict=strict)
         self.config.registry.registerUtility(_secrets, ISecrets)
         return _secrets
 

@@ -115,7 +115,7 @@ class RequestAwareTask(Task):
             underlying = super().__call__
             return underlying(pyramid_env["request"], *args, **kwargs)
         except Exception as e:
-            logger.error("Celery task raised an exception %s", self)
+            logger.error("Celery task raised an exception %s", e)
             logger.exception(e)
             raise
         finally:
@@ -143,10 +143,6 @@ class RequestAwareTask(Task):
         # skip this and call the original method to send this immediately.
         if not hasattr(request, "tm"):
             return super().apply_async(*args, **kwargs)
-
-        if self.app.conf.CELERY_ALWAYS_EAGER:
-            # We need to push back request argument in this case
-            kwargs["args"] = [request] + kwargs["args"]
 
         # This will break things that expect to get an AsyncResult because
         # we're no longer going to be returning an async result from this when
@@ -230,10 +226,17 @@ class TransactionalTask(RequestAwareTask):
         try:
             # Get bound Task.__call__
             # http://stackoverflow.com/a/1015405/315168
-            underlying = RequestAwareTask.__call__.__get__(self, RequestAwareTask)
+
+            # We need to pass RequesetAwareTask super() because of transaction tween injection
+            underlying = Task.__call__.__get__(self, Task)
 
             def handler(request):
-                underlying(request, *args, **kwargs)
+                try:
+                    return underlying(request, *args, **kwargs)
+                except Exception as e:
+                    logger.error("TransactionalTask task raised an exception %s", e)
+                    logger.exception(e)
+                    raise
 
             handler = tm_tween_factory(handler, pyramid_env["registry"])
             result = handler(pyramid_env["request"])

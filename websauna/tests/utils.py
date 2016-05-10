@@ -86,14 +86,14 @@ def create_logged_in_user(dbsession:Session, registry:Registry, web_server:str, 
     b = browser
     b.visit("{}/{}".format(web_server, "login"))
 
-    assert b.is_element_visible_by_css("#login-form")
+    assert b.is_element_present_by_css("#login-form")
 
     b.fill("username", email)
     b.fill("password", password)
     b.find_by_name("login_email").click()
 
     # After login we log out link to confirm login has succeeded
-    assert b.is_element_visible_by_css("#nav-logout")
+    assert b.is_element_present_by_css("#nav-logout")
 
 
 def wait_until(callback:Callable, expected:object, deadline=1.0, poll_period=0.05):

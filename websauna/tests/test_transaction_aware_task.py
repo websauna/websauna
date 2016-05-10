@@ -137,6 +137,7 @@ def celery_worker(request, init):
 def setup_celery(init):
     """Setup Celery instance which has a lifetime of a test."""
 
+    # TODO: Fix after https://github.com/websauna/websauna/issues/44
     # XXX: Don't know why we need to force this again despite the settings... something internal to Celery stringifie this setting, resulting to false true. Tried to figure out for two hours, gave up, asking world to help to replace Celery with something else.
     test_celery_app.conf.CELERY_ALWAYS_EAGER = True
 

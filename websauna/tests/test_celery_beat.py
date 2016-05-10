@@ -4,20 +4,22 @@ import subprocess
 import time
 import os
 
-
 from websauna.system.core.redis import get_redis
+
 
 def run_worker_and_beat(ini_file):
 
     cmdline = ["ws-celery", "worker", "-A", "websauna.system.task.celery.celery_app", "--ini", ini_file]
 
     # You can start manually ws-celery worker -A websauna.system.task.celery.celery_app --ini websauna/tests/scheduler-test.ini
+    # # and set worker = None
+
     worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     time.sleep(2.0)
 
     worker.poll()
     if worker.returncode is not None:
-        raise AssertionError("Scheduler process did not start up: {}".format(" ".join(cmdline)))
+         raise AssertionError("Scheduler process did not start up: {}".format(" ".join(cmdline)))
 
     # You can run manually ws-celery beat -A websauna.system.task.celery.celery_app --ini websauna/tests/scheduler-test.ini
     cmdline = ["ws-celery", "beat", "-A", "websauna.system.task.celery.celery_app", "--ini", ini_file]

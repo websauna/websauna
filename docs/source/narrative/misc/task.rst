@@ -194,6 +194,13 @@ Below is a supervisor configuration Ansible template for starting the two proces
 Troubleshooting
 ===============
 
+Task does not execute
+---------------------
+
+Task is not executed with ``apply_async`` even if you run ``CELERY_ALWAYS_EAGER=True``.
+
+
+
 Inspecting task queue
 ---------------------
 

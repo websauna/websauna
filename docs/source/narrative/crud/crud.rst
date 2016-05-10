@@ -183,6 +183,9 @@ Listing view is provided by :py:class:`websauna.system.crud.views.Listing`. It u
 
 * Listing reads the data for the list by setting up and iterating a query coming from :py:meth:`websauna.system.crud.CRUD.get_query`
 
+.. image:: ../images/crud-listing.png
+    :width: 640px
+
 Customizing columns
 -------------------
 
@@ -267,6 +270,9 @@ Add view is responsible for creating new items in the crud. It is a form based v
 
 * Availability of *Add* button in CRUD is controlled by permissions ``add``
 
+.. image:: ../images/crud-add.png
+    :width: 640px
+
 Customizing created objects
 ---------------------------
 
@@ -296,6 +302,9 @@ Show view
 Show view shows one item. It is read only and doesn't allow user to change any values.
 
 * The context of a add view is :py:class:`websauna.system.crud.CRUD.Resource` or its subclasses
+
+.. image:: ../images/crud-show.png
+    :width: 640px
 
 Customizing field list
 ----------------------

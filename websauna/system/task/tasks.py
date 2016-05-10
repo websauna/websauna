@@ -3,12 +3,16 @@
 Inspired by Warehouse project https://raw.githubusercontent.com/pypa/warehouse/master/warehouse/celery.py
 """
 
+import logging
+
 from celery import Task
 from pyramid import scripting
 from pyramid.interfaces import IRequest
 from pyramid.request import Request
 from pyramid_tm import tm_tween_factory
 
+
+logger = logging.getLogger(__name__)
 
 
 def _pop_request_argument(args, kwargs):
@@ -98,12 +102,22 @@ class RequestAwareTask(Task):
         return env
 
     def __call__(self, *args, **kwargs):
+        """Call Celery task and insert request argument.
+
+        Wrap Celery task call for better exception handling.
+
+        Celery itself does very bad job in logging exceptions. So LET'S "#€!"€! STOP SILENTLY SWALLOWING THEM. This is for eager.
+        """
 
         pyramid_env = self.get_env()
 
         try:
             underlying = super().__call__
             return underlying(pyramid_env["request"], *args, **kwargs)
+        except Exception as e:
+            logger.error("Celery task raised an exception %s", self)
+            logger.exception(e)
+            raise
         finally:
             pyramid_env["closer"]()
 
@@ -116,7 +130,9 @@ class RequestAwareTask(Task):
         args_ = kwargs.get("args", [])
         kwargs_ = kwargs.get("kwargs", {})
 
+        # We cannot pass request across process boundaries as it contains handles of open sockets
         request, args_, kwargs_ = _pop_request_argument(args_, kwargs_)
+
         kwargs["args"] = args_
         kwargs["kwargs"] = kwargs_
 
@@ -127,6 +143,10 @@ class RequestAwareTask(Task):
         # skip this and call the original method to send this immediately.
         if not hasattr(request, "tm"):
             return super().apply_async(*args, **kwargs)
+
+        if self.app.conf.CELERY_ALWAYS_EAGER:
+            # We need to push back request argument in this case
+            kwargs["args"] = [request] + kwargs["args"]
 
         # This will break things that expect to get an AsyncResult because
         # we're no longer going to be returning an async result from this when
@@ -210,7 +230,7 @@ class TransactionalTask(RequestAwareTask):
         try:
             # Get bound Task.__call__
             # http://stackoverflow.com/a/1015405/315168
-            underlying = Task.__call__.__get__(self, Task)
+            underlying = RequestAwareTask.__call__.__get__(self, RequestAwareTask)
 
             def handler(request):
                 underlying(request, *args, **kwargs)

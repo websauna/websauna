@@ -64,7 +64,7 @@ Below is an example how to create and validate one form::
 
         # Create a styled button with some extra Bootstrap 3 CSS classes
         b = deform.Button(name='process', title="Process", css_class="btn-block btn-lg")
-        form = pyramid_deform.CSRFSchema(schema, buttons=(b, ))
+        form = CSRFSchema(schema, buttons=(b, ))
 
         # User submitted this form
         if request.method == "POST":

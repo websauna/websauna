@@ -423,14 +423,17 @@ Edit view
 
 Edit view updates an existing item.
 
+TODO
+
 Delete view
 ===========
 
+.. image:: ../images/crud-delete.png
+    :width: 640px
+
 Delete allows to remove one existing item.
 
-* The base CRUD views doesn't know about the underlying model and thus cannot perform a delete. It delegates the operation to :py:attr:`websauna.system.crud.views.Delete.deleter` callback.
-
-* The default SQLAlchemy delete callback in admin is :py:func:`websauna.system.crud.sqlalchemy.sqlalchemy_deleter`.
+* Delete is performed either :py:attr:`websauna.system.crud.views.Delete.deleter` callback (primary if set) or :py:meth:`websauna.system.crud.CRUD.delete_object` (secondary).
 
 * Delete can be defined as *cascading* in :term:`SQLAlchemy` model. With this model set up deleting the item will delete all related items too. See :ref:`cascade`.
 

@@ -438,10 +438,13 @@ Deleting items
 Deleting one item
 -----------------
 
+Example:
+
 .. code-block:: Python
 
-    # Delete all items
+    dbsession.delete(obj)
 
+See :py:meth:`sqlalchemy.orm.session.Session.delete` for more information.
 
 Deleting multiple items
 -----------------------

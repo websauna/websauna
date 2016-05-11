@@ -16,6 +16,8 @@ Usage
 
 See :py:mod:`websauna.system.core.messages`.
 
+For an HTML message example please see :ref:`nag tween example <nag-tween>`.
+
 Rendering
 =========
 

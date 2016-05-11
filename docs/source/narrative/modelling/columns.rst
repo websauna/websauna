@@ -28,6 +28,50 @@ For available model column types see
 
 * :py:class:`sqlalchemy.dialects.postgresql.JSONB`
 
+Dates and times
+===============
+
+UTC-awareness
+-------------
+
+Even though modern SQL databases support timezone aware datetimes, It is recommended that you convert and store all time fields in :term:`UTC` in SQL database. More on background on this in :ref:`Datetime chapter <datetime>`.
+
+To prevent timezone related errors, Websauna has a special column type :py:class:`websauna.system.model.sqlalchemyutcdatetime.UTCDateTime` which contains validation that your datetimes objects are explicitly set to UTC timezone before writing into a database.
+
+.. code-block:: python
+
+    from sqlalchemy import Column
+
+    websauna.system.model.sqlalchemyutcdatetime import UTCDateTime
+
+    class MyModel(Base):
+        my_event_at = Column(UTCDateTime)
+
+
+    dt = random_time_time()  # Assume we pull a Python datetime instance from somewhere
+
+    m = MyModel()
+    m.my_event_at = dt
+
+Is almost equal to:
+
+.. code-block:: python
+
+    import datetime
+
+    from sqlalchemy import Column
+    from sqlalchemy import DateTime
+
+    class MyModel(Base):
+        my_event_at = Column(DateTime)
+
+    dt = random_time_time()  # Assume we pull a Python datetime instance from somewhere
+
+    m = MyModel()
+    # This will raise an exception is Python datetime
+    # object does not know for which timezone it belongs
+    m.my_event_at = dt.astimezone(datetime.timezone.utc)
+
 Enforcing uniqueness
 ====================
 

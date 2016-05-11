@@ -105,6 +105,92 @@ Then the template ``myapp/my_form.html``:
         {{rendered_form|safe}}
     {% endblock content %}
 
+Editable form
+-------------
+
+Below is a form example which loads from an existing data source to edit the information there.
+
+``schemas.py``:
+
+.. code-block:: python
+
+    import colander
+
+    from websauna.system.form.schema import CSRFSchema
+
+    class UserProfile(CSRFSchema):
+
+        full_name = colander.SchemaNode(
+            colander.String(),
+            title="Full name")
+
+        address = colander.SchemaNode(
+            colander.String(),
+            title="Address",
+            default="",
+            missing="")
+
+        zipcode = colander.SchemaNode(
+            colander.String(),
+            title="City",
+            default="",
+            missing="")
+
+``views.py``:
+
+.. code-block:: python
+
+    def get_user_data(user: User) -> dict:
+        """Construct appstruct dict from user."""
+        data = user.user_data
+        # Make sure None deserializes to empty string
+        data["full_name"] = user.full_name or ""
+        return data
+
+
+    def set_user_data(user: User, data: dict):
+        """Save data on user object."""
+        user.full_name = data.pop("full_name", "")
+        # JSONB field "bag of everyhing" and
+        # we can directly dump any dictionary of strings there
+        user.user_data.update(data)
+
+
+    @simple_route("/profile", "profile", renderer="views/profile.html", permission="authenticated")
+    def profile(request: Request):
+        """Allow user to edit his/her profile data."""
+
+        schema = UserProfile().bind(request=request)
+
+        form = deform.Form(schema, buttons=("Save", ))
+
+        # User submitted this form
+        if request.method == "POST":
+            if 'Save' in request.POST:
+
+                try:
+                    appstruct = form.validate(request.POST.items())
+
+                    # Appstruct is nested dictionary struct itself and we can store
+                    # it directly on user_data
+                    set_user_data(request.user, appstruct)
+
+                    # Thank user and take him/her to the next page
+                    messages.add(request, kind="info", msg="User profile updated", msg_id="profile-saved")
+                    return HTTPFound(request.route_url("home"))
+
+                except deform.ValidationFailure as e:
+                    # Render a form version where errors are visible next to the fields,
+                    # and the submitted values are posted back
+                    rendered_form = e.render()
+            else:
+                # We don't know which control caused form submission
+                raise HTTPBadRequest("Unknown form button pressed")
+        else:
+            # Render a form with initial values (empty dictionary by default)
+            rendered_form = form.render(get_user_data(request.user))
+
+        return locals()
 
 Creating forms imperatively - data-driven forms
 -----------------------------------------------

@@ -42,9 +42,24 @@ class FlashMessage(object):
     def __unicode__(self):
         return self.rich or self.plain
 
+    def get_id(self):
+        """Allows session storage to know if this message has been already added."""
+        return any((self.msg_id, self.rich, self.plain,))
+
+    def __hash__(self):
+        return hash(self.get_id())
+
+    def __eq__(self, other):
+        return self.get_id() == other.get_id()
+
+    def __ne__(self, other):
+        # Not strictly necessary, but to avoid having both x==y and x!=y
+        # True at the same time
+        return not(self == other)
 
 
-def add(request:Request, msg:str, kind:str="info", msg_id:str=None, extra:dict=None):
+
+def add(request: Request, msg: str, kind: str="info", msg_id :str=None, extra: dict=None, html=False, allow_duplicates=False):
     """Add a message which is shown to the user on the next page load.
 
     This is so called Flash message. The message is stored in the session. On the next page load, the HTML templates and framework must read all pending messages from the session store and display them to the user. Usually this is a notification rendered at the top of the page.
@@ -56,13 +71,20 @@ def add(request:Request, msg:str, kind:str="info", msg_id:str=None, extra:dict=N
     :param msg: Message as a string
     :param kind: One of 'error', 'warning', 'info', 'success'. Defaults to 'info'
     :param msg_id: CSS id set on the alert box. Useful for functional testing.
+    :param html: The message is HTML
     :param extra: Dictionary of application specific extra parameters or None. The content must be pickable.
+    :param allow_duplicates: Allow duplicate messages
     """
 
     # Don't postpone problems through serialization if the user gives non-str object accidentally
     assert type(msg) == str
-    msg = FlashMessage(msg, kind=kind, msg_id=msg_id, extra=extra)
-    request.session.flash(msg, queue=kind, allow_duplicate=False)
+
+    if html:
+        msg = FlashMessage(rich=msg, kind=kind, msg_id=msg_id, extra=extra)
+    else:
+        msg = FlashMessage(plain=msg, kind=kind, msg_id=msg_id, extra=extra)
+
+    request.session.flash(msg, queue=kind, allow_duplicate=allow_duplicates)
 
 
 def clear(request: Request, kinds=("info", "error", "warning", "success")):

@@ -570,6 +570,10 @@ class Initializer:
         from websauna.system.devop import tasks  # noqa
 
     @event_source
+    def configure_tweens(self):
+        """Configure tweens."""
+
+    @event_source
     def configure_scheduler(self):
         """Configure Celery."""
 
@@ -657,6 +661,7 @@ class Initializer:
         self.configure_views()
         self.configure_panels()
         self.configure_sitemap()
+        self.configure_tweens()
 
         # Website administration
         self.configure_admin()

@@ -10,11 +10,19 @@
         {% for msg in messages %}
             {% if msg.kind %}
                 <div {% if msg.msg_id %}id="{{ msg.msg_id }}"{% endif %} class="alert alert-{{ visuals.get(msg.kind, msg.kind) }}">
-                    {{ msg.plain }}
+                    {% if msg.rich %}
+                      {{ msg.rich|safe }}
+                    {% else %}
+                      {{ msg.plain }}
+                    {% endif %}
                 </div>
             {% else %}
                 <div {% if msg.msg_id %}id="{{ msg.msg_id }}"{% endif %} class="alert alert-danger">
-                    {{ msg.plain }}
+                    {% if msg.rich %}
+                      {{ msg.rich|safe }}
+                    {% else %}
+                      {{ msg.plain }}
+                    {% endif %}
                 </div>
             {% endif %}
         {% endfor %}

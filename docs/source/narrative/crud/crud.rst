@@ -485,6 +485,115 @@ Here is what ``xxx_listing.html`` looks like:
 
 Consult :ref:`template reference <templates>` for templates to override.
 
+Customizing template context
+----------------------------
+
+Below is an example how to add more template context variables to a show view. Then you can then use in your template:
+
+.. code-block:: python
+
+    from websauna.viewconfig import view_overrides
+
+    from shareregistry.cruds import ContractCRUD
+    from shareregistry.models import TokenContract
+    from shareregistry.utils import bin_to_eth_address, eth_address_to_bin
+
+    @view_overrides(context=ContractCRUD.Resource,
+                    route_name="user-facing-contracts",
+                    renderer="views/contract_show.html",
+                    permission="view")
+    class ContractShow(basecrudviews.Show):
+        """Show a single contract.
+
+        """
+
+        includes = [
+            "address",
+            "updated_at",
+        ]
+
+        form_generator = SQLAlchemyFormGenerator(includes=includes)
+
+        def get_title(self):
+            token_contract = self.get_object()
+            return "Contract " + bin_to_eth_address(token_contract.contract_address)
+
+        def show(self) -> dict:
+            """Include contract token ownership listing on the show view."""
+
+            # First populate the template context dictionary with
+            # the default variables of a CRUD show view
+            context = super().show()
+
+            # Play around with our data
+            token_contract = self.get_object()
+
+            # Get a link to the contract in blockchain explorer
+            token_contract_address = bin_to_eth_address(token_contract.contract_address)
+            blockchain_link = self.request.registry.settings["ethereum.blockchain_contract_link"]
+            blockchain_link = blockchain_link.format(token_contract_address)
+
+            # List data about token ownerships
+            token_owned_accounts = []
+            for toa in token_contract.owned_accounts.order_by():
+                entry = {
+                    "toa": toa,
+                    "address": bin_to_eth_address(toa.address),
+                    "amount": toa.account.denormalized_balance
+                }
+                token_owned_accounts.append(entry)
+
+            # Use a custom sorting
+            token_owned_accounts = sorted(token_owned_accounts, key=lambda entry: entry["toa"].account.created_at)
+
+            # Return retrofitted template context dictionary
+            context["token_owned_accounts"] = token_owned_accounts
+            context["blockchain_link"] = blockchain_link
+            return context
+
+Then a corresponding ``contract_show.html`` template:
+
+.. code-block:: html+jinja
+
+    {% extends base_template %}
+
+    {% block description %}
+        <title>{{ title }}</title>
+    {% endblock description %}
+
+    {% block crud_content %}
+
+      <div id="crud-show">
+        {% include "crud/resource_controls.html" %}
+
+        <h1>{{title}}</h1>
+
+        {{form|safe}}
+
+        <p>
+          <a href="{{ blockchain_link }}">Show contract in blockchain</a>
+        </p>
+
+        <h2>Tokens</h2>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Address</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          {% for entry in token_owned_accounts %}
+            <tr>
+              <td>{{ entry.address }}</td>
+              <td>{{ entry.amount|int }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
+    {% endblock crud_content %}
+
+
 Resource buttons
 ================
 

@@ -2,10 +2,7 @@ from pyramid.request import Request
 
 
 class FlashMessage(object):
-    """Adoption of Horus flash message.
-
-    Provisional internal API, subject to change.
-    """
+    """Internal storage format of flash message."""
 
     # High traffic sites might have plenty of these objects, so optimize memory usage here a bit
     __slots__ = ('kind', 'plain', 'rich', 'msg_id', 'extra')
@@ -23,13 +20,19 @@ class FlashMessage(object):
         self.msg_id = state.get('msg_id')
         self.extra = state.get('extra')
 
-    def __init__(self, plain=None, rich=None, kind='warning',
-                 allow_duplicate=False, msg_id=None, extra=None):
+    def __init__(self, plain=None, rich=None, kind='warning', msg_id=None, extra=None):
+        """
+
+        :param plain: Message as plain text
+        :param rich: Message as HTML
+        :param kind: CSS class for the message
+        :param msg_id: CSS id and message id
+        :param extra: Extra payload (not used by the default renderer)
+        """
         assert (plain and not rich) or (rich and not plain)
         assert kind in self.KINDS, "Unknown kind of alert: \"{}\". " \
             "Possible kinds are {}".format(kind, self.KINDS)
 
-        # TODO: clean up rich and plain stuff
         self.kind = kind
         self.rich = rich
         self.plain = plain
@@ -58,8 +61,7 @@ class FlashMessage(object):
         return not(self == other)
 
 
-
-def add(request: Request, msg: str, kind: str="info", msg_id :str=None, extra: dict=None, html=False, allow_duplicates=False):
+def add(request: Request, msg: str, kind: str="info", msg_id: str=None, extra: dict=None, html=False, allow_duplicates=False):
     """Add a message which is shown to the user on the next page load.
 
     This is so called Flash message. The message is stored in the session. On the next page load, the HTML templates and framework must read all pending messages from the session store and display them to the user. Usually this is a notification rendered at the top of the page.

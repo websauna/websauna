@@ -49,6 +49,8 @@ class FlashMessage(object):
         """Allows session storage to know if this message has been already added."""
         return any((self.msg_id, self.rich, self.plain,))
 
+    # http://stackoverflow.com/a/4901847/315168
+
     def __hash__(self):
         return hash(self.get_id())
 

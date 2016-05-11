@@ -4,11 +4,14 @@ import os
 import sys
 from collections import OrderedDict
 
+import datetime
 import transaction
 from IPython import embed
 
+from websauna.system.core.redis import get_redis
 from websauna.system.devop.cmdline import init_websauna
 from websauna.system.model.meta import Base
+from websauna.utils.time import now
 
 
 def usage(argv):
@@ -32,6 +35,9 @@ def main(argv=sys.argv):
     imported_objects["request"] = request
     imported_objects["dbsession"] = request.dbsession
     imported_objects["transaction"] = transaction
+    imported_objects["redis"] = get_redis(request)
+    imported_objects["now"] = now
+    imported_objects["datetime"] = datetime
 
     for name, cls in Base._decl_class_registry.items():
 

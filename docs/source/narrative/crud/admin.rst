@@ -334,6 +334,9 @@ Create a matching template, ``admin/user_owned_account_panel.html`` in our case:
 Overriding an existing model admin
 ==================================
 
+Listing view example
+--------------------
+
 Here is an example how we override the existing model admin for the user. Then we enhance the admin functionality by overriding a listing view to show the city of the user based on the location of the last login IP address.
 
 This is done using `pygeoip library <https://pypi.python.org/pypi/pygeoip/>`_.
@@ -431,6 +434,98 @@ This is how it looks like:
 
 .. image:: ../images/geoip.png
     :width: 640px
+
+Add view example
+----------------
+
+Here is an example how we customize the model admin add view to include just a single field.
+
+``models.py``:
+
+.. code-block:: python
+
+    class VerificationContract(Base):
+
+        __tablename__ = "verification_contract"
+
+        id = sa.Column(psql.UUID(as_uuid=True), primary_key=True, server_default=sa.text("uuid_generate_v4()"),)
+
+        #: Legal name
+        name = sa.Column(sa.String(256))
+
+        #: When this was created
+        created_at = sa.Column(UTCDateTime, default=now, nullable=False)
+
+        #: When this data was updated last time
+        updated_at = sa.Column(UTCDateTime, onupdate=now)
+
+        #: Contract id as 256-bit int
+        contract_address = sa.Column(sa.LargeBinary(length=20), unique=True, nullable=False)
+
+``admins.py``:
+
+.. code-block:: pytohn
+
+    from shareregistry.models import VerificationContract
+    from shareregistry.utils import bin_to_eth_address
+    from websauna.system.admin.modeladmin import ModelAdmin, model_admin
+    from websauna.system.crud import Base64UUIDMapper
+
+
+    @model_admin(traverse_id="verification-contract")
+    class VerificationContractAdmin(ModelAdmin):
+
+        title = "Verification contracts"
+
+        singular_name = "verification contract"
+        plural_name = "verification contracts"
+
+        model = VerificationContract
+
+        # Map objects to admin URLs via id UUID attribute
+        mapper = Base64UUIDMapper(mapping_attribute="id")
+
+        class Resource(ModelAdmin.Resource):
+
+            def get_title(self):
+                verification_contract = self.get_object()
+                address = bin_to_eth_address(verification_contract.contract_address)
+                return "Verification contract {}".format(address)
+
+``adminviews.py``:
+
+.. code-block:: python
+
+    import colander
+
+    from websauna.system.admin import views as adminviews
+    from websauna.system.crud.formgenerator import SQLAlchemyFormGenerator
+    from websauna.viewconfig import view_overrides
+
+    from .admins import VerificationContractAdmin
+    from .models import VerificationContract
+    from .utils import eth_address_to_bin
+    from .schemas import validate_ethereum_address
+
+
+    @view_overrides(context=VerificationContractAdmin)
+    class VerificationContractAdd(adminviews.Add):
+        """CRUD add view for adding new verification contracts."""
+
+        # Our limited field list on add form
+        includes = [
+            "name",
+            colander.SchemaNode(colander.String(), name="contract_address", validator=validate_ethereum_address),
+        ]
+        form_generator = SQLAlchemyFormGenerator(includes=includes)
+
+        def initialize_object(self, form, appstruct: dict, obj: VerificationContract):
+            """Record values from the form on a freshly created object."""
+
+            # Perform address translation to binary format
+            appstruct["contract_address"] = eth_address_to_bin(appstruct["contract_address"])
+            form.schema.objectify(appstruct, obj)
+
 
 Customizing admin layout
 ========================

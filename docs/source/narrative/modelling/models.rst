@@ -580,6 +580,11 @@ Then you can use it as:
 Advanced
 ========
 
+Getting a list from a query
+---------------------------
+
+*
+
 Get or create pattern
 ---------------------
 

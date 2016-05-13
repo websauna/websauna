@@ -106,7 +106,7 @@ class CRUDView:
         return self.resource_buttons
 
 
-class Listing(CRUDView):
+class   Listing(CRUDView):
     """List items in CRUD."""
 
     #: Instance of :py:class:`websauna.crud.listing.Table` describing how the list should be rendered

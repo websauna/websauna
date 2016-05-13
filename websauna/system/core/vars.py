@@ -40,6 +40,25 @@ def site_name(request, registry, settings):
     return settings["websauna.site_name"]
 
 
+@var("site_title")
+def site_title(request, registry, settings):
+    """Expose website name from ``websauna.site_title`` config variable to templates.
+
+    This is the default ``<title>`` tag.
+
+    Example:
+
+    .. code-block:: html+jinja
+
+        <meta>
+            <title>My page - {{ site_title }}</title>
+        </meta>
+
+    """
+    # Use .get() for BBB
+    return settings.get("websauna.site_title", "")
+
+
 @var("site_url")
 def site_url(request, registry, settings):
     """Expose website URL from ``websauna.site_url`` config variable to templates.

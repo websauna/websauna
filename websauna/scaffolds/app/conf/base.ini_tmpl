@@ -7,11 +7,25 @@
 use = egg:{{project}}
 websauna.init = {{project}}.Initializer
 
-# websauna settings
+#
+# Websauna settings
+#
+
+# Page/email title
 websauna.site_name = {{project}}
+
+# HTML title tag for the browser address bar
+websauna.site_title = {{project}}
+
+# Branding slogan
 websauna.site_tag_line = Your site goes here
+
 websauna.site_url = http://localhost:6543
+
+# Your name
 websauna.site_author = {{project}} team
+
+# Used internally with databases/backups/etc.
 websauna.site_id = {{project}}
 
 # pyramid_mailer settings

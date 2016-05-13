@@ -61,7 +61,6 @@ def send_templated_mail(request, recipients, template, context, sender=None):
     # Inline CSS styles
     html_body = premailer.transform(html_body)
 
-    import pdb ; pdb.set_trace()
     message = Message(subject=subject, sender=sender, recipients=recipients, body=text_body, html=html_body)
 
     mailer = get_mailer(request)

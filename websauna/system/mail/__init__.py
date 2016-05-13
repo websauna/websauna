@@ -40,6 +40,9 @@ def send_templated_mail(request, recipients, template, context, sender=None):
     assert len(recipients) > 0
     assert type(recipients) != str, "Please give a list of recipients, not a string"
 
+    for r in recipients:
+        assert r, "Received empty recipient when sending out email {}".format(template)
+
     subject = render(template + ".subject.txt", context, request=request)
     subject = subject.strip()
 
@@ -58,6 +61,7 @@ def send_templated_mail(request, recipients, template, context, sender=None):
     # Inline CSS styles
     html_body = premailer.transform(html_body)
 
+    import pdb ; pdb.set_trace()
     message = Message(subject=subject, sender=sender, recipients=recipients, body=text_body, html=html_body)
 
     mailer = get_mailer(request)

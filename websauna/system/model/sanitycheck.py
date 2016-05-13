@@ -37,7 +37,16 @@ def is_sane_database(Base, session):
             # Not a model
             continue
 
-        table = klass.__tablename__
+        # First try raw table definition
+        __table__ = getattr(klass, "__table__", None)
+        if __table__ is not None:
+            table = __table__.name
+        else:
+            table = getattr(klass, "__tablename__", None)
+
+        if not table:
+            raise RuntimeError("Table definition missing for {}".format())
+
         if table in tables:
             # Check all columns are found
             # Looks like [{'default': "nextval('sanity_check_test_id_seq'::regclass)", 'autoincrement': True, 'nullable': False, 'type': INTEGER(), 'name': 'id'}]

@@ -20,7 +20,7 @@ from websauna.system.model.columns import UTCDateTime
 from websauna.utils.crypt import generate_random_string
 from websauna.utils.time import now
 from websauna.utils.jsonb import JSONBProperty
-
+from websauna.system.model.json import NestedMutationDict
 
 
 
@@ -81,7 +81,7 @@ class UserMixin:
     last_login_ip = Column(INET, nullable=True)
 
     #: Misc. user data as a bag of JSON. Do not access directly, but use JSONBProperties below
-    user_data = Column(JSONB, default=DEFAULT_USER_DATA)
+    user_data = Column(NestedMutationDict.as_mutable(JSONB), default=DEFAULT_USER_DATA.copy)
 
     #: Store when this user changed the password or authentication details. Updating this value causes the system to drop all sessions which were created before this moment. E.g. you will kick out all old sessions on a password or email change.
     last_auth_sensitive_operation_at = Column(UTCDateTime, nullable=True, default=now)
@@ -182,7 +182,7 @@ class GroupMixin:
     updated_at = Column(UTCDateTime, onupdate=now)
 
     #: Extra JSON data to be stored with this group
-    group_data = Column(JSONB, default=dict)
+    group_data = Column(NestedMutationDict.as_mutable(JSONB), default=dict)
 
 
 class SiteCreator:

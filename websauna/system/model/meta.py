@@ -6,7 +6,10 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.schema import MetaData
+
 import zope.sqlalchemy
+
+from .json import json_serializer
 
 # Recommended naming convention used by Alembic, as various different database
 # providers will autogenerate vastly different names making migrations more
@@ -77,7 +80,7 @@ def get_engine(settings: dict, prefix='sqlalchemy.') -> Engine:
     """
 
     # http://stackoverflow.com/questions/14783505/encoding-error-with-sqlalchemy-and-postgresql
-    engine = engine_from_config(settings, 'sqlalchemy.', connect_args={"options": "-c timezone=utc"}, client_encoding='utf8', isolation_level='SERIALIZABLE')
+    engine = engine_from_config(settings, 'sqlalchemy.', connect_args={"options": "-c timezone=utc"}, client_encoding='utf8', isolation_level='SERIALIZABLE', json_serializer=json_serializer)
     return engine
 
 

@@ -25,6 +25,7 @@ Here is a quick example:
     from websauna.system.model.meta import Base
     from websauna.system.user.models import User
     from websauna.utils.time import now
+    from websauna.system.model.json import NestedMutationDict
 
 
     class Verification(Base):
@@ -38,7 +39,7 @@ Here is a quick example:
         updated_at = sa.Column(UTCDateTime, onupdate=now)
 
         #: Misc. bag of data like address, phone number we ask from the user
-        verification_data = sa.Column(psql.JSONB, default=dict)
+        verification_data = sa.Column(NestedMutationDict.as_mutable(JSONB), default=dict)
 
 
 Then you can use it like:
@@ -65,6 +66,30 @@ You can also dictionary data from a random source:
 
 
 More more information see :py:class:`sqlalchemy.dialects.postgresql.JSONB`.
+
+Mutation tracking
+-----------------
+
+:py:class:`websauna.system.model.json.NestedMutationDict` provides nested state tracking for JSON column dictionaries.
+
+This means that the following works:
+
+.. code-block:: python
+
+    v = Verification()
+    v.verification_data["name"] = "Mikko Ohtamaa"
+    dbsession.add(v)
+    transaction.commit()
+
+    v = dbsession.query(Verification).first()
+    # Plain SQLAlchemy JSONB would not mark v object
+    # dirty when we set a dictionary key here.
+    # The change would not be stored in the following commit
+    v.verification_data["phone_number"] = "+1 505 123 1234"
+    transaction.commit()
+
+
+For more information see :py:mod:`websauna.system.model.json`.
 
 Default usage
 -------------

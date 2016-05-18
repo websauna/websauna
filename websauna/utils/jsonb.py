@@ -124,6 +124,11 @@ class JSONBProperty(object):
                 # <sqlalchemy.orm.attributes.InstrumentedAttribute>
                 column = getattr(obj.__class__, self.data_field)
                 default = column.default.arg
+                if callable(default):
+                    # SQLAlchemy curries default callables with context parameter which
+                    # we don't have here
+                    # http://docs.sqlalchemy.org/en/latest/core/defaults.html#context-sensitive-default-functions
+                    default = default(object())
                 setattr(obj, self.data_field, default)
                 return default
 

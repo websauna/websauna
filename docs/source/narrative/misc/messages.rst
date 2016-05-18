@@ -14,9 +14,21 @@ Flash messages are stored in the user session storage which is in Redis by defau
 Usage
 =====
 
-See :py:mod:`websauna.system.core.messages`.
+Flashing a plain text message to a logged in user:
+
+.. code-block:: python
+
+    from websauna.system.core import messages
+
+    def my_view(request):
+
+        # msg_id is passed as CSS id and is useful in functional testing
+        messages.add(request, kind="info", msg="Hello world!", msg_id="msg-hello-world)
+
 
 For an HTML message example please see :ref:`nag tween example <nag-tween>`.
+
+For advanced usage see :py:fund:`websauna.system.core.messages.add`.
 
 Rendering
 =========

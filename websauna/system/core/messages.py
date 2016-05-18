@@ -68,7 +68,7 @@ def add(request: Request, msg: str, kind: str="info", msg_id: str=None, extra: d
 
     This is so called Flash message. The message is stored in the session. On the next page load, the HTML templates and framework must read all pending messages from the session store and display them to the user. Usually this is a notification rendered at the top of the page.
 
-    Duplicate messages are discarded.
+    Duplicate messages are discarded based on ``msg_id`` unless ``allow_duplicates`` is set.
 
     Messages are stored in the session queue, keyed by the message kind.
 

@@ -23,7 +23,7 @@ Flashing a plain text message to a logged in user:
     def my_view(request):
 
         # msg_id is passed as CSS id and is useful in functional testing
-        messages.add(request, kind="info", msg="Hello world!", msg_id="msg-hello-world)
+        messages.add(request, kind="info", msg="Hello world!", msg_id="msg-hello-world")
 
 
 For an HTML message example please see :ref:`nag tween example <nag-tween>`.

@@ -14,6 +14,9 @@ Selection widget with SQL vocabulary
 
 :py:class:`websauna.system.form.sqlalchemy.UUIDModelSel` provides a Colander schema type for matching (uuid, name) tuples to form elements and then back :term:`SQLAlchemy` objects. Furthermore a helper function :py:func:`websauna.system.form.sqlalchemy.convert_query_to_tuples` allows us to fill in a value vocabulary for select, radio or checkbox widget from a model query.
 
+Example 1: manual form
+----------------------
+
 Assume ``models.py``:
 
 .. code-block:: python
@@ -95,3 +98,157 @@ And now we want to user to select from his or her customers on a Deform form:
         rendered_form = form.render()
 
         return locals()
+
+Example 2: admin interface
+--------------------------
+
+Below is an example how to create a relation picker in admin interface.s
+
+``models.py``:
+
+.. code-block:: python
+
+    import sqlalchemy as sa
+    from sqlalchemy import orm
+    import sqlalchemy.dialects.postgresql as psql
+    from sqlalchemy.orm import Session
+    from pyramid_sms.utils import normalize_us_phone_number
+
+    from websauna.system.model.json import NestedMutationDict
+    from websauna.compat.typing import Tuple
+    from websauna.system.model.columns import UTCDateTime
+    from websauna.system.model.meta import Base
+    from websauna.utils.time import now
+    from websauna.system.user.models import User
+
+    from typing import Iterable
+
+
+    class Branding(Base):
+        """Describe branding info of the site."""
+
+        __tablename__ = "branding"
+
+        #: Internal id
+        id = sa.Column(psql.UUID(as_uuid=True), primary_key=True, server_default=sa.text("uuid_generate_v4()"))
+
+        #: Human readable name of the organization. Used in footer, such.
+        name = sa.Column(sa.String(256))
+
+        #: Misc. bag of branding variables
+        branding_data = sa.Column(NestedMutationDict.as_mutable(psql.JSONB), default=dict)
+
+        def __str__(self):
+            return self.name or "-"
+
+
+    class Organization(Base):
+        """A utility company."""
+
+        __tablename__ = "organization"
+
+        #: Internal id
+        id = sa.Column(psql.UUID(as_uuid=True), primary_key=True, server_default=sa.text("uuid_generate_v4()"))
+
+        #: Human readable name
+        name = sa.Column(sa.String(256))
+
+        #: Branding for this organization
+        branding_id = sa.Column(sa.ForeignKey("branding.id"), nullable=True)
+        branding = orm.relationship(Branding,
+                                        uselist=False,
+                                        backref=orm.backref("organizations",
+                                            lazy="dynamic",
+                                            cascade="all, delete-orphan",
+                                            single_parent=False,),)
+
+        #: Substring startswith expression used to evaluate when we should populate app info with this organization
+        #: Example: https://foobar.com
+        matching_rule = sa.Column(sa.String(256))
+
+        def __str__(self):
+            return self.name or "-"
+
+``admins.py``:
+
+.. code-block:: python
+
+    from pyramid.security import Deny, Allow, Everyone
+    from websauna.system.admin.modeladmin import ModelAdmin, model_admin
+    from websauna.system.crud import Base64UUIDMapper
+
+    from .models import Organization
+    from .models import Branding
+
+
+    @model_admin(traverse_id="organization")
+    class Organization(ModelAdmin):
+        """Manage user owned accounts and their balances."""
+
+        title = "Organizations"
+
+        model = Organization
+
+        # UserOwnedAccount.id attribute is uuid type
+        mapper = Base64UUIDMapper(mapping_attribute="id")
+
+        class Resource(ModelAdmin.Resource):
+
+            def get_title(self):
+                return self.get_object().name
+
+
+    @model_admin(traverse_id="branding")
+    class Branding(ModelAdmin):
+        """Manage user owned accounts and their balances."""
+
+        title = "Brandings"
+
+        model = Branding
+
+        # UserOwnedAccount.id attribute is uuid type
+        mapper = Base64UUIDMapper(mapping_attribute="id")
+
+        class Resource(ModelAdmin.Resource):
+
+            def get_title(self):
+                return self.get_object().name
+
+
+``adminviews.py``:
+
+.. code-block:: python
+
+    import colander
+    import deform
+    import deform.widget
+
+    from websauna.system.form.sqlalchemy import UUIDModelSet, convert_query_to_tuples
+    from websauna.viewconfig import view_overrides
+
+    from .models import Branding
+
+
+    @colander.deferred
+    def branding_selector_widget(node: colander.SchemaNode, kw: dict) -> deform.widget.Widget:
+        """Populate selection widget vocabulary with possible branding choice.
+
+        :param node: The currrent :py:class:`colandar.SchemaNode` for which we are evaluation this.
+
+        :param kw: ``schema.bind()`` arguments passed around.
+        """
+        request = kw["request"]
+        dbsession = request.dbsession
+        query = dbsession.query(Branding).all()
+        vocab = convert_query_to_tuples(query, first_column="id", second_column="name")
+        return deform.widget.SelectWidget(values=vocab)
+
+    @view_overrides(context=admins.Organization.Resource)
+    class OrganizationEdit(adminviews.Edit):
+
+        includes =  [
+            "name",
+            "matching_rule",
+            colander.SchemaNode(UUIDModelSet(model=Branding, match_column="id"), name="branding", widget=branding_selector_widget)
+        ]
+        form_generator = SQLAlchemyFormGenerator(includes=includes)

@@ -543,6 +543,7 @@ Below is an example of an admin edit which has been enhanced to edit JSON field.
     import sqlalchemy.dialects.postgresql as psql
 
     from websauna.system.model.meta import Base
+    from websauna.system.model.json import NestedMutationDict
 
 
     class Branding(Base):
@@ -588,7 +589,6 @@ Below is an example of an admin edit which has been enhanced to edit JSON field.
             def get_title(self):
                 return self.get_object().name
 
-
 `adminviews.py`:
 
 .. code-block:: python
@@ -602,7 +602,7 @@ Below is an example of an admin edit which has been enhanced to edit JSON field.
 
 
     def validate_json(node, value, **kwargs):
-        """Make sure the user gives a valid ethereum hex address."""
+        """Make sure the user passes valid hand written JSON string."""
 
         try:
             json.loads(value)

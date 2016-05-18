@@ -28,7 +28,7 @@ Flashing a plain text message to a logged in user:
 
 For an HTML message example please see :ref:`nag tween example <nag-tween>`.
 
-For advanced usage see :py:fund:`websauna.system.core.messages.add`.
+For advanced usage see :py:func:`websauna.system.core.messages.add`.
 
 Rendering
 =========

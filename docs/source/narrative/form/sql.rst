@@ -102,6 +102,9 @@ And now we want to user to select from his or her customers on a Deform form:
 Example 2: admin interface
 --------------------------
 
+.. image:: ../images/admin-choose-branding.png
+    :width: 640px
+
 Below is an example how to create a relation picker in admin interface.s
 
 ``models.py``:
@@ -223,7 +226,7 @@ Below is an example how to create a relation picker in admin interface.s
     import deform
     import deform.widget
 
-    from websauna.system.form.sqlalchemy import UUIDModelSet, convert_query_to_tuples
+    from websauna.system.form.sqlalchemy import UUIDForeignKeyValue
     from websauna.viewconfig import view_overrides
 
     from .models import Branding
@@ -240,8 +243,11 @@ Below is an example how to create a relation picker in admin interface.s
         request = kw["request"]
         dbsession = request.dbsession
         query = dbsession.query(Branding).all()
-        vocab = convert_query_to_tuples(query, first_column="id", second_column="name")
+        vocab = [("", "[No branding]")]
+        for branding in query:
+            vocab.append((uuid_to_slug(branding.id), branding.name))
         return deform.widget.SelectWidget(values=vocab)
+
 
     @view_overrides(context=admins.Organization.Resource)
     class OrganizationEdit(adminviews.Edit):
@@ -249,6 +255,6 @@ Below is an example how to create a relation picker in admin interface.s
         includes =  [
             "name",
             "matching_rule",
-            colander.SchemaNode(UUIDModelSet(model=Branding, match_column="id"), name="branding", widget=branding_selector_widget)
+            colander.SchemaNode(UUIDForeignKeyValue(model=Branding, match_column="id"), name="branding", widget=branding_selector_widget, missing=None)
         ]
         form_generator = SQLAlchemyFormGenerator(includes=includes)

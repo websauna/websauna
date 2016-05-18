@@ -94,13 +94,8 @@ class ModelSchemaType:
         return getattr(model, self.match_column)
 
 
-
-
 class ForeignKeyValue(ModelSchemaType, colander.String):
-    """Hold a reference to one SQLAlchemy object.
-
-    Useful e.g. for <select> widget. Note that this widgets deserializes to ``id``, not an object. You can override this behavior if you want it to spit out objects, but this assumes widgets are placed against foreign key column which holds id, not the SQLAlchemy relationships.
-    """
+    """Hold a reference to one SQLAlchemy object for Colander schema serialization."""
 
     def serialize(self, node, appstruct):
 
@@ -203,7 +198,13 @@ class UUIDForeignKeyValue(ForeignKeyValue):
     Useful for select widget, etc.
     """
 
+    #: The name of the column from where we extract UUID value. Defauts to ``uuid``.
     match_column = "uuid"
+
+    def __init__(self, model, match_column=None):
+        super().__init__(model)
+        if match_column:
+            self.match_column = match_column
 
     def preprocess_cstruct_value(self, node, cstruct):
         """Parse incoming form values to Python objects if needed.

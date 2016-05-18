@@ -526,6 +526,125 @@ Here is an example how we customize the model admin add view to include just a s
             appstruct["contract_address"] = eth_address_to_bin(appstruct["contract_address"])
             form.schema.objectify(appstruct, obj)
 
+Edit view example
+-----------------
+
+Below is an example of an admin edit which has been enhanced to edit JSON field.
+
+.. image:: ../images/admin-edit-json.png
+    :width: 640px
+
+`models.py`:
+
+.. code-block:: python
+
+    import sqlalchemy as sa
+    from sqlalchemy import orm
+    import sqlalchemy.dialects.postgresql as psql
+
+    from websauna.system.model.meta import Base
+
+
+    class Branding(Base):
+        """Describe branding info of the site."""
+
+        __tablename__ = "branding"
+
+        #: Internal id
+        id = sa.Column(psql.UUID(as_uuid=True), primary_key=True, server_default=sa.text("uuid_generate_v4()"))
+
+        #: Human readable name of the organization. Used in footer, such.
+        name = sa.Column(sa.String(256))
+
+        #: Misc. bag of branding variables
+        branding_data = sa.Column(NestedMutationDict.as_mutable(psql.JSONB), default=dict)
+
+        def __str__(self):
+            return self.name or "-"
+
+
+`admins.py`:
+
+.. code-block:: python
+
+    from websauna.system.admin.modeladmin import ModelAdmin, model_admin
+    from websauna.system.crud import Base64UUIDMapper
+
+    from .models import Branding
+
+    @model_admin(traverse_id="branding")
+    class Branding(ModelAdmin):
+        """Manage user owned accounts and their balances."""
+
+        title = "Brandings"
+
+        model = Branding
+
+        # UserOwnedAccount.id attribute is uuid type
+        mapper = Base64UUIDMapper(mapping_attribute="id")
+
+        class Resource(ModelAdmin.Resource):
+
+            def get_title(self):
+                return self.get_object().name
+
+
+`adminviews.py`:
+
+.. code-block:: python
+
+    import json
+    import os
+
+    import colander
+    import deform
+    import deform.widget
+
+
+    def validate_json(node, value, **kwargs):
+        """Make sure the user gives a valid ethereum hex address."""
+
+        try:
+            json.loads(value)
+        except json.JSONDecodeError:
+            raise colander.Invalid(node, "Not valid JSON")
+
+
+    @view_overrides(context=admins.Branding.Resource)
+    class BrandEdit(adminviews.Edit):
+
+        #: CSS styles we pass to the widget as style attribute
+        PREFORMATTED = "font-family: monospace"
+
+        includes = [
+            "name",
+            colander.SchemaNode(colander.String(),
+                                name="branding_data",
+                                validator=validate_json,
+                                widget=deform.widget.TextAreaWidget(rows=10, cols=80, style=PREFORMATTED)),
+        ]
+        form_generator = SQLAlchemyFormGenerator(includes=includes)
+
+        def get_appstruct(self, form: deform.Form, obj: object):
+            appstruct = form.schema.dictify(obj)
+
+            # We need to convert NestedMutationDict to a proper dictionary
+            # for JSON encoder
+            d = dict(obj.branding_data)
+
+            # Convert Python dict presentation to real JSON
+            # E.g. None -> null
+            # Also format JSON to more human editable format
+            appstruct["branding_data"] = json.dumps(d, indent=4, sort_keys=True)
+            return appstruct
+
+        def save_changes(self, form: deform.Form, appstruct: dict, obj: object):
+            """Store the data from the form on the object."""
+
+            # Perform JSON string editor translation to Python dicts
+            appstruct["branding_data"] = json.loads(appstruct["branding_data"])
+            form.schema.objectify(appstruct, obj)
+
 
 Customizing admin layout
 ========================

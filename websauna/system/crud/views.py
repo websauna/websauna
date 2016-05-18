@@ -337,9 +337,13 @@ class Edit(FormView):
         # Redirect back to view page after edit page has succeeded
         return HTTPFound(self.request.resource_url(self.context, "show"))
 
-    def save_changes(self, form:deform.Form, appstruct:dict, obj:object):
+    def save_changes(self, form: deform.Form, appstruct: dict, obj: object):
         """Store the data from the form on the object."""
         form.schema.objectify(appstruct, obj)
+
+    def get_appstruct(self, form: deform.Form, obj: object) -> dict:
+        """Turn the object to form editable format."""
+        return form.schema.dictify(obj)
 
     @view_config(context=Resource, name="edit", renderer="crud/edit.html", permission='edit')
     def edit(self):
@@ -374,7 +378,7 @@ class Edit(FormView):
             return self.do_cancel()
         else:
             # Render initial form view with populated values
-            appstruct = form.schema.dictify(obj)
+            appstruct = self.get_appstruct(form, obj)
             rendered_form = form.render(appstruct)
 
         self.pull_in_widget_resources(form)

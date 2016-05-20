@@ -49,6 +49,9 @@ class Group(usermixin.GroupMixin):
         backref="groups",
     )
 
+    def __str__(self):
+        return "Group #{}: {}".format(self.id, self.name)
+
 
 class UserGroup(UserGroupMixin):
     """Map one user to one group."""

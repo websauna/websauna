@@ -34,6 +34,12 @@ def group_vocabulary(node, kw):
     return convert_query_to_tuples(request.dbsession.query(Group).all(), first_column=first_column_getter, second_column="name")
 
 
+def optional_group_vocabulary(node, kw):
+    """Convert all groups on the site to (uuid, name) tuples for checkbox and select widgets. Include a choice for no choice."""
+    options = group_vocabulary(node, kw)
+    return [("", "[ not selected ]")] + options
+
+
 def validate_unique_user_email(node, value, **kwargs):
     """Make sure we cannot enter the same username twice."""
 

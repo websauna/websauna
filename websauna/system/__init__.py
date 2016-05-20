@@ -280,14 +280,20 @@ class Initializer:
 
         * Set up base model
 
-        * Set up database session
+        * Set up mechanism to create database session for requests
 
         * Set up transaction machinery
 
         Calls py:func:`websauna.system.model.meta.includeme`.
+
         """
+        from .model.meta import create_transaction_manager_aware_dbsession
+        from .model.interfaces import ISQLAlchemySessionFactory
+
         self.config.include("pyramid_tm")
         self.config.include(".model.meta")
+
+        self.config.registry.registerAdapter(factory=create_transaction_manager_aware_dbsession, required=(IRequest,), provided=ISQLAlchemySessionFactory)
 
     @event_source
     def configure_instrumented_models(self):

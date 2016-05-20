@@ -8,6 +8,8 @@ from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.schema import MetaData
 
 import zope.sqlalchemy
+from websauna.system.http import Request
+from websauna.system.model.interfaces import ISQLAlchemySessionFactory
 
 from .json import json_serializer
 
@@ -30,36 +32,32 @@ Base = declarative_base(metadata=metadata)
 
 
 def includeme(config):
-    """Configure the default database engine and model bindings.
-
-    Reads ``sqlalchemy.*`` settings from the INI file and configures SQLAlchemy engine accordingly.
-
-    :param config:
-    :return:
-    """
-    settings = config.get_settings()
-    engine = get_engine(settings)
-    dbmaker = get_dbmaker(engine)
+    """Hook up database initialization and SQLAlchemy global setup."""
 
     config.add_request_method(
-        lambda r: get_session(r.tm, dbmaker),
+        request_session_factory,
         'dbsession',
         reify=True
     )
 
-    # TODO: This is alias for hem/db.py used by Horus
-    # Remove when got rid of Horus
-    config.add_request_method(
-        lambda req: req.dbsession,
-        'db_session',
-        reify=True
-    )
-
-    config.include('pyramid_tm')
-
     # Register UTC timezone enforcer
     if asbool(config.registry.settings.get("websauna.force_utc_on_columns", True)):
         from . import sqlalchemyutcdatetime  # noqa
+
+
+def request_session_factory(request: Request) -> Session:
+    """Look SQLAlchemy session creator."""
+    session = request.registry.queryAdapter(request, ISQLAlchemySessionFactory)
+    assert session, "No configured ISQLAlchemySessionFactory"
+    return session
+
+
+def create_transaction_manager_aware_dbsession(request: Request) -> Session:
+    """Defaut database factory for Websauna.
+
+    Looks up database settings from the INI and creates an SQLALchemy session based on the configuration.
+    """
+    return create_dbsession(request.registry.settings)
 
 
 def get_session(transaction_manager, dbmaker):
@@ -92,6 +90,8 @@ def get_dbmaker(engine):
 
 def create_dbsession(settings, manager=transaction.manager) -> Session:
     """Creates a new database session and transaction manager which co-ordinates it.
+
+    This is called outside request life cycle when initializing and checking the state of the databases.
 
     :param manager: Transaction manager to bound the session. The default is thread local ``transaction.manager``.
     """

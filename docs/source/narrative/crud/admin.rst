@@ -877,6 +877,8 @@ Nested model admins
 
 Often data is naturally modelled in a :ref:`traversal` tree like *Organization* > *Customer* > *Invoice* where each branch may have different access level requirements. Pyramid supports traversal with permission control through :term:`ACL` and this pattern can be applied to the admin interface too. This way it is easy to give to the users fine grained access to the particular parts of an admin interface and its subobject they have a permission for.
 
+Unlike with URL dispatch routing, with traversal path patterns are not predefined beforehand and you can easily divulge to different complex URL path layouts depending on your use case, but still enjoying simplicity and security of traversal based access control.
+
 In this example we model organizations that have customers. User accounts can be added to groups - this is Websauna out of the box functionality through :ref:`permissions` subsystem. Organization model carries a group information telling that the users of a particular group are allowed to access the organization data. This way each group has limited access and cannot access the data of other organizations. Furthermore, due how SQLAlchemy relationships work, especially :py:class:`sqlalchemy.orm.dynamic.AppenderQuery` obtained through a parent ``ForeignKey`` relationship, this gives very natural way to refer the data in the code.
 
 See breadcrumbs path in the following screenshot:
@@ -1061,9 +1063,7 @@ Listing view
 .. image:: ../images/nested-admin-list.png
     :width: 640px
 
-Nested admin listing view does not differ from a normal ``ModelAdmin`` listing view. Because we do not customize the listing ``OrganizationCustomerAdmin`` inherits the standard :py:class:`websauna.system.admin.views.Listing` view and we do not need to define this view.
-
-It uses ``OrganizationCustomerAdmin.get_query`` to populate the listing and this is limited to organization through using :ref:`SQLAlchemy` ORM relationships.
+Nested admin listing view does not differ from a normal ``ModelAdmin`` listing view. ``OrganizationCustomerAdmin`` inherits the standard :py:class:`websauna.system.admin.views.Listing` view and we do not need to define this view. It uses ``OrganizationCustomerAdmin.get_query`` to populate the listing and this is limited to organization through using :term:`SQLAlchemy` ORM relationships.
 
 Add view
 --------

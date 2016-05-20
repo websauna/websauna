@@ -4,6 +4,8 @@ import subprocess
 import time
 import os
 
+from flaky import flaky
+
 from websauna.system.core.redis import get_redis
 
 
@@ -34,6 +36,7 @@ def run_worker_and_beat(ini_file):
     return worker, beat
 
 
+@flaky
 def test_run_scheduled(init):
     """Scheduled tasks run properly on the celery worker + celery beat process."""
 

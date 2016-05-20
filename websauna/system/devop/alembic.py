@@ -42,8 +42,12 @@ def get_class_by_table(table: Table) -> type:
     :return: Class reference or None.
     """
     for c in Base._decl_class_registry.values():
-        if getattr(c, "__table__", None) == table:
-            return c
+        model_table = getattr(c, "__table__", None)
+
+        # We need to compare by names, because drop declarations use different table objects and eq comparison fails
+        if model_table is not None:
+            if model_table.name == table.name:
+                return c
 
     return None
 

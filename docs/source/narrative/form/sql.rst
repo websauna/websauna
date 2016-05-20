@@ -14,8 +14,8 @@ Selection widget with SQL vocabulary
 
 :py:class:`websauna.system.form.sqlalchemy.UUIDModelSel` provides a Colander schema type for matching (uuid, name) tuples to form elements and then back :term:`SQLAlchemy` objects. Furthermore a helper function :py:func:`websauna.system.form.sqlalchemy.convert_query_to_tuples` allows us to fill in a value vocabulary for select, radio or checkbox widget from a model query.
 
-Example 1: manual form
-----------------------
+Example 1: manual form - pick multiple
+--------------------------------------
 
 Assume ``models.py``:
 
@@ -99,8 +99,8 @@ And now we want to user to select from his or her customers on a Deform form:
 
         return locals()
 
-Example 2: admin interface
---------------------------
+Example 2: admin interface - pick one
+-------------------------------------
 
 .. image:: ../images/admin-choose-branding.png
     :width: 640px
@@ -258,3 +258,67 @@ Below is an example how to create a relation picker in admin interface.s
             colander.SchemaNode(UUIDForeignKeyValue(model=Branding, match_column="id"), name="branding", widget=branding_selector_widget, missing=None)
         ]
         form_generator = SQLAlchemyFormGenerator(includes=includes)
+
+
+Example 3: stock group picker
+-----------------------------
+
+Websauna comes with a group vocabulary you can use to refer to groups.
+
+``models.py``:
+
+.. code-block:: python
+
+    import sqlalchemy as sa
+    from sqlalchemy import orm
+    import sqlalchemy.dialects.postgresql as psql
+
+    from websauna.system.user.models import Group
+
+
+    class Organization(Base):
+        """A company."""
+
+        __tablename__ = "organization"
+
+        # ...
+
+        #: Management group of this organization
+        group_id = sa.Column(sa.ForeignKey("group.id"), nullable=True)
+        group = orm.relationship(Group,
+                                        uselist=False,
+                                        backref=orm.backref("organizations",
+                                            lazy="dynamic",
+                                            single_parent=False,),)
+
+``adminviews.py``:
+
+.. code-block:: python
+
+    from websauna.system.user.models import Group
+    from websauna.system.form.fields import defer_widget_values
+    from websauna.system.form.sqlalchemy import UUIDForeignKeyValue
+
+    from websauna.system.user.schemas import optional_group_vocabulary
+
+    from . import admins
+
+    @view_overrides(context=admins.OrganizationAdmin)
+    class OrganizationAdd(adminviews.Add):
+        """Automatically set the organization parent."""
+
+        includes = [
+            "name",
+
+            # Pick one user group who manages this organization
+            colander.SchemaNode(UUIDForeignKeyValue(model=Group, match_column="uuid"), name="group", widget=defer_widget_values(deform.widget.SelectWidget, optional_group_vocabulary, css_class="groups"), missing=None),
+        ]
+        form_generator = SQLAlchemyFormGenerator(includes=includes)
+
+For more information see
+
+* :py:meth:`websauna.system.user.schemas.optional_group_vocabulary`
+
+* :py:meth:`websauna.system.user.schemas.group_vocabulary`
+
+* :py:class:`websauna.system.user.schemas.GroupSet`

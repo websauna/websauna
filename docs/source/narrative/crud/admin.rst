@@ -464,7 +464,7 @@ Here is an example how we customize the model admin add view to include just a s
 
 ``admins.py``:
 
-.. code-block:: pytohn
+.. code-block:: python
 
     from shareregistry.models import VerificationContract
     from shareregistry.utils import bin_to_eth_address
@@ -871,3 +871,228 @@ Below is an example of minor admin landing page customization.
       </div>
     </div>
     {% endblock admin_content %}
+
+Nested model admins
+===================
+
+Often data is naturally modelled in a :ref:`traversal` tree like *Organization* > *Customer* > *Invoice* where each branch may have different access level requirements. Pyramid supports traversal with permission control through :term:`ACL` and this pattern can be applied to the admin interface too. This way it is easy to give to the users fine grained access to the particular parts of an admin interface and its subobject they have a permission for.
+
+In this example we model organizations that have customers. User accounts can be added to groups - this is Websauna out of the box functionality through :ref:`permissions` subsystem. Organization model carries a group information telling that the users of a particular group are allowed to access the organization data. This way each group has limited access and cannot access the data of other organizations. Furthermore, due how SQLAlchemy relationships work, especially :py:class:`sqlalchemy.orm.dynamic.AppenderQuery` obtained through a parent ``ForeignKey`` relationship, this gives very natural way to refer the data in the code.
+
+See breadcrumbs path in the following screenshot:
+
+.. image:: ../images/nested-admin-show.png
+    :width: 640px
+
+Example models
+--------------
+
+The following model code is used in this example.
+
+``models.py``:
+
+.. code-block:: python
+
+    class Organization(Base):
+        """A company."""
+
+        __tablename__ = "organization"
+
+        #: Internal id
+        id = sa.Column(psql.UUID(as_uuid=True), primary_key=True, server_default=sa.text("uuid_generate_v4()"))
+
+        #: Human readable name
+        name = sa.Column(sa.String(256))
+
+        #: Name of the group whose members are allowed to manage this organization
+        manager_group = sa.Column(sa.String(256))
+
+        def __str__(self):
+            return self.name or "-"
+
+
+    class Customer(Base):
+        """A customer record imported from a utility company."""
+
+        __tablename__ = "customer"
+
+        #: Our id
+        id = sa.Column(psql.UUID(as_uuid=True), primary_key=True, server_default=sa.text("uuid_generate_v4()"))
+
+        #: ID in the customer system
+        external_id = sa.Column(sa.String(64), nullable=False)
+
+        #: Full name
+        name = sa.Column(sa.String(256), nullable=False)
+
+        #: Phone number
+        phone_number = sa.Column(sa.String(256), nullable=False)
+
+Creating nested admin CRUD resource
+-----------------------------------
+
+We create a ``ModelAdmin`` for ``Organization``. Then we create a nested ``OrganizationCustomerAdmin`` under organization path space that can be accessed through ``OrganizationAdmin.__getitem__`` traversal instead of using :py:func:`websauna.system.admin.modeladmin.model_admin` decorator that would register the model admin at the admin root.
+
+``admins.py``:
+
+.. code-block:: python
+
+    from pyramid.decorator import reify
+    from pyramid.security import Deny, Allow, Everyone
+
+    from sqlalchemy.orm import Query
+    from websauna.system.admin.modeladmin import ModelAdmin, model_admin
+    from websauna.system.crud import Base64UUIDMapper
+
+    from .models import Organization
+    from .models import Customer
+
+
+    class OrganizationCustomerAdmin(ModelAdmin):
+        """Manage customer records within one organization.
+
+        This is not registered as root level model admin, but a subadmin to existing organization ModelAdmin.
+
+        * Organizat
+        """
+
+        title = "Customers"
+
+        model = Customer
+
+        mapper = Base64UUIDMapper(mapping_attribute="id")
+
+        def __init__(self, request, organization: Organization):
+            """Create the model admin and set the parent organization model of whose customers we are managing."""
+            super(OrganizationCustomerAdmin, self).__init__(request)
+            self.organization = organization
+
+        def get_query(self) -> Query:
+            """Use relationship and AppenderQuery from the parent organization model to get its customers.
+
+            Relationship query automatically limits customers by customer.organization_id == organization.id
+            """
+            return self.organization.customers
+
+        class Resource(ModelAdmin.Resource):
+
+            def get_title(self):
+                return self.get_object().name
+
+
+    @model_admin(traverse_id="organization")
+    class OrganizationAdmin(ModelAdmin):
+        """Manage user owned accounts and their balances."""
+
+        title = "Organizations"
+
+        model = Organization
+
+        # UserOwnedAccount.id attribute is uuid type
+        mapper = Base64UUIDMapper(mapping_attribute="id")
+
+        class Resource(ModelAdmin.Resource):
+
+            def get_title(self):
+                return self.get_object().name
+
+            @reify
+            def __acl__(self):
+                """Dynamically construct ACL and allow organization management group to edit.
+
+                Super admins inherit full priviledges from Admin root object.
+                """
+
+                organization = self.get_object()
+
+                # Model has a group name that is allowed to manage this organzation
+                group = organization.manager_group
+
+                if group:
+                    acl = [
+                        (Allow, group, "view"),
+                        (Allow, group, "add"),
+                        (Allow, group, "edit"),
+                    ]
+
+                    return acl
+                else:
+                    return []
+
+            def __getitem__(self, item):
+
+                # Did we request a customers CRUD for this organization
+                if item == "customers":
+                    organization = self.get_object()
+                    admin = OrganizationCustomerAdmin(self.request, organization)
+                    return OrganizationCustomerAdmin.make_lineage(self, admin, "customers")
+
+                # Standard view lookup (edit, show, etc.)
+                raise KeyError
+
+Add navigation in to the nested admin
+-------------------------------------
+
+First we add a *Customers* listing button to the organization admin:
+
+.. image:: ../images/nested-admin-parent.png
+    :width: 640px
+
+.. code-block:: python
+
+    from websauna.system.admin import views as adminviews
+    from websauna.system.crud.views import TraverseLinkButton
+    from websauna.viewconfig import view_overrides
+
+    from . import admins
+
+    @view_overrides(context=admins.OrganizationAdmin.Resource)
+    class OrganizationShow(adminviews.Show):
+        """New button to get to the customer parent listing."""
+
+        resource_buttons = [
+            TraverseLinkButton(id="customers", name="Customers", view_name="customers", permission="view"),
+        ] + adminviews.Show.resource_buttons
+
+
+Listing view
+------------
+
+.. image:: ../images/nested-admin-list.png
+    :width: 640px
+
+Nested admin listing view does not differ from a normal ``ModelAdmin`` listing view. Because we do not customize the listing ``OrganizationCustomerAdmin`` inherits the standard :py:class:`websauna.system.admin.views.Listing` view and we do not need to define this view.
+
+It uses ``OrganizationCustomerAdmin.get_query`` to populate the listing and this is limited to organization through using :ref:`SQLAlchemy` ORM relationships.
+
+Add view
+--------
+
+.. image:: ../images/nested-admin-add.png
+    :width: 640px
+
+We customize ``OrganizationCustomer`` add view, so that created customers automatically become a member of a parent organization.
+
+``adminviews.py``:
+
+.. code-block:: python
+
+    @view_overrides(context=admins.OrganizationCustomerAdmin)
+    class OrganizationCustomerAdd(adminviews.Add):
+        """Automatically set the organization parent."""
+
+        includes = [
+            "name",
+            "phone_number",
+            "external_id",
+        ]
+        form_generator = SQLAlchemyFormGenerator(includes=includes)
+
+        def add_object(self, obj):
+            """We will use the parent organization customer list where we add the object."""
+            parent = self.get_crud()  # type: OrganizationCustomerAdmin
+            organization = parent.organization
+            organization.customers.append(obj)
+
+            # Gives id to the added object, allows us to redirect to show it
+            self.request.dbsession.flush()

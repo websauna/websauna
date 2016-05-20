@@ -1,7 +1,11 @@
 """An abstract CRUD implementation based on traversal. The default support for SQLAlchemy and Deform."""
 
 from abc import abstractmethod
+
+from pyramid.interfaces import IRequest
+
 from websauna.system.core.traversal import Resource as _Resource
+from websauna.system.http import Request
 
 from .urlmapper import Base64UUIDMapper
 
@@ -14,10 +18,15 @@ class Resource(_Resource):
     Presents an underlying model instance mapped to an URL path. ``__parent__`` attribute points to a CRUD instance.
     """
 
-    def __init__(self, obj:object):
+    def __init__(self, request: Request, obj: object):
         """
-        :param obj: The underlying object we wish to wrap for travering.
+        :param obj: The underlying object we wish to wrap for traversing. Usually SQLALchemy model instance.
         """
+
+        # Some safety checks we get arguments correctly.n
+        assert IRequest.providedBy(request)
+
+        self.request = request
         self.obj = obj
 
     def get_object(self) -> object:
@@ -85,7 +94,7 @@ class CRUD(_Resource):
 
         # Use internal Resource class to wrap the object
         if hasattr(self, "Resource"):
-            return self.Resource(obj)
+            return self.Resource(self.request, obj)
 
         raise NotImplementedError("Does not know how to wrap to resource: {}".format(obj))
 

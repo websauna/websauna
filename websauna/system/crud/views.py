@@ -262,7 +262,7 @@ class Show(FormView):
     resource_buttons = [TraverseLinkButton(id="edit", name="Edit", view_name="edit", permission="edit")]
 
     def get_title(self):
-        return "#{}".format(self.get_object().id)
+        return self.context.get_title()
 
     def get_form(self):
         return self.create_form(EditMode.show, buttons=())
@@ -313,7 +313,7 @@ class Edit(FormView):
     resource_buttons = [TraverseLinkButton(id="show", name="Show", view_name="show", permission="view")]
 
     def get_title(self):
-        return "Editing #{}".format(self.get_object().id)
+        return "Editing #{}".format(self.context.get_title())
 
     def get_form(self):
         return self.create_form(EditMode.edit, buttons=("save", "cancel",))

@@ -33,7 +33,7 @@ For advanced usage see :py:func:`websauna.system.core.messages.add`.
 Rendering
 =========
 
-Flash messages are rendered by ``site/messages.html``. After rendering the flash message queue is cleared.
+Flash messages are rendered by :ref:`template-site/messages.html`. After rendering the flash message queue is cleared.
 
 More information
 ================

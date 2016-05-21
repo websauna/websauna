@@ -23,6 +23,7 @@ from pyramid.settings import asbool
 from websauna.utils.autoevent import event_source
 
 from websauna.system.admin.modeladmin import configure_model_admin
+from websauna.system.auth.policy import SessionAuthenticationPolicy
 from websauna.system.model.utils import attach_model_to_base
 from websauna.utils.configincluder import IncludeAwareConfigParser
 from websauna.system.http.static import DefaultStaticAssetPolicy
@@ -188,7 +189,6 @@ class Initializer:
         For more information see Pyramid auth documentation.
         """
         import pyramid.tweens
-        from websauna.system.auth.policy import SessionAuthenticationPolicy
         from websauna.system.auth.principals import resolve_principals
         from websauna.system.auth.authentication import get_request_user
         from pyramid.authorization import ACLAuthorizationPolicy

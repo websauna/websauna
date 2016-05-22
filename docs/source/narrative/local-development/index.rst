@@ -6,4 +6,5 @@ Local development
 
     introduction
     devserver
+    logging
 

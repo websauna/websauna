@@ -23,6 +23,7 @@ Table of contents
 
     narrative/background/index
     tutorials/gettingstarted/index
+    narrative/local-development/index
     narrative/modelling/index
     narrative/crud/index
     narrative/view/index

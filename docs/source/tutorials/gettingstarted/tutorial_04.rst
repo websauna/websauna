@@ -20,7 +20,7 @@ Creating the database
 The default local development database name is ``myapp_dev`` where ``myapp`` is replaced with your application name.
 
 Creating database on OSX
--------------------------
+------------------------
 
 To create a database on Homewbrew / OSX use ``createdb`` PostgreSQL command::
 
@@ -29,7 +29,9 @@ To create a database on Homewbrew / OSX use ``createdb`` PostgreSQL command::
 Creating database on Ubuntu
 ---------------------------
 
-TODO
+You need to sudo to ``postgres`` user to run any :term:`PostgreSQL` commands:
+
+    sudo -u postgres createdb myapp_dev
 
 Changing database name or authentication details
 ================================================

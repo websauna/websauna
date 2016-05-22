@@ -295,5 +295,8 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
     virtual environment
         An isolated environment (folder) where all installed Python packages go. Each project should have its own virtual environment, so that different project dependencies do not mess up each other. `Read more <https://packaging.python.org/en/latest/installing.html>`__.
 
+    Waitress
+        Waitress is meant to be a production-quality pure-Python WSGI server with very acceptable performance. It has no dependencies except ones which live in the Python standard library. It runs on CPython on Unix and Windows under Python 2.6+ and Python 3.2+. It is also known to run on PyPy 1.6.0+ on UNIX. It supports HTTP/1.0 and HTTP/1.1. `Read more <https://pypi.python.org/pypi/waitress>`__.
+
     WSGI
         The Web Server Gateway Interface (WSGI) is a specification for simple and universal interface between web servers and web applications or frameworks for the Python programming language. It was originally specified in PEP 333 authored by Phillip J. Eby, and published on 7 December 2003. It has since been adopted as a standard for Python web application development. The latest version of the specification is v1.0.1, also known as PEP 3333, published on 26 September 2010. `Read more <https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface>`__.

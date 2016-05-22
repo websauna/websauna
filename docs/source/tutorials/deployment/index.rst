@@ -22,6 +22,7 @@ This guide will walk you through how to deploy your Websauna application on Linu
     postinfo
     logs
     native
+    caching
     providers/index
     troubleshooting
 

@@ -1,6 +1,6 @@
-=============================
-Deploying in development mode
-=============================
+============================
+Disabling production caching
+============================
 
 .. contents:: :local:
 

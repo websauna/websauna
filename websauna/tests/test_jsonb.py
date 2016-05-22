@@ -64,13 +64,13 @@ class TestJSON(unittest.TestCase):
     """JSONB fields and properties."""
 
     @pytest.fixture(autouse=True)
-    def load_settings(self, ini_settings):
-        self.settings = ini_settings
+    def load_settings(self, registry):
+        self.registry = registry
 
     def setUp(self):
 
         # Create a threadh-local automatic session factory
-        self.session = create_dbsession(self.settings)
+        self.session = create_dbsession(self.registry)
         self.engine = self.session.get_bind()
 
         # Load Bitcoin models to play around with

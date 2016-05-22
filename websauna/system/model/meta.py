@@ -1,5 +1,6 @@
 """Database default base models and session setup."""
 import transaction
+from pyramid.registry import Registry
 from pyramid.settings import asbool
 from sqlalchemy import engine_from_config
 from sqlalchemy.engine import Engine
@@ -55,15 +56,16 @@ def request_session_factory(request: Request) -> Session:
 def create_transaction_manager_aware_dbsession(request: Request) -> Session:
     """Defaut database factory for Websauna.
 
-    Looks up database settings from the INI and creates an SQLALchemy session based on the configuration.
+    Looks up database settings from the INI and creates an SQLALchemy session based on the configuration. The session is terminated on the HTTP request finalizer.
     """
-    return create_dbsession(request.registry.settings)
+    dbsession = create_dbsession(request.registry)
 
+    def terminate_session(request):
+        # Close db session at the end of the request and return the db connection back to the pool
+        dbsession.close()
 
-def get_session(transaction_manager, dbmaker):
-    """Get a new database session."""
-    dbsession = dbmaker()
-    zope.sqlalchemy.register(dbsession, transaction_manager=transaction_manager)
+    request.add_finished_callback(terminate_session)
+
     return dbsession
 
 
@@ -78,24 +80,47 @@ def get_engine(settings: dict, prefix='sqlalchemy.') -> Engine:
     """
 
     # http://stackoverflow.com/questions/14783505/encoding-error-with-sqlalchemy-and-postgresql
-    engine = engine_from_config(settings, 'sqlalchemy.', connect_args={"options": "-c timezone=utc"}, client_encoding='utf8', isolation_level='SERIALIZABLE', json_serializer=json_serializer)
+    engine = engine_from_config(settings, 'sqlalchemy.', connect_args={"options": "-c timezone=utc"}, client_encoding='utf8', isolation_level='SERIALIZABLE', json_serializer=json_serializer, pool_size=4)
     return engine
 
 
-def get_dbmaker(engine):
+def create_session_maker(engine):
+    """Create database session maker.
+
+    Must be called only once per process.
+    """
     dbmaker = sessionmaker()
     dbmaker.configure(bind=engine)
     return dbmaker
 
 
-def create_dbsession(settings, manager=transaction.manager) -> Session:
-    """Creates a new database session and transaction manager which co-ordinates it.
+def create_dbsession(registry: Registry, manager=transaction.manager) -> Session:
+    """Creates a new database using the configured session poooling.
 
     This is called outside request life cycle when initializing and checking the state of the databases.
 
     :param manager: Transaction manager to bound the session. The default is thread local ``transaction.manager``.
     """
 
-    dbmaker = get_dbmaker(get_engine(settings))
-    dbsession = get_session(manager, dbmaker)
+    assert isinstance(registry, Registry), "The first arg must be registry (Method signature changed)"
+
+    # Make sure dbmaker is created only once per process as it must be
+    # per-process for the connection pooling to work
+    db_session_maker = getattr(registry, "db_session_maker", None)
+
+    if not db_session_maker:
+        engine = get_engine(registry.settings)
+        db_session_maker = registry.db_session_maker =  create_session_maker(engine)
+
+    dbsession = create_session(manager, db_session_maker)
+    return dbsession
+
+
+def create_session(transaction_manager, db_session_maker: sessionmaker) -> Session:
+    """Create a new database session with Zope transaction manager attached.
+
+    The attached transaction manager takes care of committing the transaction at the end of the request.
+    """
+    dbsession = db_session_maker()
+    zope.sqlalchemy.register(dbsession, transaction_manager=transaction_manager)
     return dbsession

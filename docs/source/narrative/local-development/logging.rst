@@ -9,7 +9,7 @@ Introduction
 
 Python standard library provides :py:mod:`logging` module as a de facto solution for libraries and applications to log their behavior. *logging* is extensively used by Websauna, :term:`Pyramid`, :term:`SQLAlchemy` and other Python packages.
 
-* Python logging subsystem can be configured using external configuration file and the logging configuration format is `specified in Python standard librry <https://docs.python.org/3.6/library/logging.config.html#logging-config-fileformat>`_.
+* Python logging subsystem can be configured using external configuration file and the logging configuration format is `specified in Python standard libray <https://docs.python.org/3.6/library/logging.config.html#logging-config-fileformat>`_.
 
 * Python logger can be individually turned on, off and their verbosity adjusted on per module basis. For example by default, Websauna development server sets SQLALchemy logging level to ``INFO`` instead of ``DEBUG`` to avoid flooding the console with verbose SQL logs. However if you are debugging issues related to a database you might want to set the SQLAlchemy logging back to ``INFO``.
 
@@ -53,9 +53,9 @@ A common logging pattern in Python is:
 
 * This names a logger based on a module so you can switch logger on/off on module basis.
 
-* Pass logged objects to :py:mod:`logging.Logger.info` and co. as full and let the logger handle the string formatting. This allows intelligent display of logged objects when using non-console logging solutions like :term:`Sentry`.
+* Pass logged objects to :py:meth:`logging.Logger.debug` and co. as full and let the logger handle the string formatting. This allows intelligent display of logged objects when using non-console logging solutions like :term:`Sentry`.
 
-* Use :py:meth:`logging.Logger.exception` to report exceptions as this will record the full traceback of the exception.
+* Use :py:meth:`logging.Logger.exception` to report exceptions. This will record the full traceback of the exception and not just the error message.
 
 Please note that although this logging pattern is common, it's not a universal solution. For example if you are creating third party APIs, you might want to pass the logger to a class instance of an API, so that the API consumer can take over the logger setup and there is no inversion of control.
 
@@ -79,6 +79,11 @@ Now console is flooded with *very* verbose logging::
     [2016-05-22 20:39:55,429] [sqlalchemy.engine.base.Engine _begin_impl] BEGIN (implicit)
     [2016-05-22 20:39:55,429] [txn.123145312813056 __init__] new transaction
     [2016-05-22 20:39:55,429] [sqlalchemy.engine.base.Engine _execute_context] SELECT users.password AS users_password, users.id AS users_id, users.uuid AS users_uuid, users.username AS users_username, users.email AS users_email, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.activated_at AS users_activated_at, users.enabled AS users_enabled, users.last_login_at AS users_last_login_at, users.last_login_ip AS users_last_login_ip, users.user_data AS users_user_data, users.last_auth_sensitive_operation_at AS users_last_auth_sensitive_operation_at, users.activation_id AS users_activation_id
+
+Initialization loggers from INI file
+====================================
+
+If you need to initialize loggers in your own applications see :py:func:`websauna.system.devop.cmdline.setup_logging` for how Websauna picks up loggers from :ref:`INI` configuration file.
 
 More information
 ================

@@ -709,7 +709,7 @@ class Initializer:
         from websauna.system.model.meta import create_dbsession
         from websauna.system.core import redis
 
-        dbsession = create_dbsession(self.config.registry.settings)
+        dbsession = create_dbsession(self.config.registry)
 
         if not sanitycheck.is_sane_database(Base, dbsession):
             raise SanityCheckFailed("The database sanity check failed. Check log for details.")

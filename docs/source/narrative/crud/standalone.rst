@@ -345,7 +345,7 @@ We override the default SQLAlchemy views with custom fields.
 Validators
 ----------
 
-We have also :ref:`Colander` validator we place in ``schemas.py``:
+We have also :term:`Colander` validator we place in ``schemas.py``:
 
 .. code-block:: python
 

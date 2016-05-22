@@ -100,3 +100,30 @@ Solution:
     pip install -e "git+git@github.com:websauna/websauna.git#egg=websauna"
     pip install -e "git+git@github.com:websauna/websauna.viewconfig.git#egg=websauna.viewconfig"
 
+
+Debugging SQLAlchemy connection pooling
+---------------------------------------
+
+To see the internal state of connection pooling to debug the connection leakage you fiddle with the pool in dbsession terminator:
+
+.. code-block:: python
+
+    def create_transaction_manager_aware_dbsession(request: Request) -> Session:
+        """Defaut database factory for Websauna.
+
+        Looks up database settings from the INI and creates an SQLALchemy session based on the configuration. The session is terminated on the HTTP request finalizer.
+        """
+        dbsession = create_dbsession(request.registry.settings)
+
+        def terminate_session(request):
+            pool = request.dbsession.connection().connection._pool
+            dbsession.close()
+            print(pool.status())
+
+        request.add_finished_callback(terminate_session)
+
+        return dbsession
+
+You'll get output like::
+
+    Pool size: 4  Connections in pool: 1 Current Overflow: -3 Current Checked out connections: 0

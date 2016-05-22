@@ -258,7 +258,7 @@ def registry(request, app):
     return app.initializer.config.registry
 
 
-def create_test_dbsession(request, settings: dict, transaction_manager=transaction.manager) -> Session:
+def create_test_dbsession(request, registry: Registry, transaction_manager=transaction.manager) -> Session:
     """Create a test database session and setup database.
 
     Create and drop all tables when called. Add teardown function py.test to drop all tables during teardown.
@@ -270,7 +270,7 @@ def create_test_dbsession(request, settings: dict, transaction_manager=transacti
     """
     from websauna.system.model.meta import Base
 
-    dbsession = create_dbsession(settings, manager=transaction_manager)
+    dbsession = create_dbsession(registry, manager=transaction_manager)
     engine = dbsession.get_bind()
 
     with transaction.manager:
@@ -321,7 +321,7 @@ def dbsession(request, app) -> Session:
 
     :return: A SQLAlchemy session instance you can use to query database.
     """
-    return create_test_dbsession(request, app.initializer.config.registry.settings)
+    return create_test_dbsession(request, app.initializer.config.registry)
 
 
 @pytest.fixture()

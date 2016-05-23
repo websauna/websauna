@@ -80,7 +80,7 @@ def get_engine(settings: dict, prefix='sqlalchemy.') -> Engine:
     """
 
     # http://stackoverflow.com/questions/14783505/encoding-error-with-sqlalchemy-and-postgresql
-    engine = engine_from_config(settings, 'sqlalchemy.', connect_args={"options": "-c timezone=utc"}, client_encoding='utf8', isolation_level='SERIALIZABLE', json_serializer=json_serializer, pool_size=4)
+    engine = engine_from_config(settings, 'sqlalchemy.', connect_args={"options": "-c timezone=utc"}, client_encoding='utf8', isolation_level='SERIALIZABLE', json_serializer=json_serializer)
     return engine
 
 

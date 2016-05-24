@@ -44,7 +44,6 @@ class IncludeAwareConfigParser(configparser.SafeConfigParser):
         super(IncludeAwareConfigParser, self)._read(fp, fpname)
         self.process_includes(fpname)
 
-
     def resolve(self, include_file, fpname):
 
         parts = urlparse(include_file)
@@ -70,15 +69,20 @@ class IncludeAwareConfigParser(configparser.SafeConfigParser):
 
         for s in config.sections():
 
-            if not s in self.sections():
-                self.add_section(s)
+            source_section = s
+            target_section = s
 
-            current_settings = [key for key, value in self.items(s, raw=True)]
+            if not target_section in self.sections():
+                self.add_section(target_section)
 
-            for key, value in config.items(s, raw=True):
+            # What we have currently - include must not override existing settings
+            current_settings = [key for key, value in self.items(target_section, raw=True)]
+
+            # Go through included settings and add them if the setting is not yet there
+            for key, value in config.items(source_section, raw=True):
 
                 if key not in current_settings:
-                    self._sections[s][key] = value
+                    self._sections[target_section][key] = value
 
                     # This causes value interpolation and breaks when it tries to interpolate logging settings because it cannot separate logging formatter string from Python INI internal interpolation
                     # self.set(s, key, value)

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope='session')
-def web_server(request, app:Router) -> str:
+def web_server(request, app: Router) -> str:
     """py.test fixture to create a WSGI web server for functional tests.
 
     The default web server address is localhost:8521. The port can be changed with ``websauna.test_web_server_port``.

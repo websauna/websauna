@@ -163,277 +163,163 @@ Let's also fix that by adding a new class in ``adminviews.py``:
 
     TODO
 
-Creating an admin view
-======================
 
-Below is instructions how to create your own admin views. We use a view called *phone order* as an example.
+Customizing admin views for your model
+======================================
 
-Create a Pyramid traversal view and register it against Admin context. First we create a stub ``phoneorder.py``::
+Websauna admin comes with five default model views
 
-    from pyramid.view import view_config
+* Listing
 
-    from websauna.system.admin import Admin
+* Add
 
-    @view_config(context=Admin, name="phone-order", route_name="admin", permission="edit", renderer="admin/phone_order.html")
-    def phone_order(context, request):
-        return {}
+* Show
 
-In your Initializer make sure the module where you view lies is scanned::
+* Edit
 
-    class Initializer:
+* Delete
 
-        ...
+Websauna tries to automatically generate these fields based on SQLALchemy models. However, due to more complex user interaction and complex model definition, you usually want to hand tune the generated views to get a suitable admin interface for your business logic. Below are some examples how ot
 
-        def config_admin(self):
-            super(Initializer, self).config_admin()
-            from . import phoneorder
-            self.config.scan(phoneorder)
+Show view example
+-----------------
 
-In the template ``phone_order.html``:
+Here is an example how ot have a custom show page for on of our models.
 
-.. code-block:: html+jinja
-
-    {% extends "admin/base.html" %}
-
-    {% block admin_content %}
-    <p>Content goes here...</p>
-    {% endblock %}
-
-
-Then you can later get the link to this page in template code:
-
-.. code-block:: html+jinja
-
-    <p>
-        <a href="{{ request.resource_url(admin, 'phone-order') }}>Create phone order</a>
-    </p>
-
-Linking into the admin views of a model
-=======================================
-
-Preface: You have an SQLAlchemy object and you want to provide the link to its admin interface: show, edit or custom action.
-
-To construct a link to the model instance inside admin interface, you need to
-
-* Get a hold of the current admin object
-
-* Ask admin to provide traversable resource for this object
-
-* Use ``request.resource_url()`` to get the link
-
-Example::
-
-    # Get traversable resource for a model instance
-    resource = request.admin.get_admin_resource(user)
-
-    # Get a context view named "edit" for this resource
-    edit_link = request.resource_url(resource, "edit")
-
-.. _admin-panel:
-
-Creating admin panels
-=====================
-
-Websauna admin interface supports panels.
-
-* Panel shows summary information on the landing page of the admin interface.
-
-* Panels can be rendered inline using :ref:`render_panel() filter <filter-render_panel>`.
-
-* Panels are registered using :py:func:`pyramid_layout.panel.panel_config` decorator that is picked up by ``config.scan()``
-
-Panel is a ``callback(context, request, **kwargs)``
-
-* ``context`` is any :term:`resource`, like *ModelAdmin* instance
-
-* ``request`` is :py:class:`websauna.system.http.request.Request`
-
-* ``kwargs`` is a dictionary of rendering hints that are passed to the rendering context as is By default contains one item ``controls`` which can be set to ``False`` to disable
-
-Below is an example how one can customize this panel. We use ``UserOwnedAccount`` model in this example.
-
-.. image:: ../images/panel.png
-    :width: 640px
-
-First create ``panels.py``:
+``models.py``:
 
 .. code-block:: python
 
     import sqlalchemy
-    from collections import OrderedDict
-    from pyramid_layout.panel import panel_config
-    from websauna.wallet.models import Account, UserOwnedAccount, Asset
-    from websauna.wallet.utils import format_asset_amount
+    from sqlalchemy import Column
+    from sqlalchemy.dialects.postgresql import UUID
 
-    from . import admins
+    from websauna.system.model.meta import Base
 
 
-    @panel_config(name='admin_panel', context=admins.UserAccountAdmin, renderer='admin/user_owned_account_panel.html')
-    def user_owned_account(context, request, **kwargs):
-        """Admin panel for Users."""
+    class Box(Base):
+        """Define model for a box."""
 
-        dbsession = request.dbsession
+        __tablename__ = "box"
 
-        # Query all liabilities
+        id = Column(UUID(as_uuid=True), primary_key=True, server_default=sqlalchemy.text("uuid_generate_v4()"))
 
-        # NOTE: This is a bad SQLAlchemy example as this performances one query
-        # per one asset. One could perform this with a single group by query
+        #: Human friendly for the box as it si now
+        name = Column(String(256), nullable=False, default="")
 
-        liabilities = OrderedDict()
-        account_summer = sqlalchemy.func.sum(Account.denormalized_balance).label("denormalized_balance")
-
-        for asset in dbsession.query(Asset).order_by(Asset.name.asc()):
-            total_balances = dbsession.query(account_summer).filter(Account.asset == asset).join(UserOwnedAccount).all()
-            balance = total_balances[0][0]
-            liabilities[asset.name] = format_asset_amount(balance, asset.asset_format)
-
-        # These need to be passed to base panel template,
-        # so it knows how to render buttons
-        model_admin = context
-
-        return dict(locals(), **kwargs)
-
-Make sure you scan ``panels.py`` in your :py:class:`websauna.system.Initializer`:
-
-.. code-block:: python
-
-
-    def configure_model_admins(self):
-        from . import panels
-        self.config.scan(panels)
-
-Create a matching template, ``admin/user_owned_account_panel.html`` in our case:
-
-.. code-block:: html+jinja
-
-    {% extends "admin/model_panel.html" %}
-
-    {% block panel_title %}
-    Users' accounts and balances
-    {% endblock %}
-
-    {% block panel_content %}
-      <h3>Liabilities</h3>
-      <table class="table">
-        {% for name, amount in liabilities.items() %}
-          <tr>
-            <th>
-              {{ name }}
-            </th>
-
-            <td>
-              {{ amount }}
-            </td>
-          </tr>
-        {% endfor %}
-      </table>
-    {% endblock panel_content %}
-
-.. _override-listing:
-
-Overriding an existing model admin
-==================================
-
-Listing view example
---------------------
-
-Here is an example how we override the existing model admin for the user. Then we enhance the admin functionality by overriding a listing view to show the city of the user based on the location of the last login IP address.
-
-This is done using `pygeoip library <https://pypi.python.org/pypi/pygeoip/>`_.
-
-First let's add our admin definition in ``admins.py``. Because this module is scanned after the stock :py:mod:`websauna.system.user.admins` it takes the precendence.
 
 ``admins.py``:
 
 .. code-block:: python
 
-    from websauna.system.admin.modeladmin import model_admin
-    from websauna.system.user.admins import UserAdmin as _UserAdmin
+    from websauna.system.admin.modeladmin import ModelAdmin, model_admin
+    from websauna.system.crud import Base64UUIDMapper
+
+    from .models import Box
 
 
-    # Override default user admin
-    @model_admin(traverse_id="user")
-    class UserAdmin(_UserAdmin):
+    @model_admin(traverse_id="boxes")
+    class BoxAdmin(ModelAdmin):
+        """Manage user owned accounts and their balances."""
 
-        class Resource(_UserAdmin.Resource):
-            pass
+        title = "Box"
+        model = Box
+        mapper = Base64UUIDMapper(mapping_attribute="id")
 
-Then we roll out our custom ``adminviews.py`` where we override listing view for user model admin.
+        class Resource(ModelAdmin.Resource):
+
+            # Get something human readable about this object to the breadcrumbs bar
+            def get_title(self):
+                return self.get_object().name
 
 ``adminviews.py``:
 
 .. code-block:: python
 
-    import os
-    import pygeoip
+    import colander
 
-    from websauna.system.crud import listing
+
+    from websauna.system.admin import views as defaultadminviews
+    from websauna.system.crud.formgenerator import SQLAlchemyFormGenerator
     from websauna.viewconfig import view_overrides
-    from websauna.system.user import adminviews as _adminviews
 
-    # Import local admin
+    from websauna.system.form.fields import UUID  # Custom widget for UUID tpyes
+    from websauna.system.form.widgets import FriendlyUUIDWidget  # Custom widget for UUID tpyes
+
     from . import admins
 
 
-    _geoip = None
-
-    def _get_geoip():
-        """Lazily load geoip database to memory as it's several megabytes."""
-        global _geoip
-        if not _geoip:
-            _geoip = pygeoip.GeoIP(os.path.join(os.path.dirname(__file__), '..', 'geoip.dat'), flags=pygeoip.MMAP_CACHE)
-        return _geoip
-
-
-
-    def get_location(view, column, user):
-        """Get state from IP using pygeoip."""
-
-        geoip = _get_geoip()
-
-        ip = user.last_login_ip
-        if not ip:
-            return ""
-        r = geoip.record_by_addr(ip)
-        if not r:
-            return ""
-
-        code = r.get("metro_code", "")
-        if code:
-            return code
-
-        code = (r.get("country_code") or "") + " " + (r.get("city") or "")
-        return code
-
-
-    @view_overrides(context=admins.UserAdmin)
-    class UserListing(_adminviews.UserListing):
+    @view_overrides(context=admins.BoxAdmin.Resource)
+    class BoxShow(defaultadminviews.Show):
         """User listing modified to show the user hometown based on geoip of last login IP."""
-        table = listing.Table(
-            columns = [
-                listing.Column("id", "Id",),
-                listing.Column("friendly_name", "Friendly name"),
-                listing.Column("location", "Location", getter=get_location),
-                listing.ControlsColumn()
-            ]
-        )
 
-And as a last action we scan our ``adminviews`` module in our initializer:
+        # List all fields appearing on the show form
+        includes = [
+
+            # Example field where we override a widget
+            colander.SchemaNode(UUID(), name='id', title="Payment module id", widget=FriendlyUUIDWidget()),
+
+            # Example field we want to show as string id (no schema customization)
+            "name",
+        ]
+
+        #: Declare form generation which maps all these fields
+        form_generator = SQLAlchemyFormGenerator(includes=includes)
+
+
+Then you need to also scan all the modules in the application initializer. ``__init__.py``:
 
 .. code-block:: python
 
-    def run(self):
-        super(Initializer, self).run()
+    import websauna.sstem
+
+
+    class Initializer(websauna.system.Initializer):
 
         # ...
 
-        from . import adminviews
-        self.config.scan(adminviews)
+        def configure_model_admins(self):
+            """Register admin resources and views for this application."""
 
-This is how it looks like:
+              from . import admins
+            from . import adminviews
 
-.. image:: ../images/geoip.png
-    :width: 640px
+            super(Initializer, self).configure_model_admins()
+
+            # Scan our admins
+            self.config.scan(admins)
+            self.config.scan(adminviews)
+
+Show view initialization for addon
+++++++++++++++++++++++++++++++++++
+
+If you are building an addon, based on :ref:`addon scaffold <scaffold>` then you need to little different scanning code. This is because add-ons rely on the parent application sending them events during the initialization. Example for addon ``__init__.py``:
+
+.. code-block:: python
+
+    from websauna.system import Initializer
+    from websauna.utils.autoevent import after
+    from websauna.utils.autoevent import bind_events
+
+
+    class AddonInitializer:
+
+        # ...
+
+        @after(Initializer.configure_model_admins)
+        def configure_model_admins(self):
+            from . import admins
+            # self.config.scan(admins)
+
+        @after(Initializer.configure_model_admins)
+        def configure_admin(self):
+            from . import adminviews
+            self.config.scan(adminviews)
+
+        def run(self):
+            # This method is generated by scaffold and it registers the initialization event
+            # handlers for your addon
+            bind_events(self.config.registry.initializer, self)
 
 Add view example
 ----------------
@@ -645,6 +531,112 @@ Below is an example of an admin edit which has been enhanced to edit JSON field.
             appstruct["branding_data"] = json.loads(appstruct["branding_data"])
             form.schema.objectify(appstruct, obj)
 
+Customizing admin views for Websauna stock models
+=================================================
+
+.. _override-listing:
+
+Listing view example
+--------------------
+
+Here is an example how we override the existing model admin for the user. Then we enhance the admin functionality by overriding a listing view to show the city of the user based on the location of the last login IP address.
+
+This is done using `pygeoip library <https://pypi.python.org/pypi/pygeoip/>`_.
+
+First let's add our admin definition in ``admins.py``. Because this module is scanned after the stock :py:mod:`websauna.system.user.admins` it takes the precendence.
+
+``admins.py``:
+
+.. code-block:: python
+
+    from websauna.system.admin.modeladmin import model_admin
+    from websauna.system.user.admins import UserAdmin as _UserAdmin
+
+
+    # Override default user admin
+    @model_admin(traverse_id="user")
+    class UserAdmin(_UserAdmin):
+
+        class Resource(_UserAdmin.Resource):
+            pass
+
+Then we roll out our custom ``adminviews.py`` where we override listing view for user model admin.
+
+``adminviews.py``:
+
+.. code-block:: python
+
+    import os
+    import pygeoip
+
+    from websauna.system.crud import listing
+    from websauna.viewconfig import view_overrides
+    from websauna.system.user import adminviews as _adminviews
+
+    # Import local admin
+    from . import admins
+
+
+    _geoip = None
+
+    def _get_geoip():
+        """Lazily load geoip database to memory as it's several megabytes."""
+        global _geoip
+        if not _geoip:
+            _geoip = pygeoip.GeoIP(os.path.join(os.path.dirname(__file__), '..', 'geoip.dat'), flags=pygeoip.MMAP_CACHE)
+        return _geoip
+
+
+
+    def get_location(view, column, user):
+        """Get state from IP using pygeoip."""
+
+        geoip = _get_geoip()
+
+        ip = user.last_login_ip
+        if not ip:
+            return ""
+        r = geoip.record_by_addr(ip)
+        if not r:
+            return ""
+
+        code = r.get("metro_code", "")
+        if code:
+            return code
+
+        code = (r.get("country_code") or "") + " " + (r.get("city") or "")
+        return code
+
+
+    @view_overrides(context=admins.UserAdmin)
+    class UserListing(_adminviews.UserListing):
+        """User listing modified to show the user hometown based on geoip of last login IP."""
+        table = listing.Table(
+            columns = [
+                listing.Column("id", "Id",),
+                listing.Column("friendly_name", "Friendly name"),
+                listing.Column("location", "Location", getter=get_location),
+                listing.ControlsColumn()
+            ]
+        )
+
+And as a last action we scan our ``adminviews`` module in our initializer:
+
+.. code-block:: python
+
+    def run(self):
+        super(Initializer, self).run()
+
+        # ...
+
+        from . import adminviews
+        self.config.scan(adminviews)
+
+This is how it looks like:
+
+.. image:: ../images/geoip.png
+    :width: 640px
+
 
 Customizing admin layout
 ========================
@@ -842,7 +834,7 @@ Customizing admin landing page
 
 You can override :ref:`admin/admin.html <template-admin/admin.html>` template.
 
-Below is an example of minor admin landing page customization.
+Below is an example of minor admin landing page customization:
 
 .. code-block:: html+jinja
 
@@ -871,6 +863,196 @@ Below is an example of minor admin landing page customization.
       </div>
     </div>
     {% endblock admin_content %}
+
+Creating a new admin views
+==========================
+
+Below is instructions how to create your own admin views. We use a view called *phone order* as an example.
+
+.. note ::
+
+    These instructions are for creating a view that is different type from the stock :ref:`CRUD` list, show, add, edit and delete views. If you need to customize any of existing view types please see instructions above.
+
+Create a Pyramid traversal view and register it against Admin context. First we create a stub ``phoneorder.py``:
+
+.. code-block:: python
+
+    from pyramid.view import view_config
+
+    from websauna.system.admin.admin import Admin
+
+    @view_config(context=Admin,
+        name="phone-order",
+        route_name="admin",
+        permission="edit",
+        renderer="admin/phone_order.html")
+    def phone_order(context, request):
+        return {}
+
+In your Initializer make sure the module where you view lies is scanned:
+
+.. code-block:: python
+
+    class Initializer:
+
+        # ...
+
+        def configure_admin_views(self):
+            """This will pick up our view configuration from a Python module"""
+            from . import phoneorder
+            self.config.scan(phoneorder)
+
+
+        def run(self):
+            super().run()
+
+            # ...
+            # Other custom initialization here
+            # ...
+
+            # Hooks in our scanner in the application initialization
+            self.configure_admin_views()
+
+In the template ``phone_order.html``:
+
+.. code-block:: html+jinja
+
+    {% extends "admin/base.html" %}
+
+    {% block admin_content %}
+    <p>Content goes here...</p>
+    {% endblock %}
+
+
+Then you can later get the link to this page in template code:
+
+.. code-block:: html+jinja
+
+    <p>
+        <a href="{{ request.resource_url(admin, 'phone-order') }}>Create phone order</a>
+    </p>
+
+Linking into the admin views of a model
+=======================================
+
+Preface: You have an SQLAlchemy object and you want to provide the link to its admin interface: show, edit or custom action.
+
+To construct a link to the model instance inside admin interface, you need to
+
+* Get a hold of the current admin object
+
+* Ask admin to provide traversable resource for this object
+
+* Use ``request.resource_url()`` to get the link
+
+Example::
+
+    # Get traversable resource for a model instance
+    resource = request.admin.get_admin_resource(user)
+
+    # Get a context view named "edit" for this resource
+    edit_link = request.resource_url(resource, "edit")
+
+.. _admin-panel:
+
+Creating admin panels
+=====================
+
+Websauna admin interface supports panels.
+
+* Panel shows summary information on the landing page of the admin interface.
+
+* Panels can be rendered inline using :ref:`render_panel() filter <filter-render_panel>`.
+
+* Panels are registered using :py:func:`pyramid_layout.panel.panel_config` decorator that is picked up by ``config.scan()``
+
+Panel is a ``callback(context, request, **kwargs)``
+
+* ``context`` is any :term:`resource`, like *ModelAdmin* instance
+
+* ``request`` is :py:class:`websauna.system.http.request.Request`
+
+* ``kwargs`` is a dictionary of rendering hints that are passed to the rendering context as is By default contains one item ``controls`` which can be set to ``False`` to disable
+
+Below is an example how one can customize this panel. We use ``UserOwnedAccount`` model in this example.
+
+.. image:: ../images/panel.png
+    :width: 640px
+
+First create ``panels.py``:
+
+.. code-block:: python
+
+    import sqlalchemy
+    from collections import OrderedDict
+    from pyramid_layout.panel import panel_config
+    from websauna.wallet.models import Account, UserOwnedAccount, Asset
+    from websauna.wallet.utils import format_asset_amount
+
+    from . import admins
+
+
+    @panel_config(name='admin_panel', context=admins.UserAccountAdmin, renderer='admin/user_owned_account_panel.html')
+    def user_owned_account(context, request, **kwargs):
+        """Admin panel for Users."""
+
+        dbsession = request.dbsession
+
+        # Query all liabilities
+
+        # NOTE: This is a bad SQLAlchemy example as this performances one query
+        # per one asset. One could perform this with a single group by query
+
+        liabilities = OrderedDict()
+        account_summer = sqlalchemy.func.sum(Account.denormalized_balance).label("denormalized_balance")
+
+        for asset in dbsession.query(Asset).order_by(Asset.name.asc()):
+            total_balances = dbsession.query(account_summer).filter(Account.asset == asset).join(UserOwnedAccount).all()
+            balance = total_balances[0][0]
+            liabilities[asset.name] = format_asset_amount(balance, asset.asset_format)
+
+        # These need to be passed to base panel template,
+        # so it knows how to render buttons
+        model_admin = context
+
+        return dict(locals(), **kwargs)
+
+Make sure you scan ``panels.py`` in your :py:class:`websauna.system.Initializer`:
+
+.. code-block:: python
+
+
+    def configure_model_admins(self):
+        from . import panels
+        self.config.scan(panels)
+
+Create a matching template, ``admin/user_owned_account_panel.html`` in our case:
+
+.. code-block:: html+jinja
+
+    {% extends "admin/model_panel.html" %}
+
+    {% block panel_title %}
+    Users' accounts and balances
+    {% endblock %}
+
+    {% block panel_content %}
+      <h3>Liabilities</h3>
+      <table class="table">
+        {% for name, amount in liabilities.items() %}
+          <tr>
+            <th>
+              {{ name }}
+            </th>
+
+            <td>
+              {{ amount }}
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+    {% endblock panel_content %}
+
 
 Nested model admins
 ===================

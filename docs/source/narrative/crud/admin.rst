@@ -309,7 +309,7 @@ If you are building an addon, based on :ref:`addon scaffold <scaffold>` then you
         @after(Initializer.configure_model_admins)
         def configure_model_admins(self):
             from . import admins
-            # self.config.scan(admins)
+            self.config.scan(admins)
 
         @after(Initializer.configure_model_admins)
         def configure_admin(self):

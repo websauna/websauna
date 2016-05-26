@@ -24,6 +24,7 @@ Create a new playbook file. This can directly in ``websauna.ansible`` root folde
         - cloudflare: off
         - new_relic: off
         - letsenrypt: off
+        - firewall: on
         - backup: off
         - git_repository: git@github.com:websauna/myapp.git
         - git_branch: master

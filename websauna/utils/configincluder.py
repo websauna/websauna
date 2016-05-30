@@ -53,9 +53,9 @@ class IncludeAwareConfigParser(configparser.SafeConfigParser):
         package = parts.netloc
         path = parts.path
 
-        assert _resource_manager.resource_exists(pkg_resources.Requirement.parse(package), path), "Could not find {}".format(include_file)
+        assert _resource_manager.resource_exists(package, path), "Could not find {}".format(include_file)
 
-        config_source = _resource_manager.resource_stream(pkg_resources.Requirement.parse(package), path)
+        config_source = _resource_manager.resource_stream(package, path)
         return config_source
 
     def read_include(self, include_file, fpname):

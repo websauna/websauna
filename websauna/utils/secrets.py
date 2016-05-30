@@ -30,9 +30,9 @@ def resolve(uri):
         package = parts.netloc
         path = parts.path
 
-        assert _resource_manager.resource_exists(pkg_resources.Requirement.parse(package), path), "Could not find {}".format(uri)
+        assert _resource_manager.resource_exists(package, path), "Could not find {}".format(uri)
 
-        config_source = _resource_manager.resource_stream(pkg_resources.Requirement.parse(package), path)
+        config_source = _resource_manager.resource_stream(package, path)
     else:
         config_source = io.open(parts.path, "rb")
 

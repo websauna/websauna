@@ -16,3 +16,4 @@ Other functionality
     secrets
     datetime
     logging
+    typing

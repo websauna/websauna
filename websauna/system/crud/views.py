@@ -403,7 +403,7 @@ class Add(FormView):
         return self.get_crud().get_model()
 
     def create_object(self):
-        """Create new empty object to be populated from the form."""
+        """Factory method to create a new empty object to be populated from the form."""
         model = self.get_model()
         return model()
 
@@ -412,12 +412,12 @@ class Add(FormView):
         form.schema.objectify(appstruct, obj)
 
     def add_object(self, obj):
-        """Flush newly created object to persist storage."""
+        """Add objects to transaction lifecycle and flush newly created object to persist storage to give them id."""
         dbsession = self.context.get_dbsession()
         dbsession.add(obj)
         dbsession.flush()
 
-    def do_success(self, resource: Resource):
+    def do_success(self, resource: Resource) -> Response:
         """Finish action after saving new object.
 
         Usually returns HTTP redirect to the next view.
@@ -425,6 +425,17 @@ class Add(FormView):
         messages.add(self.request, kind="success", msg="Item added.", msg_id="msg-item-added")
         # Redirect back to view page after edit page has succeeded
         return HTTPFound(self.request.resource_url(resource, "show"))
+
+    def build_object(self, form, appstruct: dict) -> object:
+        """Builds a new object.
+
+        The default behavior is to call :py:meth:`create_object` to construct a new object, then populate it with :py:meth:`initialize_object` and finally include the created object in the transaction lifecycle with :py:meth:`add_object`.
+        """
+        obj = self.create_object()
+        self.initialize_object(form, appstruct, obj)
+        # We do not need to explicitly call save() or commit() as we are using Zope transaction manager
+        self.add_object(obj)
+        return obj
 
     @view_config(context=CRUD, name="add", renderer="crud/add.html", permission='add')
     def add(self):
@@ -451,10 +462,7 @@ class Add(FormView):
                 if 'id' in appstruct:
                     del appstruct["id"]
 
-                obj = self.create_object()
-                self.initialize_object(form, appstruct, obj)
-                # We do not need to explicitly call save() or commit() as we are using Zope transaction manager
-                self.add_object(obj)
+                obj = self.build_object(form, appstruct)
 
                 resource = crud.wrap_to_resource(obj)
 

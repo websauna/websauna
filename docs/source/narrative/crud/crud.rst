@@ -276,7 +276,17 @@ Add view is responsible for creating new items in the crud. It is a form based v
 Customizing created objects
 ---------------------------
 
-Override ``create_object()``. Example:
+Override one of multiple of
+
+* :py:meth:`websauna.system.crud.views.Add.create_object` (construct a new object)
+
+* :py:meth:`websauna.system.crud.views.Add.initialize_object` (populate new object with values from from)
+
+* :py:meth:`websauna.system.crud.views.Add.add_object` (include new object in database session)
+
+* :py:meth:`websauna.system.crud.views.Add.build_object` (all of above)
+
+Example using :py:meth:`websauna.system.crud.views.Add.create_object`:
 
 .. code-block:: python
 
@@ -295,6 +305,67 @@ Override ``create_object()``. Example:
             item = model()
             item.program_type = "internal"
             return item
+
+Example using :py:meth:`websauna.system.crud.views.Add.build_object`:
+
+.. code-block:: python
+
+    import colander
+    import deform
+
+    from websauna.system.crud.formgenerator import SQLAlchemyFormGenerator
+    from websauna.system.admin import views as adminviews
+    from websauna.system.form.sqlalchemy import UUIDForeignKeyValue
+    from websauna.utils.slug import uuid_to_slug
+
+    from .models import Customer
+    from . import admins
+
+
+    @colander.deferred
+    def customer_selector_widget(node: colander.SchemaNode, kw: dict) -> deform.widget.Widget:
+        request = kw["request"]
+        dbsession = request.dbsession
+        query = dbsession.query(Customer).all()
+        vocab = []
+        for customer in query:
+            vocab.append((uuid_to_slug(customer.id), customer.name))
+        return deform.widget.SelectWidget(values=vocab)
+
+
+    @view_overrides(context=admins.Invoice)
+    class InvoiceAdd(adminviews.Add):
+        """Add invoices for customers."""
+
+        includes = [
+
+            # Drop down to choose customer
+            colander.SchemaNode(UUIDForeignKeyValue(model=Customer, match_column="id"), name="customer", widget=customer_selector_widget, missing=None),
+
+            # Monetary input decimal
+            colander.SchemaNode(colander.Decimal(quant="1.00"), name="amount"),
+
+            # Invoice label
+            "label",
+
+            # When invoice should be paid (datetime picker)
+            "due_date_at",
+        ]
+        form_generator = SQLAlchemyFormGenerator(includes=includes)
+
+        def build_object(self, form, appstruct):
+            """Call invoice factory method with params we recorded from form plus additional generated parameters."""
+
+            params = appstruct
+
+            del params["csrf_token"]  # This is form internal parameter, no need to pass forward
+
+            params["opened_at"] = now()
+            params["external_id"] = "admin-" + str(random.randint(0, 10000))
+            params["source"] = "admin"
+
+            invoice = create_invoice(**params)
+            return invoice
 
 Show view
 =========

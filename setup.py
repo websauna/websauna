@@ -56,6 +56,7 @@ setup(
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
     packages=find_packages(exclude=['docs']),
+    include_package_data=True,
 
     # Disabled for now - breaks workflow
     # https://github.com/pyfidelity/setuptools-git-version/issues/4

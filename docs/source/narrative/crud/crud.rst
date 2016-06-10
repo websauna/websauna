@@ -364,6 +364,8 @@ Example using :py:meth:`websauna.system.crud.views.Add.build_object`:
             params["external_id"] = "admin-" + str(random.randint(0, 10000))
             params["source"] = "admin"
 
+            # This will create new Invoice object with given parameters
+            # and attaches it to current dbsession
             invoice = create_invoice(**params)
             return invoice
 
@@ -428,12 +430,12 @@ Below is an example where the show view has fields which do not exist on the obj
 .. code-block:: python
 
     import colander
+    import deform
 
     from websauna.system.crud.formgenerator import SQLAlchemyFormGenerator
     from websauna.system.crud import views as basecrudviews
 
     from xxx.models import TokenContract
-
 
     @view_overrides(context=ContractCRUD.Resource,
                     route_name="user-facing-contracts",
@@ -471,6 +473,59 @@ Below is an example where the show view has fields which do not exist on the obj
         def get_title(self):
             token_contract = self.get_object()
             return "Contract " + bin_to_eth_address(token_contract.contract_address)
+
+Here is another example:
+
+.. code-block:: python
+
+    import colander
+    from .models import Invoice
+
+    @colander.deferred
+    def customer_selector_widget(node: colander.SchemaNode, kw: dict) -> deform.widget.Widget:
+        """Create a Deform selection widget having vocabulary of all customers on the site."""
+        request = kw["request"]
+        dbsession = request.dbsession
+        query = dbsession.query(Customer).all()
+        vocab = []
+        for customer in query:
+            vocab.append((uuid_to_slug(customer.id), customer.name))
+        return deform.widget.SelectWidget(values=vocab)
+
+
+    @view_overrides(context=admins.Invoice.Resource)
+    class InvoiceShow(adminviews.Show):
+        """Show invoice model in admin."""
+
+        includes = [
+            "id",  # psql.UUID
+            "label",  # sa.String
+
+            # get_billable_amount() is a function on model instance
+            # and thus cannot be automatically mapped,
+            # so we explicitly declare this field
+            colander.Schema(colander.Decimal(), name="billable_amount"),
+
+            # ForeignKey.
+            # Declare mapping explicitly to provide friendly presentation using
+            # SelectWidget in read-only mode
+            colander.SchemaNode(UUIDForeignKeyValue(model=Customer, match_column="id"), name="customer", widget=customer_selector_widget, missing=None),
+            "created_at",  # sa.DateTime
+            "updated_at", # sa.DateTime
+            "external_id",  # sa.String
+            "opened_at",  # sa.DateTime
+            "due_date_at",  # sa.DateTime
+            "invoice_data",  # psql.JSONB
+            "settlement",  # sa.Enum
+            "settled_at",  # sa.DateTime
+            "settlement_data"  # psql.JSONB
+        ]
+        form_generator = SQLAlchemyFormGenerator(includes=includes)
+
+        def get_appstruct(self, form: deform.Form, invoice: Invoice) -> dict:
+            fields = form.schema.dictify(invoice)
+            fields["billable_amount"] = invoice.get_billable_amount()
+            return fields
 
 Generating constant fields
 --------------------------

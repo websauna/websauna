@@ -158,13 +158,19 @@ Raising a 404 error
 Now, let's tackle the question detail view -- the page that displays the question text
 for a given poll. Here's the view:
 
-::
+.. code-block:: python
 
     from pyramid.httpexceptions import HTTPNotFound
+    from websauna.utils.slug import slug_to_uuid
+    from websauna.system.core.route import simple_route
 
-    @simple_route("/questions/{question_uuid}", route_name="detail", renderer="myapp/detail.html", custom_predicates=(decode_uuid,))
-    def detail(request, question_uuid):
-        question = request.dbsession.query(Question).filter_by(uuid=question_uuid).first()
+    @simple_route("/questions/{question_uuid}", route_name="detail", renderer="myapp/detail.html")
+    def detail(request):
+
+        # Convert base64 encoded UUID string from request path to Python UUID object
+        question_uuid = slug_to_uuid(request.matchdict["question_uuid"])
+
+        question = request.dbsession.query(Question).filter_by(uuid=question_uuid).one_or_none()
         if not question:
             raise HTTPNotFound()
         return locals()

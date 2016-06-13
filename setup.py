@@ -56,6 +56,7 @@ setup(
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
     packages=find_packages(exclude=['docs']),
+    include_package_data=True,
 
     # Include `.ini` files so that they're available with the installed
     # package as well (for testing of projects depending on websauna)

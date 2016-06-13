@@ -6,6 +6,7 @@ import sys
 
 from websauna.system.devop.cmdline import init_websauna
 from websauna.system.user.events import UserCreated
+from websauna.system.user.models import Group
 from websauna.system.user.utils import get_user_class, get_user_registry
 
 import transaction
@@ -20,7 +21,17 @@ def usage(argv):
     sys.exit(1)
 
 
-def create(request, username, email, password=None, source="command_line"):
+def create(request, username, email, password=None, source="command_line", admin=False):
+    """Create a new site user from command line.
+
+    :param request:
+    :param username:
+    :param email:
+    :param password:
+    :param source:
+    :param admin: Set this user to admin. The first user is always implicitly admin.
+    :return:
+    """
     User = get_user_class(request.registry)
     dbsession = request.dbsession
     u = dbsession.query(User).filter_by(email=email).first()
@@ -33,11 +44,18 @@ def create(request, username, email, password=None, source="command_line"):
         user_registry = get_user_registry(request)
         user_registry.set_password(u, password)
 
+
     u.registration_source = source
     u.activated_at = now()
     dbsession.add(u)
     dbsession.flush()
+
     request.registry.notify(UserCreated(request, u))
+
+    if admin:
+        group = dbsession.query(Group).filter_by(name="admin").one_or_none()
+        group.users.append(u)
+
     return u
 
 

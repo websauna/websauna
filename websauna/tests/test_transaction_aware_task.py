@@ -108,7 +108,7 @@ def _on_preload_parsed(options, **kwargs):
 def celery_worker(request, init):
     """py.test fixture to shoot up Celery worker process with our test config."""
 
-    ini_file = os.path.join(os.path.dirname(__file__), "..", "..", "test.ini")
+    ini_file = os.path.join(os.path.dirname(__file__), "test.ini")
 
     setup_app(init.config.registry, ini_file)
 

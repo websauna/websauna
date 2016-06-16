@@ -123,8 +123,8 @@ Example ``continuos-integration.ini`` which extends other INI files and override
 
     [includes]
     include_ini_files =
-        resource://websauna/tests/test.ini
-        resource://websauna/base.ini
+        resource://websauna/conf/test.ini
+        resource://websauna/conf/base.ini
 
     [app:main]
     use = egg:websauna

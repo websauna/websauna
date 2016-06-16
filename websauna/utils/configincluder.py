@@ -27,8 +27,8 @@ class IncludeAwareConfigParser(configparser.SafeConfigParser):
 
         [includes]
         include_ini_files =
-            resource://websauna/production.ini
-            resource://websauna/base.ini
+            resource://websauna/conf/production.ini
+            resource://websauna/conf/base.ini
 
 
     Each included file is referred by URL. Currently support protocols are:
@@ -51,11 +51,12 @@ class IncludeAwareConfigParser(configparser.SafeConfigParser):
         assert parts.scheme == "resource", "Only resource: supported ATM, got {} in {}".format(include_file, fpname)
 
         package = parts.netloc
-        path = parts.path
+        path = os.path.join(*package.split('.'), parts.path.lstrip('/'))
 
-        assert _resource_manager.resource_exists(package, path), "Could not find {}".format(include_file)
+        req = pkg_resources.Requirement.parse(package)
+        assert _resource_manager.resource_exists(req, path), "Could not find {}".format(include_file)
 
-        config_source = _resource_manager.resource_stream(package, path)
+        config_source = _resource_manager.resource_stream(req, path)
         return config_source
 
     def read_include(self, include_file, fpname):

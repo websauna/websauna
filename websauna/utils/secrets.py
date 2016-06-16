@@ -28,11 +28,12 @@ def resolve(uri):
 
     if parts.scheme == "resource":
         package = parts.netloc
-        path = parts.path
+        path = os.path.join(*package.split('.'), parts.path.lstrip('/'))
 
-        assert _resource_manager.resource_exists(package, path), "Could not find {}".format(uri)
+        req = pkg_resources.Requirement.parse(package)
+        assert _resource_manager.resource_exists(req, path), "Could not find {}".format(uri)
 
-        config_source = _resource_manager.resource_stream(package, path)
+        config_source = _resource_manager.resource_stream(req, path)
     else:
         config_source = io.open(parts.path, "rb")
 
@@ -63,9 +64,9 @@ def read_ini_secrets(secrets_file, strict=True) -> dict:
 
     * Absolute path using ``file://`` URL: ``file:///etc/myproject/mysecrets.ini``
 
-    * A path relative to deployed Python package. E.g. ``resource://websauna/test-settings.ini``
+    * A path relative to deployed Python package. E.g. ``resource://websauna/conf/test-settings.ini``
 
-    :param secrets_file: URI like ``resource://websauna/test-settings.ini``
+    :param secrets_file: URI like ``resource://websauna/conf/test-settings.ini``
 
     :param strict: Bail out in the environment variable expansion if the environment variable is not. Useful e.g. for testing when all users are not assumed to know all secrets. In non-strict mode if the environment variable is missing the secret value is set to ``None``.
 

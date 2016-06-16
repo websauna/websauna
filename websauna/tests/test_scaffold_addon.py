@@ -52,8 +52,8 @@ def test_addon_pserve(addon_scaffold, addon_dev_db, browser):
     """Install and configure demo app for addon an and see if pserve starts."""
 
     # User models are needed to start the web server
-    execute_venv_command("ws-sync-db development.ini", addon_scaffold, cd_folder="websauna.myaddon")
-    execute_venv_command("ws-pserve development.ini --pid-file=test_pserve.pid", addon_scaffold, wait_and_see=3.0, cd_folder="websauna.myaddon")
+    execute_venv_command("ws-sync-db websauna/myaddon/conf/development.ini", addon_scaffold, cd_folder="websauna.myaddon")
+    execute_venv_command("ws-pserve websauna/myaddon/conf/development.ini --pid-file=test_pserve.pid", addon_scaffold, wait_and_see=3.0, cd_folder="websauna.myaddon")
 
     # Give pserve some time to wake up in CI
     time.sleep(4)
@@ -68,15 +68,15 @@ def test_addon_pserve(addon_scaffold, addon_dev_db, browser):
         assert b.is_element_present_by_css("#demo-text")
 
     finally:
-        execute_venv_command("ws-pserve development.ini --stop-daemon --pid-file=test_pserve.pid", addon_scaffold, cd_folder="websauna.myaddon")
+        execute_venv_command("ws-pserve websauna/myaddon/conf/development.ini --stop-daemon --pid-file=test_pserve.pid", addon_scaffold, cd_folder="websauna.myaddon")
 
 
 def test_addon_migration(addon_scaffold, addon_dev_db):
     """Create an addon, add a model and see if migrations are run and scripts created correctly."""
 
     with replace_file(os.path.join(addon_scaffold, "websauna.myaddon", "websauna", "myaddon", "models.py"), MODELS_PY):
-        execute_venv_command("ws-alembic -c development.ini revision --autogenerate -m 'Added MyModel'", addon_scaffold, cd_folder="websauna.myaddon")
-        execute_venv_command("ws-alembic -c development.ini upgrade head", addon_scaffold, cd_folder="websauna.myaddon")
+        execute_venv_command("ws-alembic -c websauna/myaddon/conf/development.ini revision --autogenerate -m 'Added MyModel'", addon_scaffold, cd_folder="websauna.myaddon")
+        execute_venv_command("ws-alembic -c websauna/myaddon/conf/development.ini upgrade head", addon_scaffold, cd_folder="websauna.myaddon")
 
         # Assert we got migration script for mymodel
         files = os.listdir(os.path.join(addon_scaffold, "websauna.myaddon", "alembic", "versions"))
@@ -112,7 +112,7 @@ def test_addon_integration(app_scaffold, addon_scaffold, addon_dev_db):
         with insert_content_after_line(os.path.join(app_scaffold, "myapp", "myapp", "__init__.py"), ADDON_INSTALLED_INITIALIZER, "def run"):
             # path = os.path.join(app_scaffold, "myapp", "myapp", "__init__.py")
             # print(path)
-            exit_code, output, stderr = execute_venv_command("echo 'quit()' | ws-shell conf/development.ini", app_scaffold, cd_folder="myapp", timeout=30)
+            exit_code, output, stderr = execute_venv_command("echo 'quit()' | ws-shell myapp/conf/development.ini", app_scaffold, cd_folder="myapp", timeout=30)
             assert "MyModel" in output
 
 

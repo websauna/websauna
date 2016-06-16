@@ -2,8 +2,8 @@
 
 [includes]
 include_ini_files =
-    resource://websauna/tests/test.ini
-    resource://websauna/base.ini
+    resource://websauna/conf/test.ini
+    resource://websauna/conf/base.ini
 
 [app:main]
 use = egg:websauna.{{package}}
@@ -12,7 +12,7 @@ websauna.init = websauna.{{package}}.demo.Initializer
 websauna.site_id = {{project}}_test
 websauna.site_email_prefix = [{{project}} TEST]
 sqlalchemy.url = postgresql://localhost/{{project}}_test
-websauna.secrets_file = resource://websauna.{{package}}/development-secrets.ini
+websauna.secrets_file = resource://websauna.{{package}}/conf/development-secrets.ini
 websauna.test_web_server_port = 8533
 
 ###

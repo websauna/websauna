@@ -54,14 +54,36 @@ Running all tests silently using a headless test browser::
 
     py.test websauna --splinter-webdriver=phantomjs --splinter-make-screenshot-on-failure=false --ini=test.ini
 
-More examples
-+++++++++++++
 
-Running a single test case with pdb breakpoint support::
+Tox
+---
+
+:term:`Tox` is used to run tests against multiple versions of Python.
+
+To run tests locally using tox:
+
+.. code-block:: console
+
+    tox -- --ini=websauna/conf/test.ini
+
+More examples
+-------------
+
+Run tests using Tox. Here is a Tox run using Python 3.5 and Chrome:
+
+.. code-block:: console
+
+     tox -e py35 -- --ini=websauna/conf/test.ini -x --splinter-webdriver=chrome
+
+Running a single test case with pdb breakpoint support:
+
+.. code-block:: console
 
     py.test -s --ini=test.ini --splinter-webdriver=phantomjs -k test_login_inactive
 
-Running functional tests with an alternative browser::
+Running functional tests with an alternative browser:
+
+.. code-block:: console
 
     py.test --splinter-webdriver=firefox websauna/tests/test_frontpage.py --ini=test.ini
 

@@ -36,7 +36,7 @@ script:
   # https://pypi.python.org/pypi/coverage_enable_subprocess
   - pip install coverage-enable-subprocess
   - export COVERAGE_PROCESS_START=$PWD/.coveragerc
-  - tox -- --ini-file=websauna/conf/travis.ini
+  - tox -- --ini=websauna/conf/travis.ini
 
 after_success:
   # Update coverage information in codecov.io

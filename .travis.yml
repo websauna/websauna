@@ -25,6 +25,9 @@ cache:
     - $HOME/.cache/pip
     - .tox
 
+install:
+  - travis_retry pip install tox
+
 # https://docs.travis-ci.com/user/gui-and-headless-browsers/
 before_script:
   - "export DISPLAY=:99.0"

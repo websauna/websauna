@@ -42,8 +42,10 @@ script:
   - tox -- --ini=websauna/conf/travis.ini
 
 after_success:
-  # Update coverage information in codecov.io
+  # Update coverage information in codecov.io.
+  # This will simply fail under py34.
   - .tox/py35/bin/codecov
   # Dump package list so we have a log of last known good version set
+  # This will simply fail under py34.
   - .tox/py35/bin/pip freeze
 

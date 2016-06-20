@@ -28,7 +28,8 @@ def resolve(uri):
 
     if parts.scheme == "resource":
         package = parts.netloc
-        path = os.path.join(*package.split('.'), parts.path.lstrip('/'))
+        args = package.split('.') + [parts.path.lstrip('/')]
+        path = os.path.join(*args)
 
         req = pkg_resources.Requirement.parse(package)
         assert _resource_manager.resource_exists(req, path), "Could not find {}".format(uri)

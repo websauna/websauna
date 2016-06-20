@@ -4,6 +4,7 @@ import subprocess
 import time
 from contextlib import closing, contextmanager
 import os
+from shutil import which
 from tempfile import mkdtemp
 
 import psycopg2
@@ -103,7 +104,7 @@ def preload_wheelhouse(folder:str):
     """
     cache_folder = os.getcwd()
 
-    if os.path.exists(os.path.join(cache_folder, "wheelhouse")):
+    if os.path.exists(os.path.join(cache_folder, "wheelhouse", "python{}.{}".format(sys.version_info.major, sys.version_info.minor))):
         execute_venv_command("pip install {}/wheelhouse/python{}.{}/*".format(cache_folder, sys.version_info.major, sys.version_info.minor), folder, timeout=3*60)
     else:
         print("No preloaded Python package cache found")
@@ -189,8 +190,22 @@ def app_scaffold(request) -> str:
     folder = mkdtemp(prefix="websauna_test_")
 
     websauna_folder = os.getcwd()
-
     execute_command([PYTHON_INTERPRETER, "-m", "venv", "venv"], folder, timeout=30)
+
+    # Don't try to push to get a working pip because IT "#€!"#€"#€ DOESNT'T JUST WORK
+    # Instead work around any issues caused by missing pip in tests themselves
+    #
+    # venv fails to install pip under .tox virtualenv due to some obscure bug
+    # This broken Python venv stuff drives me crazy... make sure we get  pip
+    # pip = os.path.join(folder, "venv", "bin", "pip")
+    # if not os.path.exists(pip):
+        # Use internal get-pip script to fix broken venv where ensurepip did no give us our shit, because we can't rely on system pip to get this right either
+     #   print("The current version of venv/ensurepip modules are broken, fixing problem internally")
+     #   get_pip = os.path.join(os.path.dirname(__file__), "get-pip.py")
+     #   assert os.path.exists(get_pip)
+     #   execute_venv_command("python {} --prefix {}/venv --ignore-installed pip".format(get_pip, folder), folder, timeout=5*60)
+
+    # assert os.path.exists(pip), "Pip not installed: {}".format(pip)
 
     # PIP cannot handle pip -install .[test]
     # On some systems, the default PIP is too old and it doesn't seem to allow upgrade through wheelhouse

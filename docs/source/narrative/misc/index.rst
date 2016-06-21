@@ -15,5 +15,4 @@ Other functionality
     scaffolds
     secrets
     datetime
-    logging
     typing

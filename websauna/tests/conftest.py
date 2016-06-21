@@ -13,9 +13,13 @@ import os
 import pyramid.testing
 import pytest
 import transaction
+
+from pyramid import testing
+from pyramid.interfaces import IRequest
 from pyramid.registry import Registry
 from pyramid.router import Router
 from pytest_splinter.plugin import Browser
+from zope.interface import implementer
 
 from sqlalchemy.orm.session import Session
 
@@ -24,6 +28,7 @@ from pyramid.paster import (
     bootstrap)
 
 from websauna.system.devop.cmdline import setup_logging
+from websauna.system.http import Request
 from websauna.system.model.meta import create_dbsession
 
 # TODO: Remove this method
@@ -361,17 +366,37 @@ def pyramid_testing(request, ini_settings):
 
 
 @pytest.fixture()
-def pyramid_request(request, init):
-    """Get a gold of pyramid.testing.DummyRequest object."""
-    from pyramid import testing
+def test_request(request, dbsession, registry) -> IRequest:
+    """Create a dummy HTTP request object which can be used to obtain services and adapters.
 
-    testing.setUp(registry=init.config.registry)
-    def teardown():
-        testing.tearDown()
+    This fixture gives you an instance of :py:class:`pyramid.testing.DummyRequest` object which looks like a request as it would have arrived through HTTP interface. It has request-like properties, namely
 
-    request.addfinalizer(teardown)
+    * registry
 
-    _request = testing.DummyRequest()
+    * dbsession
+
+    ... and thus can be used to access services, utilies and such which normally would take a request as an argument.
+
+    Example:
+
+    .. code-block:: python
+
+        from websauna.system.user.utils import get_login_service
+
+
+        def test_order(dbsession, test_request):
+            service = get_login_service(test_request)
+
+    """
+
+    @implementer(IRequest)
+    class DummyRequest:
+        pass
+
+    _request = DummyRequest()
+    _request.dbsession = dbsession
+    _request.user= None
+    _request.registry = registry
     return _request
 
 

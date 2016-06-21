@@ -81,7 +81,7 @@ Below is a sample email.
 
     {% endblock %}
 
-To send this email:
+To send out this email use :py:func:`websauna.system.mail.send_templated_mail`:
 
 .. code-block:: python
 
@@ -90,6 +90,13 @@ To send this email:
     def my_view(request):
         user = request.user
         send_templated_mail(request, [user.email], "email/welcome", context={})
+
+Envelope to header
+------------------
+
+If you want to have the email "To:" header to contain the full name of the receiver you can do the following.
+
+
 
 Raw pyramid_mail API
 --------------------
@@ -121,3 +128,34 @@ You can render a dummy HTML email in your browser by going to:
     http://localhost:6543/sample-html-email
 
 See :ref:`websauna.sample_html_email` configuration for more information.
+
+Accessing email in tests
+========================
+
+For a peek into outbound email you can do::
+
+    TODO
+
+Configuring outbound email
+==========================
+
+Below is an :term:`INI` configuration example to send emails through `Sparkpost <https://www.sparkpost.com/>`_. This will make *pyramid_mailer* directly to talk remote SMTP server. These settings are good for local development when you need to see the actual outbound email message content properly:
+
+.. code-block:: ini
+
+    [main]
+
+    # ...
+    # other settings go here
+    # ...
+
+    websauna.mailer = mail
+    mail.default_sender = no-reply@wattcoin.com
+    mail.default_sender_name = Example Tech Corp
+    mail.tls = true
+    mail.host = smtp.sparkpostmail.com
+    mail.port = 587
+    mail.username = SMTP_Injection
+    mail.password = <your Sparkpost API token>
+
+For more complex production environment outbound email with local :term:`Postfix` buffering, see :ref:`outbound email chapter in Ansible playbook <outbound-email>`_.

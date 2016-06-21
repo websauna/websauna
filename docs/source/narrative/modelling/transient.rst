@@ -85,6 +85,25 @@ If you want to explore Redis database you can use
 
 * :ref:`ws-shell` command line shell
 
+Clearing Redis data in tests
+============================
+
+By default tests do not clear Redis database between tests run.
+
+You can manually clear Redis at the beginning of your test code:
+
+.. code-block:: python
+
+    from websauna.system.core.redis import get_redis
+
+    def test_brand_data(dbsession, test_request):
+        """Verify brand data."""
+
+        # Clear redis data for proper cache testing,
+        # make sure we don't have existing data from previous test runs
+        redis = get_redis(test_request)
+        redis.flushdb()
+
 Default Redis database numbering
 ================================
 

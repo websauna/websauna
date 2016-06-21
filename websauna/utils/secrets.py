@@ -24,7 +24,7 @@ def resolve(uri):
 
     parts = urlparse(uri)
 
-    assert parts.scheme in ("resource", "file"), "Only resource: supported ATM, got {} in {}".format(include_file, fpname)
+    assert parts.scheme in ("resource", "file"), "Only resource//: scheme supported, got {}".format(uri)
 
     if parts.scheme == "resource":
         package = parts.netloc

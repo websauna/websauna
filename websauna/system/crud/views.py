@@ -463,7 +463,6 @@ class Add(FormView):
                     del appstruct["id"]
 
                 obj = self.build_object(form, appstruct)
-
                 resource = crud.wrap_to_resource(obj)
 
                 return self.do_success(resource)

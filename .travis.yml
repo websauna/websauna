@@ -10,17 +10,23 @@ services:
 matrix:
     include:
         - python: 3.4
-          env: PYTHON_VERSION=python3.4
+          env:
+          - PYTHON_VERSION=python3.4
+          - TOXENV=py34
         - python: 3.5
-          env: PYTHON_VERSION=python3.5
+          env:
+          - PYTHON_VERSION=python3.5
+          - TOXENV=py35
 
 # http://stackoverflow.com/a/19460794/315168
 cache:
   directories:
     # /home/travis/.cache/pip/wheels is the normal pip cache folder
     - $HOME/.cache/pip
-    # This is where we explicitly build binary compatible .whl archives for caching using create_wheelhouse.script
-    - wheelhouse
+    - .tox
+
+install:
+  - travis_retry pip install tox
 
 # https://docs.travis-ci.com/user/gui-and-headless-browsers/
 before_script:
@@ -29,23 +35,17 @@ before_script:
   - psql -c 'create database websauna_test;' -U postgres
   - pip install -U pip
 
-
 script:
   # https://pypi.python.org/pypi/coverage_enable_subprocess
   - pip install coverage-enable-subprocess
   - export COVERAGE_PROCESS_START=$PWD/.coveragerc
-  # http://stackoverflow.com/a/91394/315168
-  - if [ "$(ls wheelhouse/$PYTHON_VERSION/*)" ] ; then echo "Wheelhouse cache package count:" && (ls -l wheelhouse/$PYTHON_VERSION | wc -l) ; fi
-  - if [ ! "$(ls wheelhouse/$PYTHON_VERSION/*)" ] ;  then echo "Rebuilding wheelhouse cache." ; bash websauna/tests/create_wheelhouse.bash ; fi
-  - pip install -q wheelhouse/$PYTHON_VERSION/*
-  - pip install -q -e ".[test]"
-  - py.test --splinter-webdriver=firefox --splinter-make-screenshot-on-failure=true --ini=travis.ini --timeout=300 --durations=10 --cov-report xml --cov websauna --cov-config .coveragerc websauna
+  - tox -- --ini=websauna/conf/travis.ini
 
-# Show version pinnings when the build as still succeeding
-after_script:
-  - pip freeze
-
-# Update coverage information in codecov.io
 after_success:
-  - codecov
+  # Update coverage information in codecov.io.
+  # This will simply fail under py34.
+  - .tox/py35/bin/codecov
+  # Dump package list so we have a log of last known good version set
+  # This will simply fail under py34.
+  - .tox/py35/bin/pip freeze
 

@@ -267,6 +267,9 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
     testing
         Testing is the development face when automated test suite is executed against your application. See :ref:`test.ini` configuration reference. See :doc:`How to write and run tests <../narrative/testing/writing>`.
 
+    Tox
+        Tox is a generic virtualenv management and test command line tool you can use for: checking your package installs correctly with different Python versions and interpreters, running your tests in each of the environments, configuring your test tool of choice, acting as a frontend to Continuous Integration servers, greatly reducing boilerplate and merging CI and shell-based testing. `More information <https://pypi.python.org/pypi/tox>`__.
+
     transaction retry
         If a succesfully committed transaction is doomed by the database due to a :term:`race condition` the application tries to replay the HTTP request certain number of times before giving up. This usually works on the assumptions race conditions are rare and the data being modified does not need content locking like protection. See :term:`optimistic concurrency control`.
 

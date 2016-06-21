@@ -2,9 +2,9 @@
 
 [includes]
 include_ini_files =
-    resource://websauna/development.ini
+    resource://websauna/conf/development.ini
     resource://{{project}}/conf/base.ini
-    resource://websauna/base.ini
+    resource://websauna/conf/base.ini
 
 [app:main]
 websauna.site_id = {{project}}_dev

@@ -58,6 +58,10 @@ setup(
     packages=find_packages(exclude=['docs']),
     include_package_data=True,
 
+    # Include `.ini` files so that they're available with the installed
+    # package as well (for testing of projects depending on websauna)
+    package_data={'websauna': ['base.ini', 'tests/*.ini']},
+
     # Disabled for now - breaks workflow
     # https://github.com/pyfidelity/setuptools-git-version/issues/4
     # automatic version generation for development releases:

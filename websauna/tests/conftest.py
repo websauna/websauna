@@ -400,6 +400,20 @@ def test_request(request, dbsession, registry) -> IRequest:
     return _request
 
 
+@pytest.fixture
+def scaffold_webdriver():
+    """A fixture to get Webdriver settings from external environment to be used inside scaffold tests.
+
+    TODO: This fixture does not serve purpose outside Websauna and should be moved somewhere.
+    """
+    # Workaround broken Firefox webdriver problem and allow use Chrome on OSX
+    webdriver = os.environ.get("SPLINTER_WEBDRIVER")
+    if webdriver:
+        webdriver_param = "--splinter-webdriver=" + webdriver
+    else:
+        webdriver_param = ""
+    return webdriver_param
+
 #: Make sure py.test picks this up
 from websauna.tests.webserver import web_server  # noqa
 from websauna.tests.webserver import customized_web_server  # noqa

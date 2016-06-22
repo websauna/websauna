@@ -83,7 +83,7 @@ def test_addon_migration(addon_scaffold, addon_dev_db):
         assert any("added_mymodel.py" in f for f in files), "Got files {}".format(files)
 
 
-def test_addon_pytest(addon_scaffold, addon_test_db):
+def test_addon_pytest(addon_scaffold, addon_test_db, scaffold_webdriver):
     """Create an addon and see if the default py.test tests pass. """
 
     # Install test requirements
@@ -92,8 +92,10 @@ def test_addon_pytest(addon_scaffold, addon_test_db):
     # XXX: Looks like a new pip bug - we need to explicitly install websauna[test]? and dependencies are not respected
     execute_venv_command("pip install 'websauna[test]'", addon_scaffold, timeout=2 * 60, cd_folder="websauna.myaddon")
 
+    webdriver_param = scaffold_webdriver
+
     # Execute one functional test
-    execute_venv_command("py.test --ini test.ini websauna/myaddon/tests", addon_scaffold, timeout=1 * 60, cd_folder="websauna.myaddon")
+    execute_venv_command("py.test --ini test.ini websauna/myaddon/tests " + webdriver_param, addon_scaffold, timeout=1 * 60, cd_folder="websauna.myaddon")
 
 
 def test_addon_sdist(addon_scaffold):

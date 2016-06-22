@@ -99,7 +99,6 @@ setup(
         "colanderalchemy",
         "pyramid_tm",
         "jsonpointer",
-        "pgcli",
 
         # User management
         "argon2_cffi",
@@ -126,16 +125,22 @@ setup(
         # Misc
         "scandir",  # os.scandir backport for py3.4
         "python-slugify", # ASCII slug generation
-
     ],
 
     # List additional groups of  dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
     # for example:
-    # $ pip install -e .[dev,test]
+    # $ pip install -e ".[dev,test, utils]"
     extras_require={
+
+        # Dependencies needed to build and release Websauna
         'dev': ['check-manifest', 'Sphinx', 'setuptools_git', 'zest.releaser', 'sphinx-autodoc-typehints', 'pyramid_autodoc', "sphinx_rtd_theme", "sphinxcontrib-zopeext", "ruamel.yaml"],
+
+        # Dependencies needed to run tests
         'test': ['pytest>=2.8', 'pytest-runner', 'coverage', 'webtest', 'pytest-splinter', 'pytest-timeout', 'pytest-cov', "codecov", "flaky"],
+
+        # Command line utilities and like that are needed to make development / production environment friendly
+        'utils': ['pgcli'],
     },
 
     # To provide executable scripts, use entry points in preference to the

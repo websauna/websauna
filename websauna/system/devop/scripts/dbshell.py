@@ -1,6 +1,7 @@
 """Run pgcli shell on the configured database."""
 import os
 import sys
+from shutil import which
 
 from websauna.system.devop.cmdline import init_websauna
 from websauna.utils.configincluder import monkey_patch_paster_config_parser
@@ -27,5 +28,8 @@ def main(argv=sys.argv):
 
     engine = request.dbsession.get_bind()
     print("Connecting to {}".format(engine))
+
+    if not which("pgcli"):
+        sys.exit("pgcli not installed - please install websauna as pip install websauna[dev] to get this dependency")
 
     os.system("pgcli {}".format(url))

@@ -85,6 +85,8 @@ def test_last_login_ip(web_server, browser, dbsession, init):
     b.fill("password", PASSWORD)
     b.find_by_name("login_email").click()
 
+    assert b.is_element_present_by_css("#msg-you-are-logged-in")
+
     with transaction.manager:
         user = get_user(dbsession)
         assert user.last_login_ip == "127.0.0.1"

@@ -78,18 +78,13 @@ def test_pyramid_debugtoolbar(app_scaffold, dev_db, browser):
         execute_venv_command("ws-pserve myapp/conf/development.ini --stop-daemon --pid-file=test_pserve.pid", app_scaffold, cd_folder="myapp")
 
 
-def test_pytest(app_scaffold, test_db):
+def test_pytest(app_scaffold, test_db, scaffold_webdriver):
     """Create an application and see if py.test tests pass. """
 
     # Install test requirements
     execute_venv_command("cd myapp && pip install '.[test]'", app_scaffold, timeout=2*60)
 
-    # Workaround broken Firefox webdriver problem and allow use Chrome on OSX
-    webdriver = os.environ.get("SPLINTER_WEBDRIVER")
-    if webdriver:
-        webdriver_param = "--splinter-webdriver=chrome"
-    else:
-        webdriver_param = ""
+    webdriver_param = scaffold_webdriver
 
     execute_venv_command("py.test --ini myapp/myapp/conf/test.ini myapp/myapp/tests " + webdriver_param, app_scaffold, timeout=1*60)
 

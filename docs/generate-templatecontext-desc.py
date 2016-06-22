@@ -155,7 +155,7 @@ def find_vars():
     return result
 
 
-request = init_websauna("../development.ini")
+request = init_websauna("../websauna/conf/development.ini")
 
 modules = {}
 modules["filters"] = find_filters(request)

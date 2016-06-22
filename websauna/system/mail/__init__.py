@@ -26,6 +26,26 @@ def send_templated_mail(request, recipients, template, context, sender=None, imm
 
     Make sure you have configured your template engine (Jinja 2) to read TXT templates beside HTML.
 
+    Example to send email with a custom From header, using ``myapp/email/welcome.body.html`` as the body template:
+
+    .. code-block:: python
+
+        from email.header import Header
+        from email.utils import formataddr
+
+        # I never receive any letters
+        to_email = "mikko@example.com"
+
+        # Build a proper From header with both name and email,
+        # otherwise the sender defaults to the site INI settings
+        sender = formataddr((str(Header(order.get_sender_name(), 'utf-8')), order.get_from_email()))
+
+        # Pass some variables to subject and body templates
+        context = dict(greeting="Welcome human!", tag_line="We come in peace")
+
+        send_templated_mail(self.request, [to_email], "myapp/email/welcome", context=context, sender=sender)
+
+
     :param request: HTTP request, passed to the template engine. Request configuration is used to get hold of the configured mailer.
 
     :param recipients: List of recipient emails

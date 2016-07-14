@@ -2,7 +2,7 @@
 Introducing admin
 =================
 
-Websauna provides an automated :ref:`admin` interface allowing you easily edit your modelled data through automatically generated web interface.
+Websauna provides an automated :ref:`admin` interface allowing you to easily edit your modelled data through the automatically generated web interface.
 
 Manually coding an admin site, also known as back office, for your team and clients can be tedious work that doesn’t require much creativity or contain anything novel or value adding. Websauna automates the creation of admin by automatically generating data browsers and editors for your models.
 
@@ -11,7 +11,7 @@ Unlike other frameworks, Websauna sites can have multiple admin interfaces. For 
 Admin architecture
 ==================
 
-Websauna aims to be flexible; it does not enforce any particular URL pattern onen has to follow for admin. On the contrary, the admin is based on :term:`traversal`. Any admin endpoint can declare its own hierarchy of children and grandchildren paths.
+Websauna aims to be flexible; it does not enforce any particular URL pattern one has to follow. On the contrary, the admin is based on :term:`traversal`. Any admin endpoint can declare its own hierarchy of children and grandchildren paths.
 
 * Each model needs a corresponding admin resource of class :py:class:`websauna.system.admin.ModelAdmin`. This resource is responsible for listing and adding new items. (Actions on all items)
 
@@ -79,7 +79,7 @@ Edit ``admins.py`` file of ``myapp.py`` and add the following code:
             def get_title(self):
                 return self.get_object().choice_text
 
-Then make sure your ``__init__.py`` has the following:
+Then make sure, your ``__init__.py`` contain the following:
 
 .. code-block:: python
 
@@ -105,7 +105,7 @@ The process breakdown of adding model admins is
 
 * Decorate this class with :py:class:`websauna.system.admin.modeladmin.model_admin` class decorator for configuration scan
 
-* In the ``__init__.py`` of your application import your admin module and run ``config.scan(admin)`` for it. The app :ref:`scaffold` should include this behavior in the default generated ``__init__.py``
+* In ``__init__.py`` of your application, import your admin module and run ``config.scan(admin)``. The app :ref:`scaffold` should include this behavior in the default generated ``__init__.py``.
 
 In the example, we declare two classes per each model. Here is a breakdown for *Question* model.
 
@@ -140,7 +140,7 @@ Read :ref:`admin` documentation. Read :ref:`CRUD` documentation.
 
 .. note ::
 
-    TODO: Currently there is not possibility to add and edit question choices inline from the question page. This will change in the future versions.
+    TODO: Currently, it is not possible to add and edit choices from the question page. This will change in a future version.
 
 Some examples how to customize and override views in admin interfaces
 

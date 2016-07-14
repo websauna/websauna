@@ -2,7 +2,7 @@
 Required knowledge
 ==================
 
-To be able to develop web applications with Websauna you need know
+To be able to develop web applications with Websauna you should be somewhat familiar with
 
 * `Basic Python programming <https://docs.python.org/3.5/tutorial/>`_
 
@@ -12,7 +12,7 @@ To be able to develop web applications with Websauna you need know
 
 * SQL database basics
 
-* OSX or Linux usagse basics
+* OSX or Linux usage basics
 
 .. note ::
 

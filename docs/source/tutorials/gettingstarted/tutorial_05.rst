@@ -2,7 +2,7 @@
 Local development server
 ========================
 
-Local development server is a web server running on your computer when you edit your application source code. It reflects changes in Python and template files back instantly. :term:`Pyramid` web framework provides :ref:`ws-pserve` command for this.
+Local development server is a web server running on your computer when you edit your application source code. It reflects changes in Python and template files instantly. :term:`Pyramid` web framework provides :ref:`ws-pserve` command for this.
 
 Starting a local web development server
 ---------------------------------------
@@ -30,13 +30,13 @@ Creating your admin user
 
 .. note ::
 
-    This method highlights creating the initial site administrator user from the command line, using email and password. You can also configure any of social media logins (Facebook, Google) as described later in this tutorial. If your first login to the site comes through social media accounts the firstly logged in user becomes admin.
+    This method highlights creating the initial site administrator user from the command line, using email and password. You can also configure any of social media logins (Facebook, Google) as described later in this tutorial. If your first login to the site comes through social media accounts, the very first logged in user becomes admin.
 
-On a shell where your project virtual environment is activated, cd to a folder with ``development.ini`` and type::
+On a shell where your projects virtual environment is activated, cd into ``myapp/myapp`` and type::
 
     ws-create-user conf/development.ini myemail@example.com
 
-This will prompt you to give a password for the new user. Because this is the first user of the site the user becomes an administrator.
+This will prompt you for a password for the new user. Because this is the first user of the site, the user becomes an administrator.
 
 Now you can log in as this user and you should see the site administration.
 
@@ -46,7 +46,7 @@ Now you can log in as this user and you should see the site administration.
 Exploring admin interface
 -------------------------
 
-Click *Admin* in the top navigation bar and you can access the administration interface. This is were all newly created models will become visible. More about this later.
+Click *Admin* in the top navigation bar and you can access the administration interface. This is, where all newly created models will become visible. More about this later.
 
 .. image:: images/admin.png
     :width: 640px

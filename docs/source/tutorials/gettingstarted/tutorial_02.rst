@@ -2,14 +2,14 @@
 Installing Websauna
 ===================
 
-Websauna is a Python package and installing Python
+Websauna is a Python package and requires a number of dependencies.
 
 External dependencies
 =====================
 
 To run Websauna on your local computer you need
 
-* :term:`PostgreSQL`
+* :term:`PostgreSQL` 9.4 or newer
 
 * :term:`Redis`
 
@@ -99,6 +99,33 @@ Install PostgreSQL
     sudo apt-get update
     sudo apt-get install postgresql-9.4 libpq-dev
 
+Installing dependencies on openSUSE 13.2 and Leap 42.1
+------------------------------------------------------
+
+Install Redis
+
+.. code-block:: shell
+
+    # as root
+    zypper install redis
+    cp -a /etc/redis/default.conf.example /etc/redis/default.conf
+    systemctl enable redis.service
+    systemctl start redis.service
+
+For 13.2 we need an additional repository for PostgreSQL 9.4. If you have an older PostgreSQL running already, please check /usr/share/doc/packages/postgresql94/README.SUSE for database migration.
+
+.. code-block:: shell
+
+    zypper ar -f http://download.opensuse.org/repositories/server:/database:/postgresql/openSUSE_13.2/server:database:postgresql.repo
+
+Install PostgreSQL 9.4
+
+.. code-block:: shell
+
+    zypper install postgresql94-server postgresql94-devel postgresql94-contrib
+    systemctl enable postgresql.service
+    systemctl start postgresql.service
+
 Installing Websauna Python package
 ==================================
 
@@ -128,5 +155,4 @@ Then create a virtual environment where installed Python packages will be locate
     # NOT RELEASED YET
     # Use command below
     # pip install websauna
-
 

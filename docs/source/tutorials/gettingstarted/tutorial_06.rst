@@ -2,24 +2,24 @@
 Enter IPython Notebook
 ======================
 
-Websauna offers integrated :doc:`IPython Notebook shell <../../narrative/misc/notebook>` on the site. It's the most powerful friend for diagnostics, data analysis and poking your database.
+Websauna offers an integrated :doc:`IPython Notebook shell <../../narrative/misc/notebook>` on the site. It is the most powerful built-in tool for diagnostics, data analysis and poking your database.
 
-Here we show how to enter to the IPython Notebook and create additional user through Python shell.
+Here we show, how to enter to the IPython Notebook and create additional user through Python shell.
 
 The notebook shell will be extensively used in the following chapter of this tutorial.
 
 Enter notebook
 --------------
 
-You can enter notebook in two ways
+You can enter the notebook in two ways
 
-* *Shell* link in the top navigation bar opens a generic notebook session
+* The *Shell* link in the top navigation bar opens a generic notebook session
 
-* *Shell* button on the object of an :ref:`admin` interface opens notebook session prepopulated with this particular item
+* The *Shell* button of an :ref:`admin` interface object opens a notebook session prepopulated with this particular item
 
 .. note ::
 
-    Firing up the shell takes some seconds as IPython Notebook is heavyish.
+    Firing up the shell takes some seconds as IPython Notebook is rather heavyish.
 
 .. image:: images/enter_notebook.png
     :width: 640px

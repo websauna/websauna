@@ -4,12 +4,12 @@ Adding data and model methods
 
 Now we have the model declared, but we do not yet have an user interface to manipulate questions and choices. However, we can do it from the shell.
 
-In this tutorial chapter we show how to pop up :term:`notebook`
+In this tutorial chapter we show how to work with the :term:`notebook` on the database.
 
 Enter the notebook shell
 ========================
 
-Like earlier, we can enter :term:`notebook`. This time we should see our model in the default variable list:
+Like earlier, we can start :term:`notebook`. This time we should see our model in the default variable list:
 
 .. image:: images/question_model.png
     :width: 640px

@@ -2,14 +2,14 @@
 Creating your first model
 =========================
 
-Now we have a working website in place. It's time to start add some content there.
+Now we have a working website in place. It's time to start to add some content there.
 
-In this tutorial chapter we'll create a :term:`model` for a blog post. The model describers what fields a blog post contains.
+In this tutorial chapter, we'll create a :term:`model` for polling. The model describes, what elements a poll contains.
 
 Adding a model
 ==============
 
-Models are added to a ``models.py`` file which the ``websauna_app`` scaffold generated for you. Websauna uses :term`SQLAlchemy` for modelling.
+Models are added to a ``models.py`` file, that the ``websauna_app`` scaffold generated for you. Websauna uses :term`SQLAlchemy` for modelling.
 
 Open ``models.py`` and add::
 
@@ -83,7 +83,7 @@ Some notes:
 Creating a migration
 ====================
 
-Having a Python code is not enough for a working model. You need to inform your database to create a corresponding structures. This is called :term:`migration`.
+Having Python code in place is not enough for a new or changed model. You need to inform your database to create the corresponding structure. This is called :term:`migration`.
 
 If you try to start your development server in this point the :term:`sanity check` feature aborts the start up::
 
@@ -95,7 +95,7 @@ If you try to start your development server in this point the :term:`sanity chec
     websauna.system.SanityCheckFailed: The database sanity check failed. Check log for details.
     ...
 
-To create a migration script for your application run the following command in your application folder::
+To create a migration script for your application, run the following command in your application folder::
 
     ws-alembic -c conf/development.ini revision --auto -m "Added choices and questions"
 
@@ -104,11 +104,11 @@ To create a migration script for your application run the following command in y
 
 .. note::
 
-    Thumbs up! PostgreSQL migrations are transactional. The whole migration always goes through or none of it. All databases do not have this kind of safety making running a migration a risky operation.
+    Thumbs up! PostgreSQL migrations are transactional. The whole migration succeeds or not. NOt all databases do have this kind of safety, thus making migration a risky operation.
 
-You need to do this every time columns change. After the script is created on your local computer you can re-use it across the different computers where the application is installed (:term:`staging` server, :term:`production` server).
+You need to do this every time columns change. After the migration script is created on your local computer, you can re-use it across different computers where the database is installed (:term:`staging` server, :term:`production` server).
 
-Then apply migration to your local database::
+Now migrate your local database::
 
     ws-alembic -c conf/development.ini upgrade head
 
@@ -118,7 +118,7 @@ Then apply migration to your local database::
 Exploring tables
 ================
 
-Like earlier, you can pop up :ref:`ws-db-shell` command to see that new tables appeared in the database.
+Like shown earlier, you can run the :ref:`ws-db-shell` command to see, that new tables appeared in the database.
 
 More information
 ================

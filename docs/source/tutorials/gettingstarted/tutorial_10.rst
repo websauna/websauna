@@ -4,7 +4,7 @@ Creating your first view
 
 .. contents:: :local:
 
-A :term:`View` is a Python function or class which serves certain URL endpoint. A view is a “type” of Web page in your Websauna application that generally serves a specific function and has a specific template. For example, in a blog application, you might have the following views:
+A :term:`View` is a Python function or class which serves a certain URL endpoint. A view is a “type” of Web page in your Websauna application, that generally serves a specific function and has a specific template. For example, in a blog application, you might have the following views:
 
 * Blog homepage – displays the latest few entries.
 
@@ -37,19 +37,19 @@ This tutorial provides basic instructions for the use of routing, and you can re
 URL dispatch
 ------------
 
-To get from a URL to a view, Websauna uses what is known as a :term:`router` from :term:`Pyramid` framework. A router maps URL patterns to views. This process is called :term:`URL dispatch`. It is the more common way of building web applications.
+IN order to get from an URL to a view, Websauna uses what is known as a :term:`router` from :term:`Pyramid` framework. A router maps URL patterns to views. This process is called :term:`URL dispatch`. It is the more common way of building web applications.
 
 Traversal
 ---------
 
-Websauna also supports an alternative routing method, called :term:`traversal`. In traversal each path part of the path maps to a Python object. On a traditional file systems these are folders and files. In Pyramid they are called :term:`resources <resource>`. Resources offer more flexibility and often make the code more simple and elegant for the cases where hierarchial permissions are needed. E.g. all views behind a organization URL are visible for the organization members only. Organization administrators get access to priviledged part of management views. If the users are members of suborganzations they can access their specific suborganizations only.
+Websauna also supports an alternative routing method called :term:`traversal`. In traversal, each part of the path maps to a Python object. On a traditional file system, these are folders and files. In Pyramid they are called :term:`resources <resource>`. Resources offer more flexibility and often make the code simpler and elegant for such cases, where hierarchial structure is needed. E.g. all views behind a organization URL are visible for the organization members only. Organization administrators get access to priviledged part of management views. If the users are members of sub-organizations, they can access their specific sub-organizational parts only.
 
 Writing views
 -------------
 
-The ``websauna_app`` scaffold has generated ``views.py`` for you.
+The ``websauna_app`` scaffold has generated a ``views.py`` for you.
 
-Let's now add couple of more views there.
+Let's add a couple of views there, now.
 
 TODO
 
@@ -60,15 +60,15 @@ Each view is responsible for doing one of the following things:
 
 * Returning an :py:class:`pyramid.response.Response` object containing the content for the requested page.
 
-* Returning one of HTTP error codes as instance of ones found in :py:mod:`pyramid.httpexcetions`. Don't let the name fool - oyu can also return this instead of raising these.
+* Returning one of the HTTP error code instances found in :py:mod:`pyramid.httpexcetions`. Don't let the name fool you - you can also just return this.
 
-* Raising an exception - in the case of exception the :term:`transaction` is rolled back and nothing is written to the database
+* Raising an exception - in case of an exception, the :term:`transaction` is rolled back and all changes to the databaseare reverted.
 
-* Returning an object for ``renderer`` - this is usually a dictionary passed to templates. This is the most common case and more about this later.
+* Returning an object for ``renderer`` - this is usually a dictionary passed on to template processing. This is the most common case and more about this later.
 
-Your view can read records from a database, or not. It can use a template system such as Websauna’s. It can generate a PDF file, output XML, create a ZIP file on the fly, return and accept JSON, anything you want, using whatever Python libraries you want.
+A view can read records from a database, for example. It can use a template system such as Jinja to render HTML pages. It can generate PDF files, output XML, create ZIP files on the fly, return and accept JSON, anything you want, using whatever Python libraries you want.
 
-Because it’s convenient, let’s use SQLAlchemy’s database API, which we covered in earlier in the tutorial. Here’s one stab at a new ``home()`` view, which displays the latest 5 poll questions in the system, separated by commas, according to publication date::
+Because it’s convenient, let us use SQLAlchemys database API for now, which we covered earlier in the tutorial. Here’s one stab at a new ``home()`` view, which displays the latest 5 poll questions in the database, separated by commas, according to publication date::
 
     def home(request: Request):
         """Render the site homepage."""
@@ -76,14 +76,14 @@ Because it’s convenient, let’s use SQLAlchemy’s database API, which we cov
         output = ', '.join([q.question_text for q in latest_question_list])
         return Response(output)
 
-After editing the code click yourself to your website home by clicking logo to see how this look likes.
+After editing the code click on the home logo to see how it looks like now.
 
 .. image:: images/question_plain.png
     :width: 640px
 
-There’s a problem here, though: the page’s design is hard-coded in the view. If you want to change the way the page looks, you’ll have to edit this Python code. So let’s use Websauna’s template system to separate the design from Python by creating a template that the view can use. By default, Websauna offers a template system called :term:`Jinja` (specifically Jinja 2). If you have been writing Django templates or any mustache-like templates with ``{{ variable }}`` declarations you should feel right at home.
+There’s a problem here, though: the pages apprearance is hard-coded in the view. If you want to change the way the page looks, you’ll have to edit the Python code. So let’s use Websauna’s template system to separate the design from code by creating a template for the view. By default, Websauna offers a template system called :term:`Jinja` (specifically Jinja 2). If you have been writing Django templates or any mustache-like templates with ``{{ variable }}`` declarations you should feel right at home.
 
-Your project’s :py:meth:`websauna.system.Initializer.configure_templates` describes how Pyramid will load and render templates. In the generated project scaffold, it adds ``myapp/templates`` folder there. There already exists a template called ``myapp/home.html``.
+Your projects :py:meth:`websauna.system.Initializer.configure_templates` describes, how Pyramid will load and render templates. In the generated project scaffold, the folder ``myapp/templates`` was created for them. There exists a template ``myapp/home.html`` already.
 
 .. admonition:: Template namespacing
 
@@ -92,9 +92,9 @@ Your project’s :py:meth:`websauna.system.Initializer.configure_templates` desc
     but it would actually be a bad idea. Jinja will choose the first template
     it finds whose name matches, and if you had a template with the same name
     in a *different* application, Jinja would be unable to distinguish between
-    them. We need to be able to point Jina at the right one, and the easiest
+    them. We need to be able to point Jinja to the right one, and the easiest
     way to ensure this is by *namespacing* them. That is, by putting those
-    templates inside *another* directory named for the application itself.
+    templates inside *another* directory named as the application itself.
 
 
 Put the following code in ``templates/myapp/home.html``
@@ -129,25 +129,25 @@ Now let’s update our home view in ``myapp/views.py`` to use the template::
         latest_question_list = request.dbsession.query(Question).order_by(Question.published_at.desc()).all()[:5]
         return locals()
 
-That code loads the template called  ``myapp/home.html`` and passes it a template context. The context is a dictionary mapping template variable names to Python objects. In this case we pass all local variables from inside view function.
+This code loads the template called  ``myapp/home.html`` and passes it a template context. The context is a dictionary mapping template variable names to Python objects. In this case we pass all local variables from inside view function.
 
 ::
 
     return locals()
 
-Is a short hand to say::
+Which is a short hand to say::
 
     return dict(latest_question_list=latest_question_list)
 
-The template itself extends a default base template called ``site/base.html``. This renders :term:`Bootstrap` decoration, namely header with navigation bar and footer, around your content. You can read more about default templates in :doc:`templates documentation <../../narrative/frontend/templates>`.
+The template itself extends a default base template called ``site/base.html``. That renders :term:`Bootstrap` decoration, namely the header with navigation bar and footer, around your content. You can read more about default templates in :doc:`templates documentation <../../narrative/frontend/templates>`.
 
-We do not refer the question by its running counter ``id`` attribute. Instead we take a randomly generated :term:`uuid` attribute and convert it to a :term:`slug` - a string which looks like ``Hh4D7Hh7SWujcvwE0XgEFA``. It is base64 encoded string of 122-bit of randomness. Using UUIDs instead of running counters in publicly visible content is important from the security and business intelligence - this way your malicious actors and competitors have harded to extract meaningful intel out of your site.
+Note, that we do not refer to the question by its database ``id`` attribute. Instead we use a randomly generated :term:`uuid` attribute and convert it to a :term:`slug` - a string, that looks similar to ``Hh4D7Hh7SWujcvwE0XgEFA``. It is base64 encoded string of 122-bit of randomness. Using UUIDs instead of database attributes in publicly visible content is important for security and business intelligence by reducing the attackable surface of your site for any malicious actors.
 
-The link itself is formed using :py:meth:`pyramid.request.Request.route_url`. It takes a route name (``detail``) and gives parameters required for this route. This resolves to the actual URL where the view is configured. This allows you to easily update publicly facing site URLs without need to fix hardcoded paths in every template.
+The link itself is formed using :py:meth:`pyramid.request.Request.route_url`. It takes a route name (``detail``) and specifies the parameter required for this route. This resolves to the actual URL where the view is configured. This allows you to easily update publicly facing site URLs without need for hardcoded paths in every template.
 
 Load the page by pointing your browser at home, and you should see a
-bulleted-list containing the "What's up" question from earlier this tutorial.
-The link points to the question's detail page.
+bullet-list containing the "What's up" question from earlier this tutorial.
+The link points to the question's detail page. Note: to have this working, you need to add the ``detail`` route and template from below.
 
 .. image:: images/question_home.png
     :width: 640px
@@ -175,20 +175,10 @@ for a given poll. Here's the view:
             raise HTTPNotFound()
         return locals()
 
-The new concept here: The view raises the :py:class:`pyramid.httpexceptions.HTTPNotFound` exception
+A new concept here: The view raises the :py:class:`pyramid.httpexceptions.HTTPNotFound` exception
 if a question with the requested ID doesn't exist.
 
 The route also takes one input parameter - this is the UUID slug in its base64 encoded format, as discussed earlier. :py:func:`websauna.system.core.route.decode_uuid` predicate decodes this automatically for us for Python's :py:class:`uuid.UUID` object.
-
-We'll discuss what you could put in that ``myapp/detail.html`` template a bit
-later, but if you'd like to quickly get the above example working, a file
-containing just:
-
-.. code-block:: html+jinja
-
-    {{ question }}
-
-will get you started for now.
 
 Use the template system
 =======================
@@ -199,26 +189,30 @@ like:
 
 .. code-block:: html+jinja
 
+    {% extends "site/base.html" %}
 
+    {% block content %}
 
     <h1>{{ question.question_text }}</h1>
     <ul>
-    {% for choice in question.choice_set.all %}
+    {% for choice in question.choices %}
         <li>{{ choice.choice_text }}</li>
     {% endfor %}
     </ul>
 
+    {% endblock %}
+
+
 .. image:: images/question_detail.png
     :width: 640px
 
+We will describe the first, second and last line in a minute. For now, look at the rest.
 The template system uses dot-lookup syntax to access variable attributes. In
 the example of ``{{ question.question_text }}``, first Jinja does a dictionary lookup
 on the object ``question``. Failing that, it tries an attribute lookup -- which
 works, in this case. If attribute lookup had failed, it would've tried a
 list-index lookup.
 
-Method-calling happens in the ``{% for %}`` loop:
-``question.choices`` is interpreted as the Python code
-``question.choices``, which returns an iterable of ``Choice`` objects and is
-suitable for use in the ``{% for %}`` tag.
+In the ``{% for %}`` loop, we iterate over the items of ``question.choices``, which are 
+the related database records of this question. Cool, isn't it?
 

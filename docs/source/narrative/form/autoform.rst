@@ -129,7 +129,7 @@ Example:
     from websauna.system.form.fieldmapper include EditMode
     from websauna.system.form.csrf import add_csrf
     from websauna.system.core.route import simple_route
-    from websauna.system.core.route import decode_uuid
+    from websauna.utils.slug import slug_to_uuid
 
 
     from myapp.model import Question
@@ -137,12 +137,16 @@ Example:
 
     @simple_route("/edit_question/{question_uuid}",
                   route_name="edit_question",
-                  renderer="myapp/edit_question.html",
-                  custom_predicates=(decode_uuid,))
-    def detail(request: Request, question_uuid: UUID):
+                  renderer="myapp/edit_question.html",)
+    def detail(request: Request):
+        # Convert base64 encoded UUID string from request path to Python UUID object
+        question_uuid = slug_to_uuid(request.matchdict["question_uuid"])
+
         question = request.dbsession.query(Question).filter_by(uuid=question_uuid).first()
         if not question:
             raise HTTPNotFound()
+
+
 
         # Generate a form from SQLAlchemy model
         # includes not set -> include all fields on SQLALchemy model

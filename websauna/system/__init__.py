@@ -75,6 +75,9 @@ class Initializer:
         #: Flag to tell if we need to do sanity check for redis sessiosn
         self._has_redis_sessions = False
 
+        #: This flag keeps state if the initializer has been run or not.
+        self._already_run = False
+
     def create_configurator(self) -> Configurator:
         """Create Pyramid Configurator instance."""
         configurator = Configurator(settings=self.settings)
@@ -157,7 +160,7 @@ class Initializer:
         if settings.get("websauna.sample_html_email", False):
             from websauna.system.mail import views
             self.config.scan(views)
-            self.config.add_jinja2_search_path('websauna.system:mail/templates', name='.html')
+            self.config.add_jinja2_search_path('websauna.system.mail:templates', name='.html')
 
     @event_source
     def configure_templates(self):
@@ -175,9 +178,9 @@ class Initializer:
         self.config.include("websauna.system.core.vars")
 
         # Add core templates to the search path
-        self.config.add_jinja2_search_path('websauna.system:core/templates', name='.html')
-        self.config.add_jinja2_search_path('websauna.system:core/templates', name='.txt')
-        self.config.add_jinja2_search_path('websauna.system:core/templates', name='.xml')
+        self.config.add_jinja2_search_path('websauna.system.core:templates', name='.html')
+        self.config.add_jinja2_search_path('websauna.system.core:templates', name='.txt')
+        self.config.add_jinja2_search_path('websauna.system.core:templates', name='.xml')
 
         # Add the default resource registry for Deform
         self.config.add_request_method(get_on_demand_resource_renderer, 'on_demand_resource_renderer', reify=True)
@@ -434,7 +437,7 @@ class Initializer:
         from websauna.system.form.deform import configure_zpt_renderer
 
         # Make Deform widgets aware of our widget template paths
-        configure_zpt_renderer(["websauna.system:form/templates/deform"])
+        configure_zpt_renderer(["websauna.system.form:templates/deform"])
 
         # Include Deform JS and CSS to static serving
         self.static_asset_policy.add_static_view('deform-static', 'deform:static')
@@ -520,8 +523,8 @@ class Initializer:
         registry.registerAdapter(factory=DefaultCredentialActivityService, required=(IRequest,), provided=ICredentialActivityService)
         registry.registerAdapter(factory=DefaultRegistrationService, required=(IRequest,), provided=IRegistrationService)
 
-        self.config.add_jinja2_search_path('websauna.system:user/templates', name='.html')
-        self.config.add_jinja2_search_path('websauna.system:user/templates', name='.txt')
+        self.config.add_jinja2_search_path('websauna.system.user:templates', name='.html')
+        self.config.add_jinja2_search_path('websauna.system.user:templates', name='.txt')
 
         self.config.scan(subscribers)
         self.config.scan(views)
@@ -631,6 +634,9 @@ class Initializer:
         We go through various subsystem inits.
         """
 
+        # Avoid running the initializer twice. This might happen e.g. due to a bad testing set up where the initializer creation is not scoped properly. E.g. Jinja template engine will get very confused.
+        assert not self._already_run, "Attempted to run initializer twice. Please avoid double initialization as it will lead to problems."
+
         # TODO: Remove passing settings to methods as an argument
         settings = self.settings
 
@@ -697,6 +703,8 @@ class Initializer:
             resolver = DottedNameResolver()
             extra_init = resolver.resolve(extra_init)
             extra_init(self)
+
+        self._already_run = True
 
     @event_source
     def sanity_check(self):

@@ -10,5 +10,6 @@ Testing
     writing
     running
     form
+    admin
     mail
     init

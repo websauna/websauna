@@ -374,3 +374,25 @@ Widget CSS and JavaScript
 
 To plug in CSS or JavaScript code on per widget bases see :ref:`resource registry <resource-registry>`.
 
+Default values
+--------------
+
+You can set defaut values by setting ``default`` keyword argument on :py:class:`colander.SchemaNode`.
+
+To have dynamic default arguments you can use :py:func:`colander.deferred`:
+
+.. code-block:: python
+
+    import colander
+
+    from websauna.system.form.schema import CSRFSchema
+    from websauna.utils.time import now
+
+
+    @colander.deferred
+    def default_reward_text(node, kw):
+        return "Solar reward {}/{}".format(now().year, now().month)
+
+
+    class MySchema(CSRFSchema):
+        label = colander.SchemaNode(colander.String(), default=default_reward_text)

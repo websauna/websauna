@@ -94,7 +94,7 @@ def create_session_maker(engine):
     return dbmaker
 
 
-def create_dbsession(registry: Registry, manager=transaction.manager) -> Session:
+def create_dbsession(registry: Registry, manager=None) -> Session:
     """Creates a new database using the configured session poooling.
 
     This is called outside request life cycle when initializing and checking the state of the databases.
@@ -105,12 +105,16 @@ def create_dbsession(registry: Registry, manager=transaction.manager) -> Session
     assert isinstance(registry, Registry), "The first arg must be registry (Method signature changed)"
 
     # Make sure dbmaker is created only once per process as it must be
-    # per-process for the connection pooling to work
+    # per-process for the connection pooling to work.
+    # Cache the resulting object on Pyramid registry.
     db_session_maker = getattr(registry, "db_session_maker", None)
 
     if not db_session_maker:
         engine = get_engine(registry.settings)
-        db_session_maker = registry.db_session_maker =  create_session_maker(engine)
+        db_session_maker = registry.db_session_maker = create_session_maker(engine)
+
+    if not manager:
+        manager = transaction.manager
 
     dbsession = create_session(manager, db_session_maker)
     return dbsession
@@ -122,5 +126,6 @@ def create_session(transaction_manager, db_session_maker: sessionmaker) -> Sessi
     The attached transaction manager takes care of committing the transaction at the end of the request.
     """
     dbsession = db_session_maker()
+    transaction_manager.retry_attempt_count = 3  # TODO: Hardcoded for now
     zope.sqlalchemy.register(dbsession, transaction_manager=transaction_manager)
     return dbsession

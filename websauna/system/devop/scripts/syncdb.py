@@ -26,6 +26,11 @@ def main(argv=sys.argv):
     request = init_websauna(config_uri)
     with transaction.manager:
         engine = request.dbsession.get_bind()
+
+        # Always enable UUID extension for PSQL
+        # TODO: Convenience for now, because we assume UUIDs, but make this somehow configurable
+        engine.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"')
+
         Base.metadata.create_all(engine)
 
 if __name__ == "__main__":

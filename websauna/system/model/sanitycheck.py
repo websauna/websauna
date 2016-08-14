@@ -3,11 +3,13 @@ import logging
 from sqlalchemy import inspect
 from sqlalchemy.ext.declarative.clsregistry import _ModuleMarker
 from sqlalchemy.orm import RelationshipProperty
+from sqlalchemy.orm import Session
+
 
 logger = logging.getLogger(__name__)
 
 
-def is_sane_database(Base, session):
+def is_sane_database(Base, session: Session):
     """Check whether the current database matches the models declared in model base.
 
     Currently we check that all tables exist with all columns. What is not checked
@@ -28,6 +30,7 @@ def is_sane_database(Base, session):
 
     errors = False
 
+    # Get tables currently in the database
     tables = iengine.get_table_names()
 
     # Go through all SQLAlchemy models
@@ -37,6 +40,8 @@ def is_sane_database(Base, session):
             # Not a model
             continue
 
+        # 1. Check if this model declares any tables they exist
+
         # First try raw table definition
         __table__ = getattr(klass, "__table__", None)
         if __table__ is not None:
@@ -45,29 +50,30 @@ def is_sane_database(Base, session):
             table = getattr(klass, "__tablename__", None)
 
         if not table:
-            raise RuntimeError("Table definition missing for {}".format())
+            raise RuntimeError("Table definition missing for {}".format(table))
 
-        if table in tables:
-            # Check all columns are found
-            # Looks like [{'default': "nextval('sanity_check_test_id_seq'::regclass)", 'autoincrement': True, 'nullable': False, 'type': INTEGER(), 'name': 'id'}]
-
-            columns = [c["name"] for c in iengine.get_columns(table)]
-            mapper = inspect(klass)
-
-            for column_prop in mapper.attrs:
-                if isinstance(column_prop, RelationshipProperty):
-                    # TODO: Add sanity checks for relations
-                    pass
-                else:
-                    for column in column_prop.columns:
-                        # Assume normal flat column
-                        if not column.key in columns:
-
-                            # It is safe to stringify engine where as password should be blanked out by stars
-                            logger.error("Model %s declares column %s which does not exist in database %s", klass, column.key, engine)
-                            errors = True
-        else:
+        if table not in tables:
             logger.error("Model %s declares table %s which does not exist in database %s", klass, table, engine)
             errors = True
+
+        # 2. Check that all columns declared by the model exist
+        mapper = inspect(klass)
+
+        for column_prop in mapper.attrs:
+            if isinstance(column_prop, RelationshipProperty):
+                # TODO: Add sanity checks for relations
+                continue
+
+            # Iterate all columns the model declares
+            for column in column_prop.columns:
+                table_name = column.table.name
+
+                # Get columns from the actual table the ORM referes to
+                columns = [c["name"] for c in iengine.get_columns(table_name)]
+
+                if not column.key in columns:
+                    # It is safe to stringify engine where as password should be blanked out by stars
+                    logger.error("Model %s declares column %s which does not exist in database %s", klass, column.key, engine)
+                    errors = True
 
     return not errors

@@ -6,7 +6,7 @@ from zope.interface import Interface
 
 
 def get_human_readable_resource_name(resource:Resource) -> str:
-    """Extract human-readable name of the resource for breadcrumps."""
+    """Extract human-readable name of the resource for breadcrumbs."""
 
     # TODO: Add adapter implementation here
 
@@ -19,21 +19,25 @@ def get_human_readable_resource_name(resource:Resource) -> str:
     return resource.__name__
 
 
-def get_breadcrumb(context:Resource, request:Request, root_iface:IRoot, current_view_name=None, current_view_url=None) -> typing.List:
+def get_breadcrumbs(context: Resource, request: Request, root_iface: type=None, current_view_name=None, current_view_url=None) -> typing.List:
     """Create breadcrumbs path data how to get to this resource from the root.
 
-    Traverse context up to the root element in the reverse order.
+    Traverse context :class:`Resource` up to the root resource in the reverse order. Fill in data for rendering
+    Bootstrap breacrumbs title. Each traversed resource must provide ``get_title()`` method giving a human readable title for the resource.
 
     :param current_view_name: Optional user visible name of the current view for the bottom most resource.
 
     :param current_view_url: Full URL to the current view
 
-    :param root_iface: If you want to traverse only subset of elements and stop a certain parent, optional root can be marked with an interface.
+    :param root_iface: If you want to traverse only subset of elements and stop a certain parent, optional root can be marked with an interface. If not given assume :class:`websauna.system.core.interfaces.IRoot`. Optionally traversing is terminated when reaching ``None`` as the ``__parent__` pointer.
 
     :return: List of {url, name, resource} dictionaries
     """
 
     elems = []
+
+    if not root_iface:
+        root_iface = IRoot
 
     assert issubclass(root_iface, Interface), "Traversing root must be declared by an interface, got {}".format(root_iface)
 

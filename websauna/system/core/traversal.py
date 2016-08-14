@@ -29,7 +29,7 @@ class Resource:
         if title:
             return title
 
-        raise NotImplementedError("get_breadcrumbs_title() implementation missing for {}".format(self))
+        raise NotImplementedError("get_title() implementation missing for {}".format(self))
 
     @classmethod
     def make_lineage(self, parent, child, name, allow_new_parent=False):

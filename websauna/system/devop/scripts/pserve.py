@@ -7,6 +7,7 @@ from websauna.utils.configincluder import IncludeAwareConfigParser
 
 monkey_patch_paster_config_parser()
 
+
 def main():
     sys.exit(
         load_entry_point('pyramid', 'console_scripts', 'pserve')()

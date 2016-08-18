@@ -7,7 +7,7 @@ from uuid import uuid4
 from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from websauna.system import Initializer
+from websauna.system import DemoInitializer
 
 from websauna.system.model.meta import Base
 from websauna.system.model.columns import UTCDateTime
@@ -118,7 +118,7 @@ class ChoiceAdmin(ModelAdmin):
 
 
 def main(global_config, **settings):
-    init = Initializer(global_config)
+    init = DemoInitializer(global_config)
     init.run()
     init.config.scan(sys.modules["websauna.tests.tutorial"])
     return init.make_wsgi_app()

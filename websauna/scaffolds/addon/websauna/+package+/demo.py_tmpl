@@ -3,7 +3,7 @@
 import websauna.system
 
 
-class Initializer(websauna.system.Initializer):
+class Initializer(websauna.system.DemoInitializer):
     """A demo / test app initializer for testing addon websauna.{{package}}."""
 
     def include_addons(self):

@@ -1,10 +1,4 @@
-"""Test CSRF functionality as functional tests.
-
-.. note ::
-
-    These tests are leftovers from < Pyramid 1.7 when Pyramid did not have flexible CSRF protection and Websauna provided its own mechanism.
-
-"""
+"""Test accessing Redis."""
 import pytest
 
 from pyramid import testing
@@ -37,6 +31,9 @@ def app(request):
     config.add_route("redis_test", "/redis_test")
     config.add_view(redis_test, route_name="redis_test")
 
+    # same is in test.ini
+    config.registry.settings["redis.sessions.url"] = "redis://localhost:6379/14"
+
     def teardown():
         testing.tearDown()
 
@@ -45,7 +42,7 @@ def app(request):
 
 
 def test_access_redis(app: TestApp):
-    """Decorated views don't have automatic CSRF check."""
+    """Simple check we can corrcetly access Redis with text encodings."""
 
     resp = app.get("/redis_test")
     assert resp.status_code == 200

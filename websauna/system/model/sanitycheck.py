@@ -1,5 +1,6 @@
 import logging
 
+import sqlalchemy
 from sqlalchemy import inspect
 from sqlalchemy.ext.declarative.clsregistry import _ModuleMarker
 from sqlalchemy.orm import RelationshipProperty
@@ -69,7 +70,12 @@ def is_sane_database(Base, session: Session):
                 table_name = column.table.name
 
                 # Get columns from the actual table the ORM referes to
-                columns = [c["name"] for c in iengine.get_columns(table_name)]
+                try:
+                    columns = [c["name"] for c in iengine.get_columns(table_name)]
+                except sqlalchemy.exc.NoSuchTableError:
+                    logger.error("Model %s declares table %s which does not exist in database %s", klass, table_name, engine)
+                    errors = True
+                    break
 
                 if not column.key in columns:
                     # It is safe to stringify engine where as password should be blanked out by stars

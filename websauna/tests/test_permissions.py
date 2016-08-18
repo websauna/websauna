@@ -15,7 +15,7 @@ from . import permissionsamples
 def permission_app(request, paster_config):
     '''Custom WSGI app with permission test views enabled.'''
 
-    class Initializer(websauna.system.Initializer):
+    class Initializer(websauna.system.DemoInitializer):
 
         def configure_views(self):
             super(Initializer, self).configure_views()

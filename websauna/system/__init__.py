@@ -347,9 +347,7 @@ class Initializer:
 
     @event_source
     def configure_views(self):
-        from websauna.system.core.views import home
-        self.config.add_route('home', '/')
-        self.config.scan(home)
+        """Configure views for your application."""
 
     @event_source
     def configure_sitemap(self):
@@ -802,12 +800,24 @@ def get_init(global_config, settings, init_cls=None) -> Initializer:
     return init
 
 
+class DemoInitializer(Initializer):
+    """Websauna uses internally to run tests, development server."""
+
+    def configure_views(self):
+        # Add home view required to run functional test.
+        # This view is never exposed to the applications
+        # built upon Websauna.
+        super(DemoInitializer, self).configure_views()
+        from websauna.system.core.views import home
+        self.config.add_route('home', '/')
+        self.config.scan(home)
+
+
 def main(global_config, **settings):
     """Entry point for creating a Pyramid WSGI application."""
 
-    init = Initializer(global_config)
+    init = DemoInitializer(global_config)
     init.run()
 
     wsgi_app = init.make_wsgi_app()
-
     return wsgi_app

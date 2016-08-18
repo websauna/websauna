@@ -243,7 +243,7 @@ def test_customize_login(paster_config):
             kwargs['buttons'] = (login_button,)
             super().__init__(*args, **kwargs)
 
-    class Initializer(websauna.system.Initializer):
+    class Initializer(websauna.system.DemoInitializer):
 
         def configure_user_forms(self):
 
@@ -256,7 +256,6 @@ def test_customize_login(paster_config):
             unregister_success= self.config.registry.unregisterUtility(provided=interfaces.ILoginForm)
             assert unregister_success, "No default form register"
             self.config.registry.registerUtility(CustomLoginForm, interfaces.ILoginForm)
-
 
     global_config, app_settings = paster_config
     init = Initializer(global_config, app_settings)

@@ -2,6 +2,12 @@
 
 import logging
 import colander as c
+from pyramid import httpexceptions
+
+from websauna.compat.typing import Optional
+from websauna.compat.typing import Callable
+from websauna.system.core.redis import get_redis
+from websauna.system.http import Request
 
 from . import rollingwindow
 
@@ -11,6 +17,9 @@ logger = logging.getLogger(__name__)
 
 def create_throttle_validator(name:str, max_actions_in_time_window:int, time_window_in_seconds:int=3600):
     """Creates a Colander form validator which prevents form submissions exceed certain rate.
+
+    The benefit of using validator instead of :func:`throttle_view` decorator is that we can give a nice
+    Colander form error message instead of an error page.
 
     Form submissions are throttled system wide. This prevents abuse of the system by flooding it with requests.
 
@@ -62,3 +71,72 @@ def create_throttle_validator(name:str, max_actions_in_time_window:int, time_win
         return inner
 
     return throttle_validator
+
+
+def throttled_view(
+        rolling_window_id: Optional[str]=None,
+        time_window_in_seconds: int=3600,
+        limit: int=50):
+    """Decorate a view to protect denial-of-service attacks using throttling.
+
+    If the global throttling limit is exceeded the client gets HTTP 429 error.
+
+    Internally we use :py:mod:`websauna.system.form.rollingwindow` hit counting implementation.
+
+    Example that allows 30 page loads per hour:
+
+    .. code-block:: python
+
+        @view_config(
+            name="new-phone-number",
+            renderer="wallet/new_phone_number.html",
+            decorator=throttled_view(limit=30, time_window_in_seconds=3600))
+        def new_phone_number(request):
+            # ... code goes here ...
+
+    :param rolling_window_id: The Redis key name used to store throttle state. If not given a key derived from view name is used.
+
+    :param time_window_in_seconds: Sliding time window for counting hits
+
+    :param limit: Allowed number of hits in the given time window
+
+    :raise: :py:class:`pyramid.httpexceptions.HTTPTooManyRequests` if the endpoint gets hammered too much
+    """
+
+    redis_key = rolling_window_id
+
+    # http://docs.pylonsproject.org/projects/pyramid_cookbook/en/latest/views/chaining_decorators.html
+    def outer(view_callable: Callable):
+
+        name = view_callable.__name__
+
+        if not rolling_window_id:
+            key_name = "throttle_{}".format(name)
+        else:
+            key_name = "throttle_{}".format(rolling_window_id)
+
+        def inner(context, request):
+
+            if rollingwindow.check(request.registry, key_name, window=time_window_in_seconds, limit=limit):
+                raise httpexceptions.HTTPTooManyRequests("Too many requests against {}".format(name))
+
+            return view_callable(context, request)
+
+        return inner
+
+    return outer
+
+
+def clear_throttle(request: Request, key_name: str):
+    """Clear the throttling status.
+
+    Example:
+
+    .. code-block:: python
+
+        clear_throttle(request, "new-phone-number")
+
+    """
+    redis = get_redis(request)
+    redis.delete("throttle_{}".format(key_name))
+

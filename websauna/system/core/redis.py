@@ -56,8 +56,7 @@ def get_redis(request_or_registry: Union[Request, Registry], url: str=None, redi
 
     if registry is None:
         # Should not happen any longer
-        logger.warn("Always pass registry explicitly to get_redis()")
-        registry = get_current_registry()
+        raise RuntimeError("Always pass registry explicitly to get_redis()")
 
     # TODO: Cache connections by name
     # attempt to get an existing connection from the registry
@@ -86,7 +85,7 @@ def get_redis(request_or_registry: Union[Request, Registry], url: str=None, redi
         redis_options.pop('connection_pool', None)
         redis = redis_client.from_url(url, **redis_options)
     else:
-        redis = redis_client(**redis_options)
+        raise RuntimeError("Redis connection options missing. Please configure redis.sessions.url")
 
     # TODO: Fix caching by redis options
     # save the new connection in the registry

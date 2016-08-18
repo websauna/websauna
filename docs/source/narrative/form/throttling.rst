@@ -2,7 +2,18 @@
 Throttling
 ==========
 
+.. contents:: :local:
+
+Introduction
+------------
+
 Throttling is an activity to limit (anonymous) user actions on the site to a certain rate, so that malicious parties cannot overflow the system (send email invites) or exhibit excessive costs (send SMS).
+
+Throttled view decorator
+------------------------
+
+This view decorator is suitable for most use cases to protect HTTP endpoints with a global counter stored in Redis.
+See :py:func:`websauna.system.form.throttle.throttled_view`.
 
 Throttling submissions in a form
 --------------------------------

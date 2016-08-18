@@ -304,7 +304,7 @@ Here is an example data-driven validator::
 Overriding widget template
 --------------------------
 
-This example how to override a widget template for any widget. Deform internally uses Chameleon template engine (not :ref:`Jinja`)
+This example how to override a widget template for any widget. Deform internally uses Chameleon template engine (not :term:`Jinja`)
 
 First register the folder where you have Deform templates in the :py:class:`websauna.system.Initializer` of your app. Example:
 

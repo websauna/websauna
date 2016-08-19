@@ -267,6 +267,7 @@ def create_test_dbsession(request, registry: Registry, transaction_manager=trans
     """Create a test database session and setup database.
 
     Create and drop all tables when called. Add teardown function py.test to drop all tables during teardown.
+    Also add implicit UUID extension on the database, so we don't need to add by hand every time.
 
     :param request: py.test test request
     :param settings: test.ini app settings
@@ -277,6 +278,9 @@ def create_test_dbsession(request, registry: Registry, transaction_manager=trans
 
     dbsession = create_dbsession(registry, manager=transaction_manager)
     engine = dbsession.get_bind()
+
+    connection = engine.connect()
+    connection.execute('create extension if not exists "uuid-ossp";')
 
     with transaction.manager:
         Base.metadata.drop_all(engine)

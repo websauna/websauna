@@ -1,0 +1,25 @@
+[pytest]
+addopts =
+    --strict
+    --splinter-make-screenshot-on-failure=false
+    --ini=websauna/{{package}}/conf/test.ini
+    websauna/{{package}}/tests
+
+# E501: Line too long
+# E128: continuation line under
+# E731: http://stackoverflow.com/q/25010167/315168
+pep8ignore = E501 E128 E731
+
+# Don't let py.test scan py.files in these folders
+norecursedirs = alembic .tox .cache .eggs venv
+
+# Add some default py.test markers
+# Slow marker is for tests taking > 15 seconds to complete.
+# Fail marker signals the test is expected to fail.
+markers =
+    slow
+    fail
+
+[flake8]
+ignore = E128 E731
+max-line-length = 999

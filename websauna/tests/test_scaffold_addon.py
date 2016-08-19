@@ -95,7 +95,7 @@ def test_addon_pytest(addon_scaffold, addon_test_db, scaffold_webdriver):
     webdriver_param = scaffold_webdriver
 
     # Execute one functional test
-    execute_venv_command("py.test --ini test.ini websauna/myaddon/tests " + webdriver_param, addon_scaffold, timeout=1 * 60, cd_folder="websauna.myaddon")
+    execute_venv_command("py.test " + webdriver_param, addon_scaffold, timeout=1 * 60, cd_folder="websauna.myaddon")
 
 
 def test_addon_sdist(addon_scaffold):

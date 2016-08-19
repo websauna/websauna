@@ -31,5 +31,7 @@ celerybeat*
 cache-manifest.json
 perma-asset
 
-# pytest cache
+# pytest and tox cache
 .cache
+.tox
+.eggs

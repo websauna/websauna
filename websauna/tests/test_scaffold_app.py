@@ -68,7 +68,7 @@ def test_pyramid_debugtoolbar(app_scaffold, dev_db, browser):
     try:
 
         # Make sure we get some sensible output from the server
-        b  = browser
+        b = browser
         b.visit("http://localhost:6543/error-trigger")
 
         # See that Wertzkreug debugger is up
@@ -86,7 +86,7 @@ def test_pytest(app_scaffold, test_db, scaffold_webdriver):
 
     webdriver_param = scaffold_webdriver
 
-    execute_venv_command("py.test --ini myapp/myapp/conf/test.ini myapp/myapp/tests " + webdriver_param, app_scaffold, timeout=1*60)
+    execute_venv_command("py.test " + webdriver_param, app_scaffold, timeout=1*60, cd_folder="myapp")
 
 
 def test_sdist(app_scaffold):
@@ -118,7 +118,13 @@ def test_migration(app_scaffold, dev_db):
     """Create an application, add a model and see if migrations are run."""
 
     with replace_file(os.path.join(app_scaffold, "myapp", "myapp", "models.py"), MODELS_PY):
+
+        files = os.listdir(os.path.join(app_scaffold, "myapp", "alembic", "versions"))
+        for f in files:
+            assert not f.endswith(".py"), "versions folder contained migration scripts before initial Alembic run: {}".format(files)
+
         execute_venv_command("cd myapp && ws-alembic -x packages=all -c myapp/conf/development.ini revision --autogenerate -m 'Added MyModel'", app_scaffold)
+
         execute_venv_command("cd myapp && ws-alembic -x packages=all -c myapp/conf/development.ini upgrade head", app_scaffold)
 
         # Assert we got migration script for mymodel
@@ -167,7 +173,6 @@ def test_create_user(app_scaffold, dev_db, browser):
 
     finally:
         execute_venv_command("cd myapp && ws-pserve myapp/conf/development.ini --stop-daemon --pid-file=test_pserve.pid", app_scaffold)
-
 
 
 def test_tweens(app_scaffold, dev_db):

@@ -1,11 +1,6 @@
 This is a Python package for {{project}}, an addon for `Websauna framework <https://websauna.org>`_.
 
-Prerequisites
-=============
-
-* PostgreSQL
-
-* Redis
+To run this package you need Python 3.4+, PostgresSQL and Redis.
 
 Installation
 ============
@@ -29,8 +24,8 @@ Local development machine
 Example (OSX / Homebrew)::
 
     psql create {{package}}_dev
-    ws-sync-db development.ini
-    pserve -c development.ini --reload
+    ws-sync-db websauna/{{package}}/conf/development.ini
+    ws-pserve websauna/{{package}}/conf/development.ini --reload
 
 Running the test suite
 ======================
@@ -46,7 +41,7 @@ Install test and dev dependencies (run in the folder with ``setup.py``)::
 
 Run test suite using py.test running::
 
-    py.test websauna/{{ package }}/tests --ini test.ini
+    py.test
 
 More information
 ================

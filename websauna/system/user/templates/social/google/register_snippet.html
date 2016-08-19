@@ -1,0 +1,14 @@
+{% extends "social/base/register_snippet.html" %}
+
+{% block social %}
+  <form method="post" action="{{ 'login'|route_url }}/google">
+
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}"/>
+
+    <button class="btn btn-primary btn-block btn-lg">
+      <i class="fa fa-google"></i>
+      Sign up with Google
+    </button>
+  </form>
+{% endblock social %}
+

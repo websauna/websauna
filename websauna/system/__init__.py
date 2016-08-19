@@ -181,6 +181,7 @@ class Initializer:
         self.config.add_jinja2_search_path('websauna.system.core:templates', name='.html')
         self.config.add_jinja2_search_path('websauna.system.core:templates', name='.txt')
         self.config.add_jinja2_search_path('websauna.system.core:templates', name='.xml')
+        self.config.add_jinja2_search_path('websauna.system.core:templates', name='.css')
 
         # Add the default resource registry for Deform
         self.config.add_request_method(get_on_demand_resource_renderer, 'on_demand_resource_renderer', reify=True)
@@ -222,7 +223,7 @@ class Initializer:
         Read enabled federated authentication methods from the configuration file.
         """
 
-        # TODO: Refactor this functions, not clean
+        # TODO: Refactor this to separate functions, not implementation is not very clean
 
         import authomatic
         from websauna.system.user.interfaces import IAuthomatic, ISocialLoginMapper, IOAuthLoginService

@@ -2,9 +2,61 @@
 Federated authentication (Oauth)
 ================================
 
+.. contents:: :local:
+
+Introduction
+============
+
 Internally Websauna uses :py:term:`Authomatic` framework to implement :term:`OAuth`.
 
 See Getting started tutorial how to set up Facebook authentication. Same mechanism applies to every OAuth provider like Google, Twitter and Github.
+
+Setting up Facebook login
+=========================
+
+See :ref:`tutorial-facebook-login`.
+
+.. _google-auth:
+
+Setting up Google login
+=======================
+
+Sign in to `Google API console <https://console.developers.google.com/apis>`__.
+
+Create *New Project* (top left menu).
+
+Go to *Credentials*.
+
+Create credentials for *OAuth client ID*.
+
+Configure OAuth Consent Screen (your product logos), such.
+
+Create *Web application*.
+
+
+In :ref:`development.ini` enable Google login:
+
+.. code-block:: ini
+
+    websauna.social_logins =
+        google
+
+In :ref:`development-secrets.ini` add Google OAuth details:
+
+.. code-block:: ini
+
+    [google]
+    class = websauna.system.user.googleoauth.Google
+    consumer_key = xxxx.apps.googleusercontent.com
+    consumer_secret = xxxx
+    mapper = websauna.system.user.social.GoogleMapper
+    scope = profile email
+
+More information
+
+* https://developers.google.com/identity/protocols/OpenIDConnect
+
+* https://github.com/peterhudec/authomatic/issues/153
 
 OAuth login service
 ===================
@@ -108,3 +160,4 @@ Here is an example test case:
             asset, _ = get_or_create_default_asset(dbsession)
             ua, _ = UserOwnedAccount.get_or_create_user_default_account(u, asset)
             assert ua.account.denormalized_balance == Decimal(5.00)
+

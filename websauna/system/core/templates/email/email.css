@@ -1,0 +1,202 @@
+{#
+CSS used in outgoing HTML emails.
+
+This is not a normal static CSS file as premailer can access inline CSS styles only.
+This file is included in :ref:`template-email/base.html` to style all outgoing emails.
+
+#}
+
+/* -------------------------------------
+        GLOBAL
+------------------------------------- */
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "Helvetica", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 25px;
+}
+
+img {
+    max-width: 100%;
+}
+
+body {
+    width: 100% !important;
+    height: 100%;
+}
+
+
+/* -------------------------------------
+        ELEMENTS
+------------------------------------- */
+
+.logo {
+  max-height: 50px;
+}
+
+a {
+    color: #348eda;
+}
+
+.btn-primary {
+    text-decoration: none;
+    color: #F3F3F3;
+    background-color: #348eda;
+    border: 1px solid #348eda;
+    border-radius: 2px;
+    box-shadow: 1px 2px 3px #aaa;
+    line-height: 2;
+    font-weight: lighter;
+    margin: 25px;
+    padding: 10px 25px;
+    text-align: center;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.btn-primary:hover {
+  color: #348eda;
+  background-color: #f3f3f3;
+  border: 1px solid #348eda;
+}
+
+.btn-secondary {
+    text-decoration: none;
+    color: #FFF;
+    background-color: #aaa;
+    border: solid #aaa;
+    border-width: 10px 20px;
+    line-height: 2;
+    font-weight: bold;
+    margin-right: 10px;
+    text-align: center;
+    cursor: pointer;
+    display: inline-block;
+    border-radius: 25px;
+}
+
+.last {
+    margin-bottom: 0;
+}
+
+.first {
+    margin-top: 0;
+}
+
+.padding {
+    padding: 10px 0;
+}
+
+
+/* -------------------------------------
+        BODY
+------------------------------------- */
+table.body-wrap {
+    width: 100%;
+    padding: 20px;
+}
+
+table.body-wrap .container {
+    border: 1px solid #eaeaea;
+}
+
+
+/* -------------------------------------
+        FOOTER
+------------------------------------- */
+table.footer-wrap {
+    width: 100%;
+    clear: both!important;
+}
+
+.footer-wrap .container p {
+    font-size: 12px;
+    color: #666;
+
+}
+
+table.footer-wrap a {
+    color: #999;
+}
+
+
+/* -------------------------------------
+        TYPOGRAPHY
+------------------------------------- */
+h1, h2, h3 {
+    font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    color: #000;
+    margin: 40px 0 10px;
+    line-height: 1.2;
+    font-weight: 200;
+}
+
+h1 {
+    font-size: 36px;
+}
+h2 {
+    font-size: 28px;
+}
+h3 {
+    font-size: 22px;
+}
+
+p, ul, ol {
+    margin-bottom: 10px;
+    font-weight: normal;
+    font-size: 14px;
+}
+
+ul li, ol li {
+    margin-left: 5px;
+    list-style-position: inside;
+}
+
+/* ---------------------------------------------------
+        RESPONSIVENESS
+        Nuke it from orbit. It's the only way to be sure.
+------------------------------------------------------ */
+
+/* Set a max-width, and make it display as block so it will automatically stretch to that width, but will also shrink down on a phone or something */
+.container {
+    display: block!important;
+    max-width: 600px!important;
+    margin: 0 auto!important; /* makes it centered */
+    clear: both!important;
+}
+
+/* Set the padding on the td rather than the div for Outlook compatibility */
+.body-wrap .container {
+    padding: 20px;
+}
+
+/* This should also be a block element, so that it will fill 100% of the .container */
+.content {
+    max-width: 600px;
+    margin: 0 auto;
+    display: block;
+}
+
+/* Let's make sure tables in the content area are 100% wide */
+.content table {
+    width: 100%;
+}
+
+tr th {
+    vertical-align: top;
+    text-align: right;
+    padding-right: 20px;
+    padding-bottom: 10px;
+}header.html
+
+/*
+tr td {
+    vertical-align: top;
+    text-align: left;
+    padding-bottom: 10px;
+}*/
+
+tr td.right-align {
+  text-align: right;
+}

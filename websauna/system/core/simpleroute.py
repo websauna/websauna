@@ -34,7 +34,10 @@ def add_simple_route(
 
     target = DottedNameResolver().maybe_resolve(target)
     mapper = config.get_routes_mapper()
-    route_name = target.__name__
+
+
+    route_name = kwargs.pop("route_name", None)
+    route_name = route_name or target.__name__
     route_name_count = 0
 
     # Arguments passed to route

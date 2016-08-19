@@ -73,10 +73,30 @@ def create_throttle_validator(name:str, max_actions_in_time_window:int, time_win
     return throttle_validator
 
 
+def _read_throttle_settings(settings, setting):
+
+    setting_value = settings.get(setting)
+    if not setting_value:
+        raise RuntimeError("Cannot read setting: {}".format(setting))
+
+    parts = setting_value.split("/")
+    if len(parts) != 2:
+        raise RuntimeError("Bad throttle setting format: {}".format(setting_value))
+
+    try:
+        window = int(parts[0])
+        limit = int(parts[1])
+    except ValueError:
+        raise RuntimeError("Could not parse: {}".format(setting_value))
+
+    return limit, window
+
+
 def throttled_view(
         rolling_window_id: Optional[str]=None,
         time_window_in_seconds: int=3600,
-        limit: int=50):
+        limit: int=50,
+        setting: Optional[str]=None):
     """Decorate a view to protect denial-of-service attacks using throttling.
 
     If the global throttling limit is exceeded the client gets HTTP 429 error.
@@ -94,11 +114,30 @@ def throttled_view(
         def new_phone_number(request):
             # ... code goes here ...
 
+    You can also configure the limit in a INI settings file.
+
+    Example ``production.ini``:
+
+    .. code-block:: ini
+
+        magiclogin.email_throttle = 50/3600
+
+    .. code-block:: python
+
+        @view_config(
+            name="email-login",
+            renderer="wallet/new_phone_number.html",
+            decorator=throttled_view(setting="magiclogin.email_throttle")
+        def new_phone_number(request):
+            # ... code goes here ...
+
     :param rolling_window_id: The Redis key name used to store throttle state. If not given a key derived from view name is used.
 
     :param time_window_in_seconds: Sliding time window for counting hits
 
     :param limit: Allowed number of hits in the given time window
+
+    :param setting: Read throttle information from a INI settings. In this case string must be in format limit/time_window_seconds. Example: 50/3600. This overrides any given time and limit argument.
 
     :raise: :py:class:`pyramid.httpexceptions.HTTPTooManyRequests` if the endpoint gets hammered too much
     """
@@ -117,7 +156,13 @@ def throttled_view(
 
         def inner(context, request):
 
-            if rollingwindow.check(request.registry, key_name, window=time_window_in_seconds, limit=limit):
+            if setting:
+                hits, window = _read_throttle_settings(request.registry.settings, setting)
+            else:
+                window = time_window_in_seconds
+                hits = limit
+
+            if rollingwindow.check(request.registry, key_name, window=window, limit=hits):
                 raise httpexceptions.HTTPTooManyRequests("Too many requests against {}".format(name))
 
             return view_callable(context, request)

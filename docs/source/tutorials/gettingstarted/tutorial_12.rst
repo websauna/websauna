@@ -1,3 +1,5 @@
+.. _tutorial-facebook-login:
+
 =========================================
 Federated authentication (Facebook login)
 =========================================

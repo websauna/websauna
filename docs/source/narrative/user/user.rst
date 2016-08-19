@@ -181,5 +181,49 @@ Getting the logged in user
 
 The logged in user can be accessed ``request.user`` which gives you a :py:class:`websauna.system.user.model.User` instance. This is set to ``None`` for anonymous users.
 
+Manually authenticating user
+----------------------------
+
+See `websauna.magiclogin <https://github.com/websauna/websauna.magiclogin>`_ for full example.
+
+.. code-block:: python
+
+
+    from websauna.system.http import Request
+    from websauna.system.core import messages
+    from websauna.system.user.models import User
+    from websauna.system.user.utils import get_login_service
+    from websauna.utils.time import now
+
+
+    def get_or_create_email_user(request: Request, email: str) -> User:
+        """Fetch existing user or create new based on email."""
+        dbsession = request.dbsession
+
+        u = dbsession.query(User).filter_by(email=email).first()
+        if u is not None:
+            return u
+
+        u = User(email=email)
+
+        u.registration_source = "email"
+        u.activated_at = now()
+        return u
+
+
+    def verify_email_login(request, token):
+
+        # ...
+
+        email = data["email"]
+
+        # Create new user or get existing user based on this email
+        user = get_or_create_email_user(request, email)
+        login_service = get_login_service(request)
+
+        # Returns HTTPRedirect taking user to post-login page
+        return login_service.authenticate_user(user, login_source="email")
+
+
 
 

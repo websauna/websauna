@@ -1,13 +1,11 @@
 """Route related helpers."""
 import venusian
 from pyramid.config import Configurator
+
 from websauna.system.http import Request
-from websauna.utils.slug import SlugDecodeError
-from websauna.utils.slug import slug_to_uuid
 from websauna.compat.typing import Optional
 
 from .simpleroute import add_simple_route
-
 
 
 class simple_route(object):
@@ -76,7 +74,7 @@ class simple_route(object):
         return wrapped
 
 
-def add_template_only_view(config: Configurator, pattern: str, name: str, template: str, view_args: Optional[dict] = None, route_args: Optional[dict] = None):
+def add_template_only_view(config: Configurator, pattern: str, name: str, template: str, view_args: Optional[dict]=None, route_args: Optional[dict]=None):
     """Adds a view which do not have a specific view function assgined.
 
     The view will render a template with the default template context.

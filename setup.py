@@ -105,7 +105,7 @@ setup(
         'premailer',
 
         # Tasks
-        'pyramid_celery',
+        'celery[redis]>=4.0.0rc3',
 
         # Python 3.4 typing
         "backports.typing",
@@ -151,7 +151,7 @@ setup(
             'ws-alembic=websauna.system.devop.scripts.alembic:main',
             'ws-dump-db=websauna.system.devop.scripts.dumpdb:main',
             'ws-create-user=websauna.system.devop.scripts.createuser:main',
-            'ws-celery=websauna.system.devop.scripts.celery:main',
+            'ws-celery=websauna.system.task.celeryprocess:main',
             'ws-proutes=websauna.system.devop.scripts.proutes:main',
             'ws-pserve=websauna.system.devop.scripts.pserve:main',
             'ws-create-table=websauna.system.devop.scripts.createtable:main',
@@ -163,8 +163,7 @@ setup(
             'main=websauna.system:main',
 
             # Scheduler auomated test suite entry point
-            'scheduler_test=websauna.tests.test_scheduler:main',
-            'tutorial_test=websauna.tests.tutorial:main',
+            'scheduler_test=websauna.tests.test_transaction_aware_task:main',
         ],
 
         'pyramid.scaffold': [

@@ -94,12 +94,13 @@ class RequestAwareTask(Task):
 
     abstract = True
 
-    def get_env(self):
-        registry = self.app.conf.PYRAMID_REGISTRY
-        base_url = registry.settings["websauna.site_url"]
-        request = Request.blank("/", base_url=base_url)
-        env = scripting.prepare(request=request, registry=registry)
-        return env
+    def get_request(self):
+
+        request = getattr(self.app, "request", None)
+        if not request:
+            raise RuntimeError("Looks like Celery App object did not have associated request. Did you initializer it correctly?")
+
+        return request
 
     def __call__(self, *args, **kwargs):
         """Call Celery task and insert request argument.
@@ -109,17 +110,17 @@ class RequestAwareTask(Task):
         Celery itself does very bad job in logging exceptions. So LET'S "#€!"€! STOP SILENTLY SWALLOWING THEM. This is for eager.
         """
 
-        pyramid_env = self.get_env()
-
         try:
             underlying = super().__call__
-            return underlying(pyramid_env["request"], *args, **kwargs)
+            return underlying(*args, **kwargs)
         except Exception as e:
             logger.error("Celery task raised an exception %s", e)
             logger.exception(e)
             raise
         finally:
-            pyramid_env["closer"]()
+            # TODO? Do we need closer?
+            # pyramid_env["closer"]()
+            pass
 
     def apply_async_web_process(self, args, kwargs):
         """Schedule a task from web process.
@@ -135,6 +136,8 @@ class RequestAwareTask(Task):
 
         kwargs["args"] = args_
         kwargs["kwargs"] = kwargs_
+
+        print(args, kwargs)
 
         if not IRequest.providedBy(request):
             raise BadAsyncLifeCycleException("You must explicitly pass request as the first argument to asynchronous tasks as these tasks are bound to happen when the database transaction tied to the request lifecycle completes.")
@@ -160,10 +163,9 @@ class RequestAwareTask(Task):
 
     def apply_async(self, *args, **options):
 
-        if "publisher" in options:
-            # This comes from the celery beat process which has not initialized websauna yet.
-            # We never initialize Websauna inside a beat process, only in a worker process.
-            # Thus just pass a dummy request here
+        if "producer" in options:
+            # This comes from the celery beat process.
+            # Celery beat doesn't know about request when submitting tasks to queue.
             return self.apply_async_beat(*args, **options)
         else:
             # This call comes from inside a web process
@@ -221,7 +223,7 @@ class TransactionalTask(RequestAwareTask):
 
     def __call__(self, *args, **kwargs):
 
-        pyramid_env = self.get_env()
+        request = self.get_request()
 
         try:
             # Get bound Task.__call__
@@ -238,10 +240,12 @@ class TransactionalTask(RequestAwareTask):
                     logger.exception(e)
                     raise
 
-            handler = tm_tween_factory(handler, pyramid_env["registry"])
-            result = handler(pyramid_env["request"])
+            handler = tm_tween_factory(handler, request.registry)
+            result = handler(request)
         finally:
-            pyramid_env["closer"]()
+            # TODO: Do we need closer?
+            # pyramid_env["closer"]()
+            pass
 
         return result
 

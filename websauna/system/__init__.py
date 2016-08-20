@@ -572,30 +572,15 @@ class Initializer:
 
     @event_source
     def configure_tasks(self):
-        """Scan all Python modules with asynchoronou sna dperiodic tasks to be imported."""
+        """Scan all Python modules with asynchoronous and periodic tasks to be imported."""
 
         # Importing the task is enough to add it to Celerybeat working list
         from websauna.system.devop import tasks  # noqa
+        self.config.scan(tasks)
 
     @event_source
     def configure_tweens(self):
         """Configure tweens."""
-
-    @event_source
-    def configure_scheduler(self):
-        """Configure Celery."""
-
-        # Patch pyramid_celery to use our config loader
-        import websauna.system.task.celery
-
-        # Patch various paster internals
-        from websauna.utils.configincluder import monkey_patch_paster_config_parser
-        monkey_patch_paster_config_parser()
-        self.config.include("pyramid_celery")
-
-        self.config.configure_celery(self.global_config["__file__"])
-
-        self.celery = websauna.system.task.celery.celery_app
 
     def read_secrets(self) -> dict:
         """Read secrets configuration file.
@@ -663,7 +648,6 @@ class Initializer:
         self.configure_mailer()
 
         # Timed tasks
-        self.configure_scheduler()
         self.configure_tasks()
 
         # Core view and layout related
@@ -767,6 +751,17 @@ class Initializer:
 
         return app
 
+    @classmethod
+    def bootstrap(cls, global_config):
+        """Use as WSGI entry point.
+
+        :return:
+        """
+        init = cls(global_config)
+        init.run()
+        wsgi_app = init.make_wsgi_app()
+        return wsgi_app
+
 
 def get_init(global_config, settings, init_cls=None) -> Initializer:
     """Get Initializer class instance for WSGI-like app.
@@ -819,6 +814,5 @@ def main(global_config, **settings):
 
     init = DemoInitializer(global_config)
     init.run()
-
     wsgi_app = init.make_wsgi_app()
     return wsgi_app

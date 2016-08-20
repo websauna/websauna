@@ -65,7 +65,7 @@ def init_websauna(config_uri: str, sanity_check: bool=False, console_app=False, 
 
     :param extra_options: Passed through bootstrap() and is available as :attr:`websauna.system.Initializer.global_options`.
 
-    :return: Dummy request object pointing to a site root, having registry and every configured.
+    :return: Faux Request object pointing to a site root, having registry and every configured.
     """
 
     monkey_patch_paster_config_parser()

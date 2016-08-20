@@ -27,81 +27,24 @@ from pyramid.settings import asbool
 from pyramid.testing import DummyRequest
 import pyramid_celery
 from pyramid_celery.loaders import INILoader
+
+from websauna.system import DemoInitializer
 from websauna.system.task import TransactionalTask
 from websauna.system.task import RequestAwareTask
+from websauna.system.task import task
 from websauna.system.user.utils import get_user_class
 
 logger = logging.getLogger(__name__)
 
-# Hardcode here for a now as passing command line option to Celery just for executing seems to be bit too much boilerplate
-test_celery_app = Celery("websauna_test")
 
-# class Config:
-#     BROKER_URL="redis://localhost:6379/15"
-#     CELERY_ALWAYS_EAGER=False
-#     CELERY_RESULT_SERIALIZER="json"
-#     CELERY_TASK_SERIALIZER="json"
-#     CELERY_ACCEPT_CONTENT=["json", "msgpack"]
-#
-#
-# test_celery_app.config_from_object(Config)
-#
-# Unfortunately we need to do this due to Celery globals
-old_celery = pyramid_celery.celery_app
+class SchedulerInitializer(DemoInitializer):
 
-test_celery_app.user_options['preload'].add(
-    make_option(
-        '-i', '--ini',
-        default=None,
-        help='Paste ini configuration file.'),
-)
-
-test_celery_app.user_options['preload'].add(
-    make_option(
-        '--ini-var',
-        default=None,
-        help='Comma separated list of key=value to pass to ini'),
-)
+    def configure_tasks(self):
+        self.config.scan("websauna.tests.scheduledtasks")
 
 
-def setup_app(registry, ini_location):
-    celery_app = test_celery_app
-    loader = INILoader(celery_app, ini_file=ini_location)
-    celery_config = loader.read_configuration()
-
-    if asbool(celery_config.get('USE_CELERYCONFIG', False)) is True:
-        config_path = 'celeryconfig'
-        celery_app.config_from_object(config_path)
-    else:
-        celery_app.config_from_object(celery_config)
-
-    celery_app.conf.update({'PYRAMID_REGISTRY': registry})
-
-    return celery_app
-
-
-@signals.user_preload_options.connect
-def _on_preload_parsed(options, **kwargs):
-    """This is run when celery worker process boots up."""
-    ini_location = options['ini']
-    ini_vars = options['ini_var']
-
-    if ini_location is None:
-        print('You must provide the paste --ini argument')
-        exit(-1)
-
-    options = {}
-    if ini_vars is not None:
-        for pairs in ini_vars.split(','):
-            key, value = pairs.split('=')
-            options[key] = value
-
-        env = bootstrap(ini_location, options=options)
-    else:
-        env = bootstrap(ini_location)
-
-    registry = env['registry']
-    setup_app(registry, ini_location)
+def main(global_config, **settings):
+    return SchedulerInitializer.bootstrap(global_config)
 
 
 @pytest.fixture(scope='module')
@@ -110,13 +53,11 @@ def celery_worker(request, init):
 
     ini_file = os.path.join(os.path.dirname(__file__), "..", "conf", "test.ini")
 
-    setup_app(init.config.registry, ini_file)
-
-    cmdline = ["ws-celery", "worker", "-A", "websauna.tests.test_transaction_aware_task.test_celery_app", "--ini", ini_file, "--loglevel", "DEBUG"]
+    cmdline = "ws-celery {} --"
 
     logger.info("Running celery worker: %s", cmdline)
 
-    worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     time.sleep(4.0)
 
     worker.poll()
@@ -151,7 +92,7 @@ def setup_celery(init):
     return test_celery_app, request
 
 
-@test_celery_app.task(base=TransactionalTask)
+@task(base=TransactionalTask)
 def success_task(request, user_id):
     # TODO: Eliminate global dbsession
     dbsession = request.dbsession
@@ -162,7 +103,7 @@ def success_task(request, user_id):
     u.username = "set by celery"
 
 
-@test_celery_app.task(base=TransactionalTask)
+@task(base=TransactionalTask)
 def success_task_never_called(request, user_id):
     # TODO: Eliminate global dbsession
     dbsession = request.dbsession
@@ -175,7 +116,7 @@ def success_task_never_called(request, user_id):
     u.username = "set by celery"
 
 
-@test_celery_app.task(base=TransactionalTask)
+@task(base=TransactionalTask)
 def failure_task(request, user_id):
     # TODO: Eliminate global dbsession
     dbsession = request.dbsession
@@ -187,7 +128,7 @@ def failure_task(request, user_id):
     raise RuntimeError("Exception raised")
 
 
-@test_celery_app.task(base=RequestAwareTask)
+@task(base=RequestAwareTask)
 def request_task(request, user_id):
     # Run transaction manually
     with transaction.manager:

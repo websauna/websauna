@@ -67,8 +67,10 @@ Below is a ``run-celery.bash`` script to manage Celery for local development:
     # http://stackoverflow.com/a/360275/315168
     trap 'pkill -f ws-celery' EXIT
 
-    ws-celery myapp/conf/development.ini -- worker &
-    ws-celery myapp/conf/development.ini -- beat &
+    # celery command implicitly overrides root log level,
+    # let's at least state it explicitly here
+    ws-celery myapp/conf/development.ini -- worker --loglevel=debug &
+    ws-celery myapp/conf/development.ini -- beat --loglevel=debug &
 
     # Wait for CTRL+C
     sleep 99999999

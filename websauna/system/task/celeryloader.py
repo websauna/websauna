@@ -99,8 +99,6 @@ def main():
 
     # Directly jump to Celery 4.0+ entry point
     from celery.bin.celery import main
-    print("Running celery as ", argv)
-
     main(argv)
 
 

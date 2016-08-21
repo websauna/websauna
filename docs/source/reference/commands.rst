@@ -40,6 +40,8 @@ ws-celery
 
 A wrapper command for `celery command <http://docs.celeryproject.org/en/latest/userguide/monitoring.html?highlight=command#workers>`_, supporting config inclusion mechanism.
 
+See :ref:`tasks`.
+
 .. _ws-shell:
 
 ws-shell

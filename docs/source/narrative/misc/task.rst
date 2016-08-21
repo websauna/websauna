@@ -102,15 +102,15 @@ Example:
 Task dispatch on commit
 -----------------------
 
-One generally wants to have tasks runs only if HTTP request execution completes succesfully. Websauna provides :py:class:`websauna.system.task.ScheduleOnCommitTask` task base class to do this.
+One generally wants to have tasks runs only if HTTP request execution completes succesfully. Websauna provides :py:class:`websauna.system.task.tasks.ScheduleOnCommitTask` task base class to do this.
 
 Transaction retries
 -------------------
 
-If your task does database processing use :py:class:`websauna.system.task.RetryableTransactionTask` base class. It will mimic the behavior of ``pyramid_tm`` transaction retry machine. It tries to retry the transaction few times in the case of :ref:`transaction serialization conflict <occ>`.
+If your task does database processing use :py:class:`websauna.system.task.tasksRetryableTransactionTask` base class. It will mimic the behavior of ``pyramid_tm`` transaction retry machine. It tries to retry the transaction few times in the case of :ref:`transaction serialization conflict <occ>`.
 
 Delayed tasks
--------------
+-------------front
 
 Delayed tasks run tasks outside HTTP request processing. Delayed tasks take non-critical actions after HTTP response has been sent to make the server responsive. These kind of actions include calling third party APIs like sending email and SMS. Often third party APIs are slow and we don't want to delay page rendering for a site visitor.
 
@@ -201,7 +201,7 @@ Your project INI configuration file has a section for Celery and Celery tasks. I
 
     [app:main]
     # ...
-    celery_config =
+    websauna.celery_config =
         {
             "broker_url": "redis://localhost:6379/3",
             "accept_content": ['json'],

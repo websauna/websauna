@@ -253,7 +253,7 @@ Example:
 
     [app:main]
     # ...
-    celery_config =
+    websauna.celery_config =
         {
             "broker_url": "redis://localhost:6379/3",
             "accept_content": ['json'],

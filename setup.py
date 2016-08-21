@@ -130,7 +130,8 @@ setup(
         'dev': ['check-manifest', 'Sphinx', 'setuptools_git', 'zest.releaser', 'sphinx-autodoc-typehints', 'pyramid_autodoc', "sphinx_rtd_theme", "sphinxcontrib-zopeext", "ruamel.yaml"],
 
         # Dependencies needed to run tests
-        'test': ['pytest>=2.8', 'pytest-runner', 'coverage', 'webtest', 'pytest-splinter', 'pytest-timeout', 'pytest-cov', "codecov", "flaky"],
+        # pytest 3.0 pending https://github.com/pytest-dev/pytest-splinter/issues/69
+        'test': ['pytest<3.0', 'pytest-runner', 'coverage', 'webtest', 'pytest-splinter', 'pytest-timeout', 'pytest-cov', "codecov", "flaky"],
 
         # Command line utilities and like that are needed to make development / production environment friendly
         'utils': ['pgcli'],

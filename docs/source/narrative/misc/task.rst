@@ -9,7 +9,7 @@ Tasks
 Introduction
 ============
 
-Websauna uses :term:`Celery` for asynchronous task processing. This allows asynchronous execution of delayed and scheduled tasks. Asynchronous execution allows responsive page renders by offloadindg long running calls outside HTTP request-response lifecycle.
+You can achieve responsive page rendering by offloadindg long running blocking calls from HTTP request processing to external worker processes. Websauna uses :ref:`Celery` for asynchronous task processing. Celery allows asynchronous execution of delayed and scheduled tasks.
 
 Installation
 ============
@@ -42,13 +42,13 @@ Use :ref:`ws-celery` command to run Celery. ``ws-celery`` is a wrapper around ``
 
 To launch a Celery worker:
 
-.. code-block: console
+.. code-block: shell
 
     ws-celery myapp/conf/development.ini -- worker
 
 To launch a Celery beat do:
 
-.. code-block: console
+.. code-block: shell
 
     ws-celery myapp/conf/development.ini -- beat
 
@@ -76,12 +76,12 @@ Below is a ``run-celery.bash`` script to manage Celery for local development:
 Managing tasks
 ==============
 
-You need to register your tasks with Celery. You do this by decorating your task functions :py:func:`websauna.system.task.task` function decorator. The decorated functions and their modules must be scanned using ``self.config.scan()`` in :py:meth:`websauna.system.Initializer.configure_tasks` of your app Initializer class.
+You need to register your tasks with Celery. You do this by decorating your task functions :py:func:`websauna.system.task.tasks.task` function decorator. The decorated functions and their modules must be scanned using ``self.config.scan()`` in :py:meth:`websauna.system.Initializer.configure_tasks` of your app Initializer class.
 
 Accessing request within tasks
 ------------------------------
 
-Websauna uses a custom :py:class:`websauna.system.task.celeryloader.WebsaunaLoader` task loader to enable you to have ``request`` object available in your tasks. This allows you to access to ``dbsession`` and other implicit environment variables. Your task must have ``bind=true`` in its declaration.
+Websauna uses a custom :py:class:`websauna.system.task.celeryloader.WebsaunaLoader` Celery task loader to have ``request`` object available within your tasks. This allows you to access to ``dbsession`` and other implicit environment variables. Your tasks must have ``bind=true`` in its declaration to access the Celery task context through ``self`` argument.
 
 Example:
 
@@ -94,10 +94,10 @@ Example:
 
     @task(base=RetryableTransactionTask, bind=True)
     def my_task(self: Task):
+        # self.request is celery.app.task.Context
+        # self.request.request is websauna.system.http.Request
         dbsession = self.request.request.dbsession
         # ...
-
-
 
 Task dispatch on commit
 -----------------------
@@ -110,7 +110,7 @@ Transaction retries
 If your task does database processing use :py:class:`websauna.system.task.tasksRetryableTransactionTask` base class. It will mimic the behavior of ``pyramid_tm`` transaction retry machine. It tries to retry the transaction few times in the case of :ref:`transaction serialization conflict <occ>`.
 
 Delayed tasks
--------------front
+-------------
 
 Delayed tasks run tasks outside HTTP request processing. Delayed tasks take non-critical actions after HTTP response has been sent to make the server responsive. These kind of actions include calling third party APIs like sending email and SMS. Often third party APIs are slow and we don't want to delay page rendering for a site visitor.
 
@@ -270,7 +270,7 @@ First stop worker.
 
 Then start worker locally attacted to the terminal with --purge and it will drop all the messages::
 
-    ws-celery worker -A websauna.system.task.celery.celery_app --ini production.ini --purge
+    ws-celery production.ini -- worker --purge
 
 Stop with CTRL+C.
 

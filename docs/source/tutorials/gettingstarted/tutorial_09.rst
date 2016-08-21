@@ -148,6 +148,6 @@ Some examples how to customize and override views in admin interfaces
 
 * :py:mod:`websauna.system.user.adminviews` module
 
-* websauna.wallet package `admins.py <https://github.com/websauna/websauna.wallet/blob/master/websauna/wallet/admins.py>`_.
-and `adminviews.py <https://github.com/websauna/websauna.wallet/blob/master/websauna/wallet/adminviews.py>`_
+* websauna.wallet package `admins.py <https://github.com/websauna/websauna.wallet/blob/master/websauna/wallet/admins.py>`_ and `adminviews.py <https://github.com/websauna/websauna.wallet/blob/master/websauna/wallet/adminviews.py>`_
+
 

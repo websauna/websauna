@@ -14,5 +14,4 @@ Other functionality
     shellwrapper
     scaffolds
     secrets
-    datetime
     typing

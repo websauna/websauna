@@ -1,4 +1,4 @@
-.. _templates:
+.. _templates-narrative:
 
 =========
 Templates

@@ -329,6 +329,7 @@ intersphinx_mapping = {
     'who': ('http://repozewho.readthedocs.org/en/latest', None),
     'zcml': ('http://docs.pylonsproject.org/projects/pyramid-zcml/en/latest', None),
     'zcomponent': ('http://docs.zope.org/zope.component', None),
+    "celery": ("http://docs.celeryproject.org/en/master/", None),
 }
 
 

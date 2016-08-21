@@ -41,7 +41,7 @@ In :ref:`development.ini` enable Google login:
     websauna.social_logins =
         google
 
-In :ref:`development-secrets.ini` add Google OAuth details:
+In :ref:`development-secrets.ini <development.ini>` add Google OAuth details:
 
 .. code-block:: ini
 

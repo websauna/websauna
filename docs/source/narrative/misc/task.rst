@@ -1,205 +1,239 @@
 .. _tasks:
 
-===================================
-Tasks - delayed and scheduled tasks
-===================================
+=====
+Tasks
+=====
 
-Websauna uses :term:`Celery` for
+.. contents:: :local:
 
-* Running scheduled tasks e.g. backups
+Introduction
+============
 
-* Running delayed tasks e.g. sending email after HTTP response has been written to increase responsivity
+Websauna uses :term:`Celery` for asynchronous task processing. This allows asynchronous execution of delayed and scheduled tasks. Asynchronous execution allows responsive page renders by offloadindg long running calls outside HTTP request-response lifecycle.
 
-* *pyramid_celery* package is used to provide integration between Celery and Pyramid framework. This is mostly configuration integration.
+Installation
+============
 
+Make sure you have installed Websauna with ``celery`` extra dependencies to use tasks:
 
-Celery basics
-=============
+.. code-block:: shell
 
-Celery is a Python framework for running asynchronous and scheduled tasks in separate processes.
+    pip install websauna[celery]
 
-* Tasks do not run in the same process or Python virtual machine as the web requests are handled
+See :ref:`installing_websauna` for more information. Websauna requires Celery 4.0 or newer.
 
-* In fact, tasks can run on a different computer altogether
+Configuring Celery
+==================
 
-* Celery worker process executes task functions
+Websauna configures Celery using :ref:`websauna.celery_config` directive in INI settings.
 
-* Celery beat process triggers execution of scheduled tasks
-
-* Websauna is configured to use Celery through Redis. The default broken locations are localhost Redis database 3 for deployment, localhost Redis database 15 for testing.
-
-* All function arguments going into tasks must be JSON serializable. You cannot pass complex Python objects, like HTTPRequest, directly to the tasks. This is because tasks live in separate process and Python virtual machine.
-
-Task types
-==========
-
-Websauna offers to Celery task classes
-
-* :py:class:`websauna.system.task.TransactionalTask`: Everything in the task is completed in one database transaction which commits when the transaction finishes. If an exception is raised no database changes are made.
-
-* :py:class:`websauna.system.task.RequestAwareTask`: There is no transaction lifecycle and the task author is responsible for committed any changes. Good for tasks which do not read or write database.
-
-* If called through ``delay`` or ``apply_async`` the tasks go to Celery queue only if the current :py:class:`pyramid.request.Request` successfully finishes and the transaction is committed.
-
-* Both task classes supply :py:class:`pyramid.request.Request` dummy request as the first argument for the task functions. This allows you to access Pyramid registry (``request.registry``) or pass the dummy request to template functions. Please note that this is a dummy request object not coming from a web server and thus cannot be used for generating URLs.
+Celery is configured to use :term:`Redis` as a broker between web and task procsses. Unless you want to add your own scheduled tasks you do not need to change ``websauna.celery_config`` setting.
 
 Running Celery
 ==============
 
-Celery needs to run to process the tasks. Below is an example how to run Celery on your development installation.
+Celery runs separate long running processes called *workers* to execute the tasks. Furthermore a separare process called *beat* needs to be run to initiate scheduled tasks. Below is an example how to run Celery on your development installation.
 
-Use :ref:`ws-celery` command to run Celery.
+.. note :::
 
-To launch a Celery worker do::
+    For local development you don't need to run full Celery setup on your computer. Instead you set Celery tasks to eager execution. This means that delayed tasks are run immediately blocking the HTTP response. See **task_always_eager** Celery configuration variable. This is turned on with the default *development.ini*.
 
-    ws-celery worker -A websauna.system.task.celery.celery_app --ini development.ini
+Use :ref:`ws-celery` command to run Celery. ``ws-celery`` is a wrapper around ``celery`` command supporting reading settings from :ref:`INI configuration files <config>`.
 
-To launch a Celery beat do::
+To launch a Celery worker:
 
-    ws-celery beat -A websauna.system.task.celery.celery_app --ini development.ini
+.. code-block: console
+
+    ws-celery myapp/conf/development.ini -- worker
+
+To launch a Celery beat do:
+
+.. code-block: console
+
+    ws-celery myapp/conf/development.ini -- beat
+
+Below is a ``run-celery.bash`` script to manage Celery for local development:
+
+.. code-block:: bash
+
+    #!/bin/bash
+    # Launch both celery processes and kill when this script exits.
+    # This script is good for running Celery for local development.
+    #
+
+    set -e
+    set -u
+
+    # http://stackoverflow.com/a/360275/315168
+    trap 'pkill -f ws-celery' EXIT
+
+    ws-celery myapp/conf/development.ini -- worker &
+    ws-celery myapp/conf/development.ini -- beat &
+
+    # Wait for CTRL+C
+    sleep 99999999
+
+Managing tasks
+==============
+
+You need to register your tasks with Celery. You do this by decorating your task functions :py:func:`websauna.system.task.task` function decorator. The decorated functions and their modules must be scanned using ``self.config.scan()`` in :py:meth:`websauna.system.Initializer.configure_tasks` of your app Initializer class.
+
+Accessing request within tasks
+------------------------------
+
+Websauna uses a custom :py:class:`websauna.system.task.celeryloader.WebsaunaLoader` task loader to enable you to have ``request`` object available in your tasks. This allows you to access to ``dbsession`` and other implicit environment variables. Your task must have ``bind=true`` in its declaration.
+
+Example:
+
+.. code-block:: python
+
+    from celery.task import Task
+    from websauna.system.task import task
+    from websauna.system.task import RetryableTransactionTask
+
+
+    @task(base=RetryableTransactionTask, bind=True)
+    def my_task(self: Task):
+        dbsession = self.request.request.dbsession
+        # ...
+
+
+
+Task dispatch on commit
+-----------------------
+
+One generally wants to have tasks runs only if HTTP request execution completes succesfully. Websauna provides :py:class:`websauna.system.task.ScheduleOnCommitTask` task base class to do this.
+
+Transaction retries
+-------------------
+
+If your task does database processing use :py:class:`websauna.system.task.RetryableTransactionTask` base class. It will mimic the behavior of ``pyramid_tm`` transaction retry machine. It tries to retry the transaction few times in the case of :ref:`transaction serialization conflict <occ>`.
+
+Delayed tasks
+-------------
+
+Delayed tasks run tasks outside HTTP request processing. Delayed tasks take non-critical actions after HTTP response has been sent to make the server responsive. These kind of actions include calling third party APIs like sending email and SMS. Often third party APIs are slow and we don't want to delay page rendering for a site visitor.
+
+Below is an example which calls third party API (Twilio SMS out) - you don't want to block page render if the third party API fails or is delayed. The API is HTTP based, so calling it adds great amount of milliseconds on the request processing. The task also adds some extra delay and the SMS is not shoot up right away - it can be delayed hour or two after the user completes an order.
+
+.. note ::
+
+    All task arguments must be JSON serializable. You cannot pass any SQLAlchemy objects to Celery. Instead use primary keys of database objects.
+
+Example of deferring a task executing outside HTTP request processing in ``tasks.py``:
+
+.. code-block:: python
+
+    from celery.task import Task
+    from websauna.system.task import task
+    from websauna.system.task import RetryableTransactionTask
+    # ...
+
+
+    @task(base=RetryableTransactionTask, bind=True)
+    def send_review_sms_notification(self: Task, delivery_id: int):
+
+        request = self.request.request  # type: websauna.system.http.Request
+
+        dbsession = request.dbsession
+        delivery = dbsession.query(models.Delivery).get(delivery_id)
+        customer = delivery.customer
+
+        review_url = request.route_url("review_public", delivery_uuid=uuid_to_slug(delivery.uuid))
+
+        # The following call to Twilio may take up to 2-5 seconds
+        # We don't want to block HTTP response until Twilio is done sending SMS.
+        sms.send_templated_sms_to_user(request, customer, "drive/sms/review.txt", locals())
+
+Then you can schedule your task for delayed execution in ``views.py``:
+
+.. code-block:: python
+
+    def my_view(request):
+        delivery = request.dbsession.query(Delivery).get(1)
+        send_review_sms_notification.apply_async(args=(delivery.id,), tm=request.transaction_manager)
+
+You also need to scan ``tasks.py`` in Initializer:
+
+.. code-block:: python
+
+    class MyAppInitializer(Initializer):
+        """Entry point for tests stressting task functionality."""
+
+        def configure_tasks(self):
+            self.config.scan("myapp.tasks")
 
 Scheduled tasks
-===============
-
-Scheduled job is a task which is set to run on certain time interval or on a certain wall clock moment - e.g. every day 24:00.
-
-Creating a task
 ---------------
 
-Here is an example task for calling API and storing the results in Redis. In your package create file ``task.py`` and add::
+Scheduled task is a job taht is set to run on certain time interval or on a certain wall clock moment - e.g. every day 24:00.
 
-    """Timed tasks."""
-    import logging
-    from pyramid.threadlocal import get_current_registry
+Creating a task
+~~~~~~~~~~~~~~~
+
+Here is an example task for calling API and storing the results in Redis. In your package create file ``task.py`` and add:
+
+.. code-block:: python
 
     from trees.btcaverage import RedisConverter
+
     from websauna.system.core.redis import get_redis
-    from websauna.system.task.celery import celery_app as celery
-    from websauna.system.task.TransactionalTask import TransactionalTask
-
-    logger = logging.getLogger(__name__)
+    from websauna.system.task import task
+    from websauna.system.task import TransactionalTask
 
 
-    @celery.task(name="update_conversion_rates", base=TransactionalTask)
-    def update_btc_rate(request):
-        logger.info("Fetching currency conversion rates from API to Redis")
-
-        # Get a hold of Pyramid registry
-
-        redis = get_redis(request.registry)
+    @task(name="update_conversion_rates", base=TransactionalTask, bind=True)
+    def update_btc_rate(self):
+        request = self.request.request
+        redis = get_redis(request)
         converter = RedisConverter(redis)
         converter.update()
 
 
 Another example can be found in :py:mod`websauna.system.devop.backup`.
 
-Scheduling task
----------------
+Setting schedule
+~~~~~~~~~~~~~~~~
 
-Your project INI configuration file has a section for Celery and Celery tasks. In below we register our custom task beside the default backup task::
-
-    [celery]
-    CELERY_IMPORTS =
-        websauna.system.devop.tasks
-        trees.tasks
-
-    [celerybeat:backup]
-    task = backup
-    type = timedelta
-    schedule = {"hours": 24}
-
-    [celerybeat:update_conversion_rates]
-    task = update_conversion_rates
-    type = timedelta
-    schedule = {"hours": 1}
-
-
-Delayed tasks
-=============
-
-Delayed tasks are functions which are not executed immediately, but after a certain timeout. The most common use case for these is do some processing after HTTP request - response cycle, so that the user gets the page open faster without spending time on the tasks which could be potentially handled asynchronously after HTTP response has been generated.
-
-Below is an example which calls third party API (Twilio SMS out) - you don't want to block page render if the third party API fails or is delayed. The API is HTTP based, so calling it adds great amount of milliseconds on the request processing. The task also adds some extra delay and the SMS is not shoot up right away - it can be delayed hour or two after the user completes an order.
-
-Example of deferring a task executing outside HTTP request processing::
-
-    from websauna.system.task.celery import celery_app as celery
-    from websauna.system.task import TransactionalTask
-
-    @celery.task(base=TransactionalTask)
-    def send_review_sms_notification(request, delivery_id):
-
-        # TODO: Convert global dbsession to request.dbsession
-        dbsession = request.dbsession
-        delivery = dbsession.query(models.Delivery).get(delivery_id)
-        customer = delivery.customer
-
-        review_url = request.route_url("review_public", delivery_uuid=uuid_to_slug(delivery.uuid))
-        sms.send_templated_sms_to_user(request, customer, "drive/sms/review.txt", locals())
-
-Then you can call this in your view::
-
-    def my_virew(request):
-        delivery = request.dbsession.query(Delivery).get(1)
-        send_review_sms_notification.apply_async(args=(request, delivery.id,))
-
-
-Transactional task
-------------------
-
-Transaction task happens in one database :term:`transaction`
-
-See :py:class:`websauna.system.task.TransactionalTask`.
-
-Non-transactional task
-----------------------
-
-If you wish to have control over transactional boundaries yourself, see :py:class:`websauna.system.task.RequestAwareTask`.
-
-Eager execution in development and testing
-------------------------------------------
-
-When testing one might not ramp full Celery environment.
-
-See :ref:`Celery config <celery-config>` for more details.
-
-Configuring Celery to start with supervisor
-===========================================
-
-Below is a supervisor configuration Ansible template for starting the two processes. Apply and modify as necessary for your deployment.
+Your project INI configuration file has a section for Celery and Celery tasks. In below we register our custom task beside the default backup task
 
 .. code-block:: ini
 
-    [program:celerybeat]
-    command={{deploy_location}}/venv/bin/ws-celery beat -A websauna.system.task.celery.celery_app --ini {{deploy_location}}/{{ site_id }}.ini --loglevel=debug
-    stderr_logfile={{ deploy_location }}/logs/celery-beat.log
-    directory={{ deploy_location }}
-    numprocs=1
-    autostart=true
-    autorestart=true
-    startsecs=10
-    stopwaitsecs=600
+    [app:main]
+    # ...
+    celery_config =
+        {
+            "broker_url": "redis://localhost:6379/3",
+            "accept_content": ['json'],
+            "beat_schedule": {
+                # config.scan() scans a Python module
+                # and picks up a celery task named test_task
+                "update_conversion_rates": {
+                    "task": "update_conversion_rates",
+                    # Run every 30 minutes
+                    "schedule": timedelta(minutes=30)
+                }
+            }
+        }
 
-    [program:celeryworker]
-    command={{deploy_location}}/venv/bin/ws-celery worker -A websauna.system.task.celery.celery_app --ini {{deploy_location}}/{{ site_id }}.ini --loglevel=debug
-    stderr_logfile={{ deploy_location }}/logs/celery-worker.log
-    directory={{ deploy_location }}
-    autostart=true
-    autorestart=true
-    startsecs=10
-    stopwaitsecs=600
-    environment=C_FORCE_ROOT="true"
 
+More information
+================
+
+See
+
+* :py:mod:`websauna.tests.demotasks`
+
+* :py:mod:`websauna.system.devop.tasks`
+
+* :py:mod:`websauna.system.task.tasks`
+
+* :py:mod:`websauna.system.task.celeryloader`
+
+* :py:mod:`websauna.system.task.celery`
 
 Troubleshooting
 ===============
-
-Task does not execute
----------------------
-
-Task is not executed with ``apply_async`` even if you run ``CELERY_ALWAYS_EAGER=True``.
-
-
 
 Inspecting task queue
 ---------------------

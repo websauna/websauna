@@ -32,7 +32,7 @@ In Websauna, web pages and other content are delivered by views. Each view is re
 
 A URL pattern is simply the general form of a URL - for example: `/newsarchive/<year>/<month>/`.
 
-This tutorial provides basic instructions for the use of routing, and you can refer to :doc:`view documentation <../../narrative/frontend/views>` for more information.
+This tutorial provides basic instructions for the use of routing, and you can refer to :ref:`views` for more information.
 
 URL dispatch
 ------------

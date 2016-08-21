@@ -1,4 +1,4 @@
-"""See that scheduled tasks are run by Celery beat."""
+"""See that beat runs scheduled tasks correctly."""
 
 import subprocess
 import time
@@ -11,21 +11,23 @@ from websauna.system.core.redis import get_redis
 
 def run_worker_and_beat(ini_file):
 
-    cmdline = ["ws-celery", "worker", "-A", "websauna.system.task.celery.celery_app", "--ini", ini_file]
+    cmdline = "ws-celery {} -- worker".format(ini_file)
 
     # You can start manually ws-celery worker -A websauna.system.task.celery.celery_app --ini websauna/tests/scheduler-test.ini
     # # and set worker = None
 
-    worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     time.sleep(2.0)
 
     worker.poll()
     if worker.returncode is not None:
-         raise AssertionError("Scheduler process did not start up: {}".format(" ".join(cmdline)))
+        print(worker.stdout.read().decode("utf-8"))
+        print(worker.stderr.read().decode("utf-8"))
+        raise AssertionError("Celery worker process did not start up: {}".format(cmdline))
 
     # You can run manually ws-celery beat -A websauna.system.task.celery.celery_app --ini websauna/tests/scheduler-test.ini
-    cmdline = ["ws-celery", "beat", "-A", "websauna.system.task.celery.celery_app", "--ini", ini_file]
-    beat = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    cmdline = "ws-celery {} -- beat".format(ini_file)
+    beat = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 
     time.sleep(1.0)
     beat.poll()
@@ -37,12 +39,11 @@ def run_worker_and_beat(ini_file):
 
 
 @flaky
-def test_run_scheduled(init):
+def test_celery_beat(init):
     """Scheduled tasks run properly on the celery worker + celery beat process."""
 
-    ini_file = os.path.join(os.path.dirname(__file__), "scheduler-test.ini")
+    ini_file = os.path.join(os.path.dirname(__file__), "task-test.ini")
     worker, beat = run_worker_and_beat(ini_file)
-    # worker, beat = None, None
 
     try:
         # Reset test database
@@ -51,7 +52,7 @@ def test_run_scheduled(init):
 
         # scheduledtasks.ticker should beat every second and reset values in Redis
         # sets foo
-        time.sleep(10)
+        time.sleep(5)
 
         redis = get_redis(init.config.registry)
         foo = redis.get("foo")

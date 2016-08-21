@@ -119,6 +119,7 @@ def test_migration(app_scaffold, dev_db):
 
     with replace_file(os.path.join(app_scaffold, "myapp", "myapp", "models.py"), MODELS_PY):
 
+        # Happens if py.test picks up this test twice
         files = os.listdir(os.path.join(app_scaffold, "myapp", "alembic", "versions"))
         for f in files:
             assert not f.endswith(".py"), "versions folder contained migration scripts before initial Alembic run: {}".format(files)

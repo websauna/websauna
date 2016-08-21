@@ -4,11 +4,11 @@ from pyramid.interfaces import ISession
 from pyramid.registry import Registry
 from pyramid.request import Request as _Request
 from sqlalchemy.orm import Session
+
+from transaction import TransactionManager
 from websauna.system.admin.admin import Admin
 from websauna.system.core.render import OnDemandResourceRenderer
 from websauna.system.user.models import User
-
-from websauna.compat.typing import Optional
 
 
 class Request(_Request):
@@ -33,7 +33,7 @@ class Request(_Request):
 
     """
 
-    def __type_hinting__(self, user:User, dbsession:Session, session:ISession, admin:Admin, registry:Registry, on_demand_resource_renderer:OnDemandResourceRenderer):
+    def __type_hinting__(self, user:User, dbsession:Session, session:ISession, admin:Admin, registry:Registry, on_demand_resource_renderer:OnDemandResourceRenderer, transaction_manager: TransactionManager):
         """A dummy helper function to tell IDEs about reify'ed variables.
 
         :param user: The logged in user. None if the visitor is anonymous.
@@ -47,6 +47,8 @@ class Request(_Request):
         :param registry: Pyramid registry's. E.g. :py:attr:`pyramid.registry.Registry.settings` for reading settings and :py:meth:`pyramid.registry.Registry.notify` for sending events.
 
         :param on_demand_resource_renderer: Manage JS and CSS files which widgets want to pull on the page dynamically
+
+        :param transaction_manager: Transaction manager used to commit the database changes after the request completes.
         """
         self.user = user
         self.dbsession = dbsession
@@ -54,3 +56,4 @@ class Request(_Request):
         self.admin = admin
         self.registry = registry
         self.on_demand_resource_renderer = on_demand_resource_renderer
+        self.transaction_manager = transaction_manager

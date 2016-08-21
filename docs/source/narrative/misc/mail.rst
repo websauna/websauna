@@ -158,4 +158,4 @@ Below is an :term:`INI` configuration example to send emails through `Sparkpost 
     mail.username = SMTP_Injection
     mail.password = <your Sparkpost API token>
 
-For more complex production environment outbound email with local :term:`Postfix` buffering, see :ref:`outbound email chapter in Ansible playbook <outbound-email>`_.
+For more complex production environment outbound email with local :term:`Postfix` buffering, see :ref:`outbound email chapter in Ansible playbook <outbound-email>`.

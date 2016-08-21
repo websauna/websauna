@@ -42,7 +42,7 @@ This is the base for all configuration files. It should not be used standalone, 
 
 * Set up default websauna configuration variables
 
-See :download:`base.ini <../../../base.ini>`.
+See :download:`base.ini <../../../websauna/conf/base.ini>`.
 
 .. _development.ini:
 
@@ -63,7 +63,7 @@ This a the configuration file for running the local development server
 
 * Enable :term:`pyramid_debugtoolbar`.
 
-See :download:`development.ini <../../../development.ini>`.
+See :download:`development.ini <../../../websauna/conf/development.ini>`.
 
 .. _test.ini:
 
@@ -78,7 +78,7 @@ Settings for running unit tests
 
 * Jinja templates in strict mode (raise exception on missing template variable)
 
-See :download:`development.ini <../../../test.ini>`.
+See :download:`development.ini <../../../websauna/conf/test.ini>`.
 
 .. _production.ini:
 
@@ -95,7 +95,7 @@ Settings for runnign Websauna on production server.
 
 * Cached static files
 
-See :download:`production.ini <../../../production.ini>`.
+See :download:`production.ini <../../../websauna/conf/production.ini>`.
 
 .. _staging.ini:
 
@@ -231,6 +231,43 @@ Automatically sign in the user after completing the sign up form.
 See :py:meth:`websauna.systme.user.registrationservice.DefaultRegistrationService.sign_up`.
 
 Default: ``false``.
+
+.. _websauna.celery_config:
+
+websauna.celery_config
+----------------------
+
+A Python dictionary to configure Celery.
+
+`See Celery manual for configuration <http://docs.celeryproject.org/en/master/userguide/configuration.html>`_.
+
+See :ref:`ws-celery`.
+
+See :py:meth:`websauna.system.Initializer.configure_tasks`.
+
+See :ref:`tasks` documentation.
+
+Example:
+
+.. code-block:: ini
+
+    [app:main]
+    # ...
+    celery_config =
+        {
+            "broker_url": "redis://localhost:6379/3",
+            "accept_content": ['json'],
+            "task_always_eager": False,
+            "beat_schedule": {
+                # config.scan() scans a Python module
+                # and picks up a celery task named test_task
+                "test_task": {
+                    "task": "foobar",
+                    "schedule": timedelta(seconds=1)
+                }
+            }
+        }
+
 
 websauna.error_test_trigger
 ---------------------------

@@ -104,9 +104,6 @@ setup(
         'pyramid-mailer',
         'premailer',
 
-        # Tasks
-        'celery[redis]>=4.0.0rc3',
-
         # Python 3.4 typing
         "backports.typing",
 
@@ -137,6 +134,9 @@ setup(
 
         # Command line utilities and like that are needed to make development / production environment friendly
         'utils': ['pgcli'],
+
+        # Using celery based async tasks
+        'celery': ['celery[redis]>=4.0.0rc3']
     },
 
     # To provide executable scripts, use entry points in preference to the
@@ -151,7 +151,7 @@ setup(
             'ws-alembic=websauna.system.devop.scripts.alembic:main',
             'ws-dump-db=websauna.system.devop.scripts.dumpdb:main',
             'ws-create-user=websauna.system.devop.scripts.createuser:main',
-            'ws-celery=websauna.system.task.celeryprocess:main',
+            'ws-celery=websauna.system.task.celeryloader:main',
             'ws-proutes=websauna.system.devop.scripts.proutes:main',
             'ws-pserve=websauna.system.devop.scripts.pserve:main',
             'ws-create-table=websauna.system.devop.scripts.createtable:main',
@@ -162,8 +162,9 @@ setup(
         'paste.app_factory': [
             'main=websauna.system:main',
 
-            # Scheduler auomated test suite entry point
-            'scheduler_test=websauna.tests.test_transaction_aware_task:main',
+            # Scheduler auomated test suite entry point with some extra configured taskss
+            'task_test=websauna.tests.demotasks:main',
+            'tutorial_test=websauna.tests.tutorial:main',
         ],
 
         'pyramid.scaffold': [

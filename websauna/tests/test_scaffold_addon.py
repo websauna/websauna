@@ -75,6 +75,12 @@ def test_addon_migration(addon_scaffold, addon_dev_db):
     """Create an addon, add a model and see if migrations are run and scripts created correctly."""
 
     with replace_file(os.path.join(addon_scaffold, "websauna.myaddon", "websauna", "myaddon", "models.py"), MODELS_PY):
+
+        # Happens if py.test picks up this test twice
+        files = os.listdir(os.path.join(addon_scaffold, "websauna.myaddon", "alembic", "versions"))
+        for f in files:
+            assert not f.endswith(".py"), "versions folder contained migration scripts before initial Alembic run: {}".format(files)
+
         execute_venv_command("ws-alembic -c websauna/myaddon/conf/development.ini revision --autogenerate -m 'Added MyModel'", addon_scaffold, cd_folder="websauna.myaddon")
         execute_venv_command("ws-alembic -c websauna/myaddon/conf/development.ini upgrade head", addon_scaffold, cd_folder="websauna.myaddon")
 

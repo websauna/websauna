@@ -28,6 +28,8 @@ For available model column types see
 
 * :py:class:`sqlalchemy.dialects.postgresql.JSONB`
 
+.. _datetime:
+
 Dates and times
 ===============
 

@@ -12,5 +12,4 @@ websauna.site_email_prefix = [{{project}} DEV]
 sqlalchemy.url = postgresql://localhost/{{project}}_dev
 websauna.secrets_file = resource://{{project}}/conf/development-secrets.ini
 
-[celery]
-CELERY_ALWAYS_EAGER = true
+

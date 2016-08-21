@@ -41,6 +41,12 @@ def includeme(config):
         reify=True
     )
 
+    config.add_request_method(
+        get_request_tm,
+        'transaction_manager',
+        reify=True
+    )
+
     # Register UTC timezone enforcer
     if asbool(config.registry.settings.get("websauna.force_utc_on_columns", True)):
         from . import sqlalchemyutcdatetime  # noqa
@@ -51,6 +57,11 @@ def request_session_factory(request: Request) -> Session:
     session = request.registry.queryAdapter(request, ISQLAlchemySessionFactory)
     assert session, "No configured ISQLAlchemySessionFactory"
     return session
+
+
+def get_request_tm(request: Request):
+    """Get the underlying transaction manager."""
+    return request.dbsession.transaction_manager
 
 
 def create_transaction_manager_aware_dbsession(request: Request) -> Session:
@@ -128,4 +139,5 @@ def create_session(transaction_manager, db_session_maker: sessionmaker) -> Sessi
     dbsession = db_session_maker()
     transaction_manager.retry_attempt_count = 3  # TODO: Hardcoded for now
     zope.sqlalchemy.register(dbsession, transaction_manager=transaction_manager)
+    dbsession.transaction_manager = transaction_manager
     return dbsession

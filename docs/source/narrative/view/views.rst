@@ -111,10 +111,67 @@ Below is a corresponding view example. :py:func:`websauna.viewconfig.view_overri
             ]
         )
 
+Protecting views with permissions
+---------------------------------
+
+To make sure the user is logged in when accessing the view use pseudopermission ``authenticated``. Example::
+
+    @simple_route("/affiliate", route_name="affiliate", renderer="views/affiliate.html", append_slash=False, permission="authenticated")
+    def affiliate_program(request):
+
+Doing redirects
+===============
+
+Below is an example how to do a redirect (HTTP 302 temporary redirect) for logged in users using :py:class:`pyramid.httpexceptions.HTTPFound`:
+
+.. code-block:: python
+
+    from pyramid.httpexceptions import HTTPFound
+    from websauna.system.http import Request
+    from websauna.system.core.route import simple_route
+
+
+    @simple_route("/", route_name="home", renderer='myapp/home.html')
+    def home(request: Request):
+        """Render site homepage."""
+
+        if request.user:
+            # Logged in users go directly from home to profile page
+            return HTTPFound(request.route_url("profile"))
+
+        return {"project": "My App"}
+
+
+    @simple_route("/profile", route_name="profile", renderer='myapp/profile.html')
+    def profile(request: Request):
+        return {}
+
+
+.. note ::
+
+    One could also do a redirect by ``raise HTTPFound()`` and let exception handling mechanism to perform the redirect. In this case, however, nothing is written to the database, like user login records, because exceptions cause transaction rollback.
+
 Stock views
 ===========
 
 Some special views Websauna provides out of the box.
+
+Home
+----
+
+Websauna application scaffold provides a route with name ``home``. This should point to the landing page of your website.
+
+This view is referred e.g. sign up emails.
+
+Example
+
+.. code-block:: html+jinja
+
+        <h2>
+          <a href="{{ 'home'|route_url }}">
+            <img class="logo" src="{{ 'myapp:static/logo.png'|static_url }}" alt="{{ site_name }}">
+          </a>
+        </h2>
 
 HTTP 404 Not Found
 ------------------

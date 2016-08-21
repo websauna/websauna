@@ -27,8 +27,6 @@ Run:
 
     sudo -u postgres createdb myapp_dev
 
-.. _test.ini:
-
 Running tests
 =============
 

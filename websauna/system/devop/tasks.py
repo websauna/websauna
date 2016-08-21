@@ -1,7 +1,7 @@
 """Timed default devop tasks for the system."""
 import logging
 
-from websauna.system.task.celery import task
+from websauna.system.task import task
 
 logger = logging.getLogger(__name__)
 

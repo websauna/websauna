@@ -3,7 +3,6 @@ import sys
 
 from celery.loaders.base import BaseLoader
 from pyramid.decorator import reify
-from pyramid.scripting import _make_request
 from websauna.system.devop.cmdline import init_websauna
 from websauna.system.http import Request
 
@@ -17,8 +16,6 @@ class WebsaunaLoader(BaseLoader):
     """Celery command line loader for Websauna.
 
     Support binding request object to Celery tasks and loading Celery settings through Pyramid INI configuration.
-
-    TODO: We do not call any closer method for the request ATM
     """
 
     @reify
@@ -59,18 +56,16 @@ class WebsaunaLoader(BaseLoader):
     def on_task_init(self, task_id, task):
         """This method is called before a task is executed.
 
-        Pass our request context to the task
+        Pass our request context to the task.
 
         http://docs.celeryproject.org/en/latest/userguide/tasks.html#context
+
+        .. note ::
+
+            The same request object is recycled over and over again. Pyramid does not have correctly mechanisms for having retryable request factory.
+
         """
-
-        # We don't want to recycle request object across tasks, as
-        # all reifyed attributes would stay stale and such.
-        request = self.request
-        new_request = _make_request("/", request.registry)
-
-        # Pass freshly created request in task function context
-        task.request.update(request=new_request)
+        task.request.update(request=self.request)
 
 
 def main():
@@ -100,10 +95,12 @@ def main():
     else:
         celery_args = []
 
-    argv = ["--loader=websauna.system.task.celeryprocess.WebsaunaLoader"] + celery_args
+    argv = ["--loader=websauna.system.task.celeryloader.WebsaunaLoader"] + celery_args
 
     # Directly jump to Celery 4.0+ entry point
     from celery.bin.celery import main
     print("Running celery as ", argv)
 
     main(argv)
+
+

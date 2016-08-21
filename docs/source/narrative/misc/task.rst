@@ -90,8 +90,8 @@ Example:
 .. code-block:: python
 
     from celery.task import Task
-    from websauna.system.task import task
-    from websauna.system.task import RetryableTransactionTask
+    from websauna.system.task.tasks import task
+    from websauna.system.task.tasks import RetryableTransactionTask
 
 
     @task(base=RetryableTransactionTask, bind=True)
@@ -127,8 +127,8 @@ Example of deferring a task executing outside HTTP request processing in ``tasks
 .. code-block:: python
 
     from celery.task import Task
-    from websauna.system.task import task
-    from websauna.system.task import RetryableTransactionTask
+    from websauna.system.task.tasks import task
+    from websauna.system.task.tasks import RetryableTransactionTask
     # ...
 
 

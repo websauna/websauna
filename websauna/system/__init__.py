@@ -21,12 +21,7 @@ from pyramid.settings import aslist
 from pyramid.settings import asbool
 
 from websauna.utils.autoevent import event_source
-
-from websauna.system.admin.modeladmin import configure_model_admin
-from websauna.system.auth.policy import SessionAuthenticationPolicy
-from websauna.system.model.utils import attach_model_to_base
 from websauna.utils.configincluder import IncludeAwareConfigParser
-from websauna.system.http.static import DefaultStaticAssetPolicy
 
 
 class SanityCheckFailed(Exception):
@@ -49,6 +44,10 @@ class Initializer:
     See :py:meth:`websauna.system.Initializer.run` for linear initialization order.
 
     Aspect-oriented approach with :py:mod:`websauna.utils.aspect.event_source` is used to provide hooks for addons to participate initialization process.
+
+    .. note ::
+
+        We deliberate push imports inside methods, so that it is unlikely we'd have any import time side effects caused by some less elegant solutions, like gevent.
     """
 
     def __init__(self, global_config:dict, settings:dict=None):
@@ -88,6 +87,7 @@ class Initializer:
 
     def create_static_asset_policy(self):
         """Override to have our own static asset policy."""
+        from websauna.system.http.static import DefaultStaticAssetPolicy
         return DefaultStaticAssetPolicy(self.config)
 
     def configure_logging(self):
@@ -196,6 +196,7 @@ class Initializer:
         from websauna.system.auth.principals import resolve_principals
         from websauna.system.auth.authentication import get_request_user
         from pyramid.authorization import ACLAuthorizationPolicy
+        from websauna.system.auth.policy import SessionAuthenticationPolicy
 
         authn_policy = SessionAuthenticationPolicy(callback=resolve_principals)
         authz_policy = ACLAuthorizationPolicy()
@@ -395,6 +396,7 @@ class Initializer:
         from websauna.system.admin.interfaces import IAdmin
         from websauna.system.admin.interfaces import IAdmin
         from websauna.system.admin.utils import get_admin
+        from websauna.system.admin.modeladmin import configure_model_admin
 
         # Register default Admin provider
         config = self.config
@@ -480,6 +482,7 @@ class Initializer:
         from websauna.system.user.usermixin import SiteCreator
         from websauna.system.user.userregistry import DefaultEmailBasedUserRegistry
         from websauna.system.user.interfaces import IActivationModel, IUserRegistry
+        from websauna.system.model.utils import attach_model_to_base
 
         attach_model_to_base(models.User, Base)
         attach_model_to_base(models.Group, Base)

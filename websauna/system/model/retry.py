@@ -1,6 +1,7 @@
 """Transaction retry point support for command line applications and daemons.."""
 
 import logging
+import threading
 from functools import wraps
 
 import transaction
@@ -17,11 +18,17 @@ class TransactionAlreadyInProcess(Exception):
     pass
 
 
-def ensure_transactionless():
+def ensure_transactionless(msg=None):
     """Make sure the current thread doesn't already have db transaction in process."""
 
     if transaction.manager._txn:
-        raise TransactionAlreadyInProcess()
+        if not msg:
+            msg = "Dangling transction open in transaction.manager. You should not start new one."
+
+        transaction_thread = getattr(transaction.manager, "begin_thread", None)
+        logger.fatal("Transaction state management error. Trying to start TX in thread %s. TX started in thread %s", threading.current_thread(), transaction_thread)
+
+        raise TransactionAlreadyInProcess(msg)
 
 
 def retryable(func):

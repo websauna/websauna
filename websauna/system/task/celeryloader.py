@@ -1,4 +1,22 @@
 """Celery process."""
+import os
+
+try:
+    # Could not find way around this :(
+    # Make Celery play nice if gevent is used
+    # http://stackoverflow.com/a/30707837/315168
+    import gevent
+    from gevent import monkey
+
+    print("Warning! Running in implicit gevent monkey patch")
+    monkey.patch_all()
+
+    # import redis
+    # import redis.connection
+    # redis.connection.socket = gevent.socket
+except ImportError:
+    pass
+
 import sys
 
 from celery.loaders.base import BaseLoader
@@ -26,7 +44,8 @@ class WebsaunaLoader(BaseLoader):
 
     def read_configuration(self) -> dict:
         """Load Celery config from Pyramid INI file."""
-        return get_celery_config(self.request.registry)
+        config = get_celery_config(self.request.registry)
+        return config
 
     def import_task_module(self, module):
         raise RuntimeError("imports Celery config directive is not supported. Use config.scan() to pick up tasks.")
@@ -95,8 +114,9 @@ def main():
     else:
         celery_args = []
 
-    argv = ["--loader=websauna.system.task.celeryloader.WebsaunaLoader"] + celery_args
-
+    # https://github.com/celery/celery/issues/3405
+    os.environ["CELERY_LOADER"]  = "websauna.system.task.celeryloader.WebsaunaLoader"
+    argv = ["celery"] + celery_args
     # Directly jump to Celery 4.0+ entry point
     from celery.bin.celery import main
     main(argv)

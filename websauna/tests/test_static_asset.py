@@ -72,5 +72,7 @@ def test_map_static_asset(browser, caching_web_server):
 
     assert "perma-asset" in bootstrap_css
     b.visit(bootstrap_css)
-    assert b.status_code.code == 200
+
+    # Identify correct CSS load by having some known text inside CSS payload
+    assert "Bootstrap" in  b.html
 

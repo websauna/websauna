@@ -224,6 +224,11 @@ See `websauna.magiclogin <https://github.com/websauna/websauna.magiclogin>`_ for
         # Returns HTTPRedirect taking user to post-login page
         return login_service.authenticate_user(user, login_source="email")
 
+One time login links
+--------------------
 
+One time email login links provide passwordless login and have been made popular by services like Medium and Slack.
+
+`See magic link login for Websauna <https://github.com/websauna/websauna.magiclogin>`_.
 
 

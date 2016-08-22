@@ -1,17 +1,17 @@
 """Test tasks for the scheduler."""
 import transaction
+
 from websauna.system import DemoInitializer
-from websauna.system.task import ScheduleOnCommitTask
-from websauna.system.task import RetryableTransactionTask
-from websauna.system.task import task
+from websauna.system.task.tasks import ScheduleOnCommitTask
+from websauna.system.task.tasks import RetryableTransactionTask
+from websauna.system.task.tasks import task
 from websauna.system.core.redis import get_redis
 
 
-# Configured to be executed every second in scheduler-test.ini
 from websauna.system.user.models import User
-from websauna.system.user.utils import get_user_class
 
 
+# Configured to be executed every second in scheduler-test.ini
 @task(name="foobar", bind=True)
 def redis_test_write(self):
     request = self.request.request

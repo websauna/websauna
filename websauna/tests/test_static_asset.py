@@ -4,8 +4,9 @@ import os
 import pytest
 from flaky import flaky
 from pyramid.config import Configurator
-from websauna.system import DefaultStaticAssetPolicy
+
 from websauna.system.devop.cmdline import init_websauna
+from websauna.system.http.static import DefaultStaticAssetPolicy
 from websauna.tests.scaffold import execute_command
 from websauna.tests.webserver import customized_web_server
 

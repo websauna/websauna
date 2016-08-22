@@ -1,6 +1,8 @@
 """Celery process."""
 import os
 
+from websauna.utils.configincluder import IncludeAwareConfigParser
+
 try:
     # Could not find way around this :(
     # Make Celery play nice if gevent is used
@@ -24,9 +26,9 @@ from pyramid.decorator import reify
 from websauna.system.devop.cmdline import init_websauna
 from websauna.system.http import Request
 
-from .celery import get_celery_config
+from .celery import get_celery_config, parse_celery_config
 
-
+#: Passed through Celery loader mechanism
 ini_file = None
 
 
@@ -36,15 +38,20 @@ class WebsaunaLoader(BaseLoader):
     Support binding request object to Celery tasks and loading Celery settings through Pyramid INI configuration.
     """
 
-    @reify
-    def request(self) -> Request:
-        """Bootstrap WSGI environment with request object and such."""
-        request = init_websauna(ini_file)
-        return request
-
     def read_configuration(self) -> dict:
-        """Load Celery config from Pyramid INI file."""
-        config = get_celery_config(self.request.registry)
+        """Load Celery config from Pyramid INI file.
+
+        We need to be able to do this without ramping up full Websauna, because that's the order of the evens Celery worker wants. This way we avoid circular dependencies during Celery worker start up.
+        """
+        config = IncludeAwareConfigParser()
+        config.read(ini_file)
+
+        # TODO: We have ugly app:main hardcode hack here
+        value = config.get("app:main", "websauna.celery_config")
+        if not value:
+            raise RuntimeError("Could not find websauna.celery_config in {}".format(ini_file))
+
+        config = parse_celery_config(value)
         return config
 
     def import_task_module(self, module):
@@ -62,6 +69,11 @@ class WebsaunaLoader(BaseLoader):
 
     def on_worker_init(self):
         """This method is called when a child process starts."""
+
+        # TODO Make sanity_check True by default,
+        # but make it sure we can disable it in tests,
+        # because otherwise tests won't run
+        self.request = init_websauna(ini_file, sanity_check=False)
 
         #: Associate this process as Celery app object of the environment
         self.request.registry.celery = self.app
@@ -99,6 +111,7 @@ def main():
 
     """
     global ini_file
+    global request
 
     if len(sys.argv) < 2:
         sys.exit("Example usage: ws-celery myapp/conf/development.ini -- worker")

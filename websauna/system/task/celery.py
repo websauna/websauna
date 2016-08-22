@@ -7,6 +7,26 @@ from celery import Celery
 from pyramid.registry import Registry
 
 
+def parse_celery_config(celery_config_python: str) -> dict:
+    # Expose timedelta object for config to be used in beat schedule
+    # http://docs.celeryproject.org/en/master/userguide/periodic-tasks.html#beat-entries
+    from datetime import timedelta  # noqa
+
+    _globals = globals().copy()
+    _locals = locals().copy()
+    code = textwrap.dedent(celery_config_python)
+
+    try:
+        config_dict = eval(code, _globals, _locals)
+    except Exception as e:
+        raise RuntimeError("Could not execute Python code to produce Celery configuration object: {}".format(code)) from e
+
+    if "broker_url" not in config_dict:
+        raise RuntimeError("Mandatory broker_url Celery setting missing. Did we fail to parse config? {}".format(config_dict))
+
+    return config_dict
+
+
 def get_celery_config(registry: Registry) -> dict:
     """Load Celery configuration from settings.
 
@@ -25,23 +45,7 @@ def get_celery_config(registry: Registry) -> dict:
     if not celery_config_python:
         raise RuntimeError("Using Celery with Websauna requires you to have celery_config_python configuration variable")
 
-    # Expose timedelta object for config to be used in beat schedule
-    # http://docs.celeryproject.org/en/master/userguide/periodic-tasks.html#beat-entries
-    from datetime import timedelta  # noqa
-
-    _globals = globals().copy()
-    _locals = locals().copy()
-    code = textwrap.dedent(celery_config_python)
-
-    try:
-        config_dict = eval(code, _globals, _locals)
-    except Exception as e:
-        raise RuntimeError("Could not execute Python code to produce Celery configuration object: {}".format(code)) from e
-
-    if "broker_url" not in config_dict:
-        raise RuntimeError("Mandatory broker_url Celery setting missing. Did we fail to parse config? {}".format(config_dict))
-
-    return config_dict
+    return parse_celery_config(celery_config_python)
 
 
 def get_celery(registry: Registry):

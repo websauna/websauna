@@ -7,9 +7,8 @@
 3. All migration scripts live inside the package, in alembic/ folder next to setup.py
 
 """
-import os
-import logging
 
+import logging
 
 from sqlalchemy.ext.declarative.clsregistry import _ModuleMarker
 from alembic import context

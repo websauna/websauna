@@ -10,13 +10,13 @@
 import os
 import logging
 
-from pyramid.paster import setup_logging
 
 from sqlalchemy.ext.declarative.clsregistry import _ModuleMarker
 from alembic import context
 from sqlalchemy.testing.schema import Table
 
 from websauna.system.devop.cmdline import init_websauna
+from websauna.system.devop.cmdline import setup_logging
 from websauna.system.model.meta import Base
 from websauna.compat.typing import List
 

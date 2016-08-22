@@ -33,6 +33,10 @@ Configure OAuth Consent Screen (your product logos), such.
 
 Create *Web application*.
 
+Set **Authorized redirect URIs*.
+
+.. image:: ../images/oauth-google.png
+    :width: 640px
 
 In :ref:`development.ini` enable Google login:
 
@@ -58,8 +62,8 @@ More information
 
 * https://github.com/peterhudec/authomatic/issues/153
 
-OAuth login service
-===================
+Customizing OAuth login
+=======================
 
 The default OAuth login logic is implemented in :py:class:`websauna.system.user.oauthloginservice.DefaultOAuthLoginService`. It directly wraps underlying :py:term:`Authomatic` request processing.
 
@@ -104,8 +108,8 @@ Below is an example ``home.html`` which contains only a site logo and Facebook l
     {% endblock %}
 
 
-Automatically test OAuth login
-==============================
+Automatd OAuth login tests
+==========================
 
 Your test suite might want to confirm OAuth login keeps working. This needs some special set up. Below is how one can deal with Facebook.
 

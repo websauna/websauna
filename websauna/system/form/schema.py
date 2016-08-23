@@ -1,46 +1,130 @@
-"""Various Colander schema base classes for forms."""
+"""Various Colander schema base classes and utililties for forms."""
+
+import enum
+import json
+
 import colander
 import deform
 
+from websauna.compat.typing import Optional
+from websauna.compat.typing import Tuple
+from websauna.compat.typing import Iterable
+from websauna.compat.typing import List
 
-@colander.deferred
-def deferred_csrf_value(node, kw):
-    return kw['request'].session.get_csrf_token()
+
+#: Backwards compatibility
+from .csrf import CSRFSchema
+from .csrf import add_csrf
 
 
-class CSRFSchema(colander.Schema):
-    """Schema base class which generates CSRF token.
+def validate_json(node, value, **kwargs):
+    """Make sure the string content is valid JSON."""
 
-    Example:
+    try:
+        json.loads(value)
+    except json.JSONDecodeError:
+        raise colander.Invalid(node, "Not valid JSON")
 
-    .. code-block:: python
 
-      from websauna.system.form.schema import CSRFSchema
-      import colander
+def enum_values(source: enum.Enum, default:Optional[Tuple]=("", "Please choose"), name_transform=str.title) -> Iterable[Tuple]:
+    """Turn Python Enum to key-value pairs lists to be used with selection widgets."""
 
-      class MySchema(CSRFSchema):
-          my_value = colander.SchemaNode(colander.String())
+    def inner():
+        if default:
+            yield default
 
-      And in your application code, *bind* the schema, passing the request as a keyword argument:
+        for name, member in source.__members__.items():
+            yield (name, name_transform(name))
 
-      .. code-block:: python
+    return list(inner())
 
-        def aview(request):
-            schema = MySchema().bind(request=request)
 
-    The token is automatically then verified by Pyramid CSRF view deriver.
+def dictify(schema: colander.Schema, obj: object, excludes=()) -> dict:
+    """ Return a dictified version of `obj` using schema information.
 
-    Original code: https://github.com/Pylons/pyramid_deform/blob/master/pyramid_deform/__init__.py
+    The schema will be used to choose what attributes will be
+    included in the returned dict.
+
+    Thus, the return value of this function is suitable for consumption
+    as a ``Deform`` ``appstruct`` and can be used to pre-populate
+    forms in this specific use case.
+
+    Arguments/Keywords
+
+    :param obj:
+        An object instance to be converted to a ``dict`` structure.
+        This object should conform to the given schema.  For
+        example, ``obj`` should be an instance of this schema's
+        mapped class, an instance of a sub-class, or something that
+        has the same attributes.
+
+    :param exludes: List of node names not to automatically dictify
+
+    Based on colanderalchemy implemetation.
     """
-    csrf_token = colander.SchemaNode(
-        colander.String(),
-        widget=deform.widget.HiddenWidget(),
-        default=deferred_csrf_value,
-        )
+    dict_ = {}
+
+    for node in schema.children:
+
+        if not getattr(node, "dictify_by_default", True):
+            # This is set by CSRF field, so that we don't need to manually
+            # skip it between object serializations.
+            # Not elegant, but convenient.
+            continue
+
+        name = node.name
+        if name in excludes:
+            continue
+
+        value = getattr(obj, name)
+
+        # SQLAlchemy mostly converts values into Python types
+        #  appropriate for appstructs, but not always.  The biggest
+        #  problems are around `None` values so we're dealing with
+        #  those here.  All types should accept `colander.null` so
+        #  we mostly change `None` into that.
+
+        if value is None:
+            if isinstance(node.typ, colander.String):
+                # colander has an issue with `None` on a String type
+                #  where it translates it into "None".  Let's check
+                #  for that specific case and turn it into a
+                #  `colander.null`.
+                dict_[name] = colander.null
+            else:
+                # A specific case this helps is with Integer where
+                #  `None` is an invalid value.  We call serialize()
+                #  to test if we have a value that will work later
+                #  for serialization and then allow it if it doesn't
+                #  raise an exception.  Hopefully this also catches
+                #  issues with user defined types and future issues.
+                try:
+                    node.serialize(value)
+                except:
+                    dict_[name] = colander.null
+                else:
+                    dict_[name] = value
+        else:
+            dict_[name] = value
+
+    return dict_
 
 
-def add_csrf(schema: colander.Schema):
-    """Add a hidden csrf_token field on the existing Colander schema."""
-    csrf_token = colander.SchemaNode(colander.String(), name="csrf_token", widget=deform.widget.HiddenWidget(), default=deferred_csrf_value)
+def objectify(schema: colander.Schema, appstruct: dict, context: object, excludes=()):
+    """Store incoming appstruct data on an object like SQLAlchemy model instance"""
 
-    schema.add(csrf_token)
+    for node in schema.children:
+
+        if not getattr(node, "dictify_by_default", True):
+            # This is set by CSRF field, so that we don't need to manually
+            # skip it between object serializations.
+            # Not elegant, but convenient.
+            continue
+
+        name = node.name
+        if name in excludes:
+            continue
+
+        setattr(context, name, appstruct[name])
+
+

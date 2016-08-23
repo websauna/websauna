@@ -1,5 +1,4 @@
 """Default CRUD views."""
-import colander
 from abc import abstractmethod
 
 from pyramid.httpexceptions import HTTPFound
@@ -8,13 +7,15 @@ from pyramid.request import Request
 from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy.orm import Query
-
 import deform
+import colander
 
 from websauna.compat import typing
+from websauna.compat.typing import Iterable
 from websauna.system.core import messages
 from websauna.system.form import interstitial
 from websauna.system.form.fieldmapper import EditMode
+from websauna.system.form.resourceregistry import ResourceRegistry
 
 from . import paginator
 from . import Resource
@@ -248,12 +249,16 @@ class FormView(CRUDView):
         """
         pass
 
-    def pull_in_widget_resources(self, form:deform.Form):
+    def pull_in_widget_resources(self, form: deform.Form):
         """Include widget JS and CSS on the page.
 
         Call this as the last thing before returning template context variables from your view.
         """
-        form.resource_registry.pull_in_resources(self.request, form)
+
+        resource_registry = form.resource_registry
+        assert isinstance(resource_registry, ResourceRegistry), "Websauna CRUD view got vanilla deform ResourceRegistry instance. To use widgets with dynamic JavaScript correctly you need to make sure you initialize websauna.system.form.resourceregistry.ResourceRegistry for your form object."
+
+        resource_registry.pull_in_resources(self.request, form)
 
 
 class Show(FormView):
@@ -315,8 +320,15 @@ class Edit(FormView):
     def get_title(self):
         return "Editing #{}".format(self.context.get_title())
 
-    def get_form(self):
-        return self.create_form(EditMode.edit, buttons=("save", "cancel",))
+    def get_buttons(self) -> Iterable[deform.form.Button]:
+        return (
+            deform.form.Button("save"),
+            deform.form.Button("cancel"),
+        )
+
+    def get_form(self) -> deform.form.Form:
+        """Get a form used to edit this item."""
+        return self.create_form(EditMode.edit, buttons=self.get_buttons())
 
     def bind_schema(self, schema):
         return schema.bind(obj=self.context.get_object(), request=self.request, context=self.context)

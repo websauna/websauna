@@ -23,3 +23,13 @@ class FriendlyUUIDWidget(deform.widget.TextInputWidget):
         return values
 
 
+JSON_PREFORMATTED_STYLE = "font-family: monospace"
+
+
+class JSONWidget(deform.widget.TextAreaWidget):
+    """Nice JSON editor.
+    
+    """
+
+    def __init__(self, cols=80, rows=10, style=JSON_PREFORMATTED_STYLE, **kwargs):
+        super(JSONWidget, self).__init__(cols=cols, rows=rows, style=style, **kwargs)

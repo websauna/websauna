@@ -1,3 +1,6 @@
+import enum
+import json
+
 import colander
 import deform
 from colander.compat import is_nonstr_iter
@@ -33,3 +36,99 @@ class UUID(colander.String):
     def serialize(self, node, appstruct):
         # Assume widgets can handle raw UUID object
         return appstruct
+
+
+class EnumValue(colander.String):
+    """Allow choice of python enum.Enum in colander schemas.
+
+    Example:
+
+    .. code-block:: python
+
+        class AssetClass(enum.Enum):
+        '''What's preferred display format for this asset.'''
+
+        #: 0,00
+        fiat = "fiat"
+
+        #: 100.000,000,000
+        cryptocurrency = "cryptocurrency"
+
+        #: 10.000
+        token = "token"
+
+        #: 10.000
+        tokenized_shares = "tokenized_shares"
+
+        #: up to 18 decimals
+        ether = "ether"
+
+        class Schema(CSRFSchema):
+
+            asset_class = colander.SchemaNode(
+                EnumValue(AssetClass),
+                widget=deform.widget.SelectWidget(values=enum_values(AssetClass)))
+
+    """
+
+    def __init__(self, enum_class: type):
+        super().__init__()
+        assert issubclass(enum_class, enum.Enum), "Expected Enum, got {}".format(enum_class)
+        self.enum_class = enum_class
+
+    def deserialize(self, node: colander.SchemaNode, cstruct: str):
+        """Parse incoming form values to Python objects if needed.
+        """
+        print("Deserialize", cstruct)
+        if cstruct:
+            return self.enum_class(cstruct)
+        else:
+            return None
+
+    def serialize(self, node: colander.SchemaNode, _enum: enum.Enum) -> str:
+        """Convert Enum object to str for widget processing."""
+        print("Serialize ", _enum)
+        if _enum:
+            assert isinstance(_enum, self.enum_class), "Expected {}, got {}".format(self.enum_class, _enum)
+            return _enum.value
+        else:
+            return _enum
+
+
+class JSONValue(colander.String):
+    """Serialize / deserialize JSON fields.
+
+    Example:
+
+    .. code-block:: python
+
+        class AssetSchema(CSRFSchema):
+
+            name = colander.SchemaNode(colander.String())
+
+            other_data = colander.SchemaNode(
+                JSONValue(),
+                widget=JSONWidget(),
+                description="JSON bag of attributes of the object")
+
+    """
+
+    def deserialize(self, node: colander.SchemaNode, cstruct: str):
+        """Parse incoming form values to Python objects if needed.
+        """
+        if cstruct:
+            try:
+                return json.loads(cstruct)
+            except json.JSONDecodeError as e:
+                raise colander.Invalid(node, "Not valid JSON") from e
+        else:
+            return None
+
+    def serialize(self, node: colander.SchemaNode, data: Union[list, dict]) -> str:
+        """Convert Python objects to JSON string."""
+        if data:
+            assert isinstance(data, (list, dict))
+            return json.dumps(data)
+        else:
+            # Noneish
+            return data

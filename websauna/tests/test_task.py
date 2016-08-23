@@ -5,6 +5,7 @@ import time
 import os
 import pytest
 import transaction
+from flaky import flaky
 
 from websauna.system.devop.cmdline import init_websauna
 from websauna.system.task.celery import get_celery
@@ -69,6 +70,7 @@ def celery_worker(request, task_ini_file):
     return worker.pid
 
 
+@flaky
 def test_transaction_aware_task_success(celery_worker, task_app_request, dbsession, demo_user):
     """Transaction aware tasks works in eager mode.."""
 
@@ -91,7 +93,7 @@ def test_transaction_aware_task_success(celery_worker, task_app_request, dbsessi
         u = dbsession.query(User).get(1)
         assert u.username == "set by celery"
 
-
+@flaky
 def test_transaction_manager_abort(celery_worker, task_app_request, dbsession, demo_user):
     """Test that transaction are not executed to schedule if transaction manager aborts."""
 
@@ -114,6 +116,7 @@ def test_transaction_manager_abort(celery_worker, task_app_request, dbsession, d
         assert u.username == "test"
 
 
+@flaky
 def test_task_throws_exception(celery_worker, task_app_request, dbsession, demo_user):
     """Test that transaction aware task does not commit if exception is thrown.."""
 
@@ -130,6 +133,7 @@ def test_task_throws_exception(celery_worker, task_app_request, dbsession, demo_
         assert u.username == "test"
 
 
+@flaky
 def test_manual_transaction(celery_worker, task_app_request, dbsession, demo_user):
     """Manual transaction lifecycles within task work."""
 
@@ -153,6 +157,7 @@ def test_manual_transaction(celery_worker, task_app_request, dbsession, demo_use
         assert u.username == "set by celery"
 
 
+@flaky
 def test_eager(celery_worker, task_app_request, dbsession, demo_user):
     """When in eager mode, transactions are executed properly.."""
 

@@ -12,6 +12,7 @@ import colander
 
 from websauna.compat import typing
 from websauna.compat.typing import Iterable
+from websauna.compat.typing import List
 from websauna.system.core import messages
 from websauna.system.form import interstitial
 from websauna.system.form.fieldmapper import EditMode
@@ -405,7 +406,7 @@ class Add(FormView):
         return "Add new {}".format(self.get_crud().singular_name)
 
     def get_form(self) -> object:
-        return self.create_form(EditMode.add, buttons=("add", "cancel",))
+        return self.create_form(EditMode.add, buttons=self.get_buttons())
 
     def get_crud(self) -> CRUD:
         """Get CRUD manager object for this view."""
@@ -422,6 +423,9 @@ class Add(FormView):
     def initialize_object(self, form, appstruct: dict, obj: object):
         """Record values from the form on a freshly created object."""
         form.schema.objectify(appstruct, obj)
+
+    def bind_schema(self, schema):
+        return schema.bind(request=self.request, context=self.context)
 
     def add_object(self, obj):
         """Add objects to transaction lifecycle and flush newly created object to persist storage to give them id."""
@@ -448,6 +452,13 @@ class Add(FormView):
         # We do not need to explicitly call save() or commit() as we are using Zope transaction manager
         self.add_object(obj)
         return obj
+
+    def get_buttons(self)-> List[deform.form.Button]:
+        buttons = (
+            deform.form.Button("add"),
+            deform.form.Button("cancel"),
+        )
+        return buttons
 
     @view_config(context=CRUD, name="add", renderer="crud/add.html", permission='add')
     def add(self):

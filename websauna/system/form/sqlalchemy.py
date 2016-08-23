@@ -95,7 +95,11 @@ class ModelSchemaType:
 
 
 class ForeignKeyValue(ModelSchemaType, colander.String):
-    """Hold a reference to one SQLAlchemy object for Colander schema serialization."""
+    """Hold a reference to one SQLAlchemy object for Colander schema serialization.
+
+    Example:
+
+    """
 
     def serialize(self, node, appstruct):
 

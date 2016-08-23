@@ -48,20 +48,11 @@ class EnumValue(colander.String):
         class AssetClass(enum.Enum):
         '''What's preferred display format for this asset.'''
 
-        #: 0,00
-        fiat = "fiat"
-
-        #: 100.000,000,000
-        cryptocurrency = "cryptocurrency"
-
-        #: 10.000
-        token = "token"
-
-        #: 10.000
-        tokenized_shares = "tokenized_shares"
-
-        #: up to 18 decimals
-        ether = "ether"
+            fiat = "fiat"
+            cryptocurrency = "cryptocurrency"
+            token = "token"
+            tokenized_shares = "tokenized_shares"
+            ether = "ether"
 
         class Schema(CSRFSchema):
 
@@ -79,7 +70,6 @@ class EnumValue(colander.String):
     def deserialize(self, node: colander.SchemaNode, cstruct: str):
         """Parse incoming form values to Python objects if needed.
         """
-        print("Deserialize", cstruct)
         if cstruct:
             return self.enum_class(cstruct)
         else:
@@ -87,7 +77,6 @@ class EnumValue(colander.String):
 
     def serialize(self, node: colander.SchemaNode, _enum: enum.Enum) -> str:
         """Convert Enum object to str for widget processing."""
-        print("Serialize ", _enum)
         if _enum:
             assert isinstance(_enum, self.enum_class), "Expected {}, got {}".format(self.enum_class, _enum)
             return _enum.value

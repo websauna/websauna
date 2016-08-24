@@ -105,7 +105,7 @@ Example 2: admin interface - pick one
 .. image:: ../images/admin-choose-branding.png
     :width: 640px
 
-Below is an example how to create a relation picker in admin interface.s
+Below is an example how to create a relation picker in admin interface.
 
 ``models.py``:
 

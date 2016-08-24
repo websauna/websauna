@@ -79,7 +79,7 @@ Edit ``admins.py`` file of ``myapp.py`` and add the following code:
             def get_title(self):
                 return self.get_object().choice_text
 
-Then make sure, your ``__init__.py`` contain the following:
+Then make sure your ``__init__.py`` contain the following:
 
 .. code-block:: python
 

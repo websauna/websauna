@@ -7,7 +7,7 @@ Websauna comes with two project scaffolds ``websauna_app`` and ``websauna_addon`
 Creating application package
 ============================
 
-Enter to your project folder and make sure, the :term:`virtual environment` is active on your shell::
+Enter to your project folder and make sure the :term:`virtual environment` is active on your shell::
 
     cd myproject
     source venv/bin/activate

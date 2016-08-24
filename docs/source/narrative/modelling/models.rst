@@ -82,7 +82,7 @@ Websauna has extensively support for using :term:`UUID`, or more specifically UU
 
 .. note ::
 
-    One should never expose a running counter database keys, like a running counter ``id`` to the world. Leaking ids also leaks business intelligence like number of users or number of orders. Furthermore a guessable ids give a malicious party to an ability to guess URL endpoints, scrape data and and exploit other known weaknesses effectively. If possible it is recommended that you do not have  any running counter ids on your models to avoid the issue altogether.
+    One should never expose a running counter database keys, like a running counter ``id`` to the world. Leaking ids also leaks business intelligence like number of users or number of orders. Furthermore guessable ids give a malicious party the ability to guess URL endpoints, scrape data and exploit other known weaknesses effectively. If possible it is recommended that you do not have any running counter ids on your models to avoid the issue altogether.
 
 
 UUID column support in databases
@@ -211,7 +211,7 @@ This approach is a combination of both traditional running counter ids (human re
 
 * ``id`` is used internally in foreign keys and not exposed anywhere else than admin. This allows human operators to easily discuss and cognitively track down database rows having issues. For example, you get nice running counter in user admin based on the order of sign ups.
 
-* ``uuid`` is used in all external links. A malicious party cannot potentially guess the URL of any edit form and thus they cannot launch attacks against predefnied URLs.
+* ``uuid`` is used in all external links. A malicious party cannot potentially guess the URL of any edit form and thus they cannot launch attacks against predefined URLs.
 
 Running counter as a primary key
 ++++++++++++++++++++++++++++++++
@@ -284,7 +284,7 @@ Use :py:meth:`sqlalchemy.orm.Query.get`. Example model:
             primary_key=True,
             server_default=sqlalchemy.text("uuid_generate_v4()"),)
 
-You can get an object using a :base64:
+You can get an object using a base64 UUID:
 
 .. code-block:: python
 
@@ -332,14 +332,7 @@ You can use :py:meth:`sqlalchemy.orm.Query.filter_by` (keyword arguments) or :py
     >>> dbsession.query(Question).filter(Question.id==1).first()
     #1: What's up?
 
-:py:meth:`sqlalchemy.orm.Query.first` returns the first item (of multiple items) or ``None``:
-
-.. code-block:: pycon
-
-    >>> dbsession.query(Question).filter(Question.id==1).first()
-    #1: What's up?
-
-:py:meth:`sqlalchemy.orm.Query.one` returns one item and raises an error in the case if there are no items or multiple items:
+:py:meth:`sqlalchemy.orm.Query.one` returns one item and raises an error if there are no items or multiple items:
 
 .. code-block:: pycon
 
@@ -415,7 +408,7 @@ TODO
 
 .. note ::
 
-    When you are accessing child items over a relationship attribute, the resulting objct depends if the relationship is set as ``relationship(lazy='dynamic')`` (gives :py:class:`sqlalchemy.orm.Query` object or the default ``relationship(lazy='select')`` (gives a list). This is important if you want to further filter down the list.
+    When you are accessing child items over a relationship attribute, the resulting object depends if the relationship is set as ``relationship(lazy='dynamic')`` (gives :py:class:`sqlalchemy.orm.Query`) object or the default ``relationship(lazy='select')`` (gives a list). This is important if you want to further filter down the list.
 
 .. _cascade:
 

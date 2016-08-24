@@ -12,7 +12,7 @@ Native dependencies refer here to Linux system packages in order to make your we
 Including native dependencies
 =============================
 
-Edit your ``playbook.yml`` file and add an ``apk`` section in ``pre_tasks``:
+Edit your ``playbook.yml`` file and add an ``apt`` section in ``pre_tasks``:
 
 .. code-block:: yaml
 

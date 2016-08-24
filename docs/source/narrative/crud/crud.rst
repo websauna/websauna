@@ -280,7 +280,7 @@ Override one of multiple of
 
 * :py:meth:`websauna.system.crud.views.Add.create_object` (construct a new object)
 
-* :py:meth:`websauna.system.crud.views.Add.initialize_object` (populate new object with values from from)
+* :py:meth:`websauna.system.crud.views.Add.initialize_object` (populate new object with values from form)
 
 * :py:meth:`websauna.system.crud.views.Add.add_object` (include new object in database session)
 

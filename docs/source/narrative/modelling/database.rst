@@ -9,7 +9,7 @@ Database and SQL
 Introduction
 ============
 
-Websaunan uses an :term:`SQL` database. :term:`SQLAlchemy` object relations mapping (ORM) library is used to create Python classes representing the model of data. From these models corresponding SQL database tables are created in the database.
+Websauna uses an :term:`SQL` database. :term:`SQLAlchemy` object relations mapping (ORM) library is used to create Python classes representing the model of data. From these models corresponding SQL database tables are created in the database.
 
 By default, :term:`PostgreSQL` database software is recommended, though Websauna is compatible, but not tested, with all databases supported by SQLAlchemy.
 
@@ -29,7 +29,7 @@ Session is exposed as :py:attr:`websauna.system.http.Request.dbsession` attribut
         dbsession = request.dbsession
         user = dbsession.query(User).get(1)
 
-``request.dbsession`` transaction is bound to HTTP request lifecycle. If HTTP request success, the transaction is commited. If HTTP request fails due to a raised exception, but not due to error value return from view, the transaction is rolled back and nothing is written into a database.
+``request.dbsession`` transaction is bound to HTTP request lifecycle. If HTTP request succeeds, the transaction is committed. If HTTP request fails due to a raised exception, but not due to error value return from view, the transaction is rolled back and nothing is written into a database.
 
 Session from other SQLAlchemy model instances
 ---------------------------------------------
@@ -114,7 +114,7 @@ You can turn on SQL queries by editing :term:`SQLAlchemy` logging settings in co
 Debugging by pyramid_debugtoolbar
 ---------------------------------
 
-:term`pyramid_debugtoolbar` gives various information regarding executed SQL queries during the page rendering.
+:term:`pyramid_debugtoolbar` gives various information regarding executed SQL queries during the page rendering.
 
 Custom database sessions
 ========================

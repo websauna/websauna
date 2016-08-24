@@ -5,7 +5,7 @@ JSON data in models
 Introduction
 ============
 
-:term:`PostgreSQL` database offers very powerful :term:`JSONB` column which allows store schemaless data easily based on :term:`JSON`. This gives many advantages of "NoSQL"-like databases by still maintaining :term`ACID` guarantees.
+:term:`PostgreSQL` database offers very powerful :term:`JSONB` column which allows store schemaless data easily based on :term:`JSON`. This gives many advantages of "NoSQL"-like databases by still maintaining :term:`ACID` guarantees.
 
 Websauna takes advantage of this and offers integration glue over what :term:`SQLAlchemy` offers by default.
 
@@ -101,7 +101,7 @@ Using JSONBProperty
 
 .. note ::
 
-    JSONBProperty is a class planned to be moved out form Websauna project. Please do not use it in your projects as is.
+    JSONBProperty is a class planned to be moved out from Websauna project. Please do not use it in your projects as is.
 
 Use cases
 

@@ -21,7 +21,7 @@ Websauna does things differently as it...
 
 * extends framework to cover basic devops like backups
 
-The modern web development is not simple having a script on the server which writes HTTP response on HTTP request read. The topics cover tasks liek setting up servers, optimizing response times, balancing the load, handling operations securely. Websauna does not force its approaches upon the developers, but offers at least one solution to tackle each of the issues required for the full website life cycle management.
+The modern web development is not simple having a script on the server which writes HTTP response on HTTP request read. The topics cover tasks like setting up servers, optimizing response times, balancing the load, handling operations securely. Websauna does not force its approaches upon the developers, but offers at least one solution to tackle each of the issues required for the full website life cycle management.
 
 Frameworks
 ==========

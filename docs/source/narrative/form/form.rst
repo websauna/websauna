@@ -23,7 +23,7 @@ In Websauna forming
 
 * You can also use :doc:`CRUD independently from admin <../crud/crud>`
 
-* Database transactions are tied to successful HTTP request processing, so even if your form processing fails, no partial data is written to the database. This is so called atomatic requests behavior.
+* Database transactions are tied to successful HTTP request processing, so even if your form processing fails, no partial data is written to the database. This is so called atomic requests behavior.
 
 * :doc:`Cross-site request forgery protection <./csrf>` is mandatory by default as a security feature
 
@@ -304,7 +304,7 @@ Here is an example data-driven validator::
 Overriding widget template
 --------------------------
 
-This example how to override a widget template for any widget. Deform internally uses Chameleon template engine (not :term:`Jinja`)
+This example shows how to override a widget template for any widget. Deform internally uses Chameleon template engine (not :term:`Jinja`)
 
 First register the folder where you have Deform templates in the :py:class:`websauna.system.Initializer` of your app. Example:
 

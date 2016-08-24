@@ -86,9 +86,9 @@ A quick rundown:
   ``{{ request.session.get_csrf_token() }}`` to get a session-based token
   which implies a genuine form post by the visitor.
 
-* The form submission result is shown in a :term`Bootstrap` alert message
+* The form submission result is shown in a :term:`Bootstrap` alert message
 
-* We add some basic :term:`CSS` styling and format form widgets according to :term`Bootstrap` style guide
+* We add some basic :term:`CSS` styling and format form widgets according to :term:`Bootstrap` style guide
 
 Writing form handler
 ====================
@@ -166,7 +166,7 @@ This code includes a few things we haven't covered yet in this tutorial:
     Websauna uses an :term:`optimistic concurrency control` strategy with atomic requests.
     Optimistic concurrency control protects your application against a :term:`race condition`.
 
-    The default database transaction :term:`isolation level` is serializable: database prevents race conditions to happen. If a database detects a race condition an application level Python exception is raised. Then the application tries to resolve this conflict. Websauna default resoution mechanism is through :term:`transaction retry`.
+    The default database transaction :term:`isolation level` is serializable: database prevents race conditions to happen. If a database detects a race condition an application level Python exception is raised. Then the application tries to resolve this conflict. Websauna default resolution mechanism is through :term:`transaction retry`.
 
 .. note ::
 

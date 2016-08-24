@@ -33,7 +33,7 @@ By default created user instances are not activated and thus cannot login. To ac
             # Where did this user came to our site
             u.registration_source = "command_line"
 
-            # Turn user activaetd
+            # Turn user activated
             u.activated_at = now()
 
             request.dbsession.add(u)

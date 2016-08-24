@@ -49,7 +49,7 @@ See :download:`base.ini <../../../websauna/conf/base.ini>`.
 development.ini
 ---------------
 
-This a the configuration file for running the local development server
+This is the configuration file for running the local development server
 
 * No outgoing email
 
@@ -85,7 +85,7 @@ See :download:`development.ini <../../../websauna/conf/test.ini>`.
 production.ini
 --------------
 
-Settings for runnign Websauna on production server.
+Settings for running Websauna on production server.
 
 * Mail out
 
@@ -210,7 +210,7 @@ Default: ``localhost``.
 websauna.allow_inactive_login
 -----------------------------
 
-Allow users who have not verified their email to sig in.
+Allow users who have not verified their email to sign in.
 
 Default: ``false``.
 
@@ -326,7 +326,7 @@ Default: ``false``.
 websauna.login_redirect
 -----------------------
 
-The Pyramid route hame where the user is redirected after succesful login.
+The Pyramid route name where the user is redirected after successful login.
 
 See :py:meth:`websauna.system.user.loginservice.DefaultLoginService.authenticate_user`.
 
@@ -335,7 +335,7 @@ Default: ``home``.
 websauna.logout_redirect
 ------------------------
 
-The Pyramid route hame where the user is redirected after succesful login.
+The Pyramid route name where the user is redirected after successful login.
 
 See :py:meth:`websauna.system.user.loginservice.DefaultLoginService.logout`.
 
@@ -551,16 +551,18 @@ This is used by ``web_server`` py.test test fixture.
 
 Default: ``8521``.
 
-.. _celery-config:
 
 Configuration from other packages
+=================================
+
+.. _celery-config:
 
 Celery
 ------
 
 Websauna uses :term:`pyramid_celery` which allows you to put :term:`Celery` configuration variables to a INI file.
 
-For example see Websauna base.ini. `For more information see Celert configuration <http://docs.celeryproject.org/en/latest/configuration.html>`_.
+For example see Websauna base.ini. `For more information see Celery configuration <http://docs.celeryproject.org/en/latest/configuration.html>`_.
 
 Alembic
 -------
@@ -584,7 +586,7 @@ pyramid_mailer
 mail.default_sender_name
 ++++++++++++++++++++++++
 
-Set up envelope name for the sender. See
+Set up envelope name for the sender.
 
 Example:
 

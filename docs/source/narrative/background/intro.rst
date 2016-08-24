@@ -41,7 +41,7 @@ The default website templates are mobile first, based on Bootstrap, the most pop
 Automatic admin interface
 -------------------------
 
-When you write a database model, you usually need to have the basic create-read-update-delete (CRUD) cycle for them. Websauna can automatically generate most of this administrative interface for you, minimizing the effort needed for writing repeative form handling tasks. Furthermore Websauna is not limited to one admin interface, but can have different admins available for different users, and tries to hard to make sure that admin views are extensible and flexible.
+When you write a database model, you usually need to have the basic create-read-update-delete (CRUD) cycle for them. Websauna can automatically generate most of this administrative interface for you, minimizing the effort needed for writing repeative form handling tasks. Furthermore Websauna is not limited to one admin interface, but can have different admins available for different users, and tries hard to make sure that admin views are extensible and flexible.
 
 IPython Notebook integration
 ----------------------------

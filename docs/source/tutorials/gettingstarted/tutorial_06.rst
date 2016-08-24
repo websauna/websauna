@@ -4,7 +4,7 @@ Enter IPython Notebook
 
 Websauna offers an integrated :doc:`IPython Notebook shell <../../narrative/misc/notebook>` on the site. It is the most powerful built-in tool for diagnostics, data analysis and poking your database.
 
-Here we show, how to enter to the IPython Notebook and create additional user through Python shell.
+Here we show how to enter to the IPython Notebook and create additional user through Python shell.
 
 The notebook shell will be extensively used in the following chapter of this tutorial.
 

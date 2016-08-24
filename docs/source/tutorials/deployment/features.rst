@@ -32,7 +32,7 @@ Automatic installation sets up
 
 * :term:`Supervisor` startup scripts
 
-Database migration and hoy deploy aware
+Database migration and hot deploy aware
 =======================================
 
 Playbook runs migrations safely: Run database migrations first and then update codebase with compatible model files. This allows graceful deploys and avoids breaking any running sites.

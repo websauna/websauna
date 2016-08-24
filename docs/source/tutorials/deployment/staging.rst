@@ -10,7 +10,7 @@ Staging site is a non-public copy of the production site for testing rollouts be
 Password protection
 ===================
 
-Staging site may run in a public IP address, but never must be public.
+Staging site may run in a public IP address, but must never be public.
 
 Websauna playbook protects the staging site with a :term:`htpasswd` password on Nginx level. This password is stored in Ansible :term:`vault`.
 

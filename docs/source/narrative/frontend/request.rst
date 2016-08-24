@@ -11,7 +11,7 @@ The incoming HTTP request is an instance of :py:class:`websauna.system.http.Requ
 
 When your view function returns
 
-* If the return value is instance of :py:class:`pyramid.response.Response` it is processed as it
+* If the return value is instance of :py:class:`pyramid.response.Response` it is processed as is
 
 * If the return value is a dictionary, as usually it is to pass template context variables to template rendering, a corresponding :term:`renderer` is invoked to turn the context to a response. The ``renderer`` argument to view configuration is a template name. The template engine loads this template and passes the view return value to it as template context.
 

@@ -16,7 +16,7 @@ Serializable transactions isolation level
 
 SQL has support for `transaction isolation levels <https://en.wikipedia.org/wiki/Isolation_%28database_systems%29#Isolation_levels>`_.
 
-With the default PostgreSQL database the default transaction isolation level is set to ``SERIALIZABLE``. This is the highest possible level. This makes sure any code is race condition free by default. Invidual views can customize their database session and weaken the isolation requirement for specialized use cases like increasing performance for large reports.
+With the default PostgreSQL database the default transaction isolation level is set to ``SERIALIZABLE``. This is the highest possible level. This makes sure any code is race condition free by default. Individual views can customize their database session and weaken the isolation requirement for specialized use cases like increasing performance for large reports.
 
 If there is no application support for resolving the transaction conflict, one of the clients get HTTP 500 error page and other goes through. Even in this worst case scenario a user gets reported an error has happened and there is no silent data corruption.
 

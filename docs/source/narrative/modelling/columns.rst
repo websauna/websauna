@@ -38,7 +38,7 @@ Dates and times
 UTC-awareness
 -------------
 
-Even though modern SQL databases support timezone aware datetimes, It is recommended that you convert and store all time fields in :term:`UTC` in SQL database. More on background on this in :ref:`Datetime chapter <datetime>`.
+Even though modern SQL databases support timezone aware datetimes, it is recommended that you convert and store all time fields in :term:`UTC` in SQL database. More on background on this in :ref:`Datetime chapter <datetime>`.
 
 To prevent timezone related errors, Websauna has a special column type :py:class:`websauna.system.model.sqlalchemyutcdatetime.UTCDateTime` which contains validation that your datetimes objects are explicitly set to UTC timezone before writing into a database.
 

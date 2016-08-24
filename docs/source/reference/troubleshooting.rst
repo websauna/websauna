@@ -34,7 +34,7 @@ More info
 Dropping database sessions
 --------------------------
 
-In the case you have dangling PSQL sessions and you need to operations these sessions prevent you can force the session drop:
+In the case you have dangling PSQL sessions and you need to perform operations these sessions prevent you can force the session drop:
 
 .. code-block:: console
 

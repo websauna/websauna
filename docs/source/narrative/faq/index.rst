@@ -70,12 +70,12 @@ CRUD supports both behaviors out of the box (see :py:mod:`websauna.system.crud.u
 So many things
 ==============
 
-Websauna integrates existing, well known libraries and provides polished solution based on them. The amount of code in Websauna itself is kept minimal; patches are send to upstream libraries. New features are planned to rolled out as a separate libraries for maximum reusability even though they would start their life inside Websauna core.
+Websauna integrates existing, well known libraries and provides polished solution based on them. The amount of code in Websauna itself is kept minimal; patches are sent to upstream libraries. New features are planned to rolled out as a separate libraries for maximum reusability even though they would start their life inside Websauna core.
 
 The minimal viable features set for Websauna is a website where you can login and sign up out of the box, have easy administrative  access to data, all this in security critical environment.
 
 Future
 ======
 
-Websauna is used in professional projects which are expeted to last several years. There is a community building around it, albeit currently it is still in its infancy.
+Websauna is used in professional projects which are expected to last several years. There is a community building around it, albeit currently it is still in its infancy.
 

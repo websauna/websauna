@@ -4,7 +4,7 @@
 Deploying on Amazon EC2
 =======================
 
-These is Amazon specific instructions to deploy Websauna with :term:`Ansible`.
+These are Amazon specific instructions to deploy Websauna with :term:`Ansible`.
 
 Getting a EC2 machine
 =====================

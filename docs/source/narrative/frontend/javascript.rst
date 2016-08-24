@@ -130,7 +130,7 @@ Then expose this data to JavaScript by converting it to a JSON object. Please no
 
     {% block extra_body_end %}
     <script>
-        // This global object holds al exposed variables
+        // This global object holds all exposed variables
         window.opt = window.opt || {};
         window.opt.myData = JSON.parse("{{my_data|escape_js}}");
     </script>

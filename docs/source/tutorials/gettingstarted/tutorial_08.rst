@@ -64,7 +64,7 @@ Once you are in the shell, explore the model :term:`SQLAlchemy` API:
         608             "Instance %s is not bound to a Session; "
         609             "attribute refresh operation cannot proceed" %
     --> 610             (state_str(state)))
-        611 
+        611
         612     has_key = bool(state.key)
 
     DetachedInstanceError: Instance <Question at 0x10b10a828> is not bound to a Session; attribute refresh operation cannot proceed

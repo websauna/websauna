@@ -17,6 +17,6 @@ TODO
 Restoring backup
 ================
 
-To restore PostreSQL dump first create the database. Then run:
+To restore PostgreSQL dump first create the database. Then run:
 
 TODO

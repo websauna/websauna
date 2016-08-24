@@ -49,7 +49,7 @@ Should give you::
 
     Python 3.5.0
 
-If it  use ``brew switch`` command to upgrade
+If it shows a different version use ``brew switch`` command to upgrade
 
 .. code-block:: console
 
@@ -58,7 +58,7 @@ If it  use ``brew switch`` command to upgrade
 Installing dependencies on Ubuntu 14.04
 ---------------------------------------
 
-The following install commands apply for Ubuntu 14.04 and 14.04 only (for example newer Ubuntus come with up-to-date PosgreSQL).
+The following install commands apply for Ubuntu 14.04 and 14.04 only (for example newer Ubuntus come with up-to-date PostgreSQL).
 
 Install the packages with following command:
 

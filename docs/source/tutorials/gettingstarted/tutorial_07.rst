@@ -4,12 +4,12 @@ Creating your first model
 
 Now we have a working website in place. It's time to start to add some content there.
 
-In this tutorial chapter, we'll create a :term:`model` for polling. The model describes, what elements a poll contains.
+In this tutorial chapter, we'll create a :term:`model` for polling. The model describes what elements a poll contains.
 
 Adding a model
 ==============
 
-Models are added to a ``models.py`` file, that the ``websauna_app`` scaffold generated for you. Websauna uses :term`SQLAlchemy` for modelling.
+Models are added to a ``models.py`` file, that the ``websauna_app`` scaffold generated for you. Websauna uses :term:`SQLAlchemy` for modelling.
 
 Open ``models.py`` and add::
 
@@ -42,7 +42,7 @@ Open ``models.py`` and add::
 
         #: Relationship mapping between question and choice.
         #: Each choice can have only question.
-        #: Deleteing question deletes its choices.
+        #: Deleting question deletes its choices.
         choices = relationship("Choice",
                                back_populates="question",
                                lazy="dynamic",
@@ -76,7 +76,7 @@ Some notes:
 
 * :py:class:`websauna.system.model.meta.Base` is the default base class for :term:`model`
 
-* We define an :term:`UUID` column for randomly generated ids. We never expose the database primary key ``id`` to the world, as it might give intel for malicious actors targetting your website.
+* We define an :term:`UUID` column for randomly generated ids. We never expose the database primary key ``id`` to the world, as it might give hints for malicious actors targetting your website.
 
 * We store time in the database explicitly using :term:`UTC` timezone. This will save you from `many time ambiguity issues <http://ideas.kentico.com/forums/239189-kentico-product-ideas/suggestions/6825844-always-store-dates-times-in-utc-in-the-database>`_.
 
@@ -104,7 +104,7 @@ To create a migration script for your application, run the following command in 
 
 .. note::
 
-    Thumbs up! PostgreSQL migrations are transactional. The whole migration succeeds or not. NOt all databases do have this kind of safety, thus making migration a risky operation.
+    Thumbs up! PostgreSQL migrations are transactional. The whole migration succeeds or not. Not all databases do have this kind of safety, thus making migration a risky operation.
 
 You need to do this every time columns change. After the migration script is created on your local computer, you can re-use it across different computers where the database is installed (:term:`staging` server, :term:`production` server).
 

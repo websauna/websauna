@@ -17,10 +17,10 @@ An example of automatically generated form - the question edit page from :doc:`t
 .. image:: ../../tutorials/gettingstarted/images/edit_question.png
     :width: 640px
 
-Form generatation
-=================
+Form generation
+===============
 
-The core part of form generation is :py:meth:`websauna.system.form.fieldmapper.ColumnToFieldMapper` which maps SQLAlchemy columsn to Colander schema.
+The core part of form generation is :py:meth:`websauna.system.form.fieldmapper.ColumnToFieldMapper` which maps SQLAlchemy columns to Colander schema.
 
 See :py:meth:`websauna.system.form.fieldmapper.DefaultFieldMapper.map` for interface.
 
@@ -42,7 +42,7 @@ There are several ways to customize automatic form generation based on your use 
 Edit includes attribute
 -----------------------
 
-This is the most common way to customize :doc:`CRUD <../crud/crud>` forms. Each CRUD class comes with ``includes`` attribute which lists a fields which are pulled from the SQLAlchemy columns, or other Python object properties, to a form.
+This is the most common way to customize :doc:`CRUD <../crud/crud>` forms. Each CRUD class comes with ``includes`` attribute which lists fields which are pulled from the SQLAlchemy columns, or other Python object properties, to a form.
 
 * :py:class:`websauna.system.crud.views.Add`
 
@@ -92,7 +92,7 @@ Subclass your form from
 
 * :py:class:`websauna.system.crud.views.Show`
 
-Override :py:meth:`websauna.system.crud.views.FormView.customize_schema` to edit generated :py:class`colander.SchemaNode` in place.
+Override :py:meth:`websauna.system.crud.views.FormView.customize_schema` to edit generated :py:class:`colander.SchemaNode` in place.
 
 Example:
 

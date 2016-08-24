@@ -19,7 +19,7 @@ Variable ordering
 
 Generally the order is this
 
-* In ``vars`` section of your ``playbook.yml`` you put it the basic settings which cannot be deduced from the context (``git_repository``)
+* In ``vars`` section of your ``playbook.yml`` you put the basic settings which cannot be deduced from the context (``git_repository``)
 
 * Then we include ``secrets.yml`` vault with all passwords and API tokens
 

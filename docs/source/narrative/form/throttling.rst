@@ -75,6 +75,6 @@ Example::
 
         return inner
 
-Then when you construct the schema instance form form you give validator to it explicitly::
+Then when you construct the schema instance form you give validator to it explicitly::
 
     schema = schemas.InviteFriends(validator=schemas.throttle_invites_validator).bind(request=request, user=request.user)

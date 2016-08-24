@@ -19,7 +19,7 @@ Addons vs. applications
 
 * Addons have their own Alembic migration table
 
-* Addons should never inherit models from ``websauna.system.model.meta.Base`` directly, but instead of use ``websauna.system.model.meta.attach_model_to_base`` to allow the addon consumer to customize they SQLAlchemy structure
+* Addons should never inherit models from ``websauna.system.model.meta.Base`` directly, but instead use ``websauna.system.model.meta.attach_model_to_base`` to allow the addon consumer to customize they SQLAlchemy structure
 
 Creating addon
 --------------

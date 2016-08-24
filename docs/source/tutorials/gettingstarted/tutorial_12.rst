@@ -8,7 +8,7 @@ Websauna supports federated authentication (term:`OAuth`), more commonly known a
 
 * This encourages people to sign up for your service as they do not need to fill cumbersome sign up forms.
 
-* Users cannot be enforced to use secure passwords and safe password handling habits. Using a well established identity provider decreases the risk the site user gets their account compromised in cases like password keylogging. Well established identity providers have heurestics systems to detect account fraud and quickly alert users if there is a reason to believe their credentials have leader.
+* Users cannot be enforced to use secure passwords and safe password handling habits. Using a well established identity provider decreases the risk the site user gets their account compromised in cases like password keylogging. Well established identity providers have heuristics systems to detect account fraud and quickly alert users if there is a reason to believe their credentials have leader.
 
 Obtaining Facebook login API keys
 =================================
@@ -31,7 +31,7 @@ Give the name of your app e.g. *myapp*.
 .. image:: images/facebook_app_name.png
     :width: 640px
 
-For *Category* you can se *Apps for Pages*.
+For *Category* you can see *Apps for Pages*.
 
 Press *Skip quickstart* as Facebook app developer welcome wizard will only make you confused.
 
@@ -68,7 +68,7 @@ Now edit ``myapp/conf/development.ini``. Under ``[app:main]`` add a new setting:
 Logging in with Facebook
 ========================
 
-Spin up your development web server. Make sure you are siged out. Go to *Sign in* page. Now you can log in with Facebook.
+Spin up your development web server. Make sure you are signed out. Go to *Sign in* page. Now you can log in with Facebook.
 
 .. image:: images/login_with_facebook.png
     :width: 640px
@@ -80,7 +80,7 @@ Press *Login with Facebook* and a warning appears:
 
 This is because you have not filled in all the settings in *developer.facebook.com* and your Facebook application is not set to be public at the moment. The login will work for your own Facebook account, though.
 
-If your Facebook account uses the same email as you gave earlier for ``ws-create-user`` command you can now use Login with Facebook to log in as administrator. Otherwise a new user is created. The new user does not have accses to the admin, as this is given to the site initial user only. However you can use the initial user to edit the newly created user and add it to *Admin* group.
+If your Facebook account uses the same email as you gave earlier for ``ws-create-user`` command you can now use Login with Facebook to log in as administrator. Otherwise a new user is created. The new user does not have access to the admin, as this is given to the site initial user only. However you can use the initial user to edit the newly created user and add it to *Admin* group.
 
 .. image:: images/edit_user_groups.png
     :width: 640px

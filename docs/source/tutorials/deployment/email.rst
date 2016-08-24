@@ -61,7 +61,7 @@ Additional variables you might want to consider when setting up email. These can
 Testing it out
 ==============
 
-Run your playbook where you have enabled ``smtp: on``. For every run, it should out a test email. You can use Ansible ``smtp`` tag to run only SMTP server specific parts:
+Run your playbook where you have enabled ``smtp: on``. For every run, it should output a test email. You can use Ansible ``smtp`` tag to run only SMTP server specific parts:
 
 .. code-block:: console
 

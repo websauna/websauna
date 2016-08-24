@@ -2,7 +2,7 @@
 Setting up a database
 =====================
 
-Websauna uses a SQL database for its primary persistant data storage. This tutorial and recommendation suggests you to use the PostgreSQL database.
+Websauna uses a SQL database for its primary persistent data storage. This tutorial and recommendation suggests you to use the PostgreSQL database.
 
 To get Websauna application started, you need to
 
@@ -45,7 +45,7 @@ Creating migration scripts
 
     This will be covered later in detail.
 
-Websauna stores data in SQL databases in tables. When these tables are changed, the database must be instructed to perform the changes. The change is recorded as a migration script which can repeatably run across several computers (coworkers, different servers). Initially you will need the migration scripts to create database tables for user and groups of your website.
+Websauna stores data in SQL database's tables. When these tables are changed, the database must be instructed to perform the changes. The change is recorded as a migration script which can repeatably run across several computers (coworkers, different servers). Initially you will need the migration scripts to create database tables for user and groups of your website.
 
 We use the :ref:`ws-alembic` command for this task. You run `ws-alembic` in your package root folder::
 

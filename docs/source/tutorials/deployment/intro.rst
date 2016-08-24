@@ -66,13 +66,13 @@ To work with this model you need at least one developer who knows how to use :te
 
 * The model emphasises the fact you have always a working source code state in a version control and you can take a step back if something fails.
 
-* A developer or developers run Websauna on their own computer for the development. They edit the source code files, the development web server automatically restarts itself and a developer refresh their web browser to see changes. Alternatively developers follow test-driven-developement (:term:`TDD`) model where each step of source code is written in conjugation with a corresponding test.
+* A developer or developers run Websauna on their own computer for the development. They edit the source code files, the development web server automatically restarts itself and a developer refresh their web browser to see changes. Alternatively developers follow test-driven-development (:term:`TDD`) model where each step of source code is written in conjugation with a corresponding test.
 
-* They push the update source code to a Git version control.
+* They push the updated source code to a Git version control.
 
 * To make sure the changes did not break any prior features, :ref:`an automated test suite <testing>` **may be** run. Developers add new automated tests to cover new features they add.
 
-* The changes are merged to the master Git branch which is one going to be deployed on a production server.
+* The changes are merged to the master Git branch which is the one going to be deployed on a production server.
 
 * Before deploying on a production server the changes **may be** previewed in a private :term:`staging` environment.
 
@@ -101,4 +101,4 @@ Above is an example diagram of a Websauna deployment on a single server. One Lin
 
 * :term:`PostgreSQL` is the main SQL database where persistent data is stored and business logic requires :term:`ACID` guarantees. See :ref:`persistent` data.
 
-* :term:`Redis` stores transient data. This includes website session and caching data (Redi database 1) and Celery task queue (Redis database 3). See :ref:`transient` data.
+* :term:`Redis` stores transient data. This includes website session and caching data (Redis database 1) and Celery task queue (Redis database 3). See :ref:`transient` data.

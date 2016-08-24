@@ -184,7 +184,7 @@ Websauna tries to automatically generate these fields based on SQLALchemy models
 Show view example
 -----------------
 
-Here is an example how ot have a custom show page for on of our models.
+Here is an example how to have a custom show page for one of our models.
 
 ``models.py``:
 
@@ -204,7 +204,7 @@ Here is an example how ot have a custom show page for on of our models.
 
         id = Column(UUID(as_uuid=True), primary_key=True, server_default=sqlalchemy.text("uuid_generate_v4()"))
 
-        #: Human friendly for the box as it si now
+        #: Human friendly for the box as it is now
         name = Column(String(256), nullable=False, default="")
 
 
@@ -243,8 +243,8 @@ Here is an example how ot have a custom show page for on of our models.
     from websauna.system.crud.formgenerator import SQLAlchemyFormGenerator
     from websauna.system.core.viewconfig import view_overrides
 
-    from websauna.system.form.fields import UUID  # Custom widget for UUID tpyes
-    from websauna.system.form.widgets import FriendlyUUIDWidget  # Custom widget for UUID tpyes
+    from websauna.system.form.fields import UUID  # Custom widget for UUID types
+    from websauna.system.form.widgets import FriendlyUUIDWidget  # Custom widget for UUID types
 
     from . import admins
 
@@ -882,6 +882,7 @@ Create a Pyramid traversal view and register it against Admin context. First we 
         route_name="admin",
         permission="edit",
         renderer="admin/phone_order.html")
+
     def phone_order(context, request):
         return {}
 

@@ -27,7 +27,7 @@ Configuring views
 Simple route
 ------------
 
-This is the easiest way to add a view is to use :py:func:`websauna.system.core.route.simple_route` decorator
+The easiest way to add a view is to use :py:func:`websauna.system.core.route.simple_route` decorator.
 
 Add to ``views.py`` or any other module in your application::
 

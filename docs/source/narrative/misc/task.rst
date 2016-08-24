@@ -9,7 +9,7 @@ Tasks
 Introduction
 ============
 
-You can achieve responsive page rendering by offloadindg long running blocking calls from HTTP request processing to external worker processes. Websauna uses :ref:`Celery` for asynchronous task processing. Celery allows asynchronous execution of delayed and scheduled tasks.
+You can achieve responsive page rendering by offloading long running blocking calls from HTTP request processing to external worker processes. Websauna uses :ref:`Celery` for asynchronous task processing. Celery allows asynchronous execution of delayed and scheduled tasks.
 
 Installation
 ============
@@ -27,12 +27,12 @@ Configuring Celery
 
 Websauna configures Celery using :ref:`websauna.celery_config` directive in INI settings.
 
-Celery is configured to use :term:`Redis` as a broker between web and task procsses. Unless you want to add your own scheduled tasks you do not need to change ``websauna.celery_config`` setting.
+Celery is configured to use :term:`Redis` as a broker between web and task processes. Unless you want to add your own scheduled tasks you do not need to change ``websauna.celery_config`` setting.
 
 Running Celery
 ==============
 
-Celery runs separate long running processes called *workers* to execute the tasks. Furthermore a separare process called *beat* needs to be run to initiate scheduled tasks. Below is an example how to run Celery on your development installation.
+Celery runs separate long running processes called *workers* to execute the tasks. Furthermore a separate process called *beat* needs to be run to initiate scheduled tasks. Below is an example how to run Celery on your development installation.
 
 .. note :::
 
@@ -104,12 +104,12 @@ Example:
 Task dispatch on commit
 -----------------------
 
-One generally wants to have tasks runs only if HTTP request execution completes succesfully. Websauna provides :py:class:`websauna.system.task.tasks.ScheduleOnCommitTask` task base class to do this.
+One generally wants to have tasks runs only if HTTP request execution completes successfully. Websauna provides :py:class:`websauna.system.task.tasks.ScheduleOnCommitTask` task base class to do this.
 
 Transaction retries
 -------------------
 
-If your task does database processing use :py:class:`websauna.system.task.tasks.RetryableTransactionTask` base class. It will mimic the behavior of ``pyramid_tm`` transaction retry machine. It tries to retry the transaction few times in the case of :ref:`transaction serialization conflict <occ>`.
+If your task does database processing use :py:class:`websauna.system.task.RetryableTransactionTask` base class. It will mimic the behavior of ``pyramid_tm`` transaction retry machine. It tries to retry the transaction few times in the case of :ref:`transaction serialization conflict <occ>`.
 
 Delayed tasks
 -------------
@@ -168,7 +168,7 @@ You also need to scan ``tasks.py`` in Initializer:
 Scheduled tasks
 ---------------
 
-Scheduled task is a job taht is set to run on certain time interval or on a certain wall clock moment - e.g. every day 24:00.
+Scheduled task is a job that is set to run on certain time interval or on a certain wall clock moment - e.g. every day 24:00.
 
 Creating a task
 ~~~~~~~~~~~~~~~
@@ -192,7 +192,7 @@ Here is an example task for calling API and storing the results in Redis. In you
         converter.update()
 
 
-Another example can be found in :py:mod`websauna.system.devop.backup`.
+Another example can be found in :py:mod:`websauna.system.devop.backup`.
 
 Setting schedule
 ~~~~~~~~~~~~~~~~

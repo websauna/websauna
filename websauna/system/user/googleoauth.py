@@ -64,8 +64,8 @@ class Google(OAuth2):
         picture=True,
 
         # No longer supported as of 2016-08
-        link = False,
-        gender = False,
+        link=False,
+        gender=False,
     )
 
     def __init__(self, *args, **kwargs):
@@ -73,10 +73,10 @@ class Google(OAuth2):
 
         # Handle special Google requirements to be able to refresh the access token.
         if self.offline:
-            if not 'access_type' in self.user_authorization_params:
+            if 'access_type' not in self.user_authorization_params:
                 # Google needs access_type=offline param in the user authorization request.
                 self.user_authorization_params['access_type'] = 'offline'
-            if not 'approval_prompt' in self.user_authorization_params:
+            if 'approval_prompt' not in self.user_authorization_params:
                 # And also approval_prompt=force.
                 self.user_authorization_params['approval_prompt'] = 'force'
 

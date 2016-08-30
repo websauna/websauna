@@ -19,6 +19,7 @@ from pyramid.interfaces import IRequest
 from pyramid.registry import Registry
 from pyramid.router import Router
 from pytest_splinter.plugin import Browser
+from websauna.tests.utils import make_dummy_request
 from zope.interface import implementer
 
 from sqlalchemy.orm.session import Session
@@ -392,16 +393,7 @@ def test_request(request, dbsession, registry) -> IRequest:
             service = get_login_service(test_request)
 
     """
-
-    @implementer(IRequest)
-    class DummyRequest:
-        pass
-
-    _request = DummyRequest()
-    _request.dbsession = dbsession
-    _request.user= None
-    _request.registry = registry
-    return _request
+    return make_dummy_request(dbsession, registry)
 
 
 @pytest.fixture

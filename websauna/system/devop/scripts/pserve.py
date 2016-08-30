@@ -2,6 +2,12 @@
 import sys
 from pkg_resources import load_entry_point
 
+try:
+    import gevent.monkey
+    gevent.monkey.patch_all()
+except ImportError:
+    pass
+
 from websauna.utils.configincluder import monkey_patch_paster_config_parser
 from websauna.utils.configincluder import IncludeAwareConfigParser
 

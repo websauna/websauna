@@ -10,7 +10,7 @@ from websauna.tests.utils import EMAIL
 from websauna.tests.utils import PASSWORD
 
 
-def test_example_view(web_server:str, browser:DriverAPI, dbsession:Session):
+def test_example_view(web_server: str, browser: DriverAPI, dbsession: Session):
     """See that our example view renders correctly.
 
     This is a functional test. Prepare the test by creating one user in the database. Then try to login as this user by using Splinter test browser.

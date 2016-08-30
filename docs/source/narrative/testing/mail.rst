@@ -1,9 +1,13 @@
-==================
-Checking for email
-==================
+====================
+Outgoing email tests
+====================
 
-Checking if email has been sent
--------------------------------
+.. contents:: :local:
+
+Checking if email has been sent by your view
+--------------------------------------------
+
+This demostrators how to test if views accessed through Splinter browser have sent email.
 
 Make sure your tests use stdout mailer, as set in your ``test.ini``:
 
@@ -47,3 +51,44 @@ Then follow the example to how to detect outgoing mail happening outside the mai
         # Transaction happens in another thread and mailer does do actual sending until the transaction is finished. We need to wait in the test main thread to see this to happen.
         wait_until(callback=lambda: mailer.send_count, expected=1)
 
+Check if test code has sent email
+---------------------------------
+
+This example shows how to check if test code itself has sent email. In this case, we call email sending event chain directly from unit test, not going through a test web server.
+
+.. code-block:: python
+
+    from sqlalchemy.orm.session import Session
+    from pyramid.registry import Registry
+    from pyramid_mailer.mailer import DummyMailer
+
+
+    from websauna.tests.utils import create_user, make_dummy_request, make_routable_request
+    from websauna.system.mail.utils import get_mailer
+
+
+    def test_push_render_email(dbsession: Session, registry, user_id):
+        """Create a new activity and generates rendered email notification.."""
+
+        # Create a request with route_url()
+        request = make_routable_request(dbsession, registry)
+
+        # Reset test mailer at the beginnign of the test
+        mailer = get_mailer(registry)
+
+        # Check we got a right type of mailer for our unit test
+        assert isinstance(mailer, DummyMailer)
+        assert len(mailer.outbox) == 0
+
+        with transaction.manager:
+            u = dbsession.query(User).get(user_id)
+
+            # Create an activity
+            a = create_activity(request, "demo_msg", {}, uuid4(), u)
+
+            # Push it through notification channel
+            channel = Email(request)
+            channel.push_notification(a)
+
+            # DummyMailer updates it outbox immediately, no need to wait transaction.commit
+            assert len(mailer.outbox) == 1

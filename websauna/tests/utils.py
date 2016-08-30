@@ -2,7 +2,9 @@
 
 import time
 
+from pyramid.interfaces import IRequest, IRequestFactory
 from pyramid.registry import Registry
+from pyramid.request import Request
 from pyramid.session import signed_deserialize
 from pyramid_redis_sessions import RedisSession, get_default_connection
 from selenium.webdriver.remote.webdriver import WebDriver
@@ -19,6 +21,8 @@ from websauna.compat.typing import Callable
 from websauna.utils.time import now
 
 #: Unit testing default email
+from zope.interface import implementer
+
 EMAIL = "example@example.com"
 
 #: Unit testing default password
@@ -195,7 +199,30 @@ def get_session_from_webdriver(driver: WebDriver, registry: Registry) -> RedisSe
 
     return session
 
+
 def logout(web_server:str, browser:DriverAPI):
     """Log out the current user from the test browser."""
     browser.find_by_css("#nav-logout").click()
     assert browser.is_element_present_by_css("#msg-logged-out")
+
+
+def make_dummy_request(dbsession: Session, registry: Registry) -> IRequest:
+    """Creates a non-functional HTTP request with registry and dbsession configured.
+
+    Useful for crafting requests with custom settings
+
+    See also :func:`make_routable_request`.
+    """
+
+    @implementer(IRequest)
+    class DummyRequest:
+        pass
+
+    _request = DummyRequest()
+    _request.dbsession = dbsession
+    _request.user = None
+    _request.registry = registry
+
+    return _request
+
+

@@ -4,6 +4,7 @@ from email.header import Header
 from email.utils import formataddr
 
 from pyramid.renderers import render
+from pyramid.settings import asbool
 
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
@@ -11,7 +12,7 @@ from pyramid_mailer.message import Message
 import premailer
 
 
-def send_templated_mail(request, recipients, template, context, sender=None, immediate=False):
+def send_templated_mail(request, recipients, template, context, sender=None, immediate=None):
     """Send out templatized HTML and plain text emails.
 
     Each HTML email should have a plain text fallback. Premailer package is used to convert any CSS styles in HTML email messages to inline, so that email clients display them.
@@ -56,7 +57,7 @@ def send_templated_mail(request, recipients, template, context, sender=None, imm
 
     :param sender: Override the sender email - if not specific use the default set in the config as ``mail.default_sender``
 
-    :param immediate: Set True to send to the email immediately and do not wait the transaction to commit. This is very useful for debugging outgoing email issues in an interactive traceback inspector.
+    :param immediate: Set True to send to the email immediately and do not wait the transaction to commit. This is very useful for debugging outgoing email issues in an interactive traceback inspector. If this is ``None`` then use setting ``mail.immediate`` that defaults to ``False``.
     """
 
     assert recipients
@@ -87,6 +88,9 @@ def send_templated_mail(request, recipients, template, context, sender=None, imm
     message.validate()
 
     mailer = get_mailer(request)
+
+    if immediate is None:
+        immediate = asbool(request.registry.settings.get("mail.immediate", False))
 
     if immediate:
         mailer.send_immediately(message)

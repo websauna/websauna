@@ -45,7 +45,7 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
         A content delivery network or content distribution network (CDN) is a globally distributed network of proxy servers deployed in multiple data centers. The goal of a CDN is to serve content to end-users with high availability and high performance. Many CDNs allow developers to upload their own static asset files to speed up their loading. `More information <https://en.wikipedia.org/wiki/Content_delivery_network>`__.
 
     Celery
-      Celery a task queue for Python with focus on real-time processing, while also supporting task scheduling. `More info <http://celery.readthedocs.org/>`__.
+        Celery a task queue for Python with focus on real-time processing, while also supporting task scheduling. `More info <http://celery.readthedocs.org/>`__.
 
     Colander
         A simple schema-based serialization and deserialization library. Useful for building forms, RESTFul APIs and other interfaces where you need to transform and validate data. `More information <https://pypi.python.org/pypi/colander>`__.

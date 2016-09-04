@@ -31,13 +31,11 @@ class simple_route(object):
 
         @simple_route('/path/to/view/{arg}', route_name="foobar")
         def view_callable(request):
-            return {'message': 'Hello'}
+            arg = request.matchdict["arg"]
+            return {'message': 'Hello {}'.format(arg}
 
         url = request.route_url("foobar", dict(arg="123"))
 
-    Some things to notice
-
-    * By default ``append_slash`` option is set to false.
     """
 
     def __init__(self, path, *args, **kwargs):

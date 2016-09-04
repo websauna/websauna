@@ -44,11 +44,13 @@ def uuid_to_slug(jinja_ctx, context, **kw):
 def admin_url(jinja_ctx, model_instance, *elements, **kw):
     """Link to model in admin interface.
 
+    Takes an :term:`SQLAlchemy` model instance as a filter argument and resolves its admin page. This requires that a model admin has been correctly registered for SQLAlchemy model.
+
     Example:
 
     .. code-block:: html+jinja
 
-        {% if request.user.is_admin %}
+        {% if request.user and request.user.is_admin %}
             <li>
               <a class="btn btn-danger" href="{{ choice|admin_url("edit") }}">
                 Edit in admin

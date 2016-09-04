@@ -61,25 +61,6 @@ class Admin(Resource):
         # Call all plugins to register themselves
         self.request.registry.notify(AdminConstruction(self))
 
-    def get_admin_object_url(self, obj, view_name=None):
-        """Get URL for viewing the object in admin.
-
-        *obj* must be a model instance which has a registered admin interface.
-
-        :param: URL where to manage this object in admin interface or None if we cannot do mapping for some reason or input is None.
-        """
-
-        request = self.request
-
-        if not obj:
-            return None
-
-        res = self.get_admin_resource(obj)
-        if view_name:
-            return request.resource_url(res, view_name)
-        else:
-            return request.resource_url(res)
-
     def construct_default_menu(self):
         """Setup admin main menu."""
 

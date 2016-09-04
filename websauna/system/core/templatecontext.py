@@ -13,6 +13,7 @@ from jinja2 import Markup
 from arrow import Arrow
 
 from websauna.compat import typing
+from websauna.system.admin.utils import get_admin_url_for_sqlalchemy_object
 from websauna.utils import html
 from websauna.utils import slug
 
@@ -37,6 +38,45 @@ def uuid_to_slug(jinja_ctx, context, **kw):
 
     """
     return slug.uuid_to_slug(context)
+
+
+@contextfilter
+def admin_url(jinja_ctx, model_instance, *elements, **kw):
+    """Link to model in admin interface.
+
+    Example:
+
+    .. code-block:: html+jinja
+
+        {% if request.user.is_admin %}
+            <li>
+              <a class="btn btn-danger" href="{{ choice|admin_url("edit") }}">
+                Edit in admin
+              </a>
+            </li>
+        {% endif %}
+
+    Another example:
+
+    .. code-block:: html+jinja
+
+        <li>
+          <a class="btn btn-danger" href="{{ choice|admin_url }}">
+            View in admin
+          </a>
+        </li>
+    """
+    request = jinja_ctx.get('request')
+    if not request:
+        raise RuntimeError("Not rendered with request")
+
+    if elements:
+        view_name = elements[0]
+    else:
+        view_name = None
+
+    link = get_admin_url_for_sqlalchemy_object(request.admin, model_instance, view_name=view_name)
+    return link
 
 
 @contextfilter
@@ -295,5 +335,6 @@ def includeme(config):
     include_filter(config, "from_timestamp", from_timestamp)
     include_filter(config, "arrow_format", arrow_format)
     include_filter(config, "render_panel", render_panel)
+    include_filter(config, "admin_url", admin_url)
 
 

@@ -39,7 +39,13 @@ def get_model_admin_for_sqlalchemy_object(admin:IAdmin, instance:type) -> Resour
 
 
 def get_admin_url_for_sqlalchemy_object(admin: IAdmin, instance: object, view_name: str=None) -> str:
-    """Return direct URL to the admin view page of this objet.
+    """Return direct URL to the admin view page of this object:
+
+    Example:
+
+    .. code-block:: python
+
+        link = get_admin_url_for_sqlalchemy_object(request.admin, choice, view_name="edit")
 
     :param admin: Admin root object
 

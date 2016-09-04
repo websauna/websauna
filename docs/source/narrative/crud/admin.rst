@@ -933,21 +933,15 @@ Linking into the admin views of a model
 
 Preface: You have an SQLAlchemy object and you want to provide the link to its admin interface: show, edit or custom action.
 
-To construct a link to the model instance inside admin interface, you need to
+In view code
+------------
 
-* Get a hold of the current admin object
+See :py:func:`websauna.system.admin.utils.get_admin_url_for_sqlalchemy_object`.
 
-* Ask admin to provide traversable resource for this object
+In templates
+------------
 
-* Use ``request.resource_url()`` to get the link
-
-Example::
-
-    # Get traversable resource for a model instance
-    resource = request.admin.get_admin_resource(user)
-
-    # Get a context view named "edit" for this resource
-    edit_link = request.resource_url(resource, "edit")
+See :ref:`filter-admin_url`.
 
 .. _admin-panel:
 

@@ -11,11 +11,15 @@ logger = logging.getLogger(__name__)
 
 
 class NotRetryable(Exception):
-    pass
+    """Transaction retry mechanism not configured."""
 
 
 class TransactionAlreadyInProcess(Exception):
-    pass
+    """ensure_transactionless() detected a dangling transactions."""
+
+
+class CannotRetryAnymore(Exception):
+    """We have reached the limit of transaction retry counts in @retryable."""
 
 
 def ensure_transactionless(msg=None, transaction_manager=transaction.manager):
@@ -35,10 +39,28 @@ def ensure_transactionless(msg=None, transaction_manager=transaction.manager):
         raise TransactionAlreadyInProcess(msg)
 
 
+_retry_count = 0
+
+def is_retryable(txn, error):
+    # Emulate TransactionManager.is_retryable
+    for dm in txn._resources:
+        should_retry = getattr(dm, 'should_retry', None)
+        if (should_retry is not None) and should_retry(error):
+            return True
+
+
 def retryable(tm=None, get_tm=None):
     """Function decorator for§ SQL Serialized transaction conflict resolution through retries.
 
     You need to give either ``tm`` or ``get_tm`` argument.
+
+    * New transaction is started when entering the decorated function
+
+    * If there is already a transaction in progress when entering the decorated function raise an error
+
+    * Commit when existing the decorated function
+
+    * If the commit fails due to a SQL serialization conflict then try to rerun the decorated function max ``tm.retry_attempt_count`` times. Usually this is configured in TODO.
 
     Example:
 
@@ -101,6 +123,8 @@ def retryable(tm=None, get_tm=None):
         @wraps(func)
         def decorated_func(*args, **kwargs):
 
+            global _retry_count
+
             if get_tm:
                 manager = get_tm(*args, **kwargs)
             else:
@@ -117,11 +141,28 @@ def retryable(tm=None, get_tm=None):
                 raise NotRetryable("TransactionManager is not configured with default retry attempt count")
 
             # Run attempt loop
-            for num, attempt in enumerate(manager.attempts(retry_attempt_count)):
+            latest_exc = None
+            for num in range(retry_attempt_count):
                 if num >= 1:
-                    logger.info("Transaction retry attempt #%d for function %s", num + 1, func)
-                with attempt:
-                    return func(*args, **kwargs)
+                    logger.info("Transaction attempt #%d for function %s", num + 1, func)
+
+                txn = manager.begin()
+
+                # Expose retry count for testing
+                manager.latest_retry_count = num
+                val = func(*args, **kwargs)
+
+                try:
+                    txn.commit()
+                    return val
+                except Exception as e:
+                    if is_retryable(txn, e):
+                        latest_exc = e
+                        continue
+                    else:
+                        raise e
+
+            raise CannotRetryAnymore("Out of transaction retry attempts") from latest_exc
 
         return decorated_func
 

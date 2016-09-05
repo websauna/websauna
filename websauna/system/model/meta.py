@@ -1,4 +1,6 @@
 """Database default base models and session setup."""
+from zope.sqlalchemy.datamanager import register
+
 import transaction
 from pyramid.registry import Registry
 from pyramid.settings import asbool
@@ -128,6 +130,10 @@ def create_dbsession(registry: Registry, manager=None) -> Session:
         manager = transaction.manager
 
     dbsession = create_session(manager, db_session_maker)
+
+    # Register zope.sqlalchemy extensino
+    # register(dbsession, manager)
+
     return dbsession
 
 

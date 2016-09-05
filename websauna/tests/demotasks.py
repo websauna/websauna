@@ -48,10 +48,11 @@ def modify_username_abort_by_exception(self, user_id):
 
 @task(base=ScheduleOnCommitTask, bind=True)
 def modify_username_manual_transaction(self, user_id):
-    # Run transaction manually
+    """Example of a manual transaction management within a task."""
     request = self.request.request
-    with transaction.manager:
-        # TODO: Eliminate global dbsession
+
+    with request.tm:
+
         dbsession = request.dbsession
 
         u = dbsession.query(User).get(user_id)

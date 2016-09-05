@@ -1,8 +1,6 @@
 """Celery process."""
 import os
 
-from websauna.utils.configincluder import IncludeAwareConfigParser
-
 try:
     # Could not find way around this :(
     # Make Celery play nice if gevent is used
@@ -10,23 +8,23 @@ try:
     import gevent
     from gevent import monkey
 
-    print("Warning! Running in implicit gevent monkey patch")
-    monkey.patch_all()
+    # print("Warning! celeryloader running in implicit gevent monkey patch")
+    # monkey.patch_all()
 
-    # import redis
-    # import redis.connection
-    # redis.connection.socket = gevent.socket
 except ImportError:
     pass
 
 import sys
 
 from celery.loaders.base import BaseLoader
-from pyramid.decorator import reify
-from websauna.system.devop.cmdline import init_websauna
-from websauna.system.http import Request
 
-from .celery import get_celery_config, parse_celery_config
+from websauna.system.devop.cmdline import init_websauna
+from websauna.system.http.utils import make_routable_request
+from websauna.system.model.retry import ensure_transactionless
+from websauna.utils.configincluder import IncludeAwareConfigParser
+
+
+from .celery import parse_celery_config
 
 #: Passed through Celery loader mechanism
 ini_file = None
@@ -80,7 +78,7 @@ class WebsaunaLoader(BaseLoader):
 
         #: Associate request for celery app, so
         #: task executor knows about Request object
-        self.app.request = self.request
+        self.app.cmdline_request = self.request
 
         self.register_tasks()
 
@@ -96,7 +94,22 @@ class WebsaunaLoader(BaseLoader):
             The same request object is recycled over and over again. Pyramid does not have correctly mechanisms for having retryable request factory.
 
         """
-        task.request.update(request=self.request)
+
+        # TODO: How Celery handles retries?
+
+        # We must not have on-going transaction when worker spawns a task
+        # - otherwise it means init code has left transaction open
+        ensure_transactionless("Thread local TX was ongoing when Celery fired up a new task {}: {}".format(task_id, task))
+
+        # Kill thread-local transaction manager, so we minimize issues
+        # with different Celery threading models.
+        # Always use request.tm instead.
+        import transaction
+        transaction.manager = None
+
+        # Each tasks gets a new request with its own transaction manager and dbsession
+        request = make_routable_request(dbsession=None, registry=self.request.registry)
+        task.request.update(request=request)
 
 
 def main():

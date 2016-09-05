@@ -42,14 +42,17 @@ class WebsaunaTask(Task):
             # Close the request when task completes
             request = self.get_request()
 
-            # If task never commits then we are leaking db connections
-            tm = request.transaction_manager
-            ensure_transactionless("Dangling transaction found in {}".format(self), transaction_manager=tm)
-
-            logger.debug("Closing request %s in task %s, status %s", request, self, status)
-
-            # This will terminate dbsession, as set in create_transaction_manager_aware_dbsession
-            request._process_finished_callbacks()
+            # Make sure tasks don't leave transaction open e.g. in the case of exception
+            if status == "FAILURE":
+                logger.debug("Closing request task %s, status %s", self, status)
+                tm = request.transaction_manager
+                txn = tm._txn
+                if txn:
+                    txn.abort()
+            else:
+                logger.debug("Finished request task %s, status %s", self, status)
+                # This will terminate dbsession, as set in create_transaction_manager_aware_dbsession
+                request._process_finished_callbacks()
 
 
 class ScheduleOnCommitTask(WebsaunaTask):

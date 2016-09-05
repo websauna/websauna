@@ -39,8 +39,6 @@ def ensure_transactionless(msg=None, transaction_manager=transaction.manager):
         raise TransactionAlreadyInProcess(msg)
 
 
-_retry_count = 0
-
 def is_retryable(txn, error):
     # Emulate TransactionManager.is_retryable
     for dm in txn._resources:
@@ -78,7 +76,7 @@ def retryable(tm=None, get_tm=None):
                 # Transaction confirmation count updater will make sure we have enough blocks,
                 # and then will call mark_completed()
 
-        perform_tx()
+            perform_tx()
 
     Example using class based transaction manager resolver:
 
@@ -150,9 +148,9 @@ def retryable(tm=None, get_tm=None):
 
                 # Expose retry count for testing
                 manager.latest_retry_count = num
-                val = func(*args, **kwargs)
 
                 try:
+                    val = func(*args, **kwargs)
                     txn.commit()
                     return val
                 except Exception as e:
@@ -162,7 +160,7 @@ def retryable(tm=None, get_tm=None):
                     else:
                         raise e
 
-            raise CannotRetryAnymore("Out of transaction retry attempts") from latest_exc
+            raise CannotRetryAnymore("Out of transaction retry attempts, tried {} times".format(num + 1)) from latest_exc
 
         return decorated_func
 

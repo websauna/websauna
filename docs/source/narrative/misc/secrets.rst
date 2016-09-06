@@ -4,6 +4,11 @@
 Secrets
 =======
 
+.. contents:: :local:
+
+Introduction
+============
+
 Secret files are configuration files which contain sensitive material. Additional measurements must be taken that this material is not leaked. For example protection measurements include
 
 * Secrets files are not in the version control.
@@ -11,6 +16,51 @@ Secret files are configuration files which contain sensitive material. Additiona
 * Secrets files are in version control, but encrypted and reading requires a decryption key. This is so called vault approach.
 
 * Secrets are not in files, but passed to the process externally, e.g. in operating system environment variables.
+
+Using secrets in your application
+=================================
+
+Example how to store Facebook app access token securely.
+
+.. code-block:: python
+
+    def get_opengraph_access_token(request: Request) -> str:
+        """Get FB access_token needed to access OpenGraph API."""
+
+        # Get access to INI secrets read during app start up
+        secrets = get_secrets(request.registry)
+
+        token = secrets.get("facebook_crawl.app_access_token")
+        if not token:
+            raise RuntimeError("secrets.ini [facebook_crawl] section invalid")
+
+        return token
+
+
+    def crawl_facebook(request, asset: Asset):
+        count = 0
+        dbsession = Session.object_session(asset)
+        assert dbsession
+
+        fb_link = asset.other_data.get("facebook")
+        assert fb_link
+
+        access_token = get_opengraph_access_token(request)
+
+        # Convert FB page link to page id
+        parts = urlparse(fb_link)
+        resp = requests.get("https://graph.facebook.com/v2.7/", params={"id": fb_link, "access_token": access_token})
+
+        if resp.status_code != 200:
+            raise RuntimeError("Could not translate link to page id: {}".format(fb_link))
+
+Then ``test-secrets.ini`` has:
+
+.. code-block:: ini
+
+    [facebook_crawl]
+    # Obtained from https://developers.facebook.com/tools/accesstoken/
+    app_access_token = xxxx
 
 INI based secrets
 =================

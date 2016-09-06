@@ -109,6 +109,10 @@ Then you can exit from pgcli::
     \q
 
 
+*pgcli* configuration file is in ``/.config/pgcli/config``. For example, `to disable less paging <https://groups.google.com/forum/#!topic/pgcli/THL03KlFIdo>`_ you can add::
+
+    pager = cat
+
 .. _ws-create-table:
 
 ws-create-table

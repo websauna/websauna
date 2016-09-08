@@ -13,7 +13,7 @@ from websauna.system.crud.formgenerator import SQLAlchemyFormGenerator
 from websauna.system.notebook.views import launch_context_sensitive_shell
 
 from websauna.system.core.panel import render_panel
-from websauna.viewconfig import view_overrides
+from websauna.system.core.viewconfig import view_overrides
 
 
 @view_config(route_name='admin_home', renderer='admin/admin.html', permission='view')

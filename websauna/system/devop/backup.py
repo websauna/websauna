@@ -1,6 +1,4 @@
 """Duplicity based backuping."""
-import datetime
-from celery.task import periodic_task
 import os
 import logging
 import subprocess

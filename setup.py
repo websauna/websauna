@@ -76,7 +76,6 @@ setup(
 
         'pyramid>=1.7a2',
         'waitress',
-        'websauna.viewconfig',
         'pyramid_redis_sessions',
         'pyramid-layout',
         "deform>=2.0a2",

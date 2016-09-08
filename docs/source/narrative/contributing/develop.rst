@@ -9,15 +9,6 @@ Install from Github
 
 Create a virtualenv and install the latest master from Github using pip.
 
-Special notes
--------------
-
-(2016-03): Due to underlying issue with ``pip`` all packages in same namespace must be installed in development mode. Thus, you need to install package ``websauna.viewconfig`` in a development too::
-
-    pip install -e "git+git@bitbucket.org:websauna/websauna.viewconfig.git#egg=websauna.viewconfig"
-
-Otherwise you get an error ``ImportError: No module named 'websauna.viewconfig'``.
-
 Running tests
 -------------
 

@@ -227,7 +227,7 @@ Below is an example how to create a relation picker in admin interface.s
     import deform.widget
 
     from websauna.system.form.sqlalchemy import UUIDForeignKeyValue
-    from websauna.viewconfig import view_overrides
+    from websauna.system.core.viewconfig import view_overrides
 
     from .models import Branding
 

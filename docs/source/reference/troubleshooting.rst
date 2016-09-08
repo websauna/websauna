@@ -89,16 +89,16 @@ Example:
       File "<stdin>", line 1, in <module>
     ImportError: No module named 'websauna.system'
 
-This is due to clash in different Python namespace systems (setup.py, easy_install, pip). If you enable edit mode for ``websauna`` you need to enable it for ``websauna.viewconfig`` package too.
+This is due to clash in different Python namespace systems (setup.py, easy_install, pip). If you enable edit mode for ``websauna`` you need to enable it for ``websauna.system.core.viewconfig`` package too.
 
 Solution:
 
 .. code-block:: console
 
     pip uninstall websauna
-    pip uninstall websauna.viewconfig
+    pip uninstall websauna.system.core.viewconfig
     pip install -e "git+git@github.com:websauna/websauna.git#egg=websauna"
-    pip install -e "git+git@github.com:websauna/websauna.viewconfig.git#egg=websauna.viewconfig"
+    pip install -e "git+git@github.com:websauna/websauna.system.core.viewconfig.git#egg=websauna.system.core.viewconfig"
 
 
 Debugging SQLAlchemy connection pooling

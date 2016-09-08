@@ -19,7 +19,7 @@ from websauna.system.user.models import User
 from websauna.system.user.schemas import group_vocabulary, GroupSet, validate_unique_user_email
 from websauna.system.user.utils import get_user_registry
 from websauna.utils.time import now
-from websauna.viewconfig import view_overrides
+from websauna.system.core.viewconfig import view_overrides
 from websauna.system.crud import listing
 from websauna.system.admin import views as admin_views
 

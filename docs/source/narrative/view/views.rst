@@ -67,7 +67,7 @@ Examples
 Context sensitive views
 -----------------------
 
-If you are using :term:`traversal` views take an additional ``context`` argument which is an instance of :py:class:`websauna.system.core.traversal.Resource`. The :term:`router` resolves a view with most accurate context class match, so if you want to override any stock views, subclass them and change context to your own resource class. Websauna provides :py:func:`websauna.viewconfig.view_overrides` decorator which helps here.
+If you are using :term:`traversal` views take an additional ``context`` argument which is an instance of :py:class:`websauna.system.core.traversal.Resource`. The :term:`router` resolves a view with most accurate context class match, so if you want to override any stock views, subclass them and change context to your own resource class. Websauna provides :py:func:`websauna.system.core.viewconfig.view_overrides` decorator which helps here.
 
 Example how to get a custom listing view for the :term:`admin` of ``Review`` model.
 
@@ -81,12 +81,12 @@ Example how to get a custom listing view for the :term:`admin` of ``Review`` mod
         class Resource(admin.ModelAdmin.Resource):
             pass
 
-Below is a corresponding view example. :py:func:`websauna.viewconfig.view_overrides` sets a context for ``ReviewListing.listing()`` (implemented in :py:func:`websauna.system.crud.views.Listing.listing`) to a Review.Resource class. Because Review.Resource is more accurate than its parent :py:class:`websauna.system.admin.ModelAdmin.Resource` this view gets picked up instead of the stock admin listing.
+Below is a corresponding view example. :py:func:`websauna.system.core.viewconfig.view_overrides` sets a context for ``ReviewListing.listing()`` (implemented in :py:func:`websauna.system.crud.views.Listing.listing`) to a Review.Resource class. Because Review.Resource is more accurate than its parent :py:class:`websauna.system.admin.ModelAdmin.Resource` this view gets picked up instead of the stock admin listing.
 
 ``adminviews.py``::
 
 
-    from websauna.viewconfig import view_overrides
+    from websauna.system.core.viewconfig import view_overrides
     from websauna.system.admin import views as adminviews
     from websauna.system.crud import listing
 

@@ -98,7 +98,7 @@ The default listing view output is still messy, because the listing view doesn't
     from websauna.system.admin.utils import get_admin_url_for_sqlalchemy_object
     from websauna.system.crud import listing
     from websauna.system.http import Request
-    from websauna.viewconfig import view_overrides
+    from websauna.system.core.viewconfig import view_overrides
     from websauna.system.admin.views import Listing as DefaultListing
     from websauna.system.admin.views import Show as DefaultShow
     from websauna.wallet.models import UserOwnedAccount
@@ -241,7 +241,7 @@ Here is an example how ot have a custom show page for on of our models.
 
     from websauna.system.admin import views as defaultadminviews
     from websauna.system.crud.formgenerator import SQLAlchemyFormGenerator
-    from websauna.viewconfig import view_overrides
+    from websauna.system.core.viewconfig import view_overrides
 
     from websauna.system.form.fields import UUID  # Custom widget for UUID tpyes
     from websauna.system.form.widgets import FriendlyUUIDWidget  # Custom widget for UUID tpyes
@@ -382,7 +382,7 @@ Here is an example how we customize the model admin add view to include just a s
 
     from websauna.system.admin import views as adminviews
     from websauna.system.crud.formgenerator import SQLAlchemyFormGenerator
-    from websauna.viewconfig import view_overrides
+    from websauna.system.core.viewconfig import view_overrides
 
     from .admins import VerificationContractAdmin
     from .models import VerificationContract
@@ -566,7 +566,7 @@ Then we roll out our custom ``adminviews.py`` where we override listing view for
     import pygeoip
 
     from websauna.system.crud import listing
-    from websauna.viewconfig import view_overrides
+    from websauna.system.core.viewconfig import view_overrides
     from websauna.system.user import adminviews as _adminviews
 
     # Import local admin
@@ -1216,7 +1216,7 @@ First we add a *Customers* listing button to the organization admin:
 
     from websauna.system.admin import views as adminviews
     from websauna.system.crud.views import TraverseLinkButton
-    from websauna.viewconfig import view_overrides
+    from websauna.system.core.viewconfig import view_overrides
 
     from . import admins
 

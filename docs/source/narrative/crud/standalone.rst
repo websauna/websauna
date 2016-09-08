@@ -205,7 +205,7 @@ We override the default SQLAlchemy views with custom fields.
     from websauna.system.crud.formgenerator import SQLAlchemyFormGenerator
     from websauna.system.http import Request
     from websauna.system.core.route import simple_route
-    from websauna.viewconfig import view_overrides
+    from websauna.system.core.viewconfig import view_overrides
 
     from exampleapp.cruds import ContractCRUD
     from exampleapp.models import TokenContract

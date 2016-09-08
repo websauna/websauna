@@ -99,7 +99,7 @@ Example:
 .. code-block:: python
 
     from websauna.system.crud.views import Add
-    from websauna.viewconfig import view_overrides
+    from websauna.system.core.viewconfig import view_overrides
 
     # This view applies to imaginary CommentCRUD which manages SQLAlchemy Comment model
     @view_overrides(context=CommentCRUD)

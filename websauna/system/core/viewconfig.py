@@ -1,5 +1,5 @@
 """
-``websauna.viewconfig`` provides a class decorator ``@view_overrides`` which allows subclasses to partially override parent class view configuration. The primary use case is to have generic class views which you can subclass for more specific use cases. The pattern is very powerful when combined with Pyramid's travesing contexts.
+``websauna.system.core.viewconfig`` provides a class decorator ``@view_overrides`` which allows subclasses to partially override parent class view configuration. The primary use case is to have generic class views which you can subclass for more specific use cases. The pattern is very powerful when combined with Pyramid's travesing contexts.
 
 Example:
 
@@ -9,7 +9,7 @@ Example:
 
 The code would be::
 
-     from websauna.viewconfig import view_overrides
+     from websauna.system.core.viewconfig import view_overrides
 
      # We define some model structure for which we are going to create edit views
      class BaseModel:
@@ -91,7 +91,7 @@ def _create_child_view_config_from_parent_cb(cb, module_name, liftid, cscope, ov
     """
 
     # Arguments look like:
-    # (<function view_config.__call__.<locals>.callback at 0x101d7d268>, 'websauna.viewconfig.tests.testmodule', 'render None', 'class')
+    # (<function view_config.__call__.<locals>.callback at 0x101d7d268>, 'websauna.system.core.viewconfig.tests.testmodule', 'render None', 'class')
 
 
     # Check if we are view_config or previously nested @view_overrides
@@ -106,7 +106,7 @@ def _create_child_view_config_from_parent_cb(cb, module_name, liftid, cscope, ov
         return (cb, module_name, liftid, cscope), False
 
     # This is like:
-    # {'route_name': 'parent', '_info': ('/Users/mikko/code/trees/websauna.viewconfig/websauna/viewconfig/tests/testmodule.py', 15, 'Parent', '@view_config(route_name="parent", renderer="foobar.html")'), 'renderer': 'foobar.html', 'attr': 'render'}
+    # {'route_name': 'parent', '_info': ('/Users/mikko/code/trees/websauna.system.core.viewconfig/websauna/viewconfig/tests/testmodule.py', 15, 'Parent', '@view_config(route_name="parent", renderer="foobar.html")'), 'renderer': 'foobar.html', 'attr': 'render'}
     info = cb.__closure__[0].cell_contents
     settings = cb.__closure__[1].cell_contents
 

@@ -11,7 +11,6 @@ from websauna.system.devop.cmdline import init_websauna
 from websauna.system.task.celery import get_celery
 from websauna.system.user.utils import get_user_class
 from websauna.system.user.models import User
-from websauna.tests.conftest import create_test_dbsession
 
 from . import demotasks
 

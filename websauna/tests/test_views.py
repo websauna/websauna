@@ -3,7 +3,7 @@ import pytest
 
 from websauna.system import Initializer
 from websauna.system.core.route import add_template_only_view
-from websauna.tests.conftest import get_app
+from websauna.tests.fixtures import get_app
 from websauna.tests.webserver import customized_web_server
 
 HERE = os.path.abspath(os.path.dirname(__file__))

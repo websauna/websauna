@@ -77,7 +77,7 @@ def customized_web_server(request, app: Router, customized_port: int=None) -> ty
         import transaction
 
         from websauna.system.model import now
-        from websauna.tests.conftest import customized_web_server
+        from websauna.tests.fixtures import customized_web_server
 
 
         @pytest.fixture(scope='module')

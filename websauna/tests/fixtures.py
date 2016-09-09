@@ -1,42 +1,32 @@
-"""Various Websauna specfici py.test fixtures.
+"""Various Websauna specific py.test fixtures.
 
 * Reading test.ini settings
 
 * Setting up and tearing down database
 
 * Creating a WSGI application to test
-
 """
 
 
 import os
+
+import transaction
 import pyramid.testing
 import pytest
-import transaction
-
-from pyramid import testing
 from pyramid.interfaces import IRequest
 from pyramid.registry import Registry
 from pyramid.router import Router
-from pytest_splinter.plugin import Browser
-from websauna.tests.utils import make_dummy_request
-from zope.interface import implementer
-
+from pyramid.paster import get_appsettings
+from pyramid.paster import bootstrap
 from sqlalchemy.orm.session import Session
 
-from pyramid.paster import (
-    get_appsettings,
-    bootstrap)
-
 from websauna.system.devop.cmdline import setup_logging
-from websauna.system.http import Request
 from websauna.system.model.meta import create_dbsession
-
-# TODO: Remove this method
 from websauna.compat.typing import Optional
 from websauna.compat.typing import Callable
 from websauna.utils.qualname import get_qual_name
-from websauna.utils.configincluder import IncludeAwareConfigParser
+
+from websauna.tests.utils import make_dummy_request
 
 
 @pytest.fixture(scope='session')
@@ -127,73 +117,6 @@ def paster_config(request, test_config_path, ini_settings) -> tuple:
     return global_config, ini_settings
 
 
-@pytest.fixture
-def browser(request, browser_instance_getter, ini_settings) -> Browser:
-    """Websauna specic browser fixtures.
-
-    This is a py.test fixture to create a :term:`pytest-splinter` based browser instance. It is configured with splinter settings from an INI ``[splinter]`` section.
-
-    .. note ::
-
-        These will override any command line options given.
-
-    .. note ::
-
-        This is a temporary mechanism and will be phased out with INI based configuration.
-
-    Example in ``test.ini``::
-
-        [splinter]
-        make_screenshot_on_failure = false
-
-    For list of possible settings see this function source code.
-
-    More information
-
-    * https://github.com/pytest-dev/pytest-splinter/blob/master/pytest_splinter/plugin.py
-    """
-
-    splinter_command_line_args = [
-        "splinter_session_scoped_browser",
-        "splinter_browser_load_condition",
-        "splinter_browser_load_timeout",
-        "splinter_download_file_types",
-        "splinter_driver_kwargs",
-        "splinter_file_download_dir",
-        "splinter_firefox_profile_preferences",
-        "splinter_firefox_profile_directory",
-        "splinter_make_screenshot_on_failure",
-        "splinter_remote_url",
-        "splinter_screenshot_dir",
-        "splinter_selenium_implicit_wait",
-        "splinter_wait_time",
-        "splinter_selenium_socket_timeout",
-        "splinter_selenium_speed",
-        "splinter_webdriver_executable",
-        "splinter_window_size",
-        "splinter_browser_class",
-        "splinter_clean_cookies_urls",
-    ]
-
-    # Cache read settings on a function attribute
-    full_config = getattr(browser, "full_config", None)
-    if not full_config:
-        parser = IncludeAwareConfigParser()
-        parser.read(ini_settings["_ini_file"])
-        full_config = browser.full_config = parser
-
-    # If INI provides any settings override splinter defaults
-    for arg in splinter_command_line_args:
-        ini_setting_name = arg.replace("splinter_", "")
-        # Read setting from splinter section
-        arg_value = full_config.get("splinter", ini_setting_name, fallback=None)
-        if arg_value:
-            setattr(request.config.option, arg, arg_value)
-
-    return browser_instance_getter(request, browser)
-
-
-
 def get_app(ini_settings: dict, extra_init: Optional[Callable] = None) -> Router:
     """Construct a WSGI application from INI settings.
 
@@ -207,7 +130,6 @@ def get_app(ini_settings: dict, extra_init: Optional[Callable] = None) -> Router
 
     data = bootstrap(ini_settings["_ini_file"], options=options)
     return data["app"]
-
 
 
 @pytest.fixture(scope='session')
@@ -345,32 +267,6 @@ def http_request(request):
 
 
 @pytest.fixture()
-def pyramid_testing(request, ini_settings):
-    """py.test fixture for ramping up Pyramid testing environment.
-
-    :param request: py.test request lifecycle
-    :param ini_settings: Fixture for command line passed --ini settings
-    :return: {registry}
-    """
-
-    import pyramid.testing
-
-    init = get_init(dict(__file__=ini_settings["_ini_file"]), ini_settings)
-    init.run(ini_settings)
-
-    pyramid.testing.setUp(registry=init.config.registry)
-
-    def teardown():
-        # There might be open transactions in the database. They will block DROP ALL and thus the tests would end up in a deadlock. Thus, we clean up all connections we know about.
-        # XXX: Fix this shit
-        pyramid.testing.tearDown()
-
-    request.addfinalizer(teardown)
-
-    return {"registry": init.config.registry}
-
-
-@pytest.fixture()
 def test_request(request, dbsession, registry) -> IRequest:
     """Create a dummy HTTP request object which can be used to obtain services and adapters.
 
@@ -410,12 +306,14 @@ def scaffold_webdriver():
         webdriver_param = ""
     return webdriver_param
 
-#: Make sure py.test picks this up
-from websauna.tests.webserver import web_server  # noqa
-from websauna.tests.webserver import customized_web_server  # noqa
 
 def pytest_addoption(parser):
     parser.addoption("--ini", action="store", metavar="INI_FILE", help="use INI_FILE to configure SQLAlchemy")
+
+
+#: Make sure py.test picks this up
+from websauna.tests.webserver import web_server  # noqa
+from websauna.tests.webserver import customized_web_server  # noqa
 
 
 

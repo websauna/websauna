@@ -1,6 +1,7 @@
 [pytest]
 addopts =
     --strict
+    -p websauna.tests.fixtures
     --splinter-make-screenshot-on-failure=false
     --ini={{package}}/conf/test.ini
     {{package}}/tests

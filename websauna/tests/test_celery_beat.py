@@ -68,7 +68,6 @@ def test_celery_beat(init):
     finally:
         try:
             worker and worker.terminate()
-            print(worker.stdout.read().decode("utf-8"))
         except ProcessLookupError:
             pass
 

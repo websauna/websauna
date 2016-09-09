@@ -13,8 +13,8 @@ def run_worker_and_beat(ini_file):
 
     cmdline = "ws-celery {} -- worker --loglevel=debug".format(ini_file)
 
-    # You can start manually ws-celery worker -A websauna.system.task.celery.celery_app --ini websauna/tests/scheduler-test.ini
-    # # and set worker = None
+    # You can start manually ws-celery websauna/tests/task-test.ini -- worker --loglevel=debug
+    # and set worker = None
 
     worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     time.sleep(2.0)

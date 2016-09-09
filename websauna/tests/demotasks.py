@@ -1,8 +1,8 @@
 """Test tasks for the scheduler."""
-import transaction
+import logging
 
 from websauna.system import DemoInitializer
-from websauna.system.task.tasks import ScheduleOnCommitTask
+from websauna.system.task.tasks import ScheduleOnCommitTask, WebsaunaTask
 from websauna.system.task.tasks import RetryableTransactionTask
 from websauna.system.task.tasks import task
 from websauna.system.core.redis import get_redis
@@ -11,12 +11,16 @@ from websauna.system.core.redis import get_redis
 from websauna.system.user.models import User
 
 
+logger = logging.getLogger(__name__)
+
+
 # Configured to be executed every second in scheduler-test.ini
-@task(name="foobar", bind=True)
-def redis_test_write(self):
-    request = self.request.request
+@task(name="foobar", bind=True, base=WebsaunaTask)
+def redis_test_write(self: WebsaunaTask):
+    logger.error("Called by beat")
+    request = self.get_request()
     connection = get_redis(request)
-    connection.set("foo", "foo")
+    connection.set("foo", "xoo")
 
 
 @task(name="crashaxs")

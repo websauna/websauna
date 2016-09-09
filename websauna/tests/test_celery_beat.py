@@ -11,7 +11,7 @@ from websauna.system.core.redis import get_redis
 
 def run_worker_and_beat(ini_file):
 
-    cmdline = "ws-celery {} -- worker".format(ini_file)
+    cmdline = "ws-celery {} -- worker --loglevel=debug".format(ini_file)
 
     # You can start manually ws-celery worker -A websauna.system.task.celery.celery_app --ini websauna/tests/scheduler-test.ini
     # # and set worker = None
@@ -63,20 +63,17 @@ def test_celery_beat(init):
         if beat:
             assert beat.returncode is None
 
-        if foo is None:
-            # Be verbose about worker errors
-            print(worker.stdout.read().decode("utf-8"))
-            print(beat.stdout.read().decode("utf-8"))
-
-        assert foo == b"foo"  # Set back by its original value by 1 second beat
+        assert foo == b"xoo"  # Set back by its original value by 1 second beat
 
     finally:
         try:
             worker and worker.terminate()
+            print(worker.stdout.read().decode("utf-8"))
         except ProcessLookupError:
             pass
 
         try:
             beat and beat.terminate()
+            print(beat.stdout.read().decode("utf-8"))
         except ProcessLookupError:
             pass

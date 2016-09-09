@@ -50,12 +50,14 @@ def test_celery_beat(init):
         redis = get_redis(init.config.registry)
         redis.delete("foo", "bar")
 
-        # scheduledtasks.ticker should beat every second and reset values in Redis
-        # sets foo
-        time.sleep(10)
-
-        redis = get_redis(init.config.registry)
-        foo = redis.get("foo")
+        deadline = time.time() + 20
+        while time.time() < deadline:
+            redis = get_redis(init.config.registry)
+            # scheduledtasks.ticker should beat every second and reset values in Redis
+            foo = redis.get("foo")
+            if foo:
+                break
+            time.sleep(0.5)
 
         if worker:
             assert worker.returncode is None
@@ -69,8 +71,6 @@ def test_celery_beat(init):
         try:
             if worker:
                 worker.terminate()
-                print(worker.stdout.read().decode("utf-8"))
-                print(worker.stderr.read().decode("utf-8"))
         except ProcessLookupError:
             pass
 

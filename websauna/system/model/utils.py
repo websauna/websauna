@@ -30,7 +30,7 @@ def attach_model_to_base(ModelClass:type, Base:type, ignore_reattach:bool=True):
 
     More flexibility is gained by not inheriting from SQLAlchemy declarative base and instead plugging in models during the configuration time more.
 
-    Directly inheritng from SQLAlchemy Base class has non-undoable side effects. All models automatically pollute SQLAlchemy namespace and may e.g. cause problems with conflicting table names. This also allows @declared_attr to access Pyramid registry.
+    Directly inheriting from SQLAlchemy Base class has non-undoable side effects. All models automatically pollute SQLAlchemy namespace and may e.g. cause problems with conflicting table names. This also allows @declared_attr to access Pyramid registry.
 
     Example how to use Pyramid registry in SQLAlchemy's declared attributes::
 

@@ -63,6 +63,11 @@ def test_celery_beat(init):
         if beat:
             assert beat.returncode is None
 
+        if foo is None:
+            # Be verbose about worker errors
+            print(worker.stdout.read().decode("utf-8"))
+            print(beat.stdout.read().decode("utf-8"))
+
         assert foo == b"foo"  # Set back by its original value by 1 second beat
 
     finally:

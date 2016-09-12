@@ -39,6 +39,7 @@ def get_logging_user_context(request: Request) -> dict:
 
         return user_context
 
-    except:
+    except Exception as e:
+        logger.exception(e)
         logger.error("Failed to capture user context %s", request)
         return {}

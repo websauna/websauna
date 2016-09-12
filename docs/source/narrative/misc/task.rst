@@ -109,7 +109,7 @@ One generally wants to have tasks runs only if HTTP request execution completes 
 Transaction retries
 -------------------
 
-If your task does database processing use :py:class:`websauna.system.task.tasksRetryableTransactionTask` base class. It will mimic the behavior of ``pyramid_tm`` transaction retry machine. It tries to retry the transaction few times in the case of :ref:`transaction serialization conflict <occ>`.
+If your task does database processing use :py:class:`websauna.system.task.tasks.RetryableTransactionTask` base class. It will mimic the behavior of ``pyramid_tm`` transaction retry machine. It tries to retry the transaction few times in the case of :ref:`transaction serialization conflict <occ>`.
 
 Delayed tasks
 -------------

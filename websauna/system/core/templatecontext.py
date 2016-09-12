@@ -182,6 +182,20 @@ def escape_js(jinja_ctx, context, **kw):
 def to_json(jinja_ctx, context, safe=True):
     """Converts Python dict to JSON, safe to be placed inside <script> tag.
 
+    Example:
+
+    .. code-block:: html+jinja
+
+            {#
+              Export server side generated graph data points
+              to Rickshaw client side graph rendering
+            #}
+            {% if graph_data %}
+              <script>
+                window.graphDataJSON = "{{ graph_data|to_json }}";
+              </script>
+            {% endif %}
+
     :param context: Takes Python dictionary as input
 
     :param safe: Set to False to not to run ``escape_js()`` on the resulting JSON. True by default.

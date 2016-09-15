@@ -301,6 +301,12 @@ class Initializer:
         self.config.registry.registerAdapter(factory=create_transaction_manager_aware_dbsession, required=(IRequest,), provided=ISQLAlchemySessionFactory)
 
     @event_source
+    def configure_redis(self):
+        """Configure Redis connection pool."""
+        from websauna.system.core import redis
+        redis.init_redis(self.config.registry)
+
+    @event_source
     def configure_instrumented_models(self):
         """Configure models from third party addons and dynamic SQLAlchemy fields which need access to the configuration.
 
@@ -670,6 +676,9 @@ class Initializer:
         # Addon models
         self.configure_models()
 
+        # Redis (preferably before sessions)
+        self.configure_redis()
+
         # Sessions and users
         self.configure_sessions()
         self.configure_user()
@@ -685,6 +694,7 @@ class Initializer:
         self.configure_instrumented_models()
         self.configure_model_admins()
         self.configure_database()
+
 
         # Tests can pass us some extra initialization work on ad hoc
         extra_init = self.global_config.get("extra_init")

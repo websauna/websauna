@@ -36,6 +36,9 @@ def ensure_transactionless(msg=None, transaction_manager=transaction.manager):
         transaction_thread = getattr(transaction.manager, "begin_thread", None)
         logger.fatal("Transaction state management error. Trying to start TX in thread %s. TX started in thread %s", threading.current_thread(), transaction_thread)
 
+        # Destroy the transaction, so if this was a temporary failure in long running process, we don't lock the process up for the good
+        txn.abort()
+
         raise TransactionAlreadyInProcess(msg)
 
 

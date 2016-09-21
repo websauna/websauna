@@ -586,6 +586,12 @@ class Initializer:
     def configure_tasks(self):
         """Scan all Python modules with asynchoronous and periodic tasks to be imported."""
 
+        # Celery not installed
+        try:
+            import celery
+        except ImportError as e:
+            pass
+
         # Importing the task is enough to add it to Celerybeat working list
         from websauna.system.devop import tasks  # noqa
         self.config.scan(tasks)

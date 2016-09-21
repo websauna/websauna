@@ -710,6 +710,9 @@ class Initializer:
         """Perform post-initialization sanity checks.
 
         This is run on every startup to check that the database table schema matches our model definitions. If there are un-run migrations this will bail out and do not let the problem to escalate later.
+
+        See also: :ref:`websauna.sanity_check`.
+
         """
         from websauna.system.model import sanitycheck
         from websauna.system.model.meta import Base

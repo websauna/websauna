@@ -21,6 +21,7 @@ Create a new playbook file. This can directly in ``websauna.ansible`` root folde
         - websocket: on
         - smtp: off
         - ssl: off
+        - celery: on
         - cloudflare: off
         - new_relic: off
         - letsenrypt: off

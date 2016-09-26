@@ -71,6 +71,26 @@ class DefaultLoginService:
         """Allow easy overridingn of a welcome message."""
         messages.add(self.request, kind="success", msg="You are now logged in.", msg_id="msg-you-are-logged-in")
 
+
+    def do_post_login_actions(self, user: IUser, headers: dict, location: str=None):
+        """What happens after a succesful login.
+
+        Override this to customize e.g. where the user lands.
+        """
+        request = self.request
+
+        if not location:
+            location = get_config_route(request, 'websauna.login_redirect')
+
+        self.greet_user(user)
+
+        self.update_login_data(user)
+
+        e = events.Login(request, user)
+        request.registry.notify(e)
+
+        return HTTPFound(location=location, headers=headers)
+
     def authenticate_user(self, user: IUser, login_source: str, location: str=None) -> Response:
         """Make the current session logged in session for this particular user.
 
@@ -109,17 +129,7 @@ class DefaultLoginService:
         headers = remember(request, token)
         # assert headers, "Authentication backend did not give us any session headers"
 
-        if not location:
-            location = get_config_route(request, 'websauna.login_redirect')
-
-        self.greet_user(user)
-
-        self.update_login_data(user)
-
-        e = events.Login(request, user)
-        request.registry.notify(e)
-
-        return HTTPFound(location=location, headers=headers)
+        return self.do_post_login_actions(user, headers, location)
 
     def authenticate_credentials(self, username: str, password: str, login_source:str, location: str=None) -> Response:
         """Try logging in the user with username and password.

@@ -234,6 +234,124 @@ See
 
 * :py:mod:`websauna.system.task.celery`
 
+Slack example
+=============
+
+Below is a functional example for sending messages to a Slack channel, so that you don't block HTTP response with slow Slack API.
+
+``slack.py``:
+
+.. code-block:: python
+
+    """Send Slack messages.
+
+    Asynchronous Slack caller. Must be explicitly enabled in the settings to do anything.
+
+    In your ``settings.ini``:
+
+        slack.enabled = true
+
+    You need to a create a Slack app to get a token.
+    https://api.slack.com/docs/oauth-test-tokens
+
+    In your ``secrets.ini``:
+
+        [slack]
+        token = xxx
+
+    """
+    from pyramid.settings import asbool
+    from slackclient import SlackClient
+    from websauna.system.core.utils import get_secrets
+    from websauna.system.task.tasks import ScheduleOnCommitTask
+    from websauna.system.task.tasks import task
+
+
+    def get_slack(registry):
+        secrets = get_secrets(registry)
+        slack = SlackClient(secrets["slack.token"].strip())
+        return slack
+
+
+    def slack_api_call(request, method, kwargs):
+        """Also serve as mock patch point."""
+
+        # Do not send anything to Slack unless explicitly enabled in settings
+        if not asbool(request.registry.settings.get("slack.enabled", False)):
+            return
+
+        slack = get_slack(request.registry)
+        slack.api_call(method, **kwargs)
+
+
+    @task(base=ScheduleOnCommitTask, bind=True)
+    def _call_slack_api_delayed(self: ScheduleOnCommitTask, method, dispatch_kwargs):
+        """Asynchronous call to Slack API."""
+        request = self.get_request()
+
+        slack_api_call(request, method, dispatch_kwargs)
+
+
+    def send_slack_message(request, channel, text, immediate=False, **extra_kwargs):
+        """API to send Slack chat notifications from at application.
+
+        You must have Slack API token configured in INI settings.
+
+        Example:
+
+        .. code-block:: python
+
+            send_slack_message(request, "#customers", "Customer just ordering #{}".format(delivery.id))
+
+        If you do not want deferred action and want to do a blocking Slack API call e.g. for testing:
+
+        .. code-block:: python
+
+            send_slack_message(request, "#customers", "Foobar", immediate=True)
+
+        Message goes only out if the transaction is committed.
+        """
+
+        kwargs = dict(channel=channel, text=text)
+        kwargs.update(extra_kwargs)
+
+        if immediate:
+            slack_api_call(request, "chat.postMessage", kwargs)
+        else:
+            _call_slack_api_delayed.apply_async(args=["chat.postMessage", kwargs], tm=request.tm)
+
+Testing this with ``test_slack.py``:
+
+.. code-block:: python
+
+    import transaction
+
+    from xxx.slack import send_slack_message
+
+
+    def test_slack_send_message(test_request):
+        """We can send messages to Slack asynchronously."""
+
+        slack_message_queue = []
+
+        def _test_dispatch(request, method, kwargs):
+            slack_message_queue.append(dict(method=method, kwargs=kwargs))
+
+        with mock.patch("tokenmarket.slack.slack_api_call", new=_test_dispatch):
+            with transaction.manager:
+                # This generates delayed task that is not send until the transaction is committed.
+                send_slack_message(test_request, "#test-messages", "Foobar")
+
+        # Celery eats exceptions happening in the tasks,
+        # so we need to explicitly tests for positive outcomes of
+        # any functions using Celery, regardless if Celery is in eager mode
+        # or not
+        msg = slack_message_queue.pop()
+        assert msg["method"] == "chat.postMessage"
+        assert msg["kwargs"]["channel"] == "#test-messages"
+        assert msg["kwargs"]["text"] == "Foobar"
+
+
 Troubleshooting
 ===============
 

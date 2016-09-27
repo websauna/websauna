@@ -21,6 +21,7 @@ from pyramid.paster import bootstrap
 from sqlalchemy.orm.session import Session
 
 from websauna.system.devop.cmdline import setup_logging
+from websauna.system.http.utils import make_routable_request
 from websauna.system.model.meta import create_dbsession
 from websauna.compat.typing import Optional
 from websauna.compat.typing import Callable
@@ -288,8 +289,11 @@ def test_request(request, dbsession, registry) -> IRequest:
         def test_order(dbsession, test_request):
             service = get_login_service(test_request)
 
+    The ``request.tm`` is bound to thread-local ``transaction.mananger``.
     """
-    return make_dummy_request(dbsession, registry)
+    request = make_routable_request(dbsession, registry)
+    request.tm = transaction.manager
+    return request
 
 
 @pytest.fixture

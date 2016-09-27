@@ -8,13 +8,14 @@ import logging
 import transaction
 import venusian
 from celery import Task
-from pyramid.request import apply_request_extensions, Request
+from pyramid.request import apply_request_extensions
 from pyramid.scripting import _make_request
 from pyramid_tm import tm_tween_factory
 from transaction import TransactionManager
-from websauna.system.model.retry import ensure_transactionless
+
 
 from websauna.system.task.celery import get_celery
+from websauna.system.http import Request
 
 
 logger = logging.getLogger(__name__)
@@ -34,6 +35,13 @@ class WebsaunaTask(Task):
             return request
 
         return request
+
+    def on_failure(self, exc, task_id, args, kwargs, einfo):
+        """What happens if a task raises exception.
+
+        We cannot
+        """
+        logger.error("Celery task failure %s, args %s, kwargs %s", task_id, args, kwargs)
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
         """Clean up transaction after task run."""

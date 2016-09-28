@@ -50,7 +50,7 @@ Websauna stores data in SQL databases in tables. When these tables are changed, 
 We use the :ref:`ws-alembic` command for this task::
 
     cd myapp
-    ws-alembic -c conf/development.ini -x packages=all revision --auto -m "Initial migration"
+    ws-alembic -c myapp/conf/development.ini -x packages=all revision --auto -m "Initial migration"
 
 This creates the migration script for the default ``user`` and ``groups`` SQL tables.
 
@@ -65,7 +65,7 @@ Running the migration script
 
 The migration scripts can be run repeatedly against multiple databases. First you need to run it against the database on your local development computer::
 
-    ws-alembic -c conf/development.ini -x packages=all upgrade head
+    ws-alembic -c myapp/conf/development.ini -x packages=all upgrade head
 
 Checking what's in your database
 ================================

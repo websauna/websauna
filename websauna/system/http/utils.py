@@ -19,17 +19,19 @@ def make_routable_request(dbsession: Optional[Session], registry: Registry, path
     :param dbsession: Use existing dbsession or set to ``None`` to generate a new dbsession and transaction manager. None that this TM is not the thread local transaction manager in ``transaction.mananger``.
     """
 
-    base_url = registry.get("websauna.site_url", None)
+    base_url = registry.settings.get("websauna.site_url", None)
 
     # TODO: Honour request_factory here
     request = Request.blank(path, base_url=base_url)
-    # apply_request_extensions()?
+    # TODO: do apply_request_extensions()?
     request.registry = registry
     request.user = None
 
     if dbsession:
+        # Use the provided dbsession for this request
         request.dbsession = dbsession
     else:
+        # Create a new dbsession and transaction manager for this request
         tm = TransactionManager()
         dbsession = create_dbsession(request.registry, tm)
         request.dbsession = dbsession

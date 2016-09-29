@@ -179,14 +179,6 @@ def registry(request, app) -> Registry:
     return app.initializer.config.registry
 
 
-@pytest.fixture(scope='session')
-def registry(request, app):
-    """Access registry of the default app instance created from ``test.ini``.
-
-    """
-    return app.initializer.config.registry
-
-
 def create_test_dbsession(request, registry: Registry, transaction_manager=transaction.manager) -> Session:
     """Create a test database session and setup database.
 

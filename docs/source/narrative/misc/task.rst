@@ -234,6 +234,13 @@ See
 
 * :py:mod:`websauna.system.task.celery`
 
+URLs and request routes in tasks
+================================
+
+Because tasks are not served over HTTP endpoint, requests do not have URL information available in them. You need to set :ref:`websauna.site_url` in configuration if you want to expose URLs generated within tasks.
+
+See :py:meth:`websauna.system.http.utils.make_routable_request`.
+
 Slack example
 =============
 

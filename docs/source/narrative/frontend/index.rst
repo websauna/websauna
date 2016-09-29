@@ -11,3 +11,4 @@ Frontend and templating
     javascript
     themes
     static
+    images

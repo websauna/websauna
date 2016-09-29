@@ -20,7 +20,9 @@ Below is a recipe for generating dynamic image rescales from URL sources. Images
 
     from io import BufferedIOBase
     from io import BytesIO
+    import logging
 
+    from pyramid.httpexceptions import HTTPNotImplemented
     from pyramid.response import Response
     from PIL import Image
     from PIL import ImageOps
@@ -29,7 +31,10 @@ Below is a recipe for generating dynamic image rescales from URL sources. Images
     from websauna.system.http import Request
 
 
-    def resized_image(request: Request, cache_key: str, source: BufferedIOBase, width: int, height: int, cache_timeout=30*24*3600, format="png") -> Response:
+    logger = logging.getLogger(__name__)
+
+
+    def resized_image(request: Request, cache_key: str, source: BufferedIOBase, width: int, height: int, cache_timeout=30*24*3600, source_content_type=None, format="png") -> Response:
         """Create a resized image version.
 
         Results are cached in redis.
@@ -40,20 +45,34 @@ Below is a recipe for generating dynamic image rescales from URL sources. Images
         :param source: Image source as byte stream
         :param width: Desired with
         :param height: Desired height
-        :param format: "png" or "jpeg"
+        :param format: Output format. Either "png" or "jpeg".
         :param cache_timeout: How long cached result is stored in Redis in seconds
+        :param source_format: Binary format hint for Pillow to decode image
         :return: Cacheable HTTP response for the image
         """
+
+        # Sanity check and potentially prevent some abuse
+        if source_content_type:
+            if source_content_type not in ("image/jpeg", "image/png"):
+                logger.warn("Unsupported image rescale content type: %s", source_content_type)
+                return HTTPNotImplemented()
+
+        # Allow override cache for testing on when giving URL like:
+        # http://localhost:6543/cosmos/logo_small?redraw=true
+        # This is to fix potential single caes error
+        redraw = "redraw" in request.params
+        if redraw:
+            logger.warn("Forced redraw of image scale")
 
         redis = get_redis(request)
         full_cache_key = "image_resize_{}_{}_{}_{}".format(cache_key, width, height, format)
         data = redis.get(full_cache_key)
-        if not data:
-
+        if not data or redraw:
             size = (width, height)
             img = Image.open(source)
-            img = ImageOps.fit(img, size, Image.ANTIALIAS)
-            img = img.convert('RGB')
+            img = img.convert('RGBA')
+            # img = ImageOps.fit(img, size, Image.ANTIALIAS)
+            img.thumbnail(size)
             buf = BytesIO()
             img.save(buf, format=format)
             data = buf.getvalue()
@@ -66,6 +85,7 @@ Below is a recipe for generating dynamic image rescales from URL sources. Images
         resp.cache_control.public = True
 
         return resp
+
 
 Example usage:
 
@@ -83,10 +103,13 @@ Example usage:
         # http://stackoverflow.com/a/37547880/315168
         resp = requests.get(logo_url, stream=True)
         resp.raise_for_status()
+
         resp.raw.decode_content = True
+        source_content_type = resp.headers["Content-type"]
 
         # Cache logos by asset human readable id
-        return resized_image(request, "logo_small_" + str(asset_desc.asset.slug), source=resp.raw, width=256, height=256, format="png")
+        return resized_image(request, "logo_small_" + str(asset_desc.asset.slug), source=resp.raw, source_content_type=source_content_type, width=256, height=256, format="png")
+
 
 Then in templates:
 

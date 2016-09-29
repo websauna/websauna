@@ -25,7 +25,6 @@ Below is a recipe for generating dynamic image rescales from URL sources. Images
     from pyramid.httpexceptions import HTTPNotImplemented
     from pyramid.response import Response
     from PIL import Image
-    from PIL import ImageOps
 
     from websauna.system.core.redis import get_redis
     from websauna.system.http import Request
@@ -38,8 +37,6 @@ Below is a recipe for generating dynamic image rescales from URL sources. Images
         """Create a resized image version.
 
         Results are cached in redis.
-
-        TODO: This handler does not do streamable response, so there might be substantial memory hit per request.
 
         :param request: HTTP request related to this
         :param source: Image source as byte stream
@@ -71,21 +68,25 @@ Below is a recipe for generating dynamic image rescales from URL sources. Images
             size = (width, height)
             img = Image.open(source)
             img = img.convert('RGBA')
-            # img = ImageOps.fit(img, size, Image.ANTIALIAS)
             img.thumbnail(size)
+            # Alternative cropper implementation
+            # img = ImageOps.fit(img, size, Image.ANTIALIAS)
             buf = BytesIO()
             img.save(buf, format=format)
             data = buf.getvalue()
             redis.set(full_cache_key, data, ex=cache_timeout)
+            buf.seek(0)
+        else:
+            buf = BytesIO(data)
 
-        resp = Response(content_type="image/" + format, body=data)
+        # Streamable response so we don't cause a clog in the series of tubes
+        resp = Response(content_type="image/" + format, body_file=buf)
 
         # Set cache headers for downstream web server
         resp.cache_expires = cache_timeout
         resp.cache_control.public = True
 
         return resp
-
 
 Example usage:
 

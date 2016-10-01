@@ -3,7 +3,12 @@
 import functools
 
 # https://github.com/pypa/warehouse/blob/master/warehouse/cache/http.py
-def add_vary_callback(*varies):
+def add_vary_callback_if_cookie(*varies):
+    """Add vary: cookie header to all session responses.
+
+    Prevent downstream web serves to accidentally cache session set-cookie reponses,
+    potentially resulting to session leakage.
+    """
     def inner(request, response):
         vary = set(response.vary if response.vary is not None else [])
         vary |= set(varies)
@@ -11,12 +16,3 @@ def add_vary_callback(*varies):
     return inner
 
 
-# https://github.com/pypa/warehouse/blob/master/warehouse/cache/http.py
-def add_vary(*varies):
-    def inner(view):
-        @functools.wraps(view)
-        def wrapped(context, request):
-            request.add_response_callback(add_vary_callback(*varies))
-            return view(context, request)
-        return wrapped
-    return inner

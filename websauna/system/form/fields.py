@@ -116,7 +116,7 @@ class JSONValue(colander.String):
     def serialize(self, node: colander.SchemaNode, data: Union[list, dict]) -> str:
         """Convert Python objects to JSON string."""
         if data:
-            assert isinstance(data, (list, dict))
+            assert isinstance(data, (list, dict)), "Expected list or dict, got {}".format(data.__class__)
             return json.dumps(data)
         else:
             # Noneish

@@ -304,7 +304,7 @@ class Initializer:
     def configure_redis(self):
         """Configure Redis connection pool."""
         from websauna.system.core import redis
-        redis.init_redis(self.config.registry)
+        self.config.registry.redis = redis.create_redis(self.config.registry)
 
     @event_source
     def configure_instrumented_models(self):

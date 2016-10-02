@@ -1,8 +1,11 @@
 """Redis connection manager."""
 import logging
+import multiprocessing
+import threading
 
 from redis import StrictRedis
 from redis import ConnectionError
+from redis import ConnectionPool
 
 from pyramid.config import Configurator
 from pyramid.registry import Registry
@@ -14,10 +17,12 @@ from websauna.compat.typing import Union
 logger = logging.getLogger(__name__)
 
 
-def init_redis(registry: Registry, connection_url=None, redis_client=StrictRedis, **redis_options):
+def create_redis(registry: Registry, connection_url=None, redis_client=StrictRedis, max_connections=16, **redis_options) -> StrictRedis:
     """Sets up Redis connection pool once at the start of a process.
 
     Connection pool life cycle is the same as Pyramid registry which is the life cycle of a process (all threads).
+
+    :param max_connections: Default per-process connection pool limit
     """
 
     # if no url passed, try to get it from pyramid settings
@@ -34,14 +39,39 @@ def init_redis(registry: Registry, connection_url=None, redis_client=StrictRedis
         # used. example:
         #     unix://[:password]@/path/to/socket.sock?db=0
         redis_options.pop('unix_socket_path', None)
+
         # connection pools are also no longer a valid option for
         # loading via URL
         redis_options.pop('connection_pool', None)
-        redis = redis_client.from_url(url, **redis_options)
+
+        # http://stackoverflow.com/a/12990639/315168
+        process_name = multiprocessing.current_process().name
+        thread_name = threading.current_thread().name
+        logger.info("Creating new Redis connection pool. Process %s, thread %s, max_connections %d", process_name, thread_name, max_connections)
+
+        connection_pool = ConnectionPool.from_url(url, max_connections=max_connections, **redis_options)
+        redis = StrictRedis(connection_pool=connection_pool)
     else:
         raise RuntimeError("Redis connection options missing. Please configure redis.sessions.url")
 
-    registry.redis = redis
+    return redis
+
+
+def log_redis_statistics(redis: StrictRedis):
+    """Log Redis connection pool statistics at the end of each request.
+
+    Help to diagnose connection problems and web process lifetime issues.
+
+    We do not need to do specific cleanup, as connnection pool *should* clean up the connections when they go out of scope. Each Redis client function calls connection.release() at the end of operation."
+    """
+    pool = redis.connection_pool
+
+    max_connections = pool.max_connections
+    created = pool._created_connections
+    available = len(pool._available_connections)
+    in_use = len(pool._in_use_connections)
+
+    logger.debug("Redis connection statistics - created: %d, max: %d, in-use: %d, free: %d", created, max_connections, available, in_use)
 
 
 def get_redis(request_or_registry: Union[Request, Registry], url: str=None, redis_client=StrictRedis, **redis_options) -> StrictRedis:
@@ -79,12 +109,14 @@ def get_redis(request_or_registry: Union[Request, Registry], url: str=None, redi
     if isinstance(request_or_registry, Registry):
         # Unit test calling convention
         registry = request_or_registry
-        request = None
+        # request = None
     else:
         registry = request_or_registry.registry
-        request = request_or_registry
+        # request = request_or_registry
 
-    return registry.redis
+    redis = registry.redis
+    log_redis_statistics(redis)
+    return redis
 
 
 def is_sane_redis(config:Configurator) -> bool:

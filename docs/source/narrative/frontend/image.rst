@@ -85,6 +85,7 @@ Below is a recipe for generating dynamic image rescales from URL sources. Images
         # Set cache headers for downstream web server
         resp.cache_expires = cache_timeout
         resp.cache_control.public = True
+        resp.headers["Content-length"] = str(len(data))
 
         return resp
 
@@ -92,9 +93,14 @@ Example usage:
 
 .. code-block:: python
 
-    @view_config(context=AssetDescription, route_name="network", name="logo_small")
+    @view_config(context=AssetDescription, route_name="network", name="logo_small.png")
     def logo_small(asset_desc: AssetDescription, request: Request):
-        """Create a downscaled logo version for an asset."""
+        """Create a downscaled logo version for an asset.
+
+        .. note ::
+
+            .png suffix in URL is required by some proxies (CloudFlare) to make the response caching to follow the normal caching rules.
+        """
 
         # We have a logo image URL for an item we wish to display
         logo_url = asset_desc.asset.other_data.get("logo")
@@ -110,7 +116,6 @@ Example usage:
 
         # Cache logos by asset human readable id
         return resized_image(request, "logo_small_" + str(asset_desc.asset.slug), source=resp.raw, source_content_type=source_content_type, width=256, height=256, format="png")
-
 
 Then in templates:
 

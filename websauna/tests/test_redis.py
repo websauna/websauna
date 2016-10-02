@@ -5,7 +5,8 @@ from pyramid import testing
 from pyramid.httpexceptions import HTTPOk
 from webtest import TestApp
 
-from websauna.system.core.redis import get_redis, init_redis
+from websauna.system.core.redis import get_redis
+from websauna.system.core.redis import create_redis
 
 
 def redis_test(request):
@@ -37,7 +38,7 @@ def app(request):
     def teardown():
         testing.tearDown()
 
-    init_redis(config.registry)
+    config.registry.redis = create_redis(config.registry)
 
     app = TestApp(config.make_wsgi_app())
     return app

@@ -14,16 +14,18 @@ def run_worker_and_beat(ini_file):
     cmdline = "ws-celery {} -- worker --loglevel=debug".format(ini_file)
 
     # You can start manually ws-celery websauna/tests/task-test.ini -- worker --loglevel=debug
-    # and set worker = None
+    # and set worker = False
+    worker = None
 
-    worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    time.sleep(2.0)
+    if worker is None:
+        worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        time.sleep(2.0)
 
-    worker.poll()
-    if worker.returncode is not None:
-        print(worker.stdout.read().decode("utf-8"))
-        print(worker.stderr.read().decode("utf-8"))
-        raise AssertionError("Celery worker process did not start up: {}".format(cmdline))
+        worker.poll()
+        if worker.returncode is not None:
+            print(worker.stdout.read().decode("utf-8"))
+            print(worker.stderr.read().decode("utf-8"))
+            raise AssertionError("Celery worker process did not start up: {}".format(cmdline))
 
     # You can run manually ws-celery beat -A websauna.system.task.celery.celery_app --ini websauna/tests/scheduler-test.ini
     cmdline = "ws-celery {} -- beat".format(ini_file)
@@ -32,8 +34,9 @@ def run_worker_and_beat(ini_file):
     time.sleep(1.0)
     beat.poll()
     if beat.returncode is not None:
-        worker.terminate()
-        AssertionError("Beat process did not start up")
+        if worker:
+            worker.terminate()
+            AssertionError("Beat process did not start up")
 
     return worker, beat
 

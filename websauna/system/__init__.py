@@ -306,6 +306,9 @@ class Initializer:
         from websauna.system.core import redis
         self.config.registry.redis = redis.create_redis(self.config.registry)
 
+        # Add logging events
+        self.config.scan(redis)
+
     @event_source
     def configure_instrumented_models(self):
         """Configure models from third party addons and dynamic SQLAlchemy fields which need access to the configuration.

@@ -1,6 +1,5 @@
 """Redis connection manager."""
 import logging
-import multiprocessing
 import os
 import threading
 

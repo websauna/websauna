@@ -1,6 +1,7 @@
 """Redis connection manager."""
 import logging
 import multiprocessing
+import os
 import threading
 
 from pyramid.events import subscriber, NewRequest
@@ -45,9 +46,9 @@ def create_redis(registry: Registry, connection_url=None, redis_client=StrictRed
         # loading via URL
         redis_options.pop('connection_pool', None)
 
-        # http://stackoverflow.com/a/12990639/315168
-        process_name = multiprocessing.current_process().name
+        process_name = os.getpid()
         thread_name = threading.current_thread().name
+
         logger.info("Creating a new Redis connection pool. Process %s, thread %s, max_connections %d", process_name, thread_name, max_connections)
 
         connection_pool = ConnectionPool.from_url(url, max_connections=max_connections, **redis_options)

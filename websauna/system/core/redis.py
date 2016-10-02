@@ -3,6 +3,7 @@ import logging
 import multiprocessing
 import threading
 
+from pyramid.events import subscriber, NewRequest
 from redis import StrictRedis
 from redis import ConnectionError
 from redis import ConnectionPool
@@ -47,7 +48,7 @@ def create_redis(registry: Registry, connection_url=None, redis_client=StrictRed
         # http://stackoverflow.com/a/12990639/315168
         process_name = multiprocessing.current_process().name
         thread_name = threading.current_thread().name
-        logger.info("Creating new Redis connection pool. Process %s, thread %s, max_connections %d", process_name, thread_name, max_connections)
+        logger.info("Creating a new Redis connection pool. Process %s, thread %s, max_connections %d", process_name, thread_name, max_connections)
 
         connection_pool = ConnectionPool.from_url(url, max_connections=max_connections, **redis_options)
         redis = StrictRedis(connection_pool=connection_pool)
@@ -71,7 +72,7 @@ def log_redis_statistics(redis: StrictRedis):
     available = len(pool._available_connections)
     in_use = len(pool._in_use_connections)
 
-    logger.debug("Redis connection statistics - created: %d, max: %d, in-use: %d, free: %d", created, max_connections, available, in_use)
+    logger.debug("Redis connection statistics - created: %d, max: %d, in-use: %d, available: %d", created, max_connections, available, in_use)
 
 
 def get_redis(request_or_registry: Union[Request, Registry], url: str=None, redis_client=StrictRedis, **redis_options) -> StrictRedis:
@@ -115,7 +116,6 @@ def get_redis(request_or_registry: Union[Request, Registry], url: str=None, redi
         # request = request_or_registry
 
     redis = registry.redis
-    log_redis_statistics(redis)
     return redis
 
 
@@ -133,3 +133,10 @@ def is_sane_redis(config:Configurator) -> bool:
         return True
     except ConnectionError as e:
         return False
+
+
+@subscriber(NewRequest)
+def on_request_log_redis_stats(event):
+    """On every request dump Redis diagnostics information."""
+    redis = get_redis(event.request)
+    log_redis_statistics(redis)

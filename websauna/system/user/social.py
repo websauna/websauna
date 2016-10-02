@@ -5,7 +5,6 @@ from pyramid.registry import Registry
 from pyramid.request import Request
 from sqlalchemy.orm.attributes import flag_modified
 from websauna.system.user.events import UserCreated
-from websauna.system.user.utils import get_site_creator
 
 from websauna.utils.time import now
 from websauna.system.user.interfaces import IUserModel, ISocialLoginMapper
@@ -222,6 +221,51 @@ class GoogleMapper(EmailSocialLoginMapper):
 
         if not result.user.email_verified:
             raise NotSatisfiedWithData("User account email is not verified.")
+
+        if not result.user.email:
+            # We cannot login if the Facebook doesnt' give us email as we use it for the user mapping
+            # This can also happen when you have not configured Facebook app properly in the developers.facebook.com
+            raise NotSatisfiedWithData("Email address is needed in order to user this service and we could not get one from your social media provider. Please try to sign up with your email instead.")
+
+        user = self.get_or_create_user_by_social_medial_email(request, result.user)
+
+        return user
+
+
+class TwitterMapper(EmailSocialLoginMapper):
+    """Map Twitter OAuth users to internal users.
+
+    See :ref:`twitter-auth`.
+    """
+
+    @staticmethod
+    def _x_user_parser(user, data):
+        """Monkey patched authomatic.providers.oauth1.Twitter._x_user_parser."""
+        user.data = data
+        # TODO: Fetch user email
+        # TODO: Pending Twitter authentication request
+        return user
+
+    def import_social_media_user(self, user):
+        """Pass-through Twitter auth data to user_data['social']['twitter']"""
+        return user.data
+
+    def update_first_login_social_data(self, user:IUserModel, data:dict):
+        super(TwitterMapper, self).update_first_login_social_data(user, data)
+        if not user.full_name and data.get("name"):
+            user.full_name = data["name"]
+
+    def capture_social_media_user(self, request:Request, result:LoginResult) -> IUserModel:
+        """Extract social media information from the Authomatic login result in order to associate the user account."""
+        assert not result.error
+
+        # Monkey patch user data fetcher
+        result.provider._x_user_parser = TwitterMapper._x_user_parser
+
+        result.user.update()
+
+        # Make user we got some meaningful input from the user_info_url
+        assert result.user.credentials
 
         if not result.user.email:
             # We cannot login if the Facebook doesnt' give us email as we use it for the user mapping

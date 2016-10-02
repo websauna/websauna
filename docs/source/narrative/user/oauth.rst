@@ -11,6 +11,11 @@ Internally Websauna uses :py:term:`Authomatic` framework to implement :term:`OAu
 
 See Getting started tutorial how to set up Facebook authentication. Same mechanism applies to every OAuth provider like Google, Twitter and Github.
 
+Enhanced login experience
+=========================
+
+See `websauna.magiclogin addon <http://github.com/websauna/websauna.magiclogin>`_ for the best login experience.
+
 Setting up Facebook login
 =========================
 
@@ -62,6 +67,40 @@ More information
 
 * https://github.com/peterhudec/authomatic/issues/153
 
+.. _twitter-auth:
+
+Setting up Twitter login
+========================
+
+.. note ::
+
+    Twitter does not provide user email address by default. They may or may not grant this permission through a special whitelist support request. The default Twitter mapper only supports identifying users by emails, but you could use Twitter ids as well. `See more information <https://dev.twitter.com/rest/reference/get/account/verify_credentials>`_.
+
+First create an app in `apps.twitter.com <https://apps.twitter.com>`_.
+
+You need to configure privacy policy and terms of service for your application. Then set your app permissions to ask for an email address permission with *Read only* access:
+
+.. image:: ../images/oauth-twitter-email.png
+    :width: 640px
+
+In :ref:`development.ini` enable Twitter login:
+
+.. code-block:: ini
+
+    websauna.social_logins =
+        twitter
+
+In :ref:`development-secrets.ini <development.ini>` add Twitter OAuth details:
+
+.. code-block:: ini
+
+    [twitter]
+    class = authomatic.providers.oauth1.Twitter
+    consumer_key = x
+    consumer_secret = y
+    scope =
+    mapper = websauna.system.user.social.TwitterMapper
+
 Customizing OAuth login
 =======================
 
@@ -108,8 +147,8 @@ Below is an example ``home.html`` which contains only a site logo and Facebook l
     {% endblock %}
 
 
-Automatd OAuth login tests
-==========================
+Automated OAuth login tests
+===========================
 
 Your test suite might want to confirm OAuth login keeps working. This needs some special set up. Below is how one can deal with Facebook.
 

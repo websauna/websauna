@@ -72,7 +72,10 @@ def log_redis_statistics(redis: StrictRedis):
     available = len(pool._available_connections)
     in_use = len(pool._in_use_connections)
 
-    logger.debug("Redis connection statistics - created: %d, max: %d, in-use: %d, available: %d", created, max_connections, available, in_use)
+    process_name = os.getpid()
+    thread_name = threading.current_thread().name
+
+    logger.debug("Redis connection statistics - process: %s, thread: %s, created: %d, max: %d, in-use: %d, available: %d", process_name, thread_name, created, max_connections, available, in_use)
 
 
 def get_redis(request_or_registry: Union[Request, Registry], url: str=None, redis_client=StrictRedis, **redis_options) -> StrictRedis:

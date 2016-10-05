@@ -39,9 +39,10 @@ class WebsaunaTask(Task):
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         """What happens if a task raises exception.
 
-        We cannot
         """
-        logger.error("Celery task failure %s, args %s, kwargs %s", task_id, args, kwargs)
+        # Should be logged by properly configured Celery itself
+        # logger.error("Celery task failure %s, args %s, kwargs %s", task_id, args, kwargs)
+        pass
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
         """Clean up transaction after task run."""

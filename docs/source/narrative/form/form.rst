@@ -396,3 +396,72 @@ To have dynamic default arguments you can use :py:func:`colander.deferred`:
 
     class MySchema(CSRFSchema):
         label = colander.SchemaNode(colander.String(), default=default_reward_text)
+
+Another example passing `appstruct` to constructed empty form:
+
+.. code-block:: python
+
+    from pyramid.httpexceptions import HTTPFound, HTTPNotFound
+
+    import colander
+    import deform
+
+    from websauna.system.form.csrf import CSRFSchema
+    from websauna.system.core import messages
+
+
+    class RenameSchema(CSRFSchema):
+        name = colander.SchemaNode(colander.String())
+        slug = colander.SchemaNode(colander.String())
+        symbol = colander.SchemaNode(colander.String())
+
+
+    @view_config(context=AssetDescription, route_name="network", name="rename", permission="manage-content", renderer="network/rename.html")
+    def rename(asset_desc: AssetDescription, request: Request):
+        """Rename asset.
+
+        Allow change it title and symbol, but optionally keep slug intact.
+        """
+
+        schema = RenameSchema().bind(request=request)
+        asset = asset_desc.asset  # SQLAlchemy instance
+
+        # Create a styled button with some extra Bootstrap 3 CSS classes
+        b = deform.Button(name='process', title="Process", css_class="btn-block btn-lg")
+        form = deform.Form(schema, buttons=(b,))
+
+        # User submitted this form
+        if request.method == "POST":
+            if 'process' in request.POST:
+
+                try:
+                    appstruct = form.validate(request.POST.items())
+
+                    # Save form data from appstruct
+                    asset.name = appstruct["name"]
+                    asset.symbol = appstruct["symbol"]
+                    asset.other_data["slug"] = appstruct["slug"]
+
+                    # Thank user and take him/her to the next page
+                    messages.add(request, kind="info", msg="Renamed to {}".format(asset.name))
+                    return HTTPFound(request.resource_url(asset_desc))
+
+                except deform.ValidationFailure as e:
+                    # Render a form version where errors are visible next to the fields,
+                    # and the submitted values are posted back
+                    rendered_form = e.render()
+            else:
+                # We don't know which control caused form submission
+                return HTTPNotFound("Bad POST - no button detected")
+        else:
+
+            # Populate default values
+            appstruct = {
+                "name": asset.name,
+                "symbol": asset.symbol,
+                "slug": asset.slug,
+            }
+            # Render a form with initial values
+            rendered_form = form.render(appstruct=appstruct)
+
+        return locals()

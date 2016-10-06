@@ -57,3 +57,4 @@ class Request(_Request):
         self.registry = registry
         self.on_demand_resource_renderer = on_demand_resource_renderer
         self.transaction_manager = transaction_manager
+        self.tm = transaction_manager

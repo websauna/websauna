@@ -7,6 +7,7 @@ from colander.compat import is_nonstr_iter
 
 from websauna.compat.typing import Union
 from websauna.compat.typing import Callable
+from websauna.system.model.json import NestedMutationDict, NestedMutationList
 
 
 def defer_widget_values(widget: type, values_callback: Callable, **kwargs) -> deform.widget.Widget:
@@ -116,7 +117,7 @@ class JSONValue(colander.String):
     def serialize(self, node: colander.SchemaNode, data: Union[list, dict]) -> str:
         """Convert Python objects to JSON string."""
         if data:
-            assert isinstance(data, (list, dict)), "Expected list or dict, got {}".format(data.__class__)
+            assert isinstance(data, (list, dict, NestedMutationDict, NestedMutationList)), "Expected list or dict, got {}".format(data.__class__)
             return json.dumps(data)
         else:
             # Noneish

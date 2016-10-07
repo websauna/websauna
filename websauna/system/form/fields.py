@@ -3,7 +3,6 @@ import json
 
 import colander
 import deform
-from colander.compat import is_nonstr_iter
 
 from websauna.compat.typing import Union
 from websauna.compat.typing import Callable

@@ -26,6 +26,7 @@ def make_routable_request(dbsession: Optional[Session], registry: Registry, path
     # TODO: do apply_request_extensions()?
     request.registry = registry
     request.user = None
+    request.view_name = ''
 
     if dbsession:
         # Use the provided dbsession for this request

@@ -116,6 +116,34 @@ Debugging by pyramid_debugtoolbar
 
 :term`pyramid_debugtoolbar` gives various information regarding executed SQL queries during the page rendering.
 
+Custom database sessions
+========================
+
+You can override the default factory for ``request.dbsession``.
+
+Example:
+
+.. code-block:: python
+
+
+    db_session = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
+
+    # A function that will resolve dbsession for a request
+    def create_test_dbsession(request: Request) -> Session:
+        return db_session
+
+
+    class Initializer(WattcoinInitializer):
+
+            def configure_database(self):
+                """Configure database without transaction manager (for test isolation).
+                """
+                from websauna.system.model.meta import create_transaction_manager_aware_dbsession
+                from websauna.system.model.interfaces import ISQLAlchemySessionFactory
+                from pyramid.interfaces import IRequest
+                self.config.include(".model.meta")
+    self.config.registry.registerAdapter(factory=create_test_dbsession, required=(IRequest,), provided=ISQLAlchemySessionFactory)
+
 PostgreSQL specific
 ===================
 

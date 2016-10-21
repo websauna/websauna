@@ -47,16 +47,16 @@ Creating migration scripts
 
 Websauna stores data in SQL databases in tables. When these tables are changed, the database must be instructed to perform the changes. The change is recorded as a migration script which can repeatably run across several computers (coworkers, different servers). Initially you will need the migration scripts to create database tables for user and groups of your website.
 
-We use the :ref:`ws-alembic` command for this task::
+We use the :ref:`ws-alembic` command for this task. You run `ws-alembic` in your package root folder::
 
-    cd myapp/myapp
-    ws-alembic -c conf/development.ini -x packages=all revision --auto -m "Initial migration"
+    cd myapp
+    ws-alembic -c myapp/conf/development.ini -x packages=all revision --auto -m "Initial migration"
 
 This creates the migration script for the default ``user`` and ``groups`` SQL tables.
 
 Now you should be able to locate migration scripts::
 
-    ls ../alembic/versions
+    ls alembic/versions
     ...
     -rw-r--r-- 1 moo staff 3610 Jan  6 20:52 8513e50cda41_initial_migration.py
 
@@ -65,7 +65,7 @@ Running the migration script
 
 The migration scripts can be run repeatedly against multiple databases. First you need to run it against the database on your local development computer::
 
-    ws-alembic -c conf/development.ini -x packages=all upgrade head
+    ws-alembic -c myapp/conf/development.ini -x packages=all upgrade head
 
 Checking what's in your database
 ================================

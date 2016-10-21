@@ -17,6 +17,8 @@ def resolve_principals(session_token: str, request: Request) -> Optional[List[st
     * List all groups as ``group:admin`` style strings
 
     * List super user as ``superuser:superuser`` style string
+
+    :return: None if the user is not logged in, otherwise list of principals assigned to the user site wide.
     """
 
     user_registry = get_user_registry(request)

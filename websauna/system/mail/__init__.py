@@ -11,8 +11,11 @@ from pyramid_mailer.message import Message
 
 import premailer
 
+from websauna.system.http import Request
+from websauna.compat.typing import Iterable
 
-def send_templated_mail(request, recipients, template, context, sender=None, immediate=None):
+
+def send_templated_mail(request: Request, recipients: Iterable, template: str, context: dict, sender=None, immediate=None):
     """Send out templatized HTML and plain text emails.
 
     Each HTML email should have a plain text fallback. Premailer package is used to convert any CSS styles in HTML email messages to inline, so that email clients display them.

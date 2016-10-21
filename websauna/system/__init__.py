@@ -642,9 +642,6 @@ class Initializer:
         # Avoid running the initializer twice. This might happen e.g. due to a bad testing set up where the initializer creation is not scoped properly. E.g. Jinja template engine will get very confused.
         assert not self._already_run, "Attempted to run initializer twice. Please avoid double initialization as it will lead to problems."
 
-        # TODO: Remove passing settings to methods as an argument
-        settings = self.settings
-
         self.secrets = self.read_secrets()
 
         self.configure_logging()

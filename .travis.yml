@@ -2,6 +2,7 @@ language: python
 
 addons:
   postgresql: "9.4"
+  firefox: latest-beta
 
 services:
   - postgresql
@@ -30,7 +31,7 @@ install:
 
 # https://docs.travis-ci.com/user/gui-and-headless-browsers/
 before_script:
-  - npm install geckodriver
+  - npm install -g geckodriver
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
   - psql -c 'create database websauna_test;' -U postgres

@@ -60,7 +60,7 @@ Open ``myapp/conf/development-secrets.ini``. Fill in information in ``[facebook]
     scope = user_about_me, email
     mapper = websauna.system.user.social.FacebookMapper
 
-Now edit ``conf/development.ini``. Under ``[app:main]`` add a new setting::
+Now edit ``myapp/conf/development.ini``. Under ``[app:main]`` add a new setting::
 
     websauna.social_logins =
         facebook

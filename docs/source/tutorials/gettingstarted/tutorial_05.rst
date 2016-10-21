@@ -9,7 +9,7 @@ Starting a local web development server
 
 Run::
 
-    ws-pserve conf/development.ini --reload
+    ws-pserve myapp/conf/development.ini --reload
 
 The web server keeps running until
 
@@ -34,7 +34,7 @@ Creating your admin user
 
 On a shell where your projects virtual environment is activated, cd into ``myapp/myapp`` and type::
 
-    ws-create-user conf/development.ini myemail@example.com
+    ws-create-user myapp/conf/development.ini myemail@example.com
 
 This will prompt you for a password for the new user. Because this is the first user of the site, the user becomes an administrator.
 

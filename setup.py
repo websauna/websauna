@@ -81,7 +81,6 @@ setup(
         "deform>=2.0a2",
         "pyramid_debugtoolbar",
         "pyramid_jinja2",
-        "selenium<3.0",  # http://stackoverflow.com/questions/37761668/cant-open-browser-with-selenium-after-firefox-update
 
         # Time handling
         "arrow",
@@ -131,7 +130,12 @@ setup(
 
         # Dependencies needed to run tests
         # pytest 3.0 pending https://github.com/pytest-dev/pytest-splinter/issues/69
-        'test': ['pytest<3.0', 'pytest-runner', 'coverage', 'webtest', 'pytest-splinter', 'pytest-timeout', 'pytest-cov', "codecov", "flaky"],
+        'test': [
+            'pytest<3.0', 'pytest-runner', 'coverage', 'webtest', 'pytest-splinter', 'pytest-timeout', 'pytest-cov', "codecov", "flaky"
+
+            # http://stackoverflow.com/questions/37761668/cant-open-browser-with-selenium-after-firefox-update
+            "selenium<3.0",
+        ],
 
         # Command line utilities and like that are needed to make development / production environment friendly
         'utils': ['pgcli'],

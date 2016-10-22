@@ -30,6 +30,6 @@ def main(argv=sys.argv):
     print("Connecting to {}".format(engine))
 
     if not which("pgcli"):
-        sys.exit("pgcli not installed - please install websauna as pip install websauna[dev] to get this dependency")
+        sys.exit("pgcli not installed - please install websauna as pip install websauna[utils] to get this dependency")
 
     os.system("pgcli {}".format(url))

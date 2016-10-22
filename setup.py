@@ -126,24 +126,29 @@ setup(
     extras_require={
 
         # Dependencies needed to build and release Websauna
-        'dev': ['check-manifest', 'Sphinx', 'setuptools_git', 'zest.releaser', 'sphinx-autodoc-typehints', 'pyramid_autodoc', "sphinx_rtd_theme", "sphinxcontrib-zopeext", "ruamel.yaml"],
+        'dev': [
+            'check-manifest',
+            'pyramid_autodoc',
+            'ruamel.yaml',
+            'setuptools_git',
+            'sphinx',
+            'sphinx-autodoc-typehints',
+            'sphinx_rtd_theme',
+            'sphinxcontrib-zopeext',
+            'zest.releaser'
+        ],
 
-        # Dependencies needed to run tests
+        # pytest 3.0 pending https://github.com/pytest-dev/pytest-splinter/issues/69
         'test': [
-            # pytest 3.0 pending https://github.com/pytest-dev/pytest-splinter/issues/69
-            'pytest<3.0',
-
-            'pytest-runner',
+            'codecov',
             'coverage',
-            'webtest',
+            'flaky',
+            'pytest-cov',
+            'pytest-runner',
             'pytest-splinter',
             'pytest-timeout',
-            'pytest-cov',
-            "codecov",
-            "flaky",
-
-            # http://stackoverflow.com/questions/37761668/cant-open-browser-with-selenium-after-firefox-update
-            "selenium==2.53.6",
+            'pytest<3.0',
+            'webtest',
         ],
 
         # Command line utilities and like that are needed to make development / production environment friendly

@@ -81,6 +81,7 @@ setup(
         "deform>=2.0a2",
         "pyramid_debugtoolbar",
         "pyramid_jinja2",
+        "selenium<3.0",  # http://stackoverflow.com/questions/37761668/cant-open-browser-with-selenium-after-firefox-update
 
         # Time handling
         "arrow",

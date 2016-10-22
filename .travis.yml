@@ -2,7 +2,7 @@ language: python
 
 addons:
   postgresql: "9.4"
-  firefox: latest-beta
+  firefox: "45.0"
 
 services:
   - postgresql
@@ -29,9 +29,11 @@ cache:
 install:
   - travis_retry pip install tox
 
+# http://stackoverflow.com/questions/39279651/connection-refused-when-running-selenium-tests-in-marionette
+#  - npm install -g geckodriver
+
 # https://docs.travis-ci.com/user/gui-and-headless-browsers/
 before_script:
-  - npm install -g geckodriver
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
   - psql -c 'create database websauna_test;' -U postgres

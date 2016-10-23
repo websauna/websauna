@@ -53,6 +53,7 @@ def test_celery_beat(init):
         redis = get_redis(init.config.registry)
         redis.delete("foo", "bar")
 
+        foo = "no read"
         deadline = time.time() + 20
         while time.time() < deadline:
             redis = get_redis(init.config.registry)
@@ -67,6 +68,13 @@ def test_celery_beat(init):
 
         if beat:
             assert beat.returncode is None
+
+        if foo == b"xoo":
+            # TravisCI headless debugging
+            print(worker.stdout.read().decode("utf-8"))
+            print(worker.stderr.read().decode("utf-8"))
+            print(beat.stdout.read().decode("utf-8"))
+            print(beat.stderr.read().decode("utf-8"))
 
         assert foo == b"xoo"  # Set back by its original value by 1 second beat
 

@@ -33,7 +33,7 @@ class Root(Resource):
     @classmethod
     def root_factory(cls, request):
         """Called by Pyramid routing framework to create a new root for a request."""
-        return Root(request)
+        return cls(request)
 
     def get_title(self):
         """Title used in breadcrumbs."""

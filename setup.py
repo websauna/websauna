@@ -133,7 +133,14 @@ setup(
             # pytest 3.0 pending https://github.com/pytest-dev/pytest-splinter/issues/69
             'pytest<3.0',
 
-            'pytest-runner', 'coverage', 'webtest', 'pytest-splinter', 'pytest-timeout', 'pytest-cov', "codecov", "flaky"
+            'pytest-runner',
+            'coverage',
+            'webtest',
+            'pytest-splinter',
+            'pytest-timeout',
+            'pytest-cov',
+            "codecov",
+            "flaky",
 
             # http://stackoverflow.com/questions/37761668/cant-open-browser-with-selenium-after-firefox-update
             "selenium==2.53.6",

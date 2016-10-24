@@ -76,7 +76,7 @@ Install utils to including the Python package dependency for *pgcli*, using :ter
 
 Then you can use :ref:`ws-db-shell` to open a *pgcli* prompt to explore your PostgreSQL database::
 
-    ws-db-shell conf/development.ini
+    ws-db-shell myapp/conf/development.ini
 
     wattcoin_dev> \dt
     +----------+--------------------------+--------+---------+

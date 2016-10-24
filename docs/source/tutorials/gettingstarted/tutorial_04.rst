@@ -70,7 +70,11 @@ The migration scripts can be run repeatedly against multiple databases. First yo
 Checking what's in your database
 ================================
 
-You can use :ref:`ws-db-shell` to open a *pgcli* prompt to explore your PostgreSQL database::
+Install utils to including the Python package dependency for *pgcli*, using :term:`pip`::
+
+    pip install -e "myapp[utils]"
+
+Then you can use :ref:`ws-db-shell` to open a *pgcli* prompt to explore your PostgreSQL database::
 
     ws-db-shell conf/development.ini
 

@@ -27,11 +27,6 @@ def task_app_request(task_ini_file):
 
 
 @pytest.fixture()
-def dbsession(request, task_app_request):
-    return create_test_dbsession(request, task_app_request.registry)
-
-
-@pytest.fixture()
 def demo_user(request, dbsession):
     """Create a database object asyncronously manipulated."""
 

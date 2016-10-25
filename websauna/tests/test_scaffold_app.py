@@ -86,7 +86,7 @@ def test_pytest(app_scaffold, test_db, scaffold_webdriver):
 
     webdriver_param = scaffold_webdriver
 
-    execute_venv_command("py.test " + webdriver_param, app_scaffold, timeout=1*60, cd_folder="myapp")
+    execute_venv_command("which py.test && py.test " + webdriver_param, app_scaffold, timeout=1*60, cd_folder="myapp")
 
 
 def test_sdist(app_scaffold):

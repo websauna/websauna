@@ -131,7 +131,7 @@ setup(
         # Dependencies needed to run tests
         'test': [
             # pytest 3.0 pending https://github.com/pytest-dev/pytest-splinter/issues/69
-            'pytest<3.0',
+            'pytest>=3.0',
 
             'pytest-runner',
             'coverage',

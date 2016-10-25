@@ -72,7 +72,7 @@ def test_pyramid_debugtoolbar(app_scaffold, dev_db, browser):
         b.visit("http://localhost:6543/error-trigger")
 
         # See that Wertzkreug debugger is up
-        assert b.is_element_present_by_css(".errormsg")
+        assert b.is_element_present_by_css(".traceback")
 
     finally:
         execute_venv_command("ws-pserve myapp/conf/development.ini --stop-daemon --pid-file=test_pserve.pid", app_scaffold, cd_folder="myapp")

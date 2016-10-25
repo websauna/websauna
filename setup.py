@@ -141,6 +141,8 @@ setup(
         # pytest 3.0 pending https://github.com/pytest-dev/pytest-splinter/issues/69
         'test': [
             'codecov',
+            'pytest>=3.0',
+            'pytest-runner',
             'coverage',
             'flaky',
             'pytest-cov',
@@ -155,8 +157,7 @@ setup(
         'utils': ['pgcli'],
 
         # Using celery based async tasks
-        # TODO : test_celery_beat fails on celery==4.0.0rc4
-        'celery': ['celery[redis]==4.0.0rc3']
+        'celery': ['celery[redis]>=4.0.0rc6']
     },
 
     # To provide executable scripts, use entry points in preference to the

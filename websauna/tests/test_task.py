@@ -27,11 +27,6 @@ def task_app_request(task_ini_file):
 
 
 @pytest.fixture()
-def dbsession(request, task_app_request):
-    return create_test_dbsession(request, task_app_request.registry)
-
-
-@pytest.fixture()
 def demo_user(request, dbsession):
     """Create a database object asyncronously manipulated."""
 
@@ -83,7 +78,7 @@ def test_transaction_aware_task_success(celery_worker, task_app_request, dbsessi
 
         demotasks.modify_username.apply_async([u.id], tm=transaction.manager)
         # Let the task travel in Celery queue
-        time.sleep(1.0)
+        time.sleep(2.0)
 
         # Task should not fire unless we exit the transaction
         assert u.username != "set by celery"

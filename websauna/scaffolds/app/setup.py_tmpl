@@ -39,7 +39,17 @@ setup(name='{{project}}',
       install_requires=['websauna'],
       extras_require={
         # Dependencies for running test suite
-        'test': ['websauna[test]'],
+        'test': [
+            "pytest",
+            "pytest-runner",
+            "pytest-splinter",
+            "webtest",
+
+            # Wait until Marionette matures
+            # http://stackoverflow.com/questions/37761668/cant-open-browser-with-selenium-after-firefox-update
+            "selenium==2.53.6",
+        ],
+
 
         # Dependencies to make releases
         'dev': ['websauna[dev]'],

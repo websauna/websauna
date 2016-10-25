@@ -54,7 +54,7 @@ def test_celery_beat(init):
         redis.delete("foo", "bar")
 
         foo = "no read"
-        deadline = time.time() + 20
+        deadline = time.time() + 10
         while time.time() < deadline:
             redis = get_redis(init.config.registry)
             # scheduledtasks.ticker should beat every second and reset values in Redis
@@ -69,12 +69,13 @@ def test_celery_beat(init):
         if beat:
             assert beat.returncode is None
 
-        if foo == b"xoo":
+        if foo != b"xoo":
             # TravisCI headless debugging
-            print(worker.stdout.read().decode("utf-8"))
-            print(worker.stderr.read().decode("utf-8"))
-            print(beat.stdout.read().decode("utf-8"))
-            print(beat.stderr.read().decode("utf-8"))
+            # print(worker.stdout.read().decode("utf-8"))
+            # print(worker.stderr.read().decode("utf-8"))
+            # print(beat.stdout.read().decode("utf-8"))
+            # print(beat.stderr.read().decode("utf-8"))
+            pass
 
         assert foo == b"xoo"  # Set back by its original value by 1 second beat
 

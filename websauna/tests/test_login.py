@@ -150,7 +150,7 @@ def test_forget_password_bad_user(web_server, browser, dbsession, init):
     b.fill("email", "foo@example.com")
     b.find_by_name("submit").click()
 
-    assert b.is_element_present_by_css(".errorMsg")
+    assert b.is_element_present_by_css(".error-msg-detail")
 
 
 def test_forget_password_disabled_user(web_server, browser, dbsession, init):

@@ -72,7 +72,7 @@ Data analysis
 Modular architecture
 --------------------
 
-All default stack choices are suggestive, thus leaving room for opinions for different components and a path to scale up a service. There is no inversion of control - the developer is always on a driver's seat. A strong decoupling is achieved through component architecture, event dispatch and standardized addon mechanism. This allows building non-monolithic packages and frictionless distribution of work among teams.
+All default stack choices are suggestive, thus leaving room for opinions for different components and a path to scale up a service. There is no inversion of control - the developer is always in the driver's seat. A strong decoupling is achieved through component architecture, event dispatch and standardized addon mechanism. This allows building non-monolithic packages and frictionless distribution of work among teams.
 
 When to use it?
 ===============

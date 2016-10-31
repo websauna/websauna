@@ -117,6 +117,7 @@ class Sitemap:
 
         :return: dict of information for the templates {urlset: SitemapItem iterator}
         """
+        request.response.content_type = "application/xml"
         return dict(urlset=self.urls())
 
 
@@ -278,7 +279,7 @@ class ReflectiveSitemapBuilder:
         """
 
         # chop off last part /container/*traverse'
-        start_path = "/".join(route.pattern.split("/")[0:-1]) + "/"
+        start_path = "/".join(route.pattern.split("/")[0:-2]) + "/"
         sample_request = make_routable_request(path=start_path, registry=self.request.registry)
 
         root = route.factory(sample_request)
@@ -351,6 +352,19 @@ class ReflectiveSitemapBuilder:
     def get_sitemap(self) -> Sitemap:
         """Get ready sitemap after build."""
         return self.sitemap
+
+    @classmethod
+    def render(cls, context, request):
+        """Render the sitemap.
+
+        TODO: I don't like that Sitemap.render is little bit different from this one.
+
+        :return: dict of information for the templates {urlset: SitemapItem iterator}
+        """
+        reflective_builder = cls(request)
+        reflective_builder.build()
+        map = reflective_builder.get_sitemap()
+        return map.render(context, request)
 
 
 def _get_route_data(route, registry):

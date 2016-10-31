@@ -18,16 +18,30 @@ More information
 Automatic sitemap generation
 ============================
 
-Automatic sitemap generation inspects your site URL configuration from Pyramid router. It enumerates all routes and recurses into :ref:`traversable <traversal>` hierarchies. All public views that are accesible through HTTP GET are added to the sitemap.
+Automatic sitemap generation inspects your site URL configuration from Pyramid router. It enumerates all routes and recurses into :ref:`traversable <traversal>` hierarchies. All public views that are accessible through HTTP GET are added to the sitemap.
 
-Automatic sitemap generation uses :py:class:`websauna.system.core.interfaces.IContainer` protocol to determine whether traversable resources have children or not.
+Automatic sitemap generation uses :py:class:`websauna.system.core.interfaces.IContainer` protocol to recurse into the children of traversable resources.
 
-Automatic sitemap generation is one of powerful use cases of traversal based routing.
+Automatic sitemap generation is one of more powerful use cases of traversal based routing.
 
 .. note ::
 
-    Automatic sitemap generation doesn't work with parametrized public urls like ``/my_view/{object-id}``. Thus, it is recommended to :ref:`traversal` based routing if you have any container like URLs.
+    Automatic sitemap generation doesn't work with parametrized public urls like ``/my_view/{object-id}``. Thus, it is recommended to :ref:`traversal` based routing if you have any container like URLs. If you use parametrized URL dispatching and you want to these routes to be included in the sitemap, see Manual sitemap generation below.
 
+Set up the sitemap handler in :py:meth:`websauna.system.Initializer.configure_sitemap`. Example:
+
+.. code-block:: python
+
+    from pyramid.interfaces import IRequest
+
+    class Initializer(websauna.system.Initializer):
+
+        def configure_sitemap(self):
+            from websauna.system.core.sitemap import ReflectiveSitemapBuilder
+            self.config.add_route("sitemap", "/sitemap.xml")
+            self.config.add_view(ReflectiveSitemapBuilder.render, route_name="sitemap", renderer="core/sitemap.xml")
+
+You can customize automatic sitemap generation by subclassing :py:class:`websauna.system.core.sitemap.ReflectiveSitemapBuilder` and overriding various parts of it.
 
 For more information see
 

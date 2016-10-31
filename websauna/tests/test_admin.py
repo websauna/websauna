@@ -2,9 +2,29 @@ import time
 
 import transaction
 from flaky import flaky
+from pyramid.interfaces import IAuthorizationPolicy
+from pyramid.security import Everyone
+from websauna.system.admin.utils import get_admin
 
 from websauna.system.user.utils import get_site_creator
 from websauna.tests.utils import create_user, EMAIL, PASSWORD, create_logged_in_user
+
+
+def test_admin_permissions(test_request):
+    """Non-functional test to check admin permissions are sane."""
+
+    admin = get_admin(test_request)
+    policy = test_request.registry.queryUtility(IAuthorizationPolicy)
+
+    # Admin group access ok
+    assert policy.permits(admin, "group:admin", "view")
+    assert policy.permits(admin, "group:admin", "edit")
+    assert policy.permits(admin, "group:admin", "delete")
+
+    # Block world
+    assert not policy.permits(admin, Everyone, "view")
+    assert not policy.permits(admin, Everyone, "edit")
+    assert not policy.permits(admin, Everyone, "delete")
 
 
 def test_enter_admin(web_server, browser, dbsession, init):

@@ -14,4 +14,5 @@ Other functionality
     shellwrapper
     scaffolds
     secrets
+    sitemap
     typing

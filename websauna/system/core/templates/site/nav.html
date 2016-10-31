@@ -36,7 +36,9 @@
             </li>
           {% endif %}
 
+          {# We have admin interface for this site #}
           {% if request.admin %}
+            {# User has permission to view admin root #}
             {% if request.has_permission('view', context=request.admin) %}
               <li>
                 <a id="nav-admin" href="{{'admin_home'|route_url}}">

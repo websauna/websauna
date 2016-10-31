@@ -19,7 +19,10 @@ class ISecrets(Interface):
     """
 
 class IContainer(ILocation):
-    """Marker interface telling that Resource class is iterable."""
+    """Marker interface telling that Resource class is iterable.
+
+    TODO: Not sure if items() is the best way to do the child discovery. All ideas accepted.
+    """
 
     def items() -> Iterable[Tuple[str, ILocation]]:
         """Return children in this container as (id, Resource instance) tuples.

@@ -20,12 +20,14 @@ class Root(Resource):
     """
 
     __acl__ = [
+
+        # Creaet pseudo-permission "authenticated" for all authenticated users
         (Allow, Authenticated, 'authenticated'),
 
         # See Notebook
         (Allow, "superuser:superuser", 'shell'),
 
-        # Everything is accessible for public by default
+        # All traversable resources are accesible to public by default. This permission is primarily used by sitemap to construct publicly traversable site hierarchy.
         (Allow, Everyone, 'view'),
     ]
 

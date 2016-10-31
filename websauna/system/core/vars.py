@@ -1,5 +1,6 @@
 """Default template variables."""
 import datetime
+import logging
 
 from pyramid.events import BeforeRender
 
@@ -7,6 +8,9 @@ from pyramid.events import BeforeRender
 # TODO: We expose this as a global for documentation. Migrate to non-global map in the future.
 from pyramid.path import AssetResolver, DottedNameResolver
 from websauna.utils.time import now
+
+logger = logging.getLogger(__name__)
+
 
 _template_variables = {}
 
@@ -210,20 +214,19 @@ def debug(request, registry, settings):
 
         {{ debug() }}
 
-    This will invoke function from :ref:`websauna.template_debugger` setting. The debugger is turned on only on :ref:`development.ini`. If there is no debugger configured, nothing happens.
+    This will invoke function from :ref:`websauna.template_debugger` setting. The debugger is turned on only on :ref:`development.ini`. If there is no debugger configured, a warning is given.
     """
 
     def _dummy():
+        logger.warn("{{ debug() }} invoked, but websauna.template_debugger not set")
         return ""
 
     template_debugger = settings.get("websauna.template_debugger")
     if not template_debugger:
-        return _dummy()
-
-    r = DottedNameResolver()
-    debugger = r.resolve(template_debugger)
-
-    assert debugger, "Could not find debugger in websauna.template_debugger setting: {}".format(template_debugger)
+        debugger = _dummy
+    else:
+        r = DottedNameResolver()
+        debugger = r.resolve(template_debugger)
 
     def _inner():
         debugger()

@@ -1,39 +1,4 @@
-"""Sitemap generation helpers.
-
-To include a sitemap for your site
-
-* Configure your site sitemaps in :py:meth:`websauna.system.Initializer.configure_sitemap`. Please note that one site can have several maps.
-
-* You add static items to the sitemap, or you can create a Python generator which generates the sitemap URLs in-fly
-
-Example::
-
-   def configure_sitemap(self, settings):
-        # Configure sitemap generation for your site.
-
-        from websauna.system.core import sitemap
-
-        map = sitemap.Sitemap()
-
-        # Add sitemap itself to /sitemap.xml path
-        self.config.add_route("sitemap", "/sitemap.xml")
-        self.config.add_view(map.render, route_name="sitemap", renderer="core/sitemap.xml")
-
-        # Add static items to the sitemap by their route_name
-        map.add_item(sitemap.RouteItem("home"))
-        map.add_item(sitemap.RouteItem("info"))
-
-        # Generate a sitemap entry for each product in the product descriptions.
-        # Each of these have static route_url()
-        def generate_product_pages():
-            for name, description in models.PRODUCT_INFO.items():
-                if "page" in description:
-                    yield sitemap.RouteItem(description["page"])
-
-        map.add_generator(generate_product_pages)
-
-
-"""
+"""Sitemap generation helpers."""
 
 import abc
 
@@ -120,7 +85,10 @@ class TraverseItem(SitemapItem):
 
 
 class Sitemap:
-    """Sitemap helper."""
+    """Sitemap helper.
+
+    See :ref:`sitemap`.
+    """
 
     def __init__(self):
         self.items = []
@@ -162,6 +130,8 @@ class ReflectiveSitemapBuilder:
     * All traversable endpoints that implement :py:class:`websauna.system.core.interfaces.IContainer` protocol
 
     This method might not yet work for more advanced view configuration use cases. Check :py:mod:`websauna.tests.sitemapsamples` for covered use cases.
+
+    See :ref:`sitemap` for examples.
     """
 
     def __init__(self, request: Request):
@@ -241,6 +211,7 @@ class ReflectiveSitemapBuilder:
         View permission must be either missing or pyramid.security.Everyone.
         """
         policy = self.request.registry.queryUtility(IAuthorizationPolicy)
+
 
         # view permission is set on Root object or overridden in resource hierarchy __ACL__
         principals = policy.principals_allowed_by_permission(context, "view")

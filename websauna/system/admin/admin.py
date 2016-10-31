@@ -1,7 +1,7 @@
 """Default admin root implementation."""
 
 from zope.interface import implementer
-from pyramid.security import Allow
+from pyramid.security import Allow, Deny, Everyone
 
 from websauna.system.admin import menu
 from websauna.system.admin.events import AdminConstruction
@@ -27,11 +27,15 @@ class Admin(Resource):
 
     #: Default permissions of who can add, read and write things in admin
     __acl__ = [
+        # Declare admin rights
         (Allow, 'group:admin', 'add'),
         (Allow, 'group:admin', 'view'),
         (Allow, 'group:admin', 'edit'),
         (Allow, 'group:admin', 'delete'),
         (Allow, 'superuser:superuser', 'shell'),
+
+        # Disable access to public users
+        (Deny, Everyone, 'view'),  # Declared in websauna.system.core.root.Root
     ]
 
     def __init__(self, request):

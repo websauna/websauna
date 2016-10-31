@@ -22,6 +22,11 @@ An object representing a node in the resource tree of an application. If travers
 
 Websauna provides :py:class:`websauna.system.core.traversal.Resource` base class from which you can inherit all resource classes. The API documentation explains how to set up resource objects.
 
+Resource publicity
+------------------
+
+The default Websauna Root object declares all traverable content to be public. If you need to make your resources private see :ref:`make-resource-private`.
+
 Breadcrumbs
 ===========
 

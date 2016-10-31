@@ -6,15 +6,13 @@ Rerunning these tests can be greatly sped up by creating a local Python package 
 
 """
 import time
-
 import os
-from shutil import which
+import sys
 
 import pytest
-import sys
 from flaky import flaky
 
-from .scaffold import execute_venv_command, execute_command
+from .scaffold import execute_venv_command
 from .scaffold import replace_file
 from .scaffold import app_scaffold  # noqa
 from .scaffold import create_psq_db

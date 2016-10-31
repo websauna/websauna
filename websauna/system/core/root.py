@@ -1,4 +1,4 @@
-from pyramid.security import Authenticated, Allow
+from pyramid.security import Authenticated, Allow, Everyone
 from websauna.system.core.interfaces import IRoot
 from websauna.system.core.traversal import Resource
 from zope.interface import implementer
@@ -24,6 +24,9 @@ class Root(Resource):
 
         # See Notebook
         (Allow, "superuser:superuser", 'shell'),
+
+        # Everything is accessible for public by default
+        (Allow, Everyone, 'view'),
     ]
 
     def __init__(self, request):

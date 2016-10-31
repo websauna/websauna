@@ -1,7 +1,44 @@
+import pytest
+
 from pyramid.testing import DummyRequest
 import pyramid.testing
 
+import websauna.system
 from websauna.system.core import sitemap
+from websauna.system.core.sitemap import ReflectiveSitemapBuilder, RouteItem, TraverseItem
+from websauna.system.http import Request
+from websauna.system.http.utils import make_routable_request
+
+
+@pytest.fixture(scope="module")
+def sitemap_app(request, paster_config):
+    '''Custom WSGI app with travesal points for sitemap enabled.'''
+
+    class Initializer(websauna.system.DemoInitializer):
+
+        def configure_views(self):
+            super(Initializer, self).configure_views()
+            from websauna.tests import sitemapsamples
+            self.config.add_route('sitemap_test', '/container/*traverse', factory=sitemapsamples.container_factory)
+            self.config.scan(sitemapsamples)
+
+    global_config, app_settings = paster_config
+    init = Initializer(global_config, app_settings)
+    init.run()
+    app = init.make_wsgi_app()
+    app.init = init
+    return app
+
+
+@pytest.fixture
+def sitemap_request(sitemap_app):
+    """Create a dummy request object useable for sitemap building tests."""
+    return make_routable_request(dbsession=None, registry=sitemap_app.init.config.registry)
+
+
+@pytest.fixture
+def builder(sitemap_request):
+    return ReflectiveSitemapBuilder(sitemap_request)
 
 
 def test_route_items():
@@ -59,3 +96,41 @@ def test_generator_items():
         assert items[0].location(request) == "/1"
         assert items[1].location(request) == "/2"
         assert items[2].location(request) == "/3"
+
+
+def test_reflect_routes(builder):
+    """See we can reflect simple routes back to the sitemap."""
+
+    builder.build_routes()
+    routes = [i.route_name for i  in builder.sitemap.items if isinstance(i, RouteItem)]
+
+    assert "parameter_free_route" in routes
+    assert "permissioned_route" not in routes
+    assert "post_only_route" not in routes
+
+
+def test_reflect_traverse(builder):
+    """See we can reflect traverse hierarchy back to the sitemap."""
+    builder.build_traverse_trees()
+    request = builder.request
+    urls = [i.location(request) for i in builder.sitemap.items if isinstance(i, TraverseItem)]
+
+    # Admin traversing is protected by view permission
+    assert not(any("admin" in u for u in urls))
+
+    # We get default view (empty name) and named view
+    assert any(u.endswith("/container/") for u in urls)
+    assert any(u.endswith("/container/additional") for u in urls)
+
+    # See we nest correctly
+    assert any("/nested/foo/" in u for u in urls)
+    assert any("/nested/bar/" in u for u in urls)
+    assert any("/nested/bar/additional" in u for u in urls)
+
+    # See we dont' grab permissioned views
+    assert not (any("permissioned" in u for u in urls))
+
+
+def test_reflect_build(builder):
+    """Build both routes and traversables."""
+    builder.build()

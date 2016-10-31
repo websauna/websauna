@@ -1,16 +1,18 @@
-"""Traversing definitions."""
-from pyramid.request import Request
-from websauna.system.core.interfaces import IRoot
-from zope.interface import Interface
+"""Traversing core logic."""
+from pyramid.interfaces import ILocation
+from zope.interface import implementer
 
 
+@implementer(ILocation)
 class Resource:
-    """Traversable resource part.
+    """Traversable resource in a nested tree hierarchy with basic breadcrumbs support.
 
-    Wraps underlying object into a traverse path. All resources are also tied to ``request`` object which gives them ability to query databases for further traversing through ``__getitem__()``.
+    All traverable context classes should inherit from this class. Note that this is not a strict requirement, as often anything implementing :py:class:`pyramid.interfaces.ILocation` and ``get_title()`` will work.
+
+    For more information see :ref:`traversal`.
     """
 
-    def __init__(self, request):
+    def __init__(self, request: "websauna.system.http.Request"):
 
         #: Pointer to the parent object in traverse hierarchy. This is none until make_lineage is called.
         self.__parent__ = None
@@ -20,7 +22,7 @@ class Resource:
 
         self.request = request
 
-    def get_title(self):
+    def get_title(self) -> str:
         """Return human-readable title of this resource.
 
         This is viewed in admin breadcrumbs path, etc.
@@ -32,7 +34,7 @@ class Resource:
         raise NotImplementedError("get_title() implementation missing for {}".format(self))
 
     @classmethod
-    def make_lineage(self, parent, child, name, allow_new_parent=False):
+    def make_lineage(self, parent, child, name, allow_new_parent=False) -> "Resource":
         """Set traversing pointers between the child and the parent resources.
 
         Builds __parent__ and __name__ pointer and sets it on the child resource.
@@ -49,7 +51,7 @@ class Resource:
 
         :param allow_new_parent: If the child has alraedy a parent assigned, allow override the parent... or basically move an existing resource. You don't usually want this for in-memory resource and this is for catching bugs.
 
-        :return: The child resource
+        :return: The mutated child resource
         """
 
         assert child

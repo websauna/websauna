@@ -9,7 +9,7 @@ from websauna.system.model.meta import create_dbsession, create_transaction_mana
 from websauna.compat.typing import Optional
 
 
-def make_routable_request(dbsession: Optional[Session], registry: Registry, path="/") -> IRequest:
+def make_routable_request(dbsession: Optional[Session]=None, registry: Registry=None, path="/") -> IRequest:
     """Creates a dummy request that has route_url and other routing methods.
 
     As this request does not get HTTP hostname and such stuff from WSGI environment, a configuration variable ``websauna.site_url`` is passed as the base URL.

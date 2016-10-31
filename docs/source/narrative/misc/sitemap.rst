@@ -9,7 +9,9 @@ Sitemap
 Introduction
 ============
 
-Sitemap is a Google defined XML file format to include your site content in search engine indexes. Websauna supports automatic and manual sitemap generations.
+Sitemap is a Google defined XML file format to include your site content in search engine indexes. Websauna supports automatic and manual sitemap generations. Sitemaps are one of the most crucial search engine optimizations.
+
+Usually the sitemap is accessible at ``/sitemap.xml`` path on your site. Then you submit this path to `Google Webmasters tool <https://google.com/webmasters>`_.
 
 More information
 
@@ -40,6 +42,8 @@ Set up the sitemap handler in :py:meth:`websauna.system.Initializer.configure_si
             from websauna.system.core.sitemap import ReflectiveSitemapBuilder
             self.config.add_route("sitemap", "/sitemap.xml")
             self.config.add_view(ReflectiveSitemapBuilder.render, route_name="sitemap", renderer="core/sitemap.xml")
+
+Test that your sitemap opens at ``/sitemap.xml`` on your :ref:`local development server <devserver>`. Potentially issues are caused by routes and traversing endpoints that do not have proper permissions set up and do not behave well with anonymous GET requests.
 
 You can customize automatic sitemap generation by subclassing :py:class:`websauna.system.core.sitemap.ReflectiveSitemapBuilder` and overriding various parts of it.
 

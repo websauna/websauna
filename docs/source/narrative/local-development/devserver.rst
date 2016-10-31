@@ -1,3 +1,5 @@
+.. _devserver:
+
 ======================
 Development web server
 ======================

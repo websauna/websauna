@@ -2,30 +2,22 @@
 
 import abc
 
-import itertools
 from pyramid.config import Configurator
-from pyramid.interfaces import IRouteRequest, ITraverser, IRequest, IView, ISecuredView, IMultiView, IViewClassifier, IAuthorizationPolicy
-from pyramid.location import lineage
+from pyramid.interfaces import IRouteRequest, ITraverser, IAuthorizationPolicy
+
 from pyramid.registry import Introspectable
 from pyramid.router import Router
-from pyramid.scripts.proutes import get_route_data, _get_pattern, UNKNOWN_KEY, ANY_KEY, _get_view_module
+from pyramid.scripts.proutes import _get_pattern
 from pyramid.security import Everyone
 from pyramid.static import static_view
-from pyramid.tests.test_view import IContext
 from pyramid.traversal import ResourceTreeTraverser
 from pyramid.urldispatch import Route
-from pyramid.view import _find_views
+
 from websauna.system.core.interfaces import IContainer
 from websauna.system.core.traversal import Resource
 from websauna.system.http import Request
 from websauna.system.http.utils import make_routable_request
-from websauna.compat.typing import Set
-from websauna.compat.typing import Tuple
 from websauna.compat.typing import Iterable
-from zope.interface import Interface
-from zope.interface import providedBy
-from zope.interface._compat import _normalize_name
-from zope.interface.adapter import _convert_None_to_Interface
 
 
 class SitemapItem(abc.ABC):
@@ -124,11 +116,13 @@ class Sitemap:
 class ReflectiveSitemapBuilder:
     """Scan all registered routes and traversable resources and build sitemap from them automatically.
 
-    This will read route configuration and build sitemap
+    This will read route configuration and build sitemap for
 
     * All routes without parameter
 
     * All traversable endpoints that implement :py:class:`websauna.system.core.interfaces.IContainer` protocol
+
+    * GET accessible views
 
     This method might not yet work for more advanced view configuration use cases. Check :py:mod:`websauna.tests.sitemapsamples` for covered use cases.
 
@@ -213,7 +207,6 @@ class ReflectiveSitemapBuilder:
         """
         policy = self.request.registry.queryUtility(IAuthorizationPolicy)
 
-
         # view permission is set on Root object or overridden in resource hierarchy __ACL__
         principals = policy.principals_allowed_by_permission(context, "view")
         return Everyone in principals
@@ -294,22 +287,6 @@ class ReflectiveSitemapBuilder:
         context = tdict["context"]
         return context
 
-    def get_views_for_context(self, router: Router, context: Resource, view_name: str):
-        """Resolve views for a context."""
-
-        # Use Pyramid native view resolution mechanism by building a path to view
-
-        #request = make_routable_request(registry=self.request.registry, path=)
-        #parts = lineage(context) + [view_name]
-        #path = "/".join(parts)
-
-        # Inspired by _call_view()
-        # TODO: Not sure how this handlers if the same view is on  multiple routes
-        request_iface = getattr(self.request, 'request_iface', IRequest)
-        context_iface = providedBy(context)
-
-        return _find_views(self.request.registry, request_iface, context_iface, view_name)
-
     def recurse_traversable(self, router: Router, route: Route, context: Resource):
         """Walk through traversable hierarchy.
 
@@ -317,7 +294,7 @@ class ReflectiveSitemapBuilder:
         """
 
         if not self.has_public_view_acl(context):
-            # This resource limits view permission to subgroup and is not public
+            # This resource limits view permission to subgroup and is not public. E.g. /admin/*
             return
 
         # Add all views for this leaf

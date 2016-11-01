@@ -1,8 +1,10 @@
 """User login and sign up handling views.
 
-.. note::
 
-    This is code is blasphemy and will be replaced with something more sane in the future versions. I suggest you just copy-paste this and do from the scratch for your project.
+.. note ::
+
+    Plan to move something more flexible in the future from these hardcoded, not very feature rich or flexible, views.
+
 """
 
 import logging

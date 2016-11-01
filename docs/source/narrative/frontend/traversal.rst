@@ -1,7 +1,5 @@
-.. _traversal ::
-
 =========
-Travelsal
+Traversal
 =========
 
 Websauna supports traversal pattern to map out resource trees to URLs. It is extensively used by the default :term:`CRUD` and :term:`admin` interfaces.

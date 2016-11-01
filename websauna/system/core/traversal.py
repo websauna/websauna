@@ -12,7 +12,8 @@ class Resource:
     For more information see :ref:`traversal`.
     """
 
-    def __init__(self, request: "websauna.system.http.Request"):
+    # TODO: Cannot annotate request as it breaks sphinx-autodoc-typehints, sphinx-autodoc-typehints==1.1.0, when doing make html
+    def __init__(self, request):
 
         #: Pointer to the parent object in traverse hierarchy. This is none until make_lineage is called.
         self.__parent__ = None

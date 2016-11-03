@@ -1,9 +1,5 @@
-<ol class="breadcrumb">
-    {% for crumb in crumbs %}
-        <li>
-            <a href={{ crumb.url }}>
-                {{ crumb.name }}
-            </a>
-        </li>
-    {% endfor %}
-</ol>
+{# Override spot for admin specific breadcrumbs.
+
+If not overridden fall back to the default breacrumbs.
+#}
+{% include "site/breadcrumbs.html" %}

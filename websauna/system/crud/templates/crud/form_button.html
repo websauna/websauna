@@ -1,0 +1,14 @@
+{# Form based button in the admin interface.
+
+Does HTTP POST, has CSRF token.
+#}
+<form id="form-crud-btn-{{ button.id }}" action="{{ button.get_link(context, request) }}" method="POST">
+  <input type="hidden" name="csrf_token" value="{{ request.session.get_csrf_token() }}">
+  <button
+    id="btn-crud-{{ button.id }}"
+    class="btn btn-default"
+    {%if button.tooltip %}data-toggle="tooltip" title="{{ button.tooltip }}"{% endif %}
+    >
+    {{ button.name }}
+  </button>
+</form>

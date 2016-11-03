@@ -14,3 +14,8 @@
 footer {
   margin-top: 20px;
 }
+
+/* For crud/form_button.html - not used in the default UI */
+#crud-page-buttons form {
+  display: inline-block;
+}

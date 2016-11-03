@@ -16,11 +16,13 @@ def admin_breadcrumbs(jinja_ctx, context, **kw):
         return ""
 
     request = jinja_ctx.get('request') or get_current_request()
-    crumbs = get_breadcrumbs(context, request, root_iface=IAdmin)
+    current_view_name = jinja_ctx.get("current_view_name")
+    current_view_url = request.url
+    crumbs = get_breadcrumbs(context, request, root_iface=IAdmin, current_view_name=current_view_name, current_view_url=current_view_url)
 
     assert crumbs, "Could not get breadcrumbs for {}".format(context)
 
     if len(crumbs) == 1:
         return ""
 
-    return render("templates/admin/breadcrumbs.html", dict(context=context, crumbs=crumbs), request=request)
+    return render("templates/admin/breadcrumbs.html", dict(context=context, breadcrumbs=crumbs), request=request)

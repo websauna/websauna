@@ -29,12 +29,18 @@ class ResourceButton:
     These buttons, with breadcrumbs, form the basic navigation inside the CRUD management interface.
 
     Buttons are permission-aware, so they are rendered only when the user has required permission.
+
+    The default button templates include
+
+    * :ref:`template-crud/resource_button.html`
+
+    * :ref:`template-crud/form_button.html`
     """
 
     #: The template used to render this button. Also overridable through the constructor.
     template = "crud/resource_button.html"
 
-    def __init__(self, id:str=None, name:str=None, template:str=None, permission:str=None, tooltip:str=None):
+    def __init__(self, id: str=None, name: str=None, template: str=None, permission: str=None, tooltip: str=None):
         """
         :param id: Id of the button to be used as HTML id
         :param name:  Human readable label of the button
@@ -60,11 +66,11 @@ class ResourceButton:
         else:
             return True
 
-    def get_link(self, context:Resource, request:Request) -> str:
+    def get_link(self, context: Resource, request: Request) -> str:
         """Generate a link where this button is pointing at."""
         return "#"
 
-    def render(self, context:Resource, request:Request) -> str:
+    def render(self, context: Resource, request: Request) -> str:
         """Return HTML code for this button."""
         template_context = dict(context=context, button=self)
         return render(self.template, template_context, request=request)
@@ -108,7 +114,7 @@ class CRUDView:
         return self.resource_buttons
 
 
-class   Listing(CRUDView):
+class Listing(CRUDView):
     """List items in CRUD."""
 
     #: Instance of :py:class:`websauna.crud.listing.Table` describing how the list should be rendered
@@ -221,7 +227,7 @@ class FormView(CRUDView):
         return self.form_generator.generate_form(request=self.request, context=self.context, model=model, mode=mode, buttons=buttons)
 
     @abstractmethod
-    def get_form(self):
+    def get_form(self) -> deform.Form:
         """Create the form object for a view.
 
         Subclasses most override this, call ``create_form()`` and pass correct edit mode and buttons.
@@ -371,7 +377,7 @@ class Edit(FormView):
 
         crud = self.get_crud()
 
-        title = current_view_name = self.get_title()
+        title = self.get_title()
 
         if "save" in self.request.POST:
 
@@ -396,7 +402,7 @@ class Edit(FormView):
 
         self.pull_in_widget_resources(form)
 
-        return dict(form=rendered_form, context=self.context, obj=obj, title=title, crud=crud, base_template=base_template, resource_buttons=self.get_resource_buttons())
+        return dict(form=rendered_form, context=self.context, obj=obj, title=title, crud=crud, base_template=base_template, resource_buttons=self.get_resource_buttons(), current_view_name="Edit")
 
 
 class Add(FormView):
@@ -503,7 +509,7 @@ class Add(FormView):
 
         self.pull_in_widget_resources(form)
 
-        return dict(form=rendered_form, context=self.context, title=title, crud=crud, base_template=base_template, resource_buttons=self.get_resource_buttons())
+        return dict(form=rendered_form, context=self.context, title=title, crud=crud, base_template=base_template, resource_buttons=self.get_resource_buttons(), current_view_name="Add")
 
 
 class Delete:
@@ -568,5 +574,7 @@ class Delete:
 
         # Expose base_template to the template rendering
         base_template = self.base_template
+
+        current_view_name = "Confirm delete"
 
         return locals()

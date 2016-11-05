@@ -720,6 +720,7 @@ class Initializer:
         See also: :ref:`websauna.sanity_check`.
 
         """
+        import sqlalchemy.exc
         from websauna.system.model import sanitycheck
         from websauna.system.model.meta import Base
         from websauna.system.model.meta import create_dbsession
@@ -727,8 +728,13 @@ class Initializer:
 
         dbsession = create_dbsession(self.config.registry)
 
-        if not sanitycheck.is_sane_database(Base, dbsession):
-            raise SanityCheckFailed("The database sanity check failed. Check log for details.")
+        db_connection_string = self.config.registry.settings.get("sqlalchemy.url")
+
+        try:
+            if not sanitycheck.is_sane_database(Base, dbsession):
+                raise SanityCheckFailed("The database sanity check failed. Check log for details.")
+        except sqlalchemy.exc.OperationalError as e:
+            raise SanityCheckFailed("The database {} is not responding. Make sure the database is running on your local computer or correctly configured in settings INI file. For more information see https://websauna.org/docs/tutorials/gettingstarted/tutorial_02.html.".format(db_connection_stringg)) from e
 
         dbsession.close()
 

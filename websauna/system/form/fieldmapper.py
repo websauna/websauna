@@ -15,11 +15,13 @@ from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID, JSONB, INET
 from sqlalchemy.ext.declarative.clsregistry import _class_resolver
 from sqlalchemy.orm import RelationshipProperty, Mapper
 from sqlalchemy.sql.type_api import TypeEngine
+
 from websauna.system.crud import Resource
 from websauna.system.form.colander import PropertyAwareSQLAlchemySchemaNode, TypeOverridesHandling
 from websauna.system.form.sqlalchemy import get_uuid_vocabulary_for_model, UUIDModelSet, UUIDForeignKeyValue
 from websauna.system.form.widgets import FriendlyUUIDWidget, JSONWidget
 from websauna.system.http import Request
+from websauna.system.model import columns
 
 from websauna.system.form.fields import JSONValue
 from websauna.system.form.widgets import JSONWidget
@@ -165,7 +167,7 @@ class DefaultSQLAlchemyFieldMapper(ColumnToFieldMapper):
             # Handled by relationship mapper
             return TypeOverridesHandling.drop, {}
 
-        elif isinstance(column_type, PostgreSQLUUID):
+        elif isinstance(column_type, (PostgreSQLUUID, columns.UUID)):
 
             # UUID's cannot be edited
             if mode in (EditMode.add, EditMode.edit):
@@ -173,17 +175,23 @@ class DefaultSQLAlchemyFieldMapper(ColumnToFieldMapper):
 
             # But let's show them
             return fields.UUID(), dict(missing=colander.drop, widget=FriendlyUUIDWidget(readonly=True))
+
         elif isinstance(column_type, Text):
             return colander.String(), dict(widget=deform.widget.TextAreaWidget())
         elif isinstance(column_type, JSONB):
             return JSONValue(), dict(widget=JSONWidget())
+        elif isinstance(column_type, (JSONB, columns.JSONB)):
+            # Can't edit JSON
+            if mode in (EditMode.add, EditMode.edit):
+                return TypeOverridesHandling.drop, {}
+            return colander.String(), {}
         elif isinstance(column_type, LargeBinary):
             # Can't edit binary
             return TypeOverridesHandling.drop, {}
         elif isinstance(column_type, Geometry):
             # Can't edit geometry
             return TypeOverridesHandling.drop, {}
-        elif isinstance(column_type, INET):
+        elif isinstance(column_type, (INET, columns.INET)):
             return colander.String(), {}
         else:
             # Default mapping / unknown, let the parent handle

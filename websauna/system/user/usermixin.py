@@ -6,11 +6,12 @@ This module defines what fields the default user implementation can have. You ca
 from uuid import uuid4
 
 import datetime
-from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy import inspection, Integer
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.dialects.postgresql import INET
+
+from websauna.system.model.columns import UUID
+from websauna.system.model.columns import JSONB
+from websauna.system.model.columns import INET
+
 from sqlalchemy import Column
 from sqlalchemy import String
 from sqlalchemy import Boolean

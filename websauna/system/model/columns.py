@@ -45,6 +45,8 @@ class INET(IPAddressType):
     """Generic IPv4/IPv6 type.
 
     Falls back to native PostgreSQL INET implementation.
+
+    The resulting object is either :py:class:`ipaddress.IPv4Address` or :py:class:`ipaddress.IPv6Address`.
     """
 
     def load_dialect_impl(self, dialect):
@@ -59,6 +61,8 @@ class UUID(UUIDType):
     """Generic UUID type.
 
     Falls back to native PostgreSQL UUID implementation.
+
+    The resulting object is :py:class:`uuid.UUID`.
     """
     
     def __init__(self, as_uuid=True):

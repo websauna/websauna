@@ -1,5 +1,6 @@
 import time
 
+import pytest
 import transaction
 from flaky import flaky
 from pyramid.interfaces import IAuthorizationPolicy
@@ -73,6 +74,7 @@ def test_non_admin_user_denied(web_server, browser, dbsession, init):
 
 
 @flaky
+@pytest.mark.notebook
 def test_context_sensitive_shell(web_server, browser, dbsession, init):
     """See we can open a context sensitive shell in admin."""
 

@@ -1,4 +1,5 @@
 from datetime import timedelta
+import ipaddress
 
 import deform
 import transaction
@@ -89,7 +90,7 @@ def test_last_login_ip(web_server, browser, dbsession, init):
 
     with transaction.manager:
         user = get_user(dbsession)
-        assert user.last_login_ip in ["127.0.0.1", "::1"]
+        assert user.last_login_ip in [ipaddress.IPv4Address("127.0.0.1"), ipaddress.IPv6Address("::1")]
 
 
 def test_forget_password(web_server, browser, dbsession, init):

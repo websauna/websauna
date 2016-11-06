@@ -82,19 +82,38 @@ def create_transaction_manager_aware_dbsession(request: Request) -> Session:
     return dbsession
 
 
-def get_engine(settings: dict, prefix='sqlalchemy.') -> Engine:
-    """Reads config and create a database engine out of it.
+def _get_psql_engin(settings, prefix):
+    """Create PostgreSQL engine.
 
     The database engine defaults to SERIALIZABLE isolation level.
-
     :param settings:
     :param prefix:
     :return:
     """
-
     # http://stackoverflow.com/questions/14783505/encoding-error-with-sqlalchemy-and-postgresql
     engine = engine_from_config(settings, 'sqlalchemy.', connect_args={"options": "-c timezone=utc"}, client_encoding='utf8', isolation_level='SERIALIZABLE', json_serializer=json_serializer)
     return engine
+
+
+def _get_sqlite_engine(settings, prefix):
+    engine = engine_from_config(settings, 'sqlalchemy.', isolation_level='SERIALIZABLE')
+    return engine
+
+
+def get_engine(settings: dict, prefix='sqlalchemy.') -> Engine:
+    """Reads config and create a database engine out of it."""
+
+    url = settings.get("sqlalchemy.url")
+
+    if not url:
+        raise RuntimeError("sqlalchemy.url missing in the settings")
+
+    if "sqlite" in url:
+        return _get_sqlite_engine(settings, prefix)
+    elif "postgres" in url:
+        return _get_psql_engin(settings, prefix)
+    else:
+        raise RuntimeError("Unknown SQLAlchemy connection URL: {}",format(url))
 
 
 def create_session_maker(engine):

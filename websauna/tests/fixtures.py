@@ -196,7 +196,10 @@ def create_test_dbsession(request, registry: Registry, transaction_manager=trans
     engine = dbsession.get_bind()
 
     connection = engine.connect()
-    connection.execute('create extension if not exists "uuid-ossp";')
+
+    # Support native PSQL UUID types
+    if engine.dialect.name == "postgresql":
+        connection.execute('create extension if not exists "uuid-ossp";')
 
     with transaction.manager:
         Base.metadata.drop_all(engine)

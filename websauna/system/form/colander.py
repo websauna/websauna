@@ -48,7 +48,7 @@ class TypeOverridesHandling(Enum):
 
 
 class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
-    """ColanderAlchemy mapepr with some extensions.
+    """ColanderAlchemy mapper with some extensions.
 
     Allow automatically map of JSON'ed properties besides SQL Alchemy columns.
 
@@ -61,7 +61,7 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
         TODO: Resolve the issue with the colanderalchemy author politically correct way. What we are doing now is just a temporary 0.1 solution.
     """
 
-    def __init__(self, class_, includes=None, excludes=None, overrides=None, unknown='ignore', nested=False, type_overrides=None, relationship_overrides=None, automatic_relationships=False, **kw):
+    def __init__(self, class_, dbsession, includes=None, excludes=None, overrides=None, unknown='ignore', nested=False, type_overrides=None, relationship_overrides=None, automatic_relationships=False, **kw):
         """
         :param includes:
         :param overrides:
@@ -83,6 +83,7 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
         # The default type of this SchemaNode is Mapping.
         super(SQLAlchemySchemaNode, self).__init__(Mapping(unknown), **kwargs)
         self.class_ = class_
+        self.dbsession = dbsession
         self.includes = includes or {}
         self.excludes = excludes or {}
         self.overrides = overrides or {}
@@ -231,7 +232,6 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
                     if prop.uselist:
                         # Sequence of objects
 
-
                         if isinstance(value, ModelSetResultList):
                             # We know we do not need to try to convert these
                             pass
@@ -317,7 +317,9 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
         # imperatively using overrides arg in SQLAlchemySchemaNode.__init__
 
         # Support sqlalchemy.types.TypeDecorator
-        column_type = getattr(column.type, 'impl', column.type)
+
+        dialect = self.dbsession.bind.engine.dialect
+        column_type = column.type.dialect_impl(dialect)
 
         imperative_type = overrides.pop('typ', None)
         declarative_type = declarative_overrides.pop('typ', None)
@@ -619,6 +621,7 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
 
     def clone(self):
         cloned = self.__class__(self.class_,
+                                self.dbsession,
                                 self.includes,
                                 self.excludes,
                                 self.overrides,

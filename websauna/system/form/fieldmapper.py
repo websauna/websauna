@@ -169,7 +169,7 @@ class DefaultSQLAlchemyFieldMapper(ColumnToFieldMapper):
 
         elif isinstance(column_type, (PostgreSQLUUID, columns.UUID)):
 
-            # UUID's cannot be edited
+            # UUID's cannot be22 edited
             if mode in (EditMode.add, EditMode.edit):
                 return TypeOverridesHandling.drop, {}
 
@@ -217,7 +217,10 @@ class DefaultSQLAlchemyFieldMapper(ColumnToFieldMapper):
         # Don't try to pull in relatinoships on add form
         nested = True
 
-        schema = PropertyAwareSQLAlchemySchemaNode(model, includes=includes, type_overrides=_map_column, relationship_overrides=_map_relationship, automatic_relationships=True, nested=nested)
+        # TODO: Make explicitly passed
+        dbsession = request.dbsession
+
+        schema = PropertyAwareSQLAlchemySchemaNode(model, dbsession, includes=includes, type_overrides=_map_column, relationship_overrides=_map_relationship, automatic_relationships=True, nested=nested)
         return schema
 
 

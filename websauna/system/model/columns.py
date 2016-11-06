@@ -65,6 +65,7 @@ class UUID(UUIDType):
         super(UUID, self).__init__(binary=True, native=True)
 
 
+# Don't expose sqlalchemy_utils internals as they may go away
 __all__ = [
     "UTCDateTime",
     "UUID",

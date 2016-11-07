@@ -17,6 +17,8 @@ The web server keeps running until
 
 * You terminate it with CTRL + C
 
+If this command gives you ``SanityCheckError`` about **Redis** or **PostgreSQL** make sure :ref:`you a running Redis server on your computer <installing_websauna>`.
+
 Checking your site for the first time
 -------------------------------------
 

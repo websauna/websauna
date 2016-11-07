@@ -4,6 +4,11 @@
 Installing Websauna
 ===================
 
+.. contents:: :local:
+
+Preface
+=======
+
 Websauna is a Python package and requires a number of dependencies.
 
 External dependencies
@@ -32,12 +37,23 @@ Install Python 3.5, Redis, PostgreSQL:
 
     brew install postgresql redis python3 libxml2
 
-Make sure PostgreSQL and Redis run on your computer:
+Make sure PostgreSQL and Redis are started on your computer:
 
 .. code-block: console
 
     brew services start postgresql
     brew services start redis
+
+Then you can see them:
+
+.. code-block:: console
+
+    brew services list
+
+    # ...
+    Name         Status  User Plist
+    postgresql   started moo  /Users/mikko/Library/LaunchAgents/homebrew.mxcl.postgresql.plist
+    redis        started moo  /Users/mikko/Library/LaunchAgents/homebrew.mxcl.redis.plist
 
 Make sure ``python3`` command points to Python 3.5:
 

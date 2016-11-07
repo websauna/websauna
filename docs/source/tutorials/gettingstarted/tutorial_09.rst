@@ -22,7 +22,7 @@ Including models in the admin
 
 Models must be explicitly registered in the admin interface. For each model appearing in the admin interface a corresponding :term:`resource` class must be created in ``admins.py`` file. Resource reflects the :term:`traversal` URL part and associated :term:`views <view>`.
 
-Edit ``admins.py`` file of ``myapp.py`` and add the following code:
+In the ``myapp`` folder edit ``admins.py`` and add the following code:
 
 .. code-block:: python
 

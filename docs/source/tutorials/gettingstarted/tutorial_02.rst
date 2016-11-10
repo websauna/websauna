@@ -39,7 +39,7 @@ Install Python 3.5, Redis, PostgreSQL:
 
 Make sure PostgreSQL and Redis are started on your computer:
 
-.. code-block: console
+.. code-block:: console
 
     brew services start postgresql
     brew services start redis

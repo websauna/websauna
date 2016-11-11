@@ -1,0 +1,1 @@
+<pre class="form-control-static-json" id="${oid|field.oid}" style="${field.widget.style}">${cstruct}</pre>

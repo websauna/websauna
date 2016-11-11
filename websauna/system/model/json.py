@@ -6,8 +6,6 @@ Based on Kotti CMS implementation:
 """
 import json
 
-from sqlalchemy.ext import baked
-from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.mutable import Mutable
 
 

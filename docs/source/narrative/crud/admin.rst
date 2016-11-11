@@ -35,42 +35,38 @@ Then create a model admin binding in ``admins.py`` module of your project.
 
 .. code-block:: python
 
-    from pyramid.security import Deny, Allow, Everyone
     from websauna.system.admin.modeladmin import ModelAdmin, model_admin
     from websauna.system.crud import Base64UUIDMapper
 
-    from .models import UserOwnedAccount
-    from .models import Asset
+    from .models import MyModel
 
 
-    @model_admin(traverse_id="user-accounts")
-    class UserAccountAdmin(ModelAdmin):
-        """Manage user owned accounts and their balances."""
+    @model_admin(traverse_id="my-models")
+    class MyModelAdmin(ModelAdmin):
+        """Example admin interface declaration for MyModel SQLAlchemy model.
 
-        # Set permissions so that this information can be only shown,
-        # never edited or deleted. If we don't set any permissions
-        # default admin permissions from the admin root object are inherited.
-        __acl__ = {
-            (Deny, Everyone, 'add'),
-            (Allow, 'group:admin', 'view'),
-            (Deny, Everyone, 'edit'),
-            (Deny, Everyone, 'delete'),
-        }
+        MyModelAdmin is CRUD class and traverse context for add and list operations.
+        """
 
-        title = "Users' accounts"
+        title = "My Models"
 
-        singular_name = "user-account"
-        plural_name = "user-accounts"
-        model = UserOwnedAccount
+        model = MyModel
 
-        # UserOwnedAccount.id attribute is uuid type
+        # MyModel.id attribute is UUID type.
+        # This is used to generate admin URLs for the objects.
         mapper = Base64UUIDMapper(mapping_attribute="id")
 
         class Resource(ModelAdmin.Resource):
+            """Resource wraps one MyModel instance to admin traversing hierarchy.
+
+            It is traversing context for show, edit and delete operations.
+            """
 
             # Get something human readable about this object to the breadcrumbs bar
             def get_title(self):
-                return self.get_object().user.friendly_name + ": " + self.get_object().account.asset.name
+                my_model = self.get_object()  # type: MyModel
+                return my_model.title  # Assume there is column MyModel.title
+
 
 Make sure ``admins.py`` is scanned in your :py:class:`websauna.system.Initializer` of your application. This should happen by default with your Websauna application scaffold.
 

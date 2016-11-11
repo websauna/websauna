@@ -12,6 +12,7 @@ from sqlalchemy import Column
 from sqlalchemy import LargeBinary
 from sqlalchemy import Text
 from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID, JSONB, INET
+from sqlalchemy.ext.declarative.clsregistry import _class_resolver
 from sqlalchemy.orm import RelationshipProperty, Mapper
 from sqlalchemy.sql.type_api import TypeEngine
 from websauna.system.crud import Resource

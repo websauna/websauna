@@ -91,12 +91,16 @@ class DefaultSQLAlchemyFieldMapper(ColumnToFieldMapper):
             return TypeOverridesHandling.drop
 
         if isinstance(rel.argument, _class_resolver):
-            # Case from tutoriaapp:
+            # Case from tutorialapp:
             # <RelationshipProperty at 0x1095a4438; question>
             # <class 'sqlalchemy.ext.declarative.clsregistry._class_resolver'>
-            remote_model = rel.argument.cls
+            remote_model = rel.argument()
         else:
             remote_model = rel.argument
+
+        #if type(remote_model) not in (sqlalchemy.ext.declarative.api.DeclarativeMeta, type):
+        #    # We were passed an instance of a model instead of model class itself
+        #    remote_model = remote_model.__class__
 
         # Get first column of the set
         for column in rel.local_columns:

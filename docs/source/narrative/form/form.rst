@@ -45,9 +45,10 @@ Basic form life cycle
 
 Below is an example how to create and validate one form::
 
-    from pyramid.httpexceptions import HTTPFound
     import colander
     import deform
+    from pyramid.httpexceptions import HTTPFound
+    from pyramid.httpexceptions import HTTPBadRequest
 
     from websauna.system.core import messages
     from websauna.system.form.schema import CSRFSchema
@@ -85,7 +86,7 @@ Below is an example how to create and validate one form::
                     rendered_form = e.render()
             else:
                 # We don't know which control caused form submission
-                raise AssertionError("Unknown form button pressed")
+                return HTTPBadRequest("Unknown form button pressed")
         else:
             # Render a form with initial values
             rendered_form = form.render()

@@ -119,6 +119,30 @@ Redis settings can be found in :ref:`base.ini` and `test.ini`.
 
 Also see :ref:`Celery config <celery-config>` for more information.
 
+Increasing session timeout
+==========================
+
+To make user sessions persistent, as in no need to relogin, you can set session timeout to a long value.
+
+Add to your :ref:`production.ini`:
+
+.. code-block:: ini
+
+    #
+    # Session
+    #
+
+    # Set cookie time out to one year
+    redis.sessions.cookie_max_age = 31536000
+
+    # Set redis session key timeout to one year
+    redis.sessions.timeout = 31536000
+
+    # No JavaScript access to cookies
+    redis.sessions.cookie_secure = True
+    # Only server session cookie over HTTPS
+    redis.sessions.cookie_httponly = True
+
 Backup
 ======
 

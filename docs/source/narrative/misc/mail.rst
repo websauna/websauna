@@ -159,3 +159,27 @@ Below is an :term:`INI` configuration example to send emails through `Sparkpost 
     mail.password = <your Sparkpost API token>
 
 For more complex production environment outbound email with local :term:`Postfix` buffering, see :ref:`outbound email chapter in Ansible playbook <outbound-email>`.
+
+Testing outbound email from console
+-----------------------------------
+
+You can test outbound email in Python console (:ref:`notebook` or :ref:`ws-shell`):
+
+.. code-block:: python
+
+    from pyramid_mailer import get_mailer
+    from pyramid_mailer.message import Message
+    from websauna.utils.time import now
+
+    sender = "no-reply@youroutboundmaildomain.net"
+    recipients = ["mikko@example.com"]
+    subject = "Test mail"
+    text_body = "This is a test message {}".format(now())
+    mailer = get_mailer(request)
+
+    message = Message(subject=subject, sender=sender, recipients=recipients, body=text_body)
+    message.validate()
+    mailer.send_immediately(message)
+
+
+

@@ -10,7 +10,7 @@
 import logging
 
 from pyramid.view import view_config
-from pyramid.httpexceptions import HTTPFound
+from pyramid.httpexceptions import HTTPFound, HTTPMethodNotAllowed
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.settings import aslist
 import deform
@@ -159,7 +159,9 @@ def login_social(request):
 
 @view_config(permission='authenticated', route_name='logout')
 def logout(request):
-    assert request.method == "POST"
+    if request.method != "POST":
+        # No GET / CSRF logouts
+        return HTTPMethodNotAllowed()
     login_service = get_login_service(request)
     return login_service.logout()
 

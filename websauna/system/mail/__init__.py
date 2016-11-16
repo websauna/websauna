@@ -1,5 +1,5 @@
 """Sending out HTML and plain text email."""
-from email._policybase import Compat32
+import logging
 from email.header import Header
 from email.utils import formataddr
 
@@ -13,6 +13,9 @@ import premailer
 
 from websauna.system.http import Request
 from websauna.compat.typing import Iterable
+
+
+logger = logging.getLogger(__name__)
 
 
 def send_templated_mail(request: Request, recipients: Iterable, template: str, context: dict, sender=None, immediate=None):
@@ -99,3 +102,6 @@ def send_templated_mail(request: Request, recipients: Iterable, template: str, c
         mailer.send_immediately(message)
     else:
         mailer.send(message)
+
+    # Have some logging by default, as inspecting mail issues is gruesome devops tasks
+    logger.info("Sent out email to:%s subject:%s", recipients, subject)

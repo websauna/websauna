@@ -3,22 +3,22 @@ import logging
 from email.header import Header
 from email.utils import formataddr
 
+import premailer
+from transaction import TransactionManager
 from pyramid.renderers import render
 from pyramid.settings import asbool
-
-from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
 
-import premailer
-
+from websauna.system.mail.utils import create_mailer
 from websauna.system.http import Request
 from websauna.compat.typing import Iterable
+from websauna.compat.typing import Optional
 
 
 logger = logging.getLogger(__name__)
 
 
-def send_templated_mail(request: Request, recipients: Iterable, template: str, context: dict, sender=None, immediate=None):
+def send_templated_mail(request: Request, recipients: Iterable, template: str, context: dict, sender=None, immediate=None, tm: Optional[TransactionManager]=None):
     """Send out templatized HTML and plain text emails.
 
     Each HTML email should have a plain text fallback. Premailer package is used to convert any CSS styles in HTML email messages to inline, so that email clients display them.
@@ -64,6 +64,8 @@ def send_templated_mail(request: Request, recipients: Iterable, template: str, c
     :param sender: Override the sender email - if not specific use the default set in the config as ``mail.default_sender``
 
     :param immediate: Set True to send to the email immediately and do not wait the transaction to commit. This is very useful for debugging outgoing email issues in an interactive traceback inspector. If this is ``None`` then use setting ``mail.immediate`` that defaults to ``False``.
+
+    :param tm: Give transaction manager that is used instead of ``request.tm`` for the commit hook.
     """
 
     assert recipients
@@ -93,7 +95,22 @@ def send_templated_mail(request: Request, recipients: Iterable, template: str, c
     message = Message(subject=subject, sender=sender, recipients=recipients, body=text_body, html=html_body)
     message.validate()
 
-    mailer = get_mailer(request)
+    if not tm:
+        tm = request.tm
+
+    # TODO: Fix upstream pyramid_mailer
+
+    # mailer = get_mailer(request)
+
+    # We need to reconstruct mailer instance every time because it assumes thread local TM.
+    # and we want to rewrite this value for every request
+    mailer = create_mailer(request.registry)
+
+    # Don't use the default ThreadLocal transaction manager as that won't fly with Celery.
+    # Note we do this only for SMTP services, not for other more archaid mail deliveries.
+    if hasattr(mailer, "direct_delivery"):
+        # Not needed for dummy mailer
+        mailer.direct_delivery.transaction_manager = tm
 
     if immediate is None:
         immediate = asbool(request.registry.settings.get("mail.immediate", False))

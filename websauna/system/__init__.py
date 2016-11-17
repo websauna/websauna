@@ -2,6 +2,8 @@
 import sys
 
 # Check Python version
+from websauna.system.mail.utils import create_mailer
+
 assert sys.version_info >= (3,4), "Websauna needs Python 3.4 or newer"
 
 from distutils.version import LooseVersion
@@ -133,31 +135,12 @@ class Initializer:
         """Configure outgoing email backend and email test views."""
         from pyramid_mailer import IMailer
 
-        settings = self.settings.copy()
+        # TODO: There is upstrean issue in pyramid_mailer, see send_template_mail.
+        # mailer gets created again
+        mailer = create_mailer(self.config.registry)
+        self.config.registry.registerUtility(mailer, IMailer)
 
-        # Empty values are not handled gracefully, so mutate them here before passing forward to mailer
-        if settings.get("mail.username", "x") == "":
-            settings["mail.username"] = None
-
-        if settings.get("mail.password", "x") == "":
-            settings["mail.password"] = None
-
-        mailer_class = settings.get("websauna.mailer", "")
-        if mailer_class in ("mail", ""):
-            # TODO: Make mailer_class explicit so we can dynamically load pyramid_mail.Mailer
-            # Default
-            from pyramid_mailer import mailer_factory_from_settings
-            mailer = mailer_factory_from_settings(settings)
-            self.config.registry.registerUtility(mailer, IMailer)
-        else:
-            # debug backend
-            resolver = DottedNameResolver()
-            mailer_cls = resolver.resolve(mailer_class)
-            mailer = mailer_cls()
-
-            self.config.registry.registerUtility(mailer, IMailer)
-
-        if settings.get("websauna.sample_html_email", False):
+        if self.config.registry.settings.get("websauna.sample_html_email", False):
             from websauna.system.mail import views
             self.config.scan(views)
             self.config.add_jinja2_search_path('websauna.system.mail:templates', name='.html')

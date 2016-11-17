@@ -27,14 +27,54 @@ If there is no application support for resolving the transaction conflict, one o
 
 The connection set up is done in :py:func:`websauna.system.model.meta.get_engine()` called by :py:meth:`websauna.system.Initializer.configure_database`.
 
-Retrying transaction
---------------------
+Different transaction encapsulation patterns
+--------------------------------------------
 
-If there is a transaction conflict during HTTP request it is automatically retried by ``pyramid_tm`` transaction machinery.
+HTTP request and pyramid_tm middleware
+++++++++++++++++++++++++++++++++++++++
+
+In Websauna 1 HTTP request = 1 transaction, by default.
+
+If there is a transaction conflict during HTTP request it is automatically retried by ``pyramid_tm`` transaction machinery. Thus, the same HTTP request **may be played twice** on a server under load.
+
+Celery
+++++++
 
 Celery tasks can be set automatically retry by using base task :py:class`websauna.system.task.tasks.RetryableTransactionTask`. For more information see :ref:`<tasks>`.
 
-For manually splitting long running transactions to separate logical units see below.
+Using transaction.manager context manager
++++++++++++++++++++++++++++++++++++++++++
+
+You can use ``with TransactionManager()`` thread local in some situations, like command line scripts. This won't retry the transaction in the case of conflict, but it will commit the transaction at the end of the block.
+
+Example:
+
+.. code-block::
+
+    def foo(request):
+        with request.tm:
+            # Do stuff with request.dbsession
+
+In unit tests you can use thread local ``transaction.manager``:
+
+.. code-block:: python
+
+    import transaction
+
+
+    def test_xxx(dbsession):
+        with transaction.manager:
+            # Do stuff with dbsession
+
+
+Note that ``transaction.manager`` **doesn't** work in Celery, as ``transaction.manager`` is a thread local may not be set up correctly.
+
+For more information see `transactions in ZODB book <http://zodb.readthedocs.io/en/latest/transactions.html>`_.
+
+@retryable decorator
+--------------------
+
+See below.
 
 Manually splitting up long running transactions
 -----------------------------------------------

@@ -1,6 +1,5 @@
 """SQLAlchemy integration for Colander and Deform frameworks."""
 import colander
-from abc import abstractmethod
 from colander.compat import is_nonstr_iter
 from sqlalchemy import Column
 from sqlalchemy.orm import Query, Session
@@ -97,8 +96,7 @@ class ModelSchemaType:
 class ForeignKeyValue(ModelSchemaType, colander.String):
     """Hold a reference to one SQLAlchemy object for Colander schema serialization.
 
-    Example:
-
+    See :ref:`widgets` for more information.
     """
 
     def serialize(self, node, appstruct):
@@ -146,6 +144,8 @@ class ModelSet(ModelSchemaType, colander.Set):
     """Presents set of chosen SQLAlchemy models instances.
 
     This automatically turns SQLAlchemy objects to (id, label) tuples, so that they can be referred in various widgets (select, checkbox).
+
+    See :ref:`widgets` for more information.
     """
 
     def serialize(self, node, appstruct):
@@ -200,6 +200,8 @@ class UUIDForeignKeyValue(ForeignKeyValue):
     """Hold a reference to SQLAlchemy object through base64 encoded UUID value.
 
     Useful for select widget, etc.
+
+    See :ref:`widgets` for more information.
     """
 
     #: The name of the column from where we extract UUID value. Defauts to ``uuid``.
@@ -222,7 +224,10 @@ class UUIDForeignKeyValue(ForeignKeyValue):
 
 
 class UUIDModelSet(ModelSet):
-    """A set of SQLAlchemy objects queried by base64 encoded UUID value."""
+    """A set of SQLAlchemy objects queried by base64 encoded UUID value.
+
+    See :ref:`widgets` for more information.
+    """
 
     match_column = "uuid"
 

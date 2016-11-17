@@ -6,6 +6,7 @@ Forms
 
     form
     autoform
+    widgets
     upload
     sql
     csrf

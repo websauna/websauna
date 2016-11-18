@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from pyramid.interfaces import IRequest
 from pyramid.registry import Registry
-from pyramid.request import Request
+from pyramid.request import Request, apply_request_extensions
 from transaction import TransactionManager
 from websauna.system.model.meta import create_dbsession, create_transaction_manager_aware_dbsession
 
@@ -27,6 +27,8 @@ def make_routable_request(dbsession: Optional[Session]=None, registry: Registry=
     request.registry = registry
     request.user = None
     request.view_name = ''
+
+    apply_request_extensions(request)
 
     if dbsession:
         # Use the provided dbsession for this request

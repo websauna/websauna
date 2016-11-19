@@ -52,6 +52,7 @@ Below is an example how to create and validate one form::
 
     from websauna.system.core import messages
     from websauna.system.form.schema import CSRFSchema
+    from websauna.system.form.resourceregistry import ResourceRegistry
 
 
     class MySchema(CSRFSchema):
@@ -65,7 +66,7 @@ Below is an example how to create and validate one form::
 
         # Create a styled button with some extra Bootstrap 3 CSS classes
         b = deform.Button(name='process', title="Process", css_class="btn-block btn-lg")
-        form = deform.Form(schema, buttons=(b, ))
+        form = deform.Form(schema, buttons=(b, ), resource_registry=ResourceRegistry(request))
 
         # User submitted this form
         if request.method == "POST":
@@ -90,6 +91,10 @@ Below is an example how to create and validate one form::
         else:
             # Render a form with initial values
             rendered_form = form.render()
+
+        # This loads widgets specific CSS/JavaScript in HTML code,
+        # if form widgets specify any static assets.
+        form.resource_registry.pull_in_resources(request, form)
 
          return locals()
 

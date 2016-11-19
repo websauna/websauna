@@ -64,7 +64,12 @@ def run_migrations_offline(url, target_metadata, version_table, include_object):
 
     """
     context.configure(
-        url=url, target_metadata=target_metadata, literal_binds=True, version_table=version_table, include_object=include_object)
+        url=url,
+        target_metadata=target_metadata,
+        literal_binds=True,
+        version_table=version_table,
+        include_object=include_object,
+        compare_types=True)
 
     with context.begin_transaction():
         context.run_migrations()
@@ -79,10 +84,6 @@ def run_migrations_online(engine, target_metadata, version_table, include_object
     """
 
     connectable = engine
-    # connectable = engine_from_config(
-    #    config.get_section(config.config_ini_section),
-    #    prefix='sqlalchemy.',
-    #    poolclass=pool.NullPool)
 
     with connectable.connect() as connection:
 
@@ -90,7 +91,8 @@ def run_migrations_online(engine, target_metadata, version_table, include_object
             connection=connection,
             target_metadata=target_metadata,
             version_table=version_table,
-            include_object=include_object
+            include_object=include_object,
+            compare_type=True,  # http://stackoverflow.com/a/17176843/315168
         )
 
         with context.begin_transaction():

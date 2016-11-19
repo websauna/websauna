@@ -28,6 +28,7 @@ def make_routable_request(dbsession: Optional[Session]=None, registry: Registry=
     request.user = None
     request.view_name = ''
 
+    # This will create request.tm, others
     apply_request_extensions(request)
 
     if dbsession:

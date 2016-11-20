@@ -47,21 +47,42 @@ Create a new playbook file. This can be directly in ``websauna.ansible`` root fo
           tags: site, smtp
 
       roles:
-      - websauna.preflight
-      - websauna.users
-      - websauna.ssh
-      - websauna.shell
-      - websauna.harden
-      - websauna.smtp
-      - { role: ANXS.perl, become: yes, become_user: root }  # Needed for logwatch
-      - { role: ANXS.cron, become: yes, become_user: root }  # Needed for logwatch
-      - { role: ANXS.postgresql, become: yes, become_user: root, tags: ['psql'] }
-      - { role: ANXS.logwatch, become: yes, become_user: root }
-      - { role: Stouts.nginx, become: yes, become_user: root }
-      - { role: Stouts.redis, become: yes, become_user: root }
-      - { role: Stouts.python, become: yes, become_user: root }
-      - websauna.site
-      - websauna.postflight
+
+        # Sanity check
+        - { role: websauna.preflight, tags: ['site'] }
+
+        # Set up wsgi UNIX user
+        - websauna.users
+
+        # Needed to setup SSH auth socket for github/bitbucket
+        - { role: websauna.ssh, tags: ['site'] }
+
+        # Set up bash, etc. settings
+        - websauna.shell
+
+        # Install fail2ban, optionally enable Linux firewall
+        - websauna.harden
+
+        # Set up outgoing email with Postfix
+        - websauna.smtp
+
+        # Build a local PostgreSQL server for your database
+        - { role: ANXS.postgresql, become: yes, become_user: root, tags: ['psql'] }
+
+        # Set up Nginx web server for Internet facing traffic
+        - { role: Stouts.nginx, become: yes, become_user: root, tags: ['site'] }
+
+        # Set up Redis server for session data
+        - { role: Stouts.redis, become: yes, become_user: root, tags: redis }
+
+        # Set up updated Python 3.5 from deadsnakes repository
+        - { role: Stouts.python, become: yes, become_user: root }
+
+        # Core login of setting up WSGI application in /srv/pyramid
+        - { role: websauna.site, tags: ['site'] }  # Core site update logic
+
+        # Finalize: send out email of job done, update motd
+        - { role: websauna.postflight, tags: ['site'] }
 
 Production secrets
 ------------------

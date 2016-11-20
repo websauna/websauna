@@ -34,6 +34,8 @@ def make_routable_request(dbsession: Optional[Session]=None, registry: Registry=
     if dbsession:
         # Use the provided dbsession for this request
         request.dbsession = dbsession
+        if hasattr(dbsession, "transaction_manager"):
+            request.tm = request.transaction_manager = dbsession.transaction_manager
     else:
         # Create a new dbsession and transaction manager for this request
         tm = TransactionManager()

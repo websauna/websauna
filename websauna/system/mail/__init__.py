@@ -81,6 +81,9 @@ def send_templated_mail(request: Request, recipients: Iterable, template: str, c
     html_body = render(template + ".body.html", context, request=request)
     text_body = render(template + ".body.txt", context, request=request)
 
+    # Have some logging by default, as inspecting mail issues is gruesome devops tasks
+    logger.info("Sent out email to:%s subject:%s", recipients, subject)
+
     if not sender:
         sender = request.registry.settings["mail.default_sender"]
 
@@ -96,7 +99,7 @@ def send_templated_mail(request: Request, recipients: Iterable, template: str, c
     message.validate()
 
     if not tm:
-        tm = request.tm
+        tm = getattr(request, "tm", None)
 
     # TODO: Fix upstream pyramid_mailer
 
@@ -108,17 +111,20 @@ def send_templated_mail(request: Request, recipients: Iterable, template: str, c
 
     # Don't use the default ThreadLocal transaction manager as that won't fly with Celery.
     # Note we do this only for SMTP services, not for other more archaid mail deliveries.
-    if hasattr(mailer, "direct_delivery"):
-        # Not needed for dummy mailer
-        mailer.direct_delivery.transaction_manager = tm
+    if tm:
+        if hasattr(mailer, "direct_delivery"):
+            # Not needed for dummy mailer
+            mailer.direct_delivery.transaction_manager = tm
 
     if immediate is None:
         immediate = asbool(request.registry.settings.get("mail.immediate", False))
+
+    if not tm:
+        logger.warn("Warning: Implicit immediate email, because no transaction manager: %s", subject)
+        immediate = True
 
     if immediate:
         mailer.send_immediately(message)
     else:
         mailer.send(message)
 
-    # Have some logging by default, as inspecting mail issues is gruesome devops tasks
-    logger.info("Sent out email to:%s subject:%s", recipients, subject)

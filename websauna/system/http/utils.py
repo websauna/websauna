@@ -16,6 +16,8 @@ def make_routable_request(dbsession: Optional[Session]=None, registry: Registry=
 
     See also :func:`make_dummy_request`.
 
+    TODO: Split this to two different functions: one for existing dbsession and one for where dbsession is connected.
+
     :param dbsession: Use existing dbsession or set to ``None`` to generate a new dbsession and transaction manager. None that this TM is not the thread local transaction manager in ``transaction.mananger``.
     """
 

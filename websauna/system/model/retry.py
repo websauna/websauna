@@ -5,6 +5,10 @@ import threading
 from functools import wraps
 
 import transaction
+from transaction import TransactionManager
+
+from websauna.compat.typing import Optional
+from websauna.compat.typing import Callable
 
 
 logger = logging.getLogger(__name__)
@@ -20,6 +24,10 @@ class TransactionAlreadyInProcess(Exception):
 
 class CannotRetryAnymore(Exception):
     """We have reached the limit of transaction retry counts in @retryable."""
+
+
+class TooDeepInTransactions(Exception):
+    """@retryable function messed up with the transaction management"""
 
 
 def ensure_transactionless(msg=None, transaction_manager=transaction.manager):
@@ -50,7 +58,7 @@ def is_retryable(txn, error):
             return True
 
 
-def retryable(tm=None, get_tm=None):
+def retryable(tm: Optional[TransactionManager]=None, get_tm: Optional[Callable]=None):
     """Function decorator for§ SQL Serialized transaction conflict resolution through retries.
 
     You need to give either ``tm`` or ``get_tm`` argument.
@@ -154,7 +162,12 @@ def retryable(tm=None, get_tm=None):
 
                 try:
                     val = func(*args, **kwargs)
-                    txn.commit()
+                    try:
+                        txn.commit()
+                    except ValueError as ve:
+                        # Means there was a nested transaction begin
+                        raise TooDeepInTransactions("Looks like transaction.commit() failed - usually this means that the wrapped function {} begun its own transaction and ruined transaction state management".format(func)) from ve
+
                     return val
                 except Exception as e:
                     if is_retryable(txn, e):

@@ -82,7 +82,7 @@ def send_templated_mail(request: Request, recipients: Iterable, template: str, c
     text_body = render(template + ".body.txt", context, request=request)
 
     # Have some logging by default, as inspecting mail issues is gruesome devops tasks
-    logger.info("Sent out email to:%s subject:%s", recipients, subject)
+    logger.info("Sending out email to:%s subject:%s", recipients, subject)
 
     if not sender:
         sender = request.registry.settings["mail.default_sender"]

@@ -126,7 +126,7 @@ Example:
     from pyramid.httpexceptions import HTTPFound
     from websauna.system.core import messages
     from websauna.system.http import Request
-    from websauna.system.form.fieldmapper include EditMode
+    from websauna.system.form.fieldmapper import EditMode
     from websauna.system.form.csrf import add_csrf
     from websauna.system.core.route import simple_route
     from websauna.utils.slug import slug_to_uuid

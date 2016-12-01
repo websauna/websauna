@@ -4,8 +4,18 @@ import logging
 
 from pyramid.request import Request
 
+import sqlalchemy
+
+
 
 logger = logging.getLogger(__name__)
+
+
+
+def is_good_sqlalchemy_object(obj):
+    """Let's not cause exceptions in exception handler/logger."""
+    state = sqlalchemy.inspect(obj)
+    return not state.detached
 
 
 def get_logging_user_context(request: Request) -> dict:
@@ -18,10 +28,13 @@ def get_logging_user_context(request: Request) -> dict:
 
     try:
         if user:
-            # Add additional user context to the logged exception
-            username = getattr(user, "friendly_name", None) or getattr(user, "username", None) or str(user)
-            email = getattr(user, "email", None)
-            user_context.update(dict(user=username, email=email))
+            if is_good_sqlalchemy_object(user):
+                # Add additional user context to the logged exception
+                username = getattr(user, "friendly_name", None) or getattr(user, "username", None) or str(user)
+                email = getattr(user, "email", None)
+                user_context.update(dict(user=username, email=email))
+            else:
+                user_context.update(dict(detached=True))
 
         # All the session data as JSON
         session = getattr(request, "session", None)

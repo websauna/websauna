@@ -90,6 +90,7 @@ Install the packages with following command:
         libxslt1-dev \
         libjpeg-dev \
         libpng12-dev \
+        libffi-dev \
         gettext \
         python-virtualenv \
         python-software-properties

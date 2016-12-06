@@ -167,10 +167,10 @@ Then create a virtual environment where installed Python packages will be locate
     source venv/bin/activate
 
     # Install Github development version of Websauna
-    pip install -e "git+https://github.com/websauna/websauna.git@master#egg=websauna[celery,utils]"
+    pip install -e "git+https://github.com/websauna/websauna.git@master#egg=websauna[celery,utils,notebook]"
 
     # Install Websauna from pypi.python.org
     # NOT RELEASED YET
     # Use command below
-    # pip install websauna
-
+    # pip install "websauna[celery,utils,notebook]"
+ls

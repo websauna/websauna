@@ -10,7 +10,6 @@ from websauna.system.crud import listing
 from websauna.system.crud.sqlalchemy import sqlalchemy_deleter
 from websauna.system.crud.views import TraverseLinkButton
 from websauna.system.crud.formgenerator import SQLAlchemyFormGenerator
-from websauna.system.notebook.views import launch_context_sensitive_shell
 
 from websauna.system.core.panel import render_panel
 from websauna.system.core.viewconfig import view_overrides
@@ -86,24 +85,6 @@ class Show(crud_views.Show):
     def show(self):
         # We override this method just to define admin route_name traversing
         return super(Show, self).show()
-
-
-class Shell:
-    """Notebook shell opener.
-
-    Prepolate shell with this object through dbsession query.
-    """
-
-    def __init__(self, context, request):
-        self.request = request
-        self.context = context
-
-    @view_config(context=ModelAdmin.Resource, name="shell", route_name="admin", permission='shell')
-    def shell(self):
-        obj = self.context.get_object()
-        extra_script = "obj = dbsession.query({}).get({})".format(obj.__class__.__name__, obj.id)
-        extra_greeting = "* **obj** {}".format(self.context.get_title())
-        return launch_context_sensitive_shell(self.request, extra_script, extra_greeting)
 
 
 class Edit(crud_views.Edit):

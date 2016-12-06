@@ -562,11 +562,21 @@ class Initializer:
     @event_source
     def configure_notebook(self):
         """Setup pyramid_notebook integration."""
+
+        # Check if we have IPython installed
+
+        try:
+            pkg_resources.get_distribution('IPython[notebook]')
+        except pkg_resources.DistributionNotFound:
+            return
+
         import websauna.system.notebook.views
+        import websauna.system.notebook.adminviews
         self.config.add_route('admin_shell', '/notebook/admin-shell')
         self.config.add_route('shutdown_notebook', '/notebook/shutdown')
         self.config.add_route('notebook_proxy', '/notebook/*remainder')
         self.config.scan(websauna.system.notebook.views)
+        self.config.scan(websauna.system.notebook.adminviews)
 
     @event_source
     def configure_tasks(self):

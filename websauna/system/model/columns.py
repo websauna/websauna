@@ -36,6 +36,7 @@ class UTCDateTime(DateTime):
 
         return process
 
+
 class JSONB(JSONType):
     """Generic JSONB type.
 

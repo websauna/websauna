@@ -6,7 +6,6 @@ Frontend and templating
 
     templates
     request
-    traversal
     tweens
     javascript
     themes

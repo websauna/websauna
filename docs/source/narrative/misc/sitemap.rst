@@ -15,6 +15,8 @@ More information
 
 * https://support.google.com/webmasters/answer/156184?hl=en
 
+_ ..automatic-sitemap:
+
 Automatic sitemap generation
 ============================
 

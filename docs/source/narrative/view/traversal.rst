@@ -1,5 +1,3 @@
-.. _traversal:
-
 =========
 Traversal
 =========
@@ -31,6 +29,12 @@ Breadcrumbs
 ===========
 
 It's very easy to generate breadcrumbs (path bar) from traversal hierarchy. See :py:mod:`websauna.system.core.breadcrumbs` for more information.
+
+Examples
+========
+
+See `websauna.blog.views <https://github.com/websauna/websauna.blog/blob/master/websauna/blog/views.py>`_ module for example how to set up a traversal for your frontend pages.
+
 
 Site root object
 ================

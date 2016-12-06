@@ -49,7 +49,7 @@ You can use ``with TransactionManager()`` thread local in some situations, like 
 
 Example:
 
-.. code-block::
+.. code-block:: python
 
     def foo(request):
         with request.tm:

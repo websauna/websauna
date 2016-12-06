@@ -38,7 +38,7 @@ Configure OAuth Consent Screen (your product logos), such.
 
 Create *Web application*.
 
-Set **Authorized redirect URIs*.
+Set *Authorized redirect URIs*.
 
 .. image:: ../images/oauth-google.png
     :width: 640px

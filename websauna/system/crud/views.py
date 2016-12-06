@@ -64,11 +64,12 @@ class ResourceButton:
             self.template = template
 
     def is_visible(self, context, request):
-        if self.permission:
+        """Determine if we should render this button."""
+        if self.permission is not None:
             if not request.has_permission(self.permission, context):
                 return False
 
-        if self.feature:
+        if self.feature is not None:
             if self.feature not in request.registry.features:
                 return False
 

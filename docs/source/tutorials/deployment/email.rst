@@ -34,7 +34,7 @@ Add:
 
 .. code-block:: yaml
 
-    smtp_host: smtp.sparkpostmail.com
+    smtp_server: smtp.sparkpostmail.com
     smtp_port: 587
     smtp_username: SMTP_Injection
     smtp_password: 51X5G2MFJMWKOXXXXXX

@@ -127,3 +127,43 @@ To see the internal state of connection pooling to debug the connection leakage 
 You'll get output like::
 
     Pool size: 4  Connections in pool: 1 Current Overflow: -3 Current Checked out connections: 0
+
+Cannot build docs: NameError: name 'websauna' is not defined
+------------------------------------------------------------
+
+You get this error when you run:
+
+.. code-block:: console
+
+    make html
+
+.. code-block:: py3tb
+
+      File "/Users/mikko/code/wattcoin/venv/lib/python3.5/site-packages/sphinx/ext/autodoc.py", line 914, in document_members
+        check_module=members_check_module and not isattr)
+      File "/Users/mikko/code/wattcoin/venv/lib/python3.5/site-packages/sphinx/ext/autodoc.py", line 979, in generate
+        sig = self.format_signature()
+      File "/Users/mikko/code/wattcoin/venv/lib/python3.5/site-packages/sphinx/ext/autodoc.py", line 1289, in format_signature
+        return DocstringSignatureMixin.format_signature(self)
+      File "/Users/mikko/code/wattcoin/venv/lib/python3.5/site-packages/sphinx/ext/autodoc.py", line 1175, in format_signature
+        return Documenter.format_signature(self)
+      File "/Users/mikko/code/wattcoin/venv/lib/python3.5/site-packages/sphinx/ext/autodoc.py", line 641, in format_signature
+        self.object, self.options, args, retann)
+      File "/Users/mikko/code/wattcoin/venv/lib/python3.5/site-packages/sphinx/application.py", line 593, in emit_firstresult
+        for result in self.emit(event, *args):
+      File "/Users/mikko/code/wattcoin/venv/lib/python3.5/site-packages/sphinx/application.py", line 589, in emit
+        results.append(callback(self, *args))
+      File "/Users/mikko/code/wattcoin/venv/lib/python3.5/site-packages/sphinx_autodoc_typehints.py", line 55, in process_signature
+        return formatargspec(obj, *argspec[:-1]), None
+      File "/Users/mikko/code/wattcoin/venv/lib/python3.5/site-packages/sphinx/ext/autodoc.py", line 371, in formatargspec
+        if typing and hasattr(function, '__code__') else {})
+      File "/usr/local/Cellar/python3/3.5.2_1/Frameworks/Python.framework/Versions/3.5/lib/python3.5/typing.py", line 1182, in get_type_hints
+        value = _eval_type(value, globalns, localns)
+      File "/usr/local/Cellar/python3/3.5.2_1/Frameworks/Python.framework/Versions/3.5/lib/python3.5/typing.py", line 290, in _eval_type
+        return t._eval_type(globalns, localns)
+      File "/usr/local/Cellar/python3/3.5.2_1/Frameworks/Python.framework/Versions/3.5/lib/python3.5/typing.py", line 177, in _eval_type
+        eval(self.__forward_code__, globalns, localns),
+      File "<string>", line 1, in <module>
+    NameError: name 'websauna' is not defined
+
+You have circular imports in your modules and Sphinx autodocs typehinting. Fix this by laying out your code so that you don't have circular imports.

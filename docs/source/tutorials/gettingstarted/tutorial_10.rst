@@ -4,6 +4,9 @@ Creating your first view
 
 .. contents:: :local:
 
+Introduction
+============
+
 A :term:`View` is a Python function or class which serves a certain URL endpoint. A view is a “type” of Web page in your Websauna application, that generally serves a specific function and has a specific template. For example, in a blog application, you might have the following views:
 
 * Blog homepage – displays the latest few entries.
@@ -151,6 +154,11 @@ The link points to the question's detail page. Note: to have this working, you n
 
 .. image:: images/question_home.png
     :width: 640px
+
+Template variables and filters
+==============================
+
+``uuid_to_slug`` in the ``question.html`` above is one of the template filters provided by Websauna. Template variables and filters are helper tools exposed from Python to Jinja templates to make template writing easier. :ref:`Full template variables and filters reference is available <template-filters>`.
 
 Raising a 404 error
 ===================

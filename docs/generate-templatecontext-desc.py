@@ -13,6 +13,8 @@ import websauna.system.admin
 from websauna.system.devop.cmdline import init_websauna
 
 TEMPLATE="""
+.. _template-filters:
+
 ======================================
 Template context variables and filters
 ======================================

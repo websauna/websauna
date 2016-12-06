@@ -16,7 +16,7 @@ from transaction import TransactionManager
 
 from websauna.system.task.celery import get_celery
 from websauna.system.http import Request
-from websauna.system.task.events import TaskFinished
+
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +63,7 @@ class WebsaunaTask(Task):
                 # This will terminate dbsession, as set in create_transaction_manager_aware_dbsession
 
             # Call add-on hooks
+            from websauna.system.task.events import TaskFinished  # Avoid circular imports
             request.registry.notify(TaskFinished(request, self))
 
             request._process_finished_callbacks()

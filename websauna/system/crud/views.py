@@ -13,6 +13,7 @@ import colander
 from websauna.compat import typing
 from websauna.compat.typing import Iterable
 from websauna.compat.typing import List
+from websauna.compat.typing import Optional
 from websauna.system.core import messages
 from websauna.system.form import interstitial
 from websauna.system.form.fieldmapper import EditMode
@@ -40,12 +41,13 @@ class ResourceButton:
     #: The template used to render this button. Also overridable through the constructor.
     template = "crud/resource_button.html"
 
-    def __init__(self, id: str=None, name: str=None, template: str=None, permission: str=None, tooltip: str=None):
+    def __init__(self, id: Optional[str]=None, name: Optional[str]=None, template: Optional[str]=None, permission: Optional[str]=None, tooltip: Optional[str]=None, feature: Optional[str]=None):
         """
         :param id: Id of the button to be used as HTML id
         :param name:  Human readable label of the button
         :param template: Override template for this button
         :param permission: You need to have named permission on the context to make this button visible. Set to none to make the button appear always.
+        :param feature: The registry.features set must contain this feature enabled in order for the item to appear
         """
 
         assert id, "Button id missing"
@@ -55,6 +57,7 @@ class ResourceButton:
         self.name = name
 
         self.permission = permission
+        self.feature = feature
         self.tooltip = tooltip
 
         if template:
@@ -62,9 +65,14 @@ class ResourceButton:
 
     def is_visible(self, context, request):
         if self.permission:
-            return request.has_permission(self.permission, context)
-        else:
-            return True
+            if not request.has_permission(self.permission, context):
+                return False
+
+        if self.feature:
+            if self.feature not in request.registry.features:
+                return False
+
+        return True
 
     def get_link(self, context: Resource, request: Request) -> str:
         """Generate a link where this button is pointing at."""

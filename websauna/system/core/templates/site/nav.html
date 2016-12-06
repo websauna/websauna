@@ -27,7 +27,7 @@
       <ul class="nav navbar-nav navbar-right">
         {% if request.user %}
 
-          {% if request.has_permission('shell') %}
+          {% if request.has_permission('shell') and 'notebook' in request.registry.features %}
             <li>
               <a id="nav-superuser" href="{{'admin_shell'|route_url}}">
                 <i class="fa fa-terminal"></i>

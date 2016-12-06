@@ -79,6 +79,9 @@ class Initializer:
         #: This flag keeps state if the initializer has been run or not.
         self._already_run = False
 
+        # Exposed Websauna features
+        self.config.registry.features = set()
+
     def create_configurator(self) -> Configurator:
         """Create Pyramid Configurator instance."""
         configurator = Configurator(settings=self.settings)
@@ -564,7 +567,6 @@ class Initializer:
         """Setup pyramid_notebook integration."""
 
         # Check if we have IPython installed
-
         try:
             pkg_resources.get_distribution('IPython[notebook]')
         except pkg_resources.DistributionNotFound:
@@ -572,11 +574,15 @@ class Initializer:
 
         import websauna.system.notebook.views
         import websauna.system.notebook.adminviews
+        import websauna.system.notebook.subscribers
         self.config.add_route('admin_shell', '/notebook/admin-shell')
         self.config.add_route('shutdown_notebook', '/notebook/shutdown')
         self.config.add_route('notebook_proxy', '/notebook/*remainder')
         self.config.scan(websauna.system.notebook.views)
         self.config.scan(websauna.system.notebook.adminviews)
+        self.config.scan(websauna.system.notebook.subscribers)
+
+        self.config.registry.features.add("notebook")
 
     @event_source
     def configure_tasks(self):

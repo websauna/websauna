@@ -78,7 +78,7 @@ class Show(crud_views.Show):
     resource_buttons = [
         TraverseLinkButton(id="edit", name="Edit", view_name="edit", permission="edit"),
         TraverseLinkButton(id="delete", name="Delete", view_name="delete", permission="delete"),
-        TraverseLinkButton(id="shell", name="Shell", view_name="shell", permission="shell", tooltip="Open IPython Notebook shell and have this item prepopulated in obj variable."),
+        TraverseLinkButton(id="shell", name="Shell", view_name="shell", permission="shell", tooltip="Open IPython Notebook shell and have this item prepopulated in obj variable.", feature="notebook"),
     ]
 
     @view_config(context=ModelAdmin.Resource, name="show", renderer="crud/show.html", route_name="admin", permission='view')

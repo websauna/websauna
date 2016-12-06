@@ -106,11 +106,6 @@ setup(
         # Python 3.4 typing
         "backports.typing",
 
-        # Needed by python_notebook etc. who call pyramid.paster module
-        "ipython[notebook]<4",
-        "pyramid_notebook>=0.1.6",
-        "PasteDeploy",
-
         # Console logging
         "rainbow_logging_handler",
 
@@ -151,6 +146,13 @@ setup(
             'pytest-timeout',
             'pytest<3.0',
             'webtest',
+        ],
+
+        "notebook": [
+            "ipython[notebook]>=5.1",
+            "pyramid_notebook>=0.2",
+            # Needed by python_notebook etc. who call pyramid.paster module
+            "PasteDeploy",
         ],
 
         # Command line utilities and like that are needed to make development / production environment friendly

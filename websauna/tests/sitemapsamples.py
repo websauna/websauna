@@ -1,4 +1,5 @@
 """Permission test views."""
+from pyramid.interfaces import ILocation
 from pyramid.response import Response
 from pyramid.view import view_config
 from websauna.system.core.route import simple_route
@@ -28,7 +29,7 @@ class SampleContainer(SampleResource):
     def __init__(self, request, name):
         super(SampleContainer, self).__init__(request, name)
 
-    def items(self) -> Iterable[Tuple]:
+    def items(self) -> Iterable[Tuple[str, ILocation]]:
         # Every container instan
         request = self.request
 

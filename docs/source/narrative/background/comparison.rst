@@ -29,7 +29,7 @@ Frameworks
 Websauna
 --------
 
-A working website with sign in and sign up out of the box. Build the first version fast, but make sure the developer is on a driver's seat for iteratively scale up and replace components and parts of the stack.
+A working website with sign in and sign up out of the box. Build the first version fast, but make sure the developer is in the driver's seat for iteratively scale up and replace components and parts of the stack.
 
 Default template engine: :term:`Jinja`
 

@@ -134,3 +134,22 @@ def test_reflect_traverse(builder):
 def test_reflect_build(builder):
     """Build both routes and traversables."""
     builder.build()
+
+
+def test_conditions(builder):
+    """We can enable/disable items in the sitemap using decorators."""
+
+    builder.build_routes()
+    routes = [i.route_name for i in builder.sitemap.items if isinstance(i, RouteItem)]
+    assert "conditional_route" in routes
+    assert "skipped_route" not in routes
+
+    builder.build_traverse_trees()
+    request = builder.request
+    urls = [i.location(request) for i in builder.sitemap.items if isinstance(i, TraverseItem)]
+
+    assert any("/container/bar/conditional" in u for u in urls)
+    assert not any("/container/bar/skipped_conditional" in u for u in urls)
+
+
+

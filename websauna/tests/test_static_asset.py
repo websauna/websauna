@@ -51,7 +51,7 @@ def test_collect_recurse():
     assert len(collected) > 0
 
     # Check one resource from the collectin to see we succeeded
-    assert collected["deform-static"]["pickadate/translations/ja_JP.js"] == 'perma-asset/pickadate/translations/ja_JP.a773b74d6fb882ea9f8d043270e8be17.js'
+    assert collected["deform-static"]["pickadate/translations/ja_JP.js"].startswith( 'perma-asset/pickadate/translations/ja_JP.')
 
 
 @flaky

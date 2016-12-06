@@ -18,6 +18,8 @@ from websauna.system.core.traversal import Resource
 from websauna.system.http import Request
 from websauna.system.http.utils import make_routable_request
 from websauna.compat.typing import Iterable
+from websauna.compat.typing import Optional
+from websauna.compat.typing import Callable
 
 
 class SitemapItem(abc.ABC):
@@ -186,6 +188,27 @@ class ReflectiveSitemapBuilder:
 
         return True
 
+    def is_included(self, view_data: dict, context: Optional[Resource], request: Request):
+        """Check if sitemap conditions allow to include this item."""
+
+        callable = view_data.get("callable")
+        if callable is None:
+            # This is route like admin_home without callable, only traversing nesting
+            return True
+
+        # TODO: Not sure if we need to peek through callable decorator stack
+        sitemap_data = getattr(callable, "_sitemap_data", None)
+        if sitemap_data is None:
+            return True
+
+        # Hardcoded condition
+        included = sitemap_data.get("include", None)
+        if included is not None:
+            return included
+
+        condition = sitemap_data["condition"]
+        return condition(context, request)
+
     def is_good_route_item(self, name, pattern, view_data):
         """Check conditions if routed view can be added in the sitemap."""
 
@@ -196,6 +219,9 @@ class ReflectiveSitemapBuilder:
             return False
 
         if not self.is_public_get_view(view_data):
+            return False
+
+        if not self.is_included(view_data, None, self.request):
             return False
 
         return True
@@ -299,7 +325,7 @@ class ReflectiveSitemapBuilder:
 
         # Add all views for this leaf
         for view_data in self.enumerate_available_views(route, context):
-            if self.is_public_get_view(view_data):
+            if self.is_public_get_view(view_data) and self.is_included(view_data, context, self.request):
                 self.add_traverse_item(context, view_data["name"])
 
         # Recurse to children
@@ -374,3 +400,53 @@ def _get_route_data(route, registry):
     if view_intr:
         for view in view_intr:
             yield route.name, pattern, view
+
+
+def include_in_sitemap(include: Optional[bool]=None, condition: Callable[[Optional[Resource], Request], bool]=None):
+    """A function decorator to determine if a view should be included in a sitemap.
+
+    You need to give either ``include`` argument or ``condition``.
+
+    Example of hardcoded condition for an URL dispatch view:
+
+    .. code-block:: python
+
+        from websauna.system.core.sitemap import include_in_sitemap
+        from websauna.system.core.route import simple_route
+
+
+        @simple_route("/skipped_route", route_name="skipped_route")
+        @include_in_sitemap(False)
+        def skipped_route(request: Request):
+            return Response()
+
+    Example of dynamic condition for a traverse view:
+
+    .. code-block:: python
+
+        from websauna.system.core.sitemap import include_in_sitemap
+        from pyramid.view import view_config
+
+
+        def skipped_condition(context, request):
+            return False
+
+
+        @view_config(context=SampleResource, name="skipped_conditional", route_name="sitemap_test")
+        @include_in_sitemap(condition=skipped_condition)
+        def skipped_conditional(sample_resource: SampleResource, request: Request):
+            return Response()
+
+    :param include: Either ``True`` or ``False``
+
+    :param condition: callback function (context, request) to called to every item. Traversable views get both route and request, URL dispatch views get only request. Return true if the item should be included in the sitemap.
+    """
+
+    assert (include is not None) or (condition is not None), "You need to give either include or condition argument"
+
+    def _outer(view_func):
+        # Store data directly on a view function
+        view_func._sitemap_data = dict(include=include, condition=condition)
+        return view_func
+
+    return _outer

@@ -2,6 +2,7 @@
 from pyramid.response import Response
 from pyramid.view import view_config
 from websauna.system.core.route import simple_route
+from websauna.system.core.sitemap import include_in_sitemap
 from zope.interface import implementer
 
 from websauna.system.core.interfaces import IContainer
@@ -56,6 +57,26 @@ def additional_sample_view(sample_resource: SampleResource, request: Request):
     return Response()
 
 
+def traverse_condition(context, request):
+    return True
+
+
+@view_config(context=SampleResource, name="conditional", route_name="sitemap_test")
+@include_in_sitemap(condition=traverse_condition)
+def conditional_sample_view(sample_resource: SampleResource, request: Request):
+    return Response()
+
+
+def skipped_condition(context, request):
+    return False
+
+
+@view_config(context=SampleResource, name="skipped_conditional", route_name="sitemap_test")
+@include_in_sitemap(condition=skipped_condition)
+def skipped_conditional(sample_resource: SampleResource, request: Request):
+    return Response()
+
+
 @view_config(context=SampleContainer, name="", route_name="sitemap_test")
 def default_container_view(sample_resource: SampleResource, request: Request):
     return Response()
@@ -88,6 +109,29 @@ def permissioned_route(request: Request):
 
 @simple_route("/post_only_route", route_name="post_only_route", request_method="POST")
 def post_only_route(request: Request):
+    return Response()
+
+
+
+@simple_route("/included_route", route_name="included_route")
+@include_in_sitemap(True)
+def included_route(request: Request):
+    return Response()
+
+
+@simple_route("/skipped_route", route_name="skipped_route")
+@include_in_sitemap(False)
+def skipped_route(request: Request):
+    return Response()
+
+
+def condition(context, request):
+    return True
+
+
+@simple_route("/conditional_route", route_name="conditional_route")
+@include_in_sitemap(condition=condition)
+def skipped_route(request: Request):
     return Response()
 
 

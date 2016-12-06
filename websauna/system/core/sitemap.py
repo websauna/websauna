@@ -403,9 +403,9 @@ def _get_route_data(route, registry):
 
 
 def include_in_sitemap(include: Optional[bool]=None, condition: Callable[[Optional[Resource], Request], bool]=None):
-    """A function decorator to determine if a view should be included in a sitemap.
+    """A function decorator to determine if a view should be included in the automatically generated sitemap.
 
-    You need to give either ``include`` argument or ``condition``.
+    You need to give either ``include`` argument or ``condition``. If this view decorator is not present the view is always included.
 
     Example of hardcoded condition for an URL dispatch view:
 
@@ -436,6 +436,30 @@ def include_in_sitemap(include: Optional[bool]=None, condition: Callable[[Option
         @include_in_sitemap(condition=skipped_condition)
         def skipped_conditional(sample_resource: SampleResource, request: Request):
             return Response()
+
+    More complex example where you dynamically look up from the database if the content exist and then have the item in the sitemap:
+
+    .. code-block:: python
+
+        # We reuse this helper function in sitemap condition and actual view
+        def get_insight_content(asset_resource):
+            asset = asset_resource.asset
+            content = asset.asset_content.filter_by(content_type=AssetContentType.insight).one_or_none()
+            return content
+
+
+        @view_config(context=AssetDescription, route_name="network", name="insight", renderer="network/asset_insight.html")
+        @include_in_sitemap(lambda c, r: get_insight_content(c) is not None)
+        def insight(asset_resource: AssetDescription, request: Request):
+            breadcrumbs = get_breadcrumbs(asset_resource, request, current_view_name="Asset insight", current_view_url=request.resource_url(asset_resource, "insight"))
+            content = get_insight_content(asset_resource)
+
+            if content:
+                body = markdown.markdown(content.text)
+            else:
+                body = "This research has not yet been published"
+
+            return locals()
 
     :param include: Either ``True`` or ``False``
 

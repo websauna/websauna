@@ -126,15 +126,15 @@ Create a ``hosts.ini`` file. This can be directly in ``websauna.ansible`` root f
 .. code-block:: ini
 
     [default]
-    myapp_production ansible_ssh_host=1.2.3.4 ansible_ssh_user=ubuntu www_ip=172.1.2.3
+    myapp_production ansible_host=1.2.3.4 ansible_user=ubuntu www_ip=172.1.2.3
 
 For each server the information you need in this point is:
 
-* ``ansible_ssh_host``: :term:`SSH` IP address your server is listening to.
+* ``ansible_host``: :term:`SSH` IP address your server is listening to.
 
 * ``www_ip``: IP address your where server accepts HTTP/HTTPS connections. For :ref:`Amazon EC2 <ec2>` server these two are different.
 
-* ``ansible_ssh_user``: What is the UNIX username SSH uses to log in. This user must have term:`sudo`: access.
+* ``ansible_user``: What is the UNIX username SSH uses to log in. This user must have term:`sudo`: access.
 
 * Make sure your hosting provider has firewall open for inbound SSH, HTTP and HTTPS ports.
 

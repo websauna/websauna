@@ -26,6 +26,15 @@ class UTCDateTime(DateTime):
         kwargs["timezone"] = datetime.timezone.utc
         super(UTCDateTime, self).__init__(**kwargs)
 
+    def result_processor(self, dialect, coltype):
+
+        import pdb ; pdb.set_trace()
+        def process(value):
+            if value is not None:
+                value = bytes(value)
+            return value
+
+        return process
 
 class JSONB(JSONType):
     """Generic JSONB type.

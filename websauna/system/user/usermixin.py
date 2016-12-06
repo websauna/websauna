@@ -73,7 +73,7 @@ class UserMixin:
     activated_at = Column(UTCDateTime, nullable=True)
 
     #: Is this user account enabled. The support can disable the user account in the case of suspected malicious activity.
-    enabled = Column(Boolean, default=True)
+    enabled = Column(Boolean(name="user_enabled_binary"), default=True)
 
     #: When this user accessed the system last time. None if the user has never logged in (only activation email sent). Information stored for the security audits.
     last_login_at = Column(UTCDateTime, nullable=True)
@@ -147,8 +147,10 @@ class UserMixin:
         """
         return self.is_in_group(GroupMixin.DEFAULT_ADMIN_GROUP_NAME)
 
-    def is_valid_session(self, session_created_at:datetime.datetime) -> bool:
+    def is_valid_session(self, session_created_at: datetime.datetime) -> bool:
         """Check if the current session is still valid for this user."""
+        import pdb ; pdb.set_trace()
+        self.last_auth_sensitive_operation_at
         return self.last_auth_sensitive_operation_at <= session_created_at
 
     def __str__(self):

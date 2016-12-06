@@ -20,7 +20,7 @@ To run Websauna on your local computer you need
 
 * :term:`Redis`
 
-* :term:`Python` 3.4 or newer
+* :term:`Python` 3.5 or newer
 
 * `libxml2 <http://www.xmlsoft.org/>`_
 
@@ -69,7 +69,8 @@ If it shows a different version use ``brew switch`` command to upgrade
 
 .. code-block:: console
 
-    brew switch python3 python3.5.0   # Or any latest Python 3.5.x version
+    brew upgrade python3
+    brew link —overwrite python3
 
 Installing dependencies on Ubuntu 14.04
 ---------------------------------------

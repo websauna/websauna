@@ -33,6 +33,8 @@ Installing application package
 
 After you have created your application, you need to install it to your current :term:`virtual environment`.
 
-Install the package in edit mode, including Python package dependencies needed for testing, using :term:`pip`::
+Install the package in edit mode, including Python package dependencies needed for testing, using :term:`pip`:
+
+.. code-block:: console
 
     pip install -e "myapp[test]"

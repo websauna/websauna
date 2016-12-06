@@ -130,7 +130,6 @@ Note these are normal Python methods. Let’s add a custom method, just for demo
 
     from websauna.system.model.meta import Base
     from websauna.system.model.columns import UTCDateTime
-
     from websauna.utils.time import now
 
 

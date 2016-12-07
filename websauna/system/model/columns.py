@@ -16,7 +16,7 @@ from sqlalchemy.dialects.sqlite import DATETIME as DATETIME_
 
 
 class UTCDateTime(DateTime):
-    """An SQLAlchemy DateTime column which forces UTC timezone."""
+    """An SQLAlchemy DateTime column that explicitly uses timezone aware dates and only accepts UTC."""
 
     def __init__(self, *args, **kwargs):
         # If there is an explicit timezone we accept UTC only
@@ -29,7 +29,7 @@ class UTCDateTime(DateTime):
 
     def _dialect_info(self, dialect):
         if dialect.name == "sqlite":
-            # Beacuse SQLite does not support datetimes, we need to explicitly tell here to use our super duper DATETIME() hack subclass that hacks in timezone
+            # Becase SQLite does not support datetimes, we need to explicitly tell here to use our super duper DATETIME() hack subclass that hacks in timezone
             return {"impl": SQLITEDATETIME()}
         else:
             return super(UTCDateTime, self)._dialect_info(dialect)

@@ -93,6 +93,7 @@ setup(
         "alembic",
         "colanderalchemy",
         "pyramid_tm",
+        "sqlalchemy_utils",
 
         # User management
         "argon2_cffi",

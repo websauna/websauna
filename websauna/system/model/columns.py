@@ -85,7 +85,6 @@ class UUID(UUIDType):
         if dialect.name == 'postgresql' and self.native:
             # Use the native UUID type.
             return dialect.type_descriptor(postgresql.UUID())
-
         else:
             # Fallback to either a BINARY or a CHAR.
             kind = types.BINARY(16)

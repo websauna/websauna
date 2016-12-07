@@ -46,7 +46,7 @@ def registry(request, tutorial_app):
     return tutorial_app.init.config.registry
 
 
-@flaky
+@pytest.mark.skip("Mark skipped for now before issues resolved on TravisCI - something to do with delays and browsers")
 def test_add_question(browser: DriverAPI, registry, web_server, dbsession):
     """Adding questions should be succesful."""
 

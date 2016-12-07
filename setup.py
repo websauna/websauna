@@ -132,7 +132,6 @@ setup(
             'zest.releaser'
         ],
 
-        # pytest 3.0 pending https://github.com/pytest-dev/pytest-splinter/issues/69
         'test': [
             'codecov',
             'pytest>=3.0',
@@ -143,7 +142,6 @@ setup(
             'pytest-runner',
             'pytest-splinter',
             'pytest-timeout',
-            'pytest<3.0',
             'webtest',
         ],
 

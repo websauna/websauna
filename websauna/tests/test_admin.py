@@ -91,7 +91,12 @@ def test_context_sensitive_shell(web_server, browser, dbsession, init):
     # We succesfully exposed obj
     assert b.is_text_present("example@example.com")
 
-    b.find_by_css("#pyramid_notebook_shutdown").click()
+    # File menu
+    b.find_by_css(".dropdown a")[0].click()
+
+    # Shutdown and Back to the home
+    assert b.is_element_visible_by_css("#shutdown")
+    b.find_by_css("#shutdown").click()
 
     # Back to home screen
     assert b.is_element_visible_by_css("#nav-logout")

@@ -5,6 +5,7 @@ We have some sqlalchemy_utils aliasing here intenrally. In the future expect tho
 
 import datetime
 
+from sqlalchemy import types
 from sqlalchemy import DateTime
 from sqlalchemy import processors
 from sqlalchemy.dialects.postgresql import JSONB as _JSONB
@@ -79,6 +80,16 @@ class UUID(UUIDType):
     
     def __init__(self, as_uuid=True):
         super(UUID, self).__init__(binary=True, native=True)
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == 'postgresql' and self.native:
+            # Use the native UUID type.
+            return dialect.type_descriptor(postgresql.UUID())
+
+        else:
+            # Fallback to either a BINARY or a CHAR.
+            kind = types.BINARY(16)
+            return dialect.type_descriptor(kind)
 
 
 class SQLITEDATETIME(DATETIME_):

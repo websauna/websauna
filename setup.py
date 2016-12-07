@@ -73,7 +73,6 @@ setup(
     install_requires=[
 
         # Pyramid dependencies
-
         'pyramid>=1.7a2',
         'waitress',
         'pyramid_redis_sessions',
@@ -93,7 +92,7 @@ setup(
         "alembic",
         "colanderalchemy",
         "pyramid_tm",
-        "sqlalchemy_utils",
+        "sqlalchemy-utils",
 
         # User management
         "argon2_cffi",

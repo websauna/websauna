@@ -149,8 +149,6 @@ class UserMixin:
 
     def is_valid_session(self, session_created_at: datetime.datetime) -> bool:
         """Check if the current session is still valid for this user."""
-        import pdb ; pdb.set_trace()
-        self.last_auth_sensitive_operation_at
         return self.last_auth_sensitive_operation_at <= session_created_at
 
     def __str__(self):

@@ -1,7 +1,6 @@
-from sqlalchemy import types
-from dateutil.tz import tzutc
 import datetime
 
+from sqlalchemy import types
 
 
 class UTCDateTimeTypeDecorator(types.TypeDecorator):

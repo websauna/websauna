@@ -6,18 +6,19 @@ We have some sqlalchemy_utils aliasing here intenrally. In the future expect tho
 import datetime
 
 from sqlalchemy import DateTime
+from sqlalchemy import processors
 from sqlalchemy.dialects.postgresql import JSONB as _JSONB
 from sqlalchemy.dialects.postgresql import INET as _INET
 from sqlalchemy_utils.types.json import JSONType
 from sqlalchemy_utils.types.ip_address import IPAddressType
 from sqlalchemy_utils.types.uuid import UUIDType
+from sqlalchemy.dialects.sqlite import DATETIME as DATETIME_
 
 
 class UTCDateTime(DateTime):
     """An SQLAlchemy DateTime column which forces UTC timezone."""
 
     def __init__(self, *args, **kwargs):
-
         # If there is an explicit timezone we accept UTC only
         if "timezone" in kwargs:
             assert kwargs["timezone"] == datetime.timezone.utc
@@ -26,15 +27,12 @@ class UTCDateTime(DateTime):
         kwargs["timezone"] = datetime.timezone.utc
         super(UTCDateTime, self).__init__(**kwargs)
 
-    def result_processor(self, dialect, coltype):
-
-        import pdb ; pdb.set_trace()
-        def process(value):
-            if value is not None:
-                value = bytes(value)
-            return value
-
-        return process
+    def _dialect_info(self, dialect):
+        if dialect.name == "sqlite":
+            # Beacuse SQLite does not support datetimes, we need to explicitly tell here to use our super duper DATETIME() hack subclass that hacks in timezone
+            return {"impl": SQLITEDATETIME()}
+        else:
+            return super(UTCDateTime, self)._dialect_info(dialect)
 
 
 class JSONB(JSONType):
@@ -77,6 +75,25 @@ class UUID(UUIDType):
     
     def __init__(self, as_uuid=True):
         super(UUID, self).__init__(binary=True, native=True)
+
+
+
+class SQLITEDATETIME(DATETIME_):
+    """Timezone aware datetime support for SQLite.
+
+    This is implementation used for UTCDateTime.
+    """
+
+    @staticmethod
+    def process(value):
+        dt = processors.str_to_datetime(value)
+        if dt:
+            # Returns naive datetime, force it to UTC
+            return dt.replace(tzinfo=datetime.timezone.utc)
+        return dt
+
+    def result_processor(self, dialect, coltype):
+        return SQLITEDATETIME.process
 
 
 # Don't expose sqlalchemy_utils internals as they may go away

@@ -47,7 +47,7 @@ def test_enter_admin(web_server, browser, dbsession, init):
     assert b.is_element_visible_by_css("#nav-admin")
     b.find_by_css("#nav-admin").click()
 
-    assert b.is_element_visible_by_css("#admin-main")
+    assert b.is_element_present_by_css("#admin-main")
 
 
 def test_non_admin_user_denied(web_server, browser, dbsession, init):
@@ -97,6 +97,11 @@ def test_context_sensitive_shell(web_server, browser, dbsession, init):
     # Shutdown and Back to the home
     assert b.is_element_visible_by_css("#shutdown")
     b.find_by_css("#shutdown").click()
+
+    # There should be alert "Do you really wish to leave notebook?"
+    time.sleep(0.5)
+    alert = b.driver.switch_to_alert()
+    alert.accept()
 
     # Back to home screen
     assert b.is_element_visible_by_css("#nav-logout")

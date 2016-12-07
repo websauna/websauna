@@ -6,7 +6,11 @@ from collections import OrderedDict
 
 import datetime
 import transaction
-from IPython import embed
+
+try:
+    from IPython import embed
+except ImportError as e:
+    raise ImportError("You need to install IPython to use this shell") from e
 
 from websauna.system.core.redis import get_redis
 from websauna.system.devop.cmdline import init_websauna

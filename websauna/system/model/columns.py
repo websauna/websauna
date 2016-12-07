@@ -13,6 +13,7 @@ from sqlalchemy_utils.types.json import JSONType
 from sqlalchemy_utils.types.ip_address import IPAddressType
 from sqlalchemy_utils.types.uuid import UUIDType
 from sqlalchemy.dialects.sqlite import DATETIME as DATETIME_
+from sqlalchemy.dialects import postgresql
 
 
 class UTCDateTime(DateTime):
@@ -72,10 +73,12 @@ class UUID(UUIDType):
 
     The resulting object is :py:class:`uuid.UUID`.
     """
+
+    #: We force PSQL implementation by default here so that Alembic migration scripts don't do a column with unnecessary length attribute: sa.Column('uuid', websauna.system.model.columns.UUID(length=16), nullable=True),
+    impl = postgresql.UUID()
     
     def __init__(self, as_uuid=True):
         super(UUID, self).__init__(binary=True, native=True)
-
 
 
 class SQLITEDATETIME(DATETIME_):

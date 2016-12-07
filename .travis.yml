@@ -47,10 +47,7 @@ script:
   # https://pypi.python.org/pypi/coverage_enable_subprocess
   - pip install coverage-enable-subprocess
   - export COVERAGE_PROCESS_START=$PWD/.coveragerc
-  - echo "Running tests for PostgreSQL"
   - tox -- --ini=websauna/conf/travis.ini
-  - echo "Running tests for SQLite"
-  - tox -- --ini=websauna/conf/test-sqlite.ini
 
 after_success:
   # Update coverage information in codecov.io.

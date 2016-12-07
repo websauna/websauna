@@ -9,10 +9,8 @@
 import inspect
 import logging
 import itertools
-import colander
+
 from colanderalchemy.schema import SQLAlchemySchemaNode, _creation_order
-from websauna.system.form.sqlalchemy import ModelSetResultList, ModelSet, ModelSchemaType
-from websauna.utils.jsonb import JSONBProperty
 
 import colander
 from colander import (Mapping,
@@ -33,6 +31,9 @@ from sqlalchemy import (Boolean,
 import sqlalchemy
 from sqlalchemy.schema import (FetchedValue, ColumnDefault, Column)
 from sqlalchemy.orm import (ColumnProperty, RelationshipProperty)
+
+from websauna.system.form.sqlalchemy import ModelSetResultList, ModelSchemaType
+from websauna.utils.jsonb import is_index_property
 
 
 log = logger = logging.getLogger(__name__)
@@ -151,7 +152,7 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
 
             name = node.name
             try:
-                if JSONBProperty.is_json_property(obj, name):
+                if is_index_property(obj, name):
                     value = getattr(obj, name)
                 else:
                     getattr(self.inspector.column_attrs, name)

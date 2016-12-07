@@ -93,7 +93,6 @@ setup(
         "alembic",
         "colanderalchemy",
         "pyramid_tm",
-        "jsonpointer",
 
         # User management
         "argon2_cffi",

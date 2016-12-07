@@ -18,13 +18,21 @@ from .scaffold import app_scaffold  # noqa
 
 
 @pytest.fixture()
-def addon_dev_db(request):
+def addon_dev_db(request, ini_settings):
     """Create PostgreSQL database myapcdp_dev and return its connection information."""
+
+    if ini_settings["sqlalchemy.url"].startswith("sqlite://"):
+        pytest.skip("These tests are run only for PostgreSQL database")
+
     return create_psq_db(request, "myaddon_dev")
 
 
 @pytest.fixture()
-def addon_test_db(request):
+def addon_test_db(request, ini_settings):
+
+    if ini_settings["sqlalchemy.url"].startswith("sqlite://"):
+        pytest.skip("These tests are run only for PostgreSQL database")
+
     return create_psq_db(request, "myaddon_test")
 
 

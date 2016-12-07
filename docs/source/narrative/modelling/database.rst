@@ -13,6 +13,40 @@ Websauna uses an :term:`SQL` database. :term:`SQLAlchemy` object relations mappi
 
 By default, :term:`PostgreSQL` database software is recommended, though Websauna is compatible, but not tested, with all databases supported by SQLAlchemy.
 
+PostgreSQL vs. SQLite
+=====================
+
+Websauna supports both PostgreSQL and SQLite databases. Here is short summary what you should use.
+
+SQLite
+------
+
+Pros
+
+* No software installation needed
+
+* Good for local development when starting out
+
+Cons
+
+* Cannot handle multiple users
+
+* No decimal support: cannot do local development in money or accounting oriented applications
+
+* No datetime support
+
+PostgreSQL
+----------
+
+Pros
+
+* Best open source SQL database out there, don't look further
+
+Cons
+
+* An order of magnitude harder to get started with compared to SQLite
+
+
 .. _dbsession:
 
 Accessing database session

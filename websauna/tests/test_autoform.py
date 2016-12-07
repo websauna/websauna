@@ -3,36 +3,51 @@ import time
 
 import os
 import pytest
-from flaky import flaky
-from splinter.driver import DriverAPI
+import websauna
 import transaction
 
-from websauna.system.devop.cmdline import init_websauna
+from flaky import flaky
+from splinter.driver import DriverAPI
+
 from websauna.tests.utils import create_logged_in_user
 from websauna.tests.webserver import customized_web_server
 from websauna.utils.slug import uuid_to_slug, slug_to_uuid
 
-HERE = os.path.dirname(__file__)
+
+@pytest.fixture(scope="module")
+def tutorial_app(request, paster_config):
+    """Custom WSGI app with travesal points for sitemap enabled."""
+
+    class Initializer(websauna.system.DemoInitializer):
+
+        def run(self):
+            super(Initializer, self).run()
+            from websauna.tests import tutorial
+            self.config.scan(tutorial)
+
+    global_config, app_settings = paster_config
+    init = Initializer(global_config, app_settings)
+    init.run()
+    app = init.make_wsgi_app()
+    app.init = init
+    return app
 
 
 @pytest.fixture(scope="module")
-def tutorial_req(request):
-    """Construct a WSGI app with tutorial models and admins loaded."""
-    ini_file = os.path.join(HERE, "tutorial-test.ini")
-    request = init_websauna(ini_file)
-    return request
-
-
-@pytest.fixture(scope="module")
-def web_server(request, tutorial_req):
-    """Run a web server
-    with tutorial installed."""
-    web_server = customized_web_server(request, tutorial_req.app)
+def web_server(request, tutorial_app):
+    """Run a web server with tutorial installed."""
+    web_server = customized_web_server(request, tutorial_app)
     return web_server()
 
 
+@pytest.fixture(scope="module")
+def registry(request, tutorial_app):
+    """Run a web server with tutorial installed."""
+    return tutorial_app.init.config.registry
+
+
 @flaky
-def test_add_question(browser: DriverAPI, tutorial_req, web_server, dbsession):
+def test_add_question(browser: DriverAPI, registry, web_server, dbsession):
     """Adding questions should be succesful."""
 
     b = browser
@@ -41,7 +56,7 @@ def test_add_question(browser: DriverAPI, tutorial_req, web_server, dbsession):
         # Fails at click and JavaScript modals for Chrome
         pytest.skip("This test works only under Firefox WebDriver")
 
-    create_logged_in_user(dbsession, tutorial_req.registry, web_server, browser, admin=True)
+    create_logged_in_user(dbsession, registry, web_server, browser, admin=True)
 
     b.visit(web_server)
     b.find_by_css("#nav-admin").click()
@@ -64,12 +79,12 @@ def test_add_question(browser: DriverAPI, tutorial_req, web_server, dbsession):
     assert b.is_element_present_by_css("#msg-item-added")
 
 
-def test_add_choice_no_question(browser: DriverAPI, tutorial_req, web_server, dbsession):
+def test_add_choice_no_question(browser: DriverAPI, registry, web_server, dbsession):
     """Add one choice, no questions available."""
 
     b = browser
 
-    create_logged_in_user(dbsession, tutorial_req.registry, web_server, browser, admin=True)
+    create_logged_in_user(dbsession, registry, web_server, browser, admin=True)
 
     b.visit(web_server)
     b.find_by_css("#nav-admin").click()
@@ -80,7 +95,7 @@ def test_add_choice_no_question(browser: DriverAPI, tutorial_req, web_server, db
     assert b.is_element_present_by_css("#msg-item-added")
 
 
-def test_add_choice_question(browser: DriverAPI, tutorial_req, web_server, dbsession):
+def test_add_choice_question(browser: DriverAPI, registry, web_server, dbsession):
 
     from .tutorial import Question
     from .tutorial import Choice
@@ -93,7 +108,7 @@ def test_add_choice_question(browser: DriverAPI, tutorial_req, web_server, dbses
 
     b = browser
 
-    create_logged_in_user(dbsession, tutorial_req.registry, web_server, browser, admin=True)
+    create_logged_in_user(dbsession, registry, web_server, browser, admin=True)
 
     b.visit(web_server)
     b.find_by_css("#nav-admin").click()
@@ -108,7 +123,7 @@ def test_add_choice_question(browser: DriverAPI, tutorial_req, web_server, dbses
         assert dbsession.query(Choice).first().question is not None
 
 
-def test_add_choice_choose_no_question(browser: DriverAPI, tutorial_req, web_server, dbsession):
+def test_add_choice_choose_no_question(browser: DriverAPI, registry, web_server, dbsession):
 
     from .tutorial import Question
     from .tutorial import Choice
@@ -119,7 +134,7 @@ def test_add_choice_choose_no_question(browser: DriverAPI, tutorial_req, web_ser
         dbsession.flush()
 
     b = browser
-    create_logged_in_user(dbsession, tutorial_req.registry, web_server, browser, admin=True)
+    create_logged_in_user(dbsession, registry, web_server, browser, admin=True)
 
     b.visit(web_server)
     b.find_by_css("#nav-admin").click()
@@ -133,7 +148,7 @@ def test_add_choice_choose_no_question(browser: DriverAPI, tutorial_req, web_ser
         assert dbsession.query(Choice).first().question is None
 
 
-def test_edit_choice_question(browser: DriverAPI, tutorial_req, web_server, dbsession):
+def test_edit_choice_question(browser: DriverAPI, registry, web_server, dbsession):
     """Change choice's assigned question in edit."""
 
     from .tutorial import Question
@@ -155,7 +170,7 @@ def test_edit_choice_question(browser: DriverAPI, tutorial_req, web_server, dbse
         c_slug = uuid_to_slug(c.uuid)
 
     b = browser
-    create_logged_in_user(dbsession, tutorial_req.registry, web_server, browser, admin=True)
+    create_logged_in_user(dbsession, registry, web_server, browser, admin=True)
 
     b.visit("{}/admin/models/choice/{}/edit".format(web_server, c_slug))
     b.select("question", q2_slug)
@@ -168,7 +183,7 @@ def test_edit_choice_question(browser: DriverAPI, tutorial_req, web_server, dbse
         assert c.question.uuid == slug_to_uuid(q2_slug)
 
 
-def test_edit_choice_remove_question(browser: DriverAPI, tutorial_req, web_server, dbsession):
+def test_edit_choice_remove_question(browser: DriverAPI, registry, web_server, dbsession):
     """Editing choice allows us to reset question value back to null."""
 
     from .tutorial import Question
@@ -185,7 +200,7 @@ def test_edit_choice_remove_question(browser: DriverAPI, tutorial_req, web_serve
         c_slug = uuid_to_slug(c.uuid)
 
     b = browser
-    create_logged_in_user(dbsession, tutorial_req.registry, web_server, browser, admin=True)
+    create_logged_in_user(dbsession, registry, web_server, browser, admin=True)
 
     b.visit("{}/admin/models/choice/{}/edit".format(web_server, c_slug))
     b.select("question", "")
@@ -198,7 +213,7 @@ def test_edit_choice_remove_question(browser: DriverAPI, tutorial_req, web_serve
         assert c.question == None
 
 
-def test_question_shows_choices(browser: DriverAPI, tutorial_req, web_server, dbsession):
+def test_question_shows_choices(browser: DriverAPI, registry, web_server, dbsession):
     """If question has active choices they are shown on Show screen, albeit not editable."""
 
     from .tutorial import Question
@@ -215,13 +230,13 @@ def test_question_shows_choices(browser: DriverAPI, tutorial_req, web_server, db
         dbsession.flush()
 
     b = browser
-    create_logged_in_user(dbsession, tutorial_req.registry, web_server, browser, admin=True)
+    create_logged_in_user(dbsession, registry, web_server, browser, admin=True)
 
     b.visit("{}/admin/models/question/{}/show".format(web_server, q_slug))
     assert b.is_text_present("Baby don't hurt me")
 
 
-def test_question_listing(browser: DriverAPI, tutorial_req, web_server, dbsession):
+def test_question_listing(browser: DriverAPI, registry, web_server, dbsession):
     """Question listing shows question text."""
 
     from .tutorial import Question
@@ -232,13 +247,13 @@ def test_question_listing(browser: DriverAPI, tutorial_req, web_server, dbsessio
         dbsession.flush()
 
     b = browser
-    create_logged_in_user(dbsession, tutorial_req.registry, web_server, browser, admin=True)
+    create_logged_in_user(dbsession, registry, web_server, browser, admin=True)
 
     b.visit("{}/admin/models/question/listing".format(web_server))
     assert b.is_text_present("What is love")
 
 
-def test_question_delete(browser: DriverAPI, tutorial_req, web_server, dbsession):
+def test_question_delete(browser: DriverAPI, registry, web_server, dbsession):
     """Delete question and make sure it deletes related choices.."""
 
     from .tutorial import Question
@@ -255,7 +270,7 @@ def test_question_delete(browser: DriverAPI, tutorial_req, web_server, dbsession
         q_slug = uuid_to_slug(q.uuid)
 
     b = browser
-    create_logged_in_user(dbsession, tutorial_req.registry, web_server, browser, admin=True)
+    create_logged_in_user(dbsession, registry, web_server, browser, admin=True)
 
     b.visit("{}/admin/models/question/{}".format(web_server, q_slug))
     b.find_by_css("#btn-crud-delete").click()

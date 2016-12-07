@@ -6,8 +6,6 @@ To run::
 
 
 """
-import time
-
 import os
 
 import transaction

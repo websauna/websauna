@@ -21,8 +21,12 @@ def task_ini_file():
 
 
 @pytest.fixture(scope='module')
-def task_app_request(task_ini_file):
+def task_app_request(task_ini_file, ini_settings):
     request = init_websauna(task_ini_file)
+
+    if ini_settings["sqlalchemy.url"].startswith("sqlite://"):
+        pytest.skip("These tests are run only for PostgreSQL database")
+
     return request
 
 

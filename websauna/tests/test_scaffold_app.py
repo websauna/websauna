@@ -19,13 +19,21 @@ from .scaffold import create_psq_db
 
 
 @pytest.fixture()
-def dev_db(request):
+def dev_db(request, ini_settings):
     """Create PostgreSQL database myapcdp_dev and return its connection information."""
+
+    if ini_settings["sqlalchemy.url"].startswith("sqlite://"):
+        pytest.skip("These tests are run only for PostgreSQL database")
+
     return create_psq_db(request, "myapp_dev")
 
 
 @pytest.fixture()
-def test_db(request):
+def test_db(request, ini_settings):
+
+    if ini_settings["sqlalchemy.url"].startswith("sqlite://"):
+        pytest.skip("These tests are run only for PostgreSQL database")
+
     return create_psq_db(request, "myapp_test")
 
 

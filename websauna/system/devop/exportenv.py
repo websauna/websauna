@@ -1,11 +1,13 @@
 """Export settings and secrets as environment variables to subprocesses."""
 
 import os
+
+from pyramid.registry import Registry
 from websauna.system.core.utils import get_secrets
 from sqlalchemy.engine.url import make_url
 
 
-def create_settings_env(registry):
+def create_settings_env(registry: Registry):
     """Create os.environ where have exported all settings and secrets.
 
     This is used for subprocess to create a child processes which are aware of our settings.  All dots are replaced with underscores. The exported environment varible is either prefixed with ``main``  or ``secret``. The exported environment variables are uppercased. Parent process environment variables are automatically inherited.
@@ -35,9 +37,6 @@ def create_settings_env(registry):
 
     # Export database credentials
     url = make_url(settings["sqlalchemy.url"])
-
-    # Looks like both are acceptable options
-    assert url.drivername in "postgresql", "postgres"
 
     env["MAIN_SQL_HOST"] =  url.host or ""
     env["MAIN_SQL_DATABASE"] = url.database or ""

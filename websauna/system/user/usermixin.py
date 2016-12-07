@@ -4,23 +4,21 @@ This module defines what fields the default user implementation can have. You ca
 """
 
 from uuid import uuid4
-
 import datetime
+
 from sqlalchemy import inspection, Integer
-
-from websauna.system.model.columns import UUID
-from websauna.system.model.columns import JSONB
-from websauna.system.model.columns import INET
-
+from sqlalchemy.ext.indexable import index_property
 from sqlalchemy import Column
 from sqlalchemy import String
 from sqlalchemy import Boolean
 from sqlalchemy.orm.session import Session
 
+from websauna.system.model.columns import UUID
+from websauna.system.model.columns import JSONB
+from websauna.system.model.columns import INET
 from websauna.system.model.columns import UTCDateTime
 from websauna.utils.crypt import generate_random_string
 from websauna.utils.time import now
-from websauna.utils.jsonb import JSONBProperty
 from websauna.system.model.json import NestedMutationDict
 
 
@@ -88,16 +86,16 @@ class UserMixin:
     last_auth_sensitive_operation_at = Column(UTCDateTime, nullable=True, default=now)
 
     #: Full name of the user (if given)
-    full_name = JSONBProperty("user_data", "/full_name")
+    full_name = index_property("user_data", "full_name")
 
     #: How this user signed up to the site. May include string like "email", "facebook" or "dummy". Up to the application to use this field. Default social media logins and email sign up set this.
-    registration_source = JSONBProperty("user_data", "/registration_source", graceful=None)
+    registration_source = index_property("user_data", "registration_source")
 
     #: Social media data of the user as a dict keyed by user media
-    social = JSONBProperty("user_data", "/social")
+    social = index_property("user_data", "social")
 
     #: Is this the first login the user manages to do to our system. If this flag is set the user has not logged in to the system before and you can give warm welcoming experience.
-    first_login = JSONBProperty("user_data", "/first_login")
+    first_login = index_property("user_data", "first_login")
 
     @property
     def friendly_name(self):

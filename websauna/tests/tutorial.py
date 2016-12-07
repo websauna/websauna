@@ -5,14 +5,14 @@ import datetime
 from uuid import uuid4
 
 from sqlalchemy import Column, String, Integer, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+
 from websauna.system import DemoInitializer
-
 from websauna.system.model.meta import Base
-from websauna.system.model.columns import UTCDateTime
-
+from websauna.system.model.columns import UTCDateTime, UUID
 from websauna.utils.time import now
+from websauna.system.admin.modeladmin import model_admin
+from websauna.system.admin.modeladmin import ModelAdmin
 
 
 class Question(Base):
@@ -82,10 +82,6 @@ class Choice(Base):
         return self.choice_text
 
 
-from websauna.system.admin.modeladmin import model_admin
-from websauna.system.admin.modeladmin import ModelAdmin
-
-
 @model_admin(traverse_id="question")
 class QuestionAdmin(ModelAdmin):
 
@@ -114,11 +110,3 @@ class ChoiceAdmin(ModelAdmin):
 
         def get_title(self):
             return self.get_object().choice_text
-
-
-
-def main(global_config, **settings):
-    init = DemoInitializer(global_config)
-    init.run()
-    init.config.scan(sys.modules["websauna.tests.tutorial"])
-    return init.make_wsgi_app()

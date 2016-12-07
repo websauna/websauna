@@ -1,14 +1,13 @@
 """Test SQL transaction conflict resolution."""
 import threading
 import time
+
 import pytest
-
-
 from sqlalchemy import Column
 from sqlalchemy import Numeric
 from sqlalchemy import Integer
-
 import transaction
+
 from websauna.system.model.meta import create_dbsession, Base
 from websauna.system.model.retry import retryable, CannotRetryAnymore, is_retryable
 
@@ -126,6 +125,10 @@ def test_instance(dbsession):
 @pytest.fixture
 def dbsession_factory(test_request):
 
+    if test_request.dbsession.bind.dialect.name == "sqlite":
+        # These tests work only for PSQL
+        pytest.skip('These can be run only on PostgreSQL')
+
     def factory():
         dbsession = create_dbsession(test_request.registry, manager=None)
         # Retry each transaction max 1 times
@@ -154,7 +157,6 @@ def test_sql_transaction_conflict(test_instance, dbsession_factory):
     assert failure is not None
 
     txn, dbsession, exc = failure
-    error_type = exc.__class__
     error = exc
 
     assert txn.status == "Commit failed"

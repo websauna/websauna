@@ -50,8 +50,8 @@ def includeme(config):
     )
 
     # Register UTC timezone enforcer
-    if asbool(config.registry.settings.get("websauna.force_utc_on_columns", True)):
-        from . import sqlalchemyutcdatetime  # noqa
+    # if asbool(config.registry.settings.get("websauna.force_utc_on_columns", True)):
+    #    from . import sqlalchemyutcdatetime  # noqa
 
 
 def request_session_factory(request: Request) -> Session:

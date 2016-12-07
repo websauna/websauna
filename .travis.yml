@@ -48,6 +48,7 @@ script:
   - pip install coverage-enable-subprocess
   - export COVERAGE_PROCESS_START=$PWD/.coveragerc
   - tox -- --ini=websauna/conf/travis.ini
+  - tox -- --ini=websauna/conf/test-sqlite.ini
 
 after_success:
   # Update coverage information in codecov.io.

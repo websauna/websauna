@@ -1,9 +1,6 @@
-Websauna is a full stack application framework aimed for building consumer and business web services build on the top on Pyramid and SQLAlchemy.
+Websauna is a full stack Python web framework for building web services with admin interface and sign up process.
 
-.. note ::
-
-    This project does not have an official release yet and much things are still in motion.
-
+.. image:: https://websauna.org/theme/images/logo.png
 
 .. |ci| image:: https://travis-ci.org/websauna/websauna.svg
     :target: https://travis-ci.org/websauna/websauna/
@@ -35,51 +32,73 @@ Websauna is a full stack application framework aimed for building consumer and b
 | |versions|| |latest|  |
 +-----------+-----------+
 
-`Documentation <https://websauna.org/>`_.
+.. contents:: :local:
 
-`Installation <https://websauna.org/tutorials/gettingstarted/index.html>`_.
+Introduction
+============
 
-`Chat <https://websauna.org/narrative/contributing/community.html>`_.
+Websauna is a Python web framework for developing highly customized consumer and business websites and backends. It emphasises a low learning curve, community friendliness and polished documentation, so that newcomer developers get their first release out quickly. This is done without sacrificing scalability and high maintainability for more complex websites. Websauna builds its foundation on the best practices and innovation that web development and Python communities have been refining for the last 20 years.
 
-What it is?
-===========
+Websauna is created with modern Python 3 features, `Pyramid <https://websauna.org/docs/reference/glossary.html#term-pyramid>`_ web routing framework and `SQLAlchemy <https://websauna.org/docs/reference/glossary.html#term-sqlalchemy>`_ object relation mapping. You get out of the box user experience with `Jinja templates <https://websauna.org/docs/reference/glossary.html#term-jinja>`_ and `Bootstrap theming <https://websauna.org/docs/reference/glossary.html#term-bootstrap>`_, but you are free to bring in your own frontend.
 
-Websauna is a Python package and application framework for developing custom consumer and business web services. It emphasises meeting business requirements with reliable delivery times, responsiveness, consistency in quality, security and high data integrity. A low learning curve, novice friendliness and polished documentation help less seasoned developers to get their first release out quickly.
+The software development is only half of the story. Websauna also provides a basic deployment and operations story based on `Ansible <https://websauna.org/docs/reference/glossary.html#term-ansible>`_ automation.
 
-How it is done?
-===============
+Links
+=====
 
-Build fast, reach high
-----------------------
+* `Getting started and installation <https://websauna.org/tutorials/gettingstarted/index.html>`_
 
-Websauna stands on the shoulders of `Python programming language <https://python.org>`_ and `Pyramid web framework <http://docs.pylonsproject.org/projects/pyramid/en/latest/>`_. It uses `SQLAlchemy <http://sqlalchemy.org/>`_ modelling for data and business logic with automatic admin interface generation. Polished integration, project scaffold and getting started tutorial allow a seasoned Python developer to roll out a custom web service within few hours - being a turn key solution for the first prototype that can be later iterated on.
+* `Chat <https://websauna.org/narrative/contributing/community.html>`_ - It always pays to ask first!
 
-Security
---------
+* `Documentation <https://websauna.org/>`_
 
-Websauna has a strong drive for security. It is designed to be immune for OWASP top 10 vulnerabilities. Websauna heavily leans on optimistic concurrency control eliminating potential for race condition errors. ACID guarantees are followed through the codebase, making Websauna ideal for financial services needing high data integrity.
+* `Twitter <https://twitter.com/websauna9000>`_
 
-User experience and frontend
-----------------------------
-
-A default mobile friendly Bootstrap frontend is provided for landing page and form styling. This makes it possible to use ready premium theme packages for distinct user experience even if there is graphical design talent in a team. Federated authentication, like Facebook or Google login, is supported out of the box. Building RESTful behavior over business logic is made easy, so that frontend may be replaced with a heavier JavaScript solution when needed.
-
-Data analysis
--------------
-
-`IPython Notebook <http://ipython.org/>`_, an award winning data analysis and science tool, is directly integrated to Websauna. Analyzing website data and building interactive visualizations is within a reach of one click.
-
-Modular architecture
---------------------
-
-All default stack choices are suggestive, thus leaving room for opinions for different components and a path to scale up a service. There is no inversion of control - the developer is always in the driver's seat. A strong decoupling is achieved through component architecture, event dispatch and standardized addon mechanism. This allows building non-monolithic packages and frictionless distribution of work among teams.
+* `Github <https://github.com/websauna/websauna>`_
 
 When to use it?
 ===============
 
-Websauna is focused on Internet facing sites where you have a public or private sign up process and a administrative back office. It's sweet spots are custom business portals and software-as-a-service sites which are too specialized for off-the-shelf solutions. Websauna is ideal for Internet startups that iterate fast and may face urgent scalability needs.
+Websauna is focused on Internet facing sites where you have a public or private sign up process and a administrative interface. Its sweet spots include  custom business portals and software-as-a-service sites which are too specialized for off-the-shelf solutions. Websauna is ideal for Internet startups that iterate fast and may face urgent scalability needs. Furthermore, you can easily integrate different frontends like React, Angular and mobile apps with Websauna back office.
 
-Documentation
-=============
+What makes Websauna different?
+==============================
 
-See `websauna.org <https://websauna.org>`_.
+Build fast, reach high
+----------------------
+
+Websauna application comes with default `admin interface <https://websauna.org/docs/narrative/crud/admin.html>`_ and `user sign up <https://websauna.org/docs/narrative/user/index.html>`_. You can start immediately developing business logic by adding `models <https://websauna.org/docs/narrative/modelling/models.html>`_, `views <https://websauna.org/docs/narrative/view/index.html>`_, `forms <https://websauna.org/docs/narrative/form/index.html>`_ and `CRUD controllers <https://websauna.org/docs/narrative/crud/crud.html>`_.
+
+Polished integration, `getting started tutorial <https://websauna.org/docs/tutorials/gettingstarted/index.html>`_ and `project scaffolding <https://websauna.org/docs/narrative/misc/scaffolds.html>`_ allow a seasoned Python developer to roll out a custom web service within few hours - being a turn key solution for the first prototype that can be later iterated on.
+
+Websauna default stack choices are made high scalability in mind, so that your website can reach millions of users before you start hitting limitations. For example, `delayed and asynchronous tasks <https://websauna.org/docs/narrative/misc/task.html>`_ ensure your site keeps responsive and can scale horizontally.
+
+Bullet proof security
+---------------------
+
+Websauna is a security first solution . It's foundation principles makes it immune for `OWASP top 10 vulnerabilities <https://www.owasp.org/index.php/OWASP_Top_Ten_Cheat_Sheet>`_. Websauna heavily leans on `optimistic concurrency control <https://websauna.org/docs/narrative/modelling/occ.html>`_ eliminating potential for race condition errors. `ACID guarantees <https://websauna.org/docs/reference/glossary.html#term-acid>`_ are followed through the codebase, making Websauna ideal for financial services needing high data integrity.
+
+Great user experience out of the box
+------------------------------------
+
+A default mobile friendly Bootstrap frontend is provided for landing page and form styling. `You can drop in premium theme packages for distinct user experience <https://websauna.org/docs/narrative/frontend/themes.html>`_  even if there is graphical design talent in a team. Federated authentication, like `Facebook <https://websauna.org/docs/narrative/user/oauth.html#setting-up-facebook-login>`_ or `Google login <https://websauna.org/docs/narrative/user/oauth.html#setting-up-google-login>`_, is supported out of the box. Building RESTful behavior over business logic is made easy, so that frontend may be replaced with a heavier JavaScript solution when needed.
+
+Enter the shell prompt of the future
+------------------------------------
+
+Websauna comes with `integrated IPython Notebook support <https://websauna.org/docs/narrative/misc/notebook.html>`_.
+`IPython Notebook <https://websauna.org/docs/reference/glossary.html#term-ipython>`_, an award winning data analysis and science tool, is directly integrated to Websauna. You can open a browser based shell prompt within your admin site with one click.
+
+Creating an ecosystem with addons and choices
+---------------------------------------------
+
+All default stack choices are suggestive, thus leaving room for opinions for different components and a path to scale up a service. There is no inversion of control - the developer is always in the driver's seat. A strong decoupling is achieved through component architecture, event dispatch and `standardized addon mechanism <https://websauna.org/docs/narrative/misc/scaffolds.html#websauna-addon>`_. This allows building non-monolithic packages and frictionless distribution of work among teams.
+
+`You can browser available addons on Github <https://github.com/websauna/>`_
+
+Deployment has never been this easy
+-----------------------------------
+
+Half of the software development work is maintaining and updating services. Websauna provides `a default deployment story <https://websauna.org/docs/tutorials/deployment/index.html>`_ using `Ansible <https://websauna.org/docs/reference/glossary.html#term-ansible>`_. When your website is ready to go live, you point the Ansible playbook to any Linux installation and it will deploy a fully functional website within few minutes. The deployment choices are made by security experts for you, so that even without deep sysadmin knowledge can run their sites easily.
+
+Because Websauna use vendor neutral Ansible playbooks, you are not tied to a particular provider. Migrating between the service provides is easy in the case you need to scale up the business. You can run Websauna on Amazon, Azure, Hetzner, Digital Ocean, Linode, Upcloud or any other cloud server provider.

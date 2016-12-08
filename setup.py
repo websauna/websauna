@@ -15,7 +15,7 @@ setup(
     name='websauna',
     namespace_packages=["websauna"],
 
-    version='1.0a1',
+    version='1.0a2.dev0',
 
     description=long_description.split()[0],
     long_description=long_description,

@@ -1,7 +1,3 @@
-Websauna is a full stack Python web framework for building web services with admin interface and sign up process.
-
-.. image:: https://websauna.org/theme/images/logo.png
-
 .. |ci| image:: https://travis-ci.org/websauna/websauna.svg
     :target: https://travis-ci.org/websauna/websauna/
 
@@ -31,6 +27,10 @@ Websauna is a full stack Python web framework for building web services with adm
 +-----------+-----------+
 | |versions|| |latest|  |
 +-----------+-----------+
+
+Websauna is a full stack Python web framework for building web services with admin interface and sign up process.
+
+.. image:: https://websauna.org/theme/images/logo.png
 
 .. contents:: :local:
 
@@ -83,12 +83,6 @@ Great user experience out of the box
 
 A default mobile friendly Bootstrap frontend is provided for landing page and form styling. `You can drop in premium theme packages for distinct user experience <https://websauna.org/docs/narrative/frontend/themes.html>`_  even if there is graphical design talent in a team. Federated authentication, like `Facebook <https://websauna.org/docs/narrative/user/oauth.html#setting-up-facebook-login>`_ or `Google login <https://websauna.org/docs/narrative/user/oauth.html#setting-up-google-login>`_, is supported out of the box. Building RESTful behavior over business logic is made easy, so that frontend may be replaced with a heavier JavaScript solution when needed.
 
-Enter the shell prompt of the future
-------------------------------------
-
-Websauna comes with `integrated IPython Notebook support <https://websauna.org/docs/narrative/misc/notebook.html>`_.
-`IPython Notebook <https://websauna.org/docs/reference/glossary.html#term-ipython>`_, an award winning data analysis and science tool, is directly integrated to Websauna. You can open a browser based shell prompt within your admin site with one click.
-
 Creating an ecosystem with addons and choices
 ---------------------------------------------
 
@@ -102,3 +96,11 @@ Deployment has never been this easy
 Half of the software development work is maintaining and updating services. Websauna provides `a default deployment story <https://websauna.org/docs/tutorials/deployment/index.html>`_ using `Ansible <https://websauna.org/docs/reference/glossary.html#term-ansible>`_. When your website is ready to go live, you point the Ansible playbook to any Linux installation and it will deploy a fully functional website within few minutes. The deployment choices are made by security experts for you, so that even without deep sysadmin knowledge can run their sites easily.
 
 Because Websauna use vendor neutral Ansible playbooks, you are not tied to a particular provider. Migrating between the service provides is easy in the case you need to scale up the business. You can run Websauna on Amazon, Azure, Hetzner, Digital Ocean, Linode, Upcloud or any other cloud server provider.
+
+Open the shell prompt of the future
+-----------------------------------
+
+Websauna comes with `integrated IPython Notebook support <https://websauna.org/docs/narrative/misc/notebook.html>`_.
+`IPython Notebook <https://websauna.org/docs/reference/glossary.html#term-ipython>`_, an award winning data analysis and science tool, is directly integrated to Websauna. You can open a browser based shell prompt within your admin site with one click.
+
+The IPython integration makes Websauna ideal for science and data analysis use cases. You can also use the administrative shell for ad hoc system administration tasks and data fixes.

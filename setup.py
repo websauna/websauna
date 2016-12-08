@@ -11,13 +11,14 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
+
 setup(
     name='websauna',
     namespace_packages=["websauna"],
 
-    version='1.0a2.dev0',
+    version='1.0a3',
 
-    description=long_description.split()[0],
+    description=long_description.split("\n")[0],
     long_description=long_description,
 
     # The project's main homepage.

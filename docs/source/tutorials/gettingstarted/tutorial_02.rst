@@ -170,7 +170,9 @@ Then create a virtual environment where installed Python packages will be locate
 
     pip install "websauna[celery,utils,notebook]"
 
-**Alternatively** you can install the latest master from Github:
+Alternatively, in the case you want to leave on a bleeding edge, you can install the latest master from Github. This is recommended for experienced Python developers only:
+
+.. code-block:: console
 
     # Install Github development version of Websauna
     pip install -e "git+https://github.com/websauna/websauna.git@master#egg=websauna[celery,utils,notebook]"

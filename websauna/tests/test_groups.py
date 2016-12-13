@@ -1,4 +1,5 @@
 import transaction
+from flaky import flaky
 
 from websauna.system.user.models import User
 from websauna.tests.utils import create_logged_in_user
@@ -63,7 +64,7 @@ def test_put_user_to_group(web_server, browser, dbsession, init):
     assert b.is_text_present(GROUP_NAME)
 
 
-
+@flaky
 def test_user_group_choices_preserved_on_validation_error(web_server, init, browser, dbsession):
     """When user edit form validation fails, we should preserve the existing group choices.
 

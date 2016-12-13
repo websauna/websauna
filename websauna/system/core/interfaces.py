@@ -72,5 +72,7 @@ class IContainer(ILocation):
 
         This usually dynamically populates from the database when this is called and there is no caching. The result is iterable only once.
 
-        All results must have their ``__parent__`` pointer set.
+        :return: Iterable (URL id, child object). Child objects can be any Python objects with `__parent__` pointer set as described by a generic interface :py:class:`pyramid.interfaces.ILocation`.
         """
+
+

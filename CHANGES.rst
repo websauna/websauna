@@ -5,7 +5,7 @@ Changelog for Websauna
 1.0a2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Require Python 3.5.2 or newer on 3.5.x series, as 3.5.1 contains a bug in typing module preventing Websauna to run ( https://gist.github.com/mazz/b31fb5a89605548868a91abb91f8faf8 ) - reported by @mazz
 
 
 1.0a1 (2016-12-08)

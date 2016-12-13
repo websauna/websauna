@@ -6,6 +6,12 @@ from websauna.system.mail.utils import create_mailer
 
 assert sys.version_info >= (3,4), "Websauna needs Python 3.4 or newer"
 
+primary, major, minor, *rest = sys.version_info
+# 3.5.2 min
+if primary == 3 and major == 5 and minor < 2:
+    raise AssertionError("Python 3.5.2 or newer is required to run this, as there is a bug in Python 3.5.1 typing library")
+
+
 from distutils.version import LooseVersion
 import pkg_resources
 

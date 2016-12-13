@@ -30,7 +30,7 @@ Websauna is a full stack Python web framework for building web services and back
 | |versions|| |latest|  |
 +-----------+-----------+
 
-.. image:: https://websauna.org/theme/images/logo.png
+.. image:: https://websauna.org/theme/images/logo-768.png
 
 .. contents:: :local:
 

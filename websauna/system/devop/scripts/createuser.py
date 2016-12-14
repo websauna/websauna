@@ -37,6 +37,8 @@ def create(request, username, email, password=None, source="command_line", admin
         return u
 
     u = User(email=email, username=username)
+    dbsession.add(u)
+    dbsession.flush()  # Make sure u.user_data is set
 
     if password:
         user_registry = get_user_registry(request)
@@ -44,8 +46,6 @@ def create(request, username, email, password=None, source="command_line", admin
 
     u.registration_source = source
     u.activated_at = now()
-    dbsession.add(u)
-    dbsession.flush()
 
     request.registry.notify(UserCreated(request, u))
 

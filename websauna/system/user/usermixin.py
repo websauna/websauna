@@ -98,7 +98,7 @@ class UserMixin:
     first_login = index_property("user_data", "first_login")
 
     @property
-    def friendly_name(self):
+    def friendly_name(self) -> str:
         """How we present the user's name to the user itself.
 
         Picks one of 1) full name if set 2) username if set 3) email.
@@ -116,21 +116,21 @@ class UserMixin:
 
         return self.email
 
-    def generate_username(self):
+    def generate_username(self) -> str:
         """The default username we give for the user."""
         assert self.id
         return "user-{}".format(self.id)
 
-    def is_activated(self):
+    def is_activated(self) -> bool:
         """Has the user completed the email activation."""
         return self.activated_at is not None
 
-    def can_login(self):
+    def can_login(self) -> bool:
         """Is this user allowed to login."""
         # TODO: is_active defined in Horus
         return self.enabled and self.is_activated
 
-    def is_in_group(self, name):
+    def is_in_group(self, name) -> bool:
 
         # TODO: groups - defined in Horus
         for g in self.groups:
@@ -138,7 +138,7 @@ class UserMixin:
                 return True
         return False
 
-    def is_admin(self):
+    def is_admin(self) -> bool:
         """Does this user the see the main admin interface link.
 
         TODO: This is very suboptimal, wasted database cycles, etc. Change this.

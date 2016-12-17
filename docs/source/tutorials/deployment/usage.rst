@@ -67,11 +67,11 @@ Create a new playbook file. This can be directly in ``websauna.ansible`` root fo
 
         # Load default vars based on playbook.yml input
         - include_vars: default.yml
-          tags: site, smtp
+          tags: site, smtp, psql, uwsgi, nginx
 
         # Load default vars based on playbook.yml input
         - include_vars: secrets.yml
-          tags: site, smtp
+          tags: site, smtp, psql, uwsgi, nginx
 
       roles:
 

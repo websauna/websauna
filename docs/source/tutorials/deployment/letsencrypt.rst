@@ -36,7 +36,7 @@ Important variables:
 
 .. code-block:: yaml
 
-    - letencrypt: on
+    - letsencrypt: on
     - ssl: on
 
     # Let's encrypt parameters

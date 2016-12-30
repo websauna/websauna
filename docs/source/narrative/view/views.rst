@@ -151,6 +151,61 @@ Below is an example how to do a redirect (HTTP 302 temporary redirect) for logge
 
     One could also do a redirect by ``raise HTTPFound()`` and let exception handling mechanism to perform the redirect. In this case, however, nothing is written to the database, like user login records, because exceptions cause transaction rollback.
 
+Class based views
+=================
+
+Views can be also class based, allowing one to easily recycle methods across view logic.
+
+Example ``backoffice.views.api`` module that you can scan in ``configure_views()`` using ``config.scan()``:
+
+.. code-block:: python
+
+    import binascii
+
+    from pyramid.view import view_defaults
+    from websauna.system.core.route import simple_route
+
+    from ..models import CardEventSourceType
+    from ..card import provision
+    from ..card import get_ownership_info
+
+
+    @view_defaults(renderer='json', require_csrf=False)  # Set defaults for all API calls
+    class APIView:
+        """Base class for API renderers."""
+
+        def __init__(self, request):
+            self.request = request
+
+        def get_agent(self):
+            return None
+
+        def get_event_source(self):
+            return CardEventSourceType.simulation
+
+
+    class Provision(APIView):
+        """"NFC card provisioning API endpoint."""
+
+        @simple_route("/api/provision", route_name="api_provision")
+        def provision(self):
+            """Provision a new card."""
+
+            request = self.request
+            agent = self.get_agent()
+            event_source = self.get_event_source()
+
+            box_no = request.params["box_serial_number"]
+            card_no = binascii.unhexlify(request.params["card_serial_number"])
+
+            box, card = provision(request.dbsession, box_no, card_no, event_source, agent=agent)
+
+            ownership_info = get_ownership_info(box)
+
+            return {"status": "ok", "ownership_info": ownership_info}
+
+
+
 Stock views
 ===========
 

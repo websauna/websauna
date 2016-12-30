@@ -14,14 +14,14 @@ These instructions will set up a cron job that automatically updates Lets Encryp
 Installation
 ============
 
-In the folder where you have ``playbook.yml`` file create or append  ``requirements.yml`` with the contents:
+You need ``ansible-letsencrypt`` role that is known to be compatible with Websauna playbook. In the folder where you have ``playbook.yml`` file create or append  ``requirements.yml`` with the contents:
 
 .. code-block:: yaml
 
     - src: git+https://github.com/websauna/ansible-letsencrypt.git
       name: ansible-letsencrypt
 
-Then install the requirements:
+Then install the requirement:
 
 .. code-block:: console
 

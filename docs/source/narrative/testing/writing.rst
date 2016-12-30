@@ -179,3 +179,62 @@ Now you can use Inspect tool to examine the page :term:`DOM` tree and find the i
     :width: 640px
 
 Pick the id from the inspector and use it with :py:meth:`splinter.driver.DriverAPI.is_element_present_by_css`.
+
+Functional testing and SQLAlchemy detached object state
+=======================================================
+
+When working with functional tests, one has to do real commits for data changes, as otherwise the data cannot be exported across the threads: the thread running unit test functions and another thread being the web server and serving HTTP responses.
+
+This may be pain, as soon as you commit you cannot access SQLAlchemy object attributes anymore, making writing the test code requiring extra boilerplate and loads to avoid all ``sqlalchemy.orm.exc.DetachedInstanceError`` exceptions.
+
+This can be avoided by telling SQLAlchemy explicitly to not to detach objects after commit, allowing you to read objects fine in the test methods.
+
+Example ``conftest.py``:
+
+.. code-block:: python
+
+    import pytest
+
+
+    @pytest.fixture
+    def functional_dbsession(request, dbsession):
+        """Use this as the last fixture for the functional test functions.
+
+        Commits everything set up in prior fixtures so that they are available cross threads to the web server.
+        """
+        dbsession.expire_on_commit = False
+        dbsession.transaction_manager.commit()
+
+
+    @pytest.fixture
+    def box(request, dbsession):
+        b = Box.create(dbsession, box_type=BoxType.testing, serial_number=1)
+        return b
+
+
+Example ``test_api.py``:
+
+.. code-block:: python
+
+    import binascii
+    import requests
+
+
+    def test_provision_card(web_server, box, card, functional_dbsession):
+
+        # functional_dbsession as the last argument causes a database commit,
+        # but we can still access the model attributes of box and card fine
+
+        data = {
+            "box_serial_number": box.hash_id,
+            "card_serial_number": binascii.hexlify(card.serial_number),
+        }
+
+        response = requests.post(f"{web_server}/api/provision", params=data)
+
+        assert response.status_code == 200, "Got: {}".format(response.text)
+
+        response = response.json()
+        assert response["status"] == "ok"
+        assert response["ownership_info"]["owner_name"] == "Mikko Ohtamaa"
+        assert response["ownership_info"]["owner_phone_number"] == "+18082303437"

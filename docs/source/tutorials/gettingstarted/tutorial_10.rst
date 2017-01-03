@@ -73,6 +73,10 @@ A view can read records from a database, for example. It can use a template syst
 
 Because it’s convenient, let us use SQLAlchemy's database API for now, which we covered earlier in the tutorial. Here’s one stab at a new ``home()`` view, which displays the latest 5 poll questions in the database, separated by commas, according to publication date::
 
+    from pyramid.request import Response
+    from .models import Question
+    
+    
     def home(request: Request):
         """Render the site homepage."""
         latest_question_list = request.dbsession.query(Question).order_by(Question.published_at.desc()).all()[:5]
@@ -124,7 +128,10 @@ Put the following code in ``templates/myapp/home.html``
 
 
 Now let’s update our home view in ``myapp/views.py`` to use the template::
-
+    
+    from .models import Question
+    
+    
     # Configure view named home at path / using a template myapp/home.html
     @simple_route("/", route_name="home", renderer="myapp/home.html")
     def home(request: Request):

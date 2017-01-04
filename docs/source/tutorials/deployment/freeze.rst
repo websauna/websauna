@@ -5,7 +5,7 @@ Pinning down application dependencies (pip freeze)
 Introduction
 ============
 
-Before you can start deploying your application you first must freeze it Python package dependencies. Freezing is a process where :term:`pip` reads the versions of all installed packages in a local virtual environment and then produces a ``requirements.txt`` out of them.
+Before you can start deploying your application you first must freeze it's Python package dependencies. Freezing is a process where :term:`pip` reads the versions of all installed packages in a local virtual environment and then produces a text file with the package version for each python package specified.  By convention, it's named  ``requirements.txt``.
 
 How to perform a freeze
 =======================
@@ -22,9 +22,9 @@ Then commit this file.
 What happens without freezing?
 ==============================
 
-New Python package versions are released every day. Sooner or later one of your dependency projects will release a version which is not compatible with the API your application expects it to have. Because ``pip`` command installs latest versions by default, it would install an incompatible package version for your application. This would cause your application to crash or not to start.
+New Python package versions are released every day. Sooner or later one of your project's dependencies will release a version which is not compatible with the API your application expects it to have. Because the ``pip`` command installs latest versions by default, it would install an incompatible package version for your application. This would cause your application to crash or not to start.
 
-``requirements.txt`` maintains the list of absolute version numbers. When pip uses it to fetch the packages, it always gets the same version you had when developing the application, not possibly incompatible latest version.
+``requirements.txt`` maintains the list of absolute version numbers. When ``pip`` uses it to fetch the packages, it always gets the specified version you had when developing the application, not a possibly incompatible latest version.
 
 Advanced
 ========

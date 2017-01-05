@@ -118,9 +118,6 @@ create a version which also allows process the votes. Edit the following to ``my
 
         if request.method == "POST":
 
-            # Check that CSRF token was good
-            check_csrf_token(request)
-
             question = request.dbsession.query(Question).filter_by(uuid=question_uuid).first()
             if not question:
                 raise HTTPNotFound()

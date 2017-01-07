@@ -154,23 +154,23 @@ Example:
 
 .. code-block:: python
 
-def upgrade():
+    def upgrade():
 
-    # Drop transaction isolation level
-    connection = None
-    if not op.get_context().as_sql:
-        connection = op.get_bind()
-        connection.execution_options(isolation_level='AUTOCOMMIT')
+        # Drop transaction isolation level
+        connection = None
+        if not op.get_context().as_sql:
+            connection = op.get_bind()
+            connection.execution_options(isolation_level='AUTOCOMMIT')
 
-    # Update enum values
-    conn = op.get_bind()
-    conn.execute("ALTER TYPE assetcontenttype ADD value 'facebook_post' after 'rss';")
-    conn.execute("ALTER TYPE assetcontenttype ADD value 'article' after 'rss';")
-    conn.execute("ALTER TYPE assetcontenttype ADD value 'research' after 'rss';")
+        # Update enum values
+        conn = op.get_bind()
+        conn.execute("ALTER TYPE assetcontenttype ADD value 'facebook_post' after 'rss';")
+        conn.execute("ALTER TYPE assetcontenttype ADD value 'article' after 'rss';")
+        conn.execute("ALTER TYPE assetcontenttype ADD value 'research' after 'rss';")
 
-    # Set transaction isolation level back
-    if connection is not None:
-        connection.execution_options(isolation_level='READ_COMMITTED')
+        # Set transaction isolation level back
+        if connection is not None:
+            connection.execution_options(isolation_level='READ_COMMITTED')
 
 More info
 

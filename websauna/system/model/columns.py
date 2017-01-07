@@ -16,6 +16,8 @@ from sqlalchemy_utils.types.uuid import UUIDType
 from sqlalchemy.dialects.sqlite import DATETIME as DATETIME_
 from sqlalchemy.dialects import postgresql
 
+from .json import json_serializer
+
 
 class UTCDateTime(DateTime):
     """An SQLAlchemy DateTime column that explicitly uses timezone aware dates and only accepts UTC."""
@@ -49,6 +51,14 @@ class JSONB(JSONType):
             return dialect.type_descriptor(_JSONB())
         else:
             return dialect.type_descriptor(self.impl)
+
+    def process_bind_param(self, value, dialect):
+        if dialect.name == 'postgresql':
+            return value
+        if value is not None:
+            # Correctly process NestedMutationDict
+            value = json_serializer(value)
+        return value
 
 
 class INET(IPAddressType):

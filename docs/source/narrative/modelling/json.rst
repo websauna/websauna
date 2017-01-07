@@ -13,9 +13,9 @@ JSON data storage is ideal when you do not know all the schema key or columns be
 
 * You are storing data from an external source like a third party API giving JSON return values
 
-:term:`PostgreSQL` database offers very powerful :term:`JSONB` column that store schemaless :term:`JSON`-like data directly in :term:`SQL`database. This gives many advantages of NoSQL-like data processing, but by still maintaining high :term:`ACID` guarantees given by PostgreSQL.
+:term:`PostgreSQL` database offers very powerful :term:`JSONB` column that store schemaless :term:`JSON`-like data directly in :term:`SQL` database. This gives many advantages of NoSQL-like data processing, but by still maintaining high :term:`ACID` guarantees given by PostgreSQL.
 
-For SQLite Websauna offers a fallback in :py:class:`websauna.model.columns.JSONB`.
+For SQLite Websauna offers a fallback in :py:class:`websauna.system.model.columns.JSONB`.
 
 Using JSONB column
 ==================

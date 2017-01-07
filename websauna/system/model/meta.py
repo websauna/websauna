@@ -1,16 +1,17 @@
 """Database default base models and session setup."""
-from zope.sqlalchemy.datamanager import register
+
 
 import transaction
-from pyramid.registry import Registry
-from pyramid.settings import asbool
+
 from sqlalchemy import engine_from_config
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.schema import MetaData
 
+from pyramid.registry import Registry
 import zope.sqlalchemy
+
 from websauna.system.http import Request
 from websauna.system.model.interfaces import ISQLAlchemySessionFactory
 

@@ -3,8 +3,8 @@ from uuid import UUID
 import inspect
 from types import ModuleType
 
+import sqlalchemy.sql
 from sqlalchemy.ext.declarative import instrument_declarative
-
 
 
 def secure_uuid():
@@ -98,3 +98,6 @@ def attach_models_to_base_from_module(mod:ModuleType, Base:type):
             if hasattr(value, "__tablename__"):
                 # This declares table but is not attached to any base yet
                 attach_model_to_base(value, Base)
+
+
+

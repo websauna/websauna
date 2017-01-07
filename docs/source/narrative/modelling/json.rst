@@ -2,23 +2,30 @@
 JSON data in models
 ===================
 
+.. contents:: :local:
+
 Introduction
 ============
 
-:term:`PostgreSQL` database offers very powerful :term:`JSONB` column which allows store schemaless data easily based on :term:`JSON`. This gives many advantages of "NoSQL"-like databases by still maintaining :term:`ACID` guarantees.
+JSON data storage is ideal when you do not know all the schema key or columns beforehand.
 
-Websauna takes advantage of this and offers integration glue over what :term:`SQLAlchemy` offers by default.
+* You are iterating early versions of your data models and do not know how they end up look like
+
+* You are storing data from an external source like a third party API giving JSON return values
+
+:term:`PostgreSQL` database offers very powerful :term:`JSONB` column that store schemaless :term:`JSON`-like data directly in :term:`SQL`database. This gives many advantages of NoSQL-like data processing, but by still maintaining high :term:`ACID` guarantees given by PostgreSQL.
+
+For SQLite Websauna offers a fallback in :py:class:`websauna.model.columns.JSONB`.
 
 Using JSONB column
 ==================
 
-Here is a quick example:
+Here is an example:
 
 .. code-block:: python
 
     import sqlalchemy as sa
     import sqlalchemy.orm as orm
-    import sqlalchemy.dialects.postgresql as psql
     from sqlalchemy.orm import Session
     from websauna.system.model.columns import UTCDateTime
 
@@ -26,8 +33,11 @@ Here is a quick example:
     from websauna.system.user.models import User
     from websauna.utils.time import now
     from websauna.system.model.json import NestedMutationDict
+    from websauna.system.model.json import from with_json_columns
+    from websauna.system.model.columns import JSONB
 
 
+    @with_json_columns
     class Verification(Base):
 
         __tablename__ = "verification"
@@ -46,17 +56,23 @@ Then you can use it like:
 
 .. code-block:: python
 
+    # Mutation tracking for an object that has not been added to a session yet
     v = Verification()
     v.verification_data["name"] = "Mikko Ohtamaa"
     v.verification_data["hometown"] = "Toholampi"
     dbsession.add(v)
     transaction.commit()
 
+    # Mutation tracking for an object that has been committed and is in active session,
+    # but not dirty
+    v.verification_data["hometown"] = "Toholampi"
+
+    # Mutation tracking for an object that is loaded from the database
     v = dbsession.query(Verification).first()
     for key, value in v.verification_data.items():
         print("{} is {}".format(key, value))
 
-You can also dictionary data from a random source:
+You can also update dictionary data directly from an external source, like API call returning JSON data:
 
 .. code-block:: python
 
@@ -64,11 +80,62 @@ You can also dictionary data from a random source:
     v = Verification()
     v.verification_data.update(source_data)
 
+Default values
+==============
 
-More more information see :py:class:`sqlalchemy.dialects.postgresql.JSONB`.
+Always use :py:func:`websauna.system.model.json.with_json_columns` class decorator if your model contains JSON/JSONB columns. Usually you should us ``dict`` function as a default value for a JSON column, unless you specifically want some default data populated there or``None``.
 
-Mutation tracking
------------------
+.. note ::
+
+    By SQLAlchemy rules, the default data is not availalbe to modify/read until you have called ``dbsession.flush``.
+
+Example.
+
+.. code-block:: python
+
+    import sqlalchemy as sa
+    import sqlalchemy.orm as orm
+
+    from websauna.system.model.meta import Base
+    from websauna.system.user.models import User
+    from websauna.utils.time import now
+    from websauna.system.model.json import NestedMutationDict
+    from websauna.system.model.json import from with_json_columns
+    from websauna.system.model.columns import JSONB
+
+
+    #: Initialze user_data JSONB structure with these fields on new User
+    DEFAULT_USER_DATA = {
+        "full_name": None,
+
+        # The initial sign up method (email, phone no, imported, Facebook) for this user
+        "registration_source": None,
+
+        # Is it the first time this user is logging to our system? If it is then take the user to fill in the profile page.
+        "first_login": True,
+
+        "social": {
+            # Each of the social media login data imported here as it goes through SocialLoginMapper.import_social_media_user()
+        }
+    }
+
+
+    @with_json_columns
+    class User(Base):
+
+        #: Misc. user data as a bag of JSON. Do not access directly, but use JSONBProperties below
+        user_data = sa.Column(NestedMutationDict.as_mutable(JSONB), default=DEFAULT_USER_DATA)
+
+
+    # Then ...
+
+    u = User()
+    dbsession.add(u)
+    dbsession.flush()
+    print(u.user_data["first_login"])  # True
+
+Nested mutation tracking
+========================
 
 :py:class:`websauna.system.model.json.NestedMutationDict` provides nested state tracking for JSON column dictionaries.
 
@@ -78,6 +145,7 @@ This means that the following works:
 
     v = Verification()
     v.verification_data["name"] = "Mikko Ohtamaa"
+    v.verification_data["subdata"] = {}
     dbsession.add(v)
     transaction.commit()
 
@@ -85,42 +153,58 @@ This means that the following works:
     # Plain SQLAlchemy JSONB would not mark v object
     # dirty when we set a dictionary key here.
     # The change would not be stored in the following commit
-    v.verification_data["phone_number"] = "+1 505 123 1234"
+    v.verification_data["subdata"]["subitem"] = "+1 505 123 1234"
     transaction.commit()
 
 
 For more information see :py:mod:`websauna.system.model.json`.
 
-Default usage
--------------
+Indexed properties
+==================
 
-:py:class:`websauna.system.user.usermixin.UserMixin` provides example in the format of ``user_data`` where random user variables and all social media connected data is stored.
+SQLAlchemy offers :py:func:`sqlalchemy.ext.indexable.index_property` descriptor that can be used to short cut data access inside a JSON dictionary.
 
-Using JSONBProperty
-===================
+Example:
 
-.. note ::
+.. code-block:: python
 
-    JSONBProperty is a class planned to be moved out from Websauna project. Please do not use it in your projects as is.
+    from sqlalchemy.ext.indexable import index_property
 
-Use cases
+    #: Initialze user_data JSONB structure with these fields on new User
+    DEFAULT_USER_DATA = {
 
-* No migration needed when adding new properties
+        # The initial sign up method (email, phone no, imported, Facebook) for this user
+        "registration_source": None,
 
-* You can refer inside non-structured data you have dumped on JSON column from external source
+    }
 
-* Mutation tracking
+    class UserMixin:
+
+
+        #: Misc. user data as a bag of JSON. Do not access directly, but use JSONBProperties below
+        user_data = Column(NestedMutationDict.as_mutable(JSONB), default=DEFAULT_USER_DATA)
+
+        #: How this user signed up to the site. May include string like "email", "facebook" or "dummy". Up to the application to use this field. Default social media logins and email sign up set this.
+        registration_source = index_property("user_data", "registration_source")
+
+
+    # Now you can do
+
+    u = User()
+    dbsession.add(u)
+    dbsession.flush()
+    print(u.registration_source)
 
 Non-JSON serializable types
 ===========================
 
 By default the following Python data does not serialize as JSON:
 
-* Python's ``Decimal``
+* :py:class:`decimal.Decimal`
 
-* ``datetime``
+* :py:class:`datetime.datetime`
 
-* UUID
+* :py:class:`uuid.UUID`
 
 You need to use string presentations for these. For inspiration see the code below:
 

@@ -141,13 +141,6 @@ class NestedMixin(object):
 
     def changed(self):
 
-        # We do not have parent dict() or list().
-        # We do not have parent SQLAlchemy model.
-        # This object has constructed without binding it to any parent.
-        if False and self.__parent__ is None and not self._parents:
-            if self:  # Check for emptiness
-                assert self.__parent__, "Somehow got a modification event for a NestedMutationDict or NestedMutationList where we do not know for which parent SQLAlchemy model instances it belongs. Data is {}. Make sure you do not pass Column(default=) argument to NestedMutationList or NestedMutationList. See JSONB documentation how to properly initalized JSONB data default values.".format(self)
-
         if self.__parent__ is not None:
             # Direct dict or tuple parent here
             self.__parent__.changed()

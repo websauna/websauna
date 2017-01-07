@@ -5,6 +5,8 @@ Changelog for Websauna
 1.0a4 (unreleased)
 ------------------
 
+- New ``websauna..system.model.json.with_json_columns`` class decorator. That must be application on models using JSON columns to make them behave correclty. See `JSON column documentation for more information <https://websauna.org/docs/narrative/modelling/json.html>`_.
+
 - Fix user.user_data not correctly populated when user was created from command line. ( reported by @mazz )
 
 

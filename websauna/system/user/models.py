@@ -37,6 +37,7 @@ class User(usermixin.UserMixin):
 
 
 @implementer(IGroup)
+@with_json_columns
 class Group(usermixin.GroupMixin):
 
     __tablename__ = "group"

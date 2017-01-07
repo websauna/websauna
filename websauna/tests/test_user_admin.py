@@ -1,4 +1,6 @@
 import pytest
+from flaky import flaky
+
 import transaction
 from splinter.driver import DriverAPI
 from websauna.system.user.models import User
@@ -133,6 +135,7 @@ def test_add_user_with_group(browser, web_server, init, dbsession):
         assert len(u.groups) == 1
 
 
+@flaky
 def test_set_password(browser, victim_browser, web_server, init, dbsession):
     """See that we can reset the user password.
 

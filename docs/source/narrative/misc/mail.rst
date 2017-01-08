@@ -25,13 +25,16 @@ No-op local development email printer
 
 When you run a development server, no email goes out by default. Instead it is printed to your console where :ref:`ws-pserve` is running.
 
-
 Actual outgoing SMTP traffic
 ----------------------------
 
 For actual outgoing emails you need to have an SMTP service agreement from some of the providers. You may or may not want to use Postfix server as a local buffer.
 
 See :ref:`outbound-email` below for more information.
+
+.. note ::
+
+    You can change your outbound email settings in ``development.ini`` if you want to test email out from your local laptop.
 
 Sending out email
 =================

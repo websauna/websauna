@@ -8,6 +8,7 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.schema import MetaData
+from sqlalchemy import event
 
 from pyramid.registry import Registry
 import zope.sqlalchemy
@@ -16,6 +17,7 @@ from websauna.system.http import Request
 from websauna.system.model.interfaces import ISQLAlchemySessionFactory
 
 from .json import json_serializer
+from .json import init_for_json
 
 # Recommended naming convention used by Alembic, as various different database
 # providers will autogenerate vastly different names making migrations more
@@ -35,6 +37,15 @@ metadata = MetaData(naming_convention=NAMING_CONVENTION)
 Base = declarative_base(metadata=metadata)
 
 
+@event.listens_for(Base, "class_instrument", propagate=True)
+def _on_model_registered(cls):
+    """Intercept SQLAlchemy model creation (instrumentation).
+
+    Insert event listeners that allow JSON values play nicely.
+    """
+    init_for_json(cls)
+
+
 def includeme(config):
     """Hook up database initialization and SQLAlchemy global setup."""
 
@@ -49,10 +60,6 @@ def includeme(config):
         'transaction_manager',
         reify=True
     )
-
-    # Register UTC timezone enforcer
-    # if asbool(config.registry.settings.get("websauna.force_utc_on_columns", True)):
-    #    from . import sqlalchemyutcdatetime  # noqa
 
 
 def request_session_factory(request: Request) -> Session:
@@ -124,6 +131,10 @@ def create_session_maker(engine):
     """
     dbmaker = sessionmaker()
     dbmaker.configure(bind=engine)
+
+
+    #
+
     return dbmaker
 
 

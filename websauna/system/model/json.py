@@ -127,6 +127,7 @@ for wrapper_class in (MutationDict, MutationList):
 
 
 class NestedMixin(object):
+    """Base class to to nested dict and list state tracking."""
 
     #: Pointer to parent NestedMutatedDict or NestedMutatedList. If the parent is Column then this is None.
     __parent__ = None
@@ -225,7 +226,7 @@ def _get_column_default(target: object, column: Column):
             return column.default.arg
 
 
-def with_json_columns(cls):
+def setup_default_value_handling(cls):
     """A SQLAlchemy model class decorator that ensures JSON/JSONB default values are correctly handled.
 
     Settings default values for JSON fields have a bunch of issues, because dict and list instances need to be wrapped in ``NestedMutationDict`` and ``NestedMutationList`` that correclty set the parent object dirty state if the container content is modified. This class decorator sets up hooks, so that default values are automatically converted to their wrapped versions.
@@ -250,4 +251,13 @@ def with_json_columns(cls):
                 setattr(target, c.name, default)
 
     return cls
+
+
+
+def init_for_json(cls):
+    """Check if we need to add JSON column specific SQLAlchemy event listers for this model."""
+    # import pdb ; pdb.set_trace()
+    has_json_columns = any([is_json_like_column(c) for c in cls.__table__.columns])
+    if has_json_columns:
+        setup_default_value_handling(cls)
 

@@ -11,13 +11,11 @@ from zope.interface import implementer
 
 from websauna.system.user.interfaces import IGroup, IUser
 from websauna.system.user.usermixin import ActivationMixin, UserGroupMixin
-from websauna.system.model.json import with_json_columns
 
 from . import usermixin
 
 
 @implementer(IUser)
-@with_json_columns
 class User(usermixin.UserMixin):
     """The default user implementation for Websauna.
 
@@ -37,7 +35,6 @@ class User(usermixin.UserMixin):
 
 
 @implementer(IGroup)
-@with_json_columns
 class Group(usermixin.GroupMixin):
 
     __tablename__ = "group"

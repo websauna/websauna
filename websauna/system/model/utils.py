@@ -25,6 +25,8 @@ def secure_uuid():
     return UUID(bytes=os.urandom(16), version=4)
 
 
+
+
 def attach_model_to_base(ModelClass:type, Base:type, ignore_reattach:bool=True):
     """Dynamically add a model to chosen SQLAlchemy Base class.
 
@@ -78,6 +80,15 @@ def attach_model_to_base(ModelClass:type, Base:type, ignore_reattach:bool=True):
             return
 
     instrument_declarative(ModelClass, Base._decl_class_registry, Base.metadata)
+
+    # TODO: We now hardcode this event listener here.
+    # from sqlalchemy.orm.instrumentation import _instrumentation_factory
+    #_instrumentation_factory.dispatch.class_instrument(ModelClass)
+
+    # The correct approach is through class_instrument() event firing,
+    # but could not figure out yet how to make it happen with all bits flying around
+    from .json import init_for_json
+    init_for_json(ModelClass)
 
 
 def attach_models_to_base_from_module(mod:ModuleType, Base:type):

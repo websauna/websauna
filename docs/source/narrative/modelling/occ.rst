@@ -40,7 +40,7 @@ If there is a transaction conflict during HTTP request it is automatically retri
 Celery
 ++++++
 
-Celery tasks can be set automatically retry by using base task :py:class`websauna.system.task.tasks.RetryableTransactionTask`. For more information see :ref:`<tasks>`.
+Celery tasks can be set automatically retry by using base task :py:class`websauna.system.task.tasks.RetryableTransactionTask`. For more information see :ref:`tasks`.
 
 Using transaction.manager context manager
 +++++++++++++++++++++++++++++++++++++++++

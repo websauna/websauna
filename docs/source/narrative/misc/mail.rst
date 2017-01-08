@@ -9,22 +9,29 @@ Email
 Introduction
 ============
 
-Websauna provides facilities to send out
-
-* `pyramid_mailer <https://github.com/Pylons/pyramid_mailer>`_ package provides low-level interface for outgoing email
+Websauna provides facilities to send out emails
 
 * Outgoing email is tied to the success of transaction - if your code fails in some point no email is sent
 
 * Rich-text HTML emails are supported with `premailer package <https://pypi.python.org/pypi/premailer>`_ which will turn :term:`CSS` styles to inline styles for emails
 
+* `pyramid_mailer <https://github.com/Pylons/pyramid_mailer>`_ package provides low-level interface for outgoing email
 
 Configuring email
 =================
 
-Printing out email to console on the development server
--------------------------------------------------------
+No-op local development email printer
+-------------------------------------
 
 When you run a development server, no email goes out by default. Instead it is printed to your console where :ref:`ws-pserve` is running.
+
+
+Actual outgoing SMTP traffic
+----------------------------
+
+For actual outgoing emails you need to have an SMTP service agreement from some of the providers. You may or may not want to use Postfix server as a local buffer.
+
+See :ref:`outbound-email` below for more information.
 
 Sending out email
 =================
@@ -91,12 +98,26 @@ To send out this email use :py:func:`websauna.system.mail.send_templated_mail`:
         user = request.user
         send_templated_mail(request, [user.email], "email/welcome", context={})
 
-Envelope to header
-------------------
+Email and transaction bounderies
+--------------------------------
+
+Email is send out only if the transaction commits. If the request fails (HTTP 500) and the transaction is aborted then no email is sent.
+
+If you are doing email out from command line jobs or :ref:`tasks` make sure you close your transactions properly or there is no email out.
+
+If you are sending email outside the normal transaction lifecycle check out ``immediate`` parameter of :py:func:`websauna.system.mail.send_templated_mail`:
+
+.. code-block:: python
+
+    # Do not wait for the commit
+    send_templated_mail(request, [user.email], "email/welcome", context={}, immediate=True)
+
+Sender envelope header
+----------------------
 
 If you want to have the email "To:" header to contain the full name of the receiver you can do the following.
 
-
+TODO
 
 Raw pyramid_mail API
 --------------------
@@ -136,10 +157,15 @@ For a peek into outbound email you can do::
 
     TODO
 
+
+.. _outbound-email:
+
 Configuring outbound email
 ==========================
 
-Below is an :term:`INI` configuration example to send emails through `Sparkpost <https://www.sparkpost.com/>`_. This will make *pyramid_mailer* directly to talk remote SMTP server. These settings are good for local development when you need to see the actual outbound email message content properly:
+Below is an :term:`INI` configuration example to send emails through `Sparkpost <https://www.sparkpost.com/>`_. This will make *pyramid_mailer* directly to talk remote SMTP server. These settings are good for local development when you need to see the actual outbound email message content properly.
+
+External service example:
 
 .. code-block:: ini
 
@@ -157,6 +183,22 @@ Below is an :term:`INI` configuration example to send emails through `Sparkpost 
     mail.port = 587
     mail.username = SMTP_Injection
     mail.password = <your Sparkpost API token>
+
+Local Postix example:
+
+.. code-block:: ini
+
+    [main]
+
+    # ...
+    # other settings go here
+    # ...
+
+    websauna.mailer = mail
+    mail.host = localhost
+    mail.port = 25
+    mail.username =
+    mail.password =
 
 For more complex production environment outbound email with local :term:`Postfix` buffering, see :ref:`outbound email chapter in Ansible playbook <outbound-email>`.
 

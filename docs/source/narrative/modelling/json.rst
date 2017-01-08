@@ -20,7 +20,9 @@ For SQLite Websauna offers a fallback in :py:class:`websauna.system.model.column
 Using JSONB column
 ==================
 
-Here is an example:
+You need to wrap JSON/JSONB column types with a :py:func:`NestedMutationDict.as_mutable` function that enables deep mutated state tracking for SQLAlchemy. This means that SQLAlchemy objects are properly committed when you change dictionary keys or list items and you do not manually need to call SQLAlchemy's ``mark_dirty`` function.
+
+Here is an example how to declare a basic column containg JSONB data and how to use it:
 
 .. code-block:: python
 

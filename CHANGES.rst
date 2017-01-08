@@ -2,7 +2,7 @@ Changelog for Websauna
 ======================
 
 
-1.0a4 (unreleased)
+1.0a4 (2017-01-07)
 ------------------
 
 - Reworked the rules for JSONB columns and their default values. See `JSON column documentation for more information <https://websauna.org/docs/narrative/modelling/json.html>`_.

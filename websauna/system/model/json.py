@@ -13,6 +13,9 @@ from sqlalchemy.dialects.postgresql.json import JSON
 from sqlalchemy_utils.types.json import JSONType
 from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.sql.schema import Column
+from sqlalchemy import types
+from sqlalchemy.orm import mapper, object_mapper, Mapper
+
 
 
 def _default(obj):
@@ -32,7 +35,28 @@ def json_serializer(d):
     return json.dumps(d, default=_default)
 
 
-class MutationDict(Mutable):
+class WebsaunaFriendlyMutable(Mutable):
+
+    @classmethod
+    def as_mutable(cls, sqltype):
+
+        sqltype = types.to_instance(sqltype)
+
+        def listen_for_type(mapper, class_):
+            for prop in mapper.column_attrs:
+                # The original implementation has SQLAlchemy type comparator.
+                # Here we need to be little more complex, because we define a type alias
+                # for generic JSONB implementation
+                # __class__ is websauna.system.model.columns.JSONB
+                if prop.columns[0].type.__class__ is sqltype.__class__:
+                    cls.associate_with_attribute(getattr(class_, prop.key))
+
+        event.listen(mapper, 'mapper_configured', listen_for_type)
+
+        return sqltype
+
+
+class MutationDict(WebsaunaFriendlyMutable):
     """http://www.sqlalchemy.org/docs/orm/extensions/mutable.html
     """
     _wraps = dict
@@ -56,7 +80,7 @@ class MutationDict(Mutable):
                      for key, value in self._d.items()])
 
 
-class MutationList(Mutable):
+class MutationList(WebsaunaFriendlyMutable):
     _wraps = list
 
     def __init__(self, data):

@@ -15,6 +15,8 @@ from sqlalchemy.orm.session import Session
 
 from websauna.system.model.columns import UUID
 from websauna.system.model.columns import JSONB
+from websauna.system.model.columns import JSONB
+# from sqlalchemy.dialects.postgresql import JSONB
 from websauna.system.model.columns import INET
 from websauna.system.model.columns import UTCDateTime
 from websauna.utils.crypt import generate_random_string

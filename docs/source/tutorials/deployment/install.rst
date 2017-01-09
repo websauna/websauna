@@ -27,7 +27,7 @@ Create a :term:`virtual environment` for Ansible. This must be a separate from t
     cd websauna.ansible
     virtualenv -p python2.7 venv
     source venv/bin/activate
-    pip install ansible
+    pip install ansible<2.2  # Stouts.nginx is currently incompatible with latest Ansible
 
 .. note ::
 

@@ -1,13 +1,13 @@
 """JSONB field behavior checks."""
 import transaction
+
 from websauna.system.model.json import NestedMutationDict
 from websauna.system.user.models import User
-
 from websauna.tests.utils import create_user
 
 
 def test_pending_jsonb_dict_new_key(dbsession, registry):
-    """Check that new keys added to JSONB dict are persistent"""
+    """Check that new keys added to JSONB that is not committed yet are persistent."""
 
     with transaction.manager:
         u = create_user(dbsession, registry)
@@ -20,7 +20,7 @@ def test_pending_jsonb_dict_new_key(dbsession, registry):
 
 
 def test_committed_jsonb_dict_new_key(dbsession, registry):
-    """Check that new keys added to JSONB dict are persistent"""
+    """Check that new keys added to JSONB dict that is loaded from db are persistent."""
 
     with transaction.manager:
         u = create_user(dbsession, registry)

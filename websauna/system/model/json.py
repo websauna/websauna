@@ -36,19 +36,44 @@ def json_serializer(d):
 
 
 class WebsaunaFriendlyMutable(Mutable):
+    """A patched mutable that can deal with our generic column types."""
 
     @classmethod
-    def as_mutable(cls, sqltype):
+    def as_mutable(cls, orig_sqltype):
+        """Mark the value as nested mutable value.
 
-        sqltype = types.to_instance(sqltype)
+        What happens here
+
+        * We coerce the return value - the type value set on sqlalchemy.Column() to the underlying SQL typ
+
+        * We mark this type value with a marker attribute
+
+        * Then we set a global SQAlchemy mapper event handler
+
+        * When mapper is done setting up our model classes, it will call the event handler for all models
+
+        * We check if any of the models columns have our marked type value as the value
+
+        * If so we call ``associate_with_attribute`` for this model and column that sets up ``MutableBase._listen_on_attribute`` event handlers. These event handlers take care of taking the raw dict coming out from database and wrapping it to NestedMutableDict.
+
+        :param orig_sqltype: Usually websauna.system.model.column.JSONB instance
+        :return: Marked and coerced type value
+        """
+
+        # Create an instance of this type and add a marker attribute,
+        # so we later find it.
+        # We cannot directly compare the result type values, as looks like
+        # the type value might be mangled by dialect specific implementations
+        # or lost somewhere. Never figured this out 100%.
+        sqltype = types.to_instance(orig_sqltype)
+        sqltype._column_value_id = id(sqltype)
 
         def listen_for_type(mapper, class_):
             for prop in mapper.column_attrs:
                 # The original implementation has SQLAlchemy type comparator.
                 # Here we need to be little more complex, because we define a type alias
                 # for generic JSONB implementation
-                # __class__ is websauna.system.model.columns.JSONB
-                if prop.columns[0].type.__class__ is sqltype.__class__:
+                if getattr(prop.columns[0].type, "_column_value_id", None) == sqltype._column_value_id:
                     cls.associate_with_attribute(getattr(class_, prop.key))
 
         event.listen(mapper, 'mapper_configured', listen_for_type)
@@ -92,7 +117,10 @@ class MutationList(WebsaunaFriendlyMutable):
         if not isinstance(value, MutationList):
             if isinstance(value, list):
                 return cls(value)
-            return Mutable.coerce(key, value)
+            try:
+                return Mutable.coerce(key, value)
+            except ValueError as e:
+                import pdb ; pdb.set_trace()
         else:
             return value
 
@@ -277,10 +305,10 @@ def setup_default_value_handling(cls):
     return cls
 
 
-
 def init_for_json(cls):
     """Check if we need to add JSON column specific SQLAlchemy event listers for this model."""
     # import pdb ; pdb.set_trace()
+    global _loaded_listener
     has_json_columns = any([is_json_like_column(c) for c in cls.__table__.columns])
     if has_json_columns:
         setup_default_value_handling(cls)

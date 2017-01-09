@@ -148,8 +148,12 @@ Below is a form example which loads from an existing data source to edit the inf
 
     def get_user_data(user: User) -> dict:
         """Construct appstruct dict from user."""
-        data = user.user_data
-        # Make sure None deserializes to empty string
+        
+        # This dict is what form fields will be populated with
+        data = {}
+        # Get all fields from user data
+        data.update(user.user_data)
+        # Make sure full_name is empty string and not None
         data["full_name"] = user.full_name or ""
         return data
 

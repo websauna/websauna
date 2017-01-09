@@ -17,7 +17,6 @@ from sqlalchemy import types
 from sqlalchemy.orm import mapper, object_mapper, Mapper
 
 
-
 def _default(obj):
     if isinstance(obj, MutationDict):
         return obj._d

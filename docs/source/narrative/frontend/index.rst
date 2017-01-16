@@ -11,3 +11,4 @@ Frontend and templating
     themes
     static
     image
+    caching

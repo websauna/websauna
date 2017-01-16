@@ -23,6 +23,9 @@ from websauna.system.core.viewconfig import view_overrides
 from websauna.system.crud import listing
 from websauna.system.admin import views as admin_views
 
+from websauna.system.form.fields import JSONValue
+from websauna.system.form.widgets import JSONWidget
+
 from .admins import UserAdmin
 from .admins import GroupAdmin
 from . import events
@@ -90,9 +93,10 @@ class UserShow(admin_views.Show):
                 "last_login_at",
                 "last_login_ip",
                 colander.SchemaNode(colander.String(), name="registration_source", missing=colander.drop),
-                colander.SchemaNode(colander.String(), name="social"),
+                colander.SchemaNode(JSONValue(), name="user_data", widget=JSONWidget(), description="user_data JSON properties"),
                 colander.SchemaNode(GroupSet(), name="groups", widget=defer_widget_values(deform.widget.CheckboxChoiceWidget, group_vocabulary, css_class="groups"))
                 ]
+
 
     form_generator = SQLAlchemyFormGenerator(includes=includes)
 

@@ -72,15 +72,11 @@ More information
 Setting up Twitter login
 ========================
 
-.. note ::
-
-    Twitter does not provide user email address by default. They may or may not grant this permission through a special whitelist support request. The default Twitter mapper only supports identifying users by emails, but you could use Twitter ids as well. `See more information <https://dev.twitter.com/rest/reference/get/account/verify_credentials>`_.
-
 First create an app in `apps.twitter.com <https://apps.twitter.com>`_.
 
 You need to configure privacy policy and terms of service for your application. Then set your app permissions to ask for an email address permission with *Read only* access:
 
-.. image:: ../images/oauth-twitter-email.png
+.. image:: ../images/twitter-oauth-email.png
     :width: 640px
 
 In :ref:`development.ini` enable Twitter login:

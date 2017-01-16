@@ -241,26 +241,27 @@ class TwitterMapper(EmailSocialLoginMapper):
     @staticmethod
     def _x_user_parser(user, data):
         """Monkey patched authomatic.providers.oauth1.Twitter._x_user_parser."""
+
+        # dict_keys(['has_extended_profile', 'profile_use_background_image', 'time_zone', 'profile_image_url', 'default_profile_image', 'lang', 'id', 'id_str', 'profile_sidebar_border_color', 'profile_image_url_https', 'name', 'screen_name', 'utc_offset', 'email', 'location', 'friends_count', 'follow_request_sent', 'contributors_enabled', 'notifications', 'description', 'profile_link_color', 'profile_background_tile', 'followers_count', 'profile_background_image_url_https', 'is_translator', 'is_translation_enabled', 'profile_background_color', 'translator_type', 'profile_text_color', 'created_at', 'geo_enabled', 'profile_sidebar_fill_color', 'verified', 'profile_background_image_url', 'statuses_count', 'following', 'url', 'status', 'entities', 'profile_banner_url', 'default_profile', 'protected', 'favourites_count', 'listed_count'])
         user.data = data
-        # TODO: Fetch user email
-        # TODO: Pending Twitter authentication request
         return user
 
     def import_social_media_user(self, user):
         """Pass-through Twitter auth data to user_data['social']['twitter']"""
         return user.data
 
-    def update_first_login_social_data(self, user:IUserModel, data:dict):
+    def update_first_login_social_data(self, user: IUserModel, data: dict):
         super(TwitterMapper, self).update_first_login_social_data(user, data)
         if not user.full_name and data.get("name"):
             user.full_name = data["name"]
 
-    def capture_social_media_user(self, request:Request, result:LoginResult) -> IUserModel:
+    def capture_social_media_user(self, request: Request, result: LoginResult) -> IUserModel:
         """Extract social media information from the Authomatic login result in order to associate the user account."""
         assert not result.error
 
-        # Monkey patch user data fetcher
-        result.provider._x_user_parser = TwitterMapper._x_user_parser
+        # We need to pass include_email=true
+        # https://dev.twitter.com/rest/reference/get/account/verify_credentials
+        result.provider.user_info_url = "https://api.twitter.com/1.1/account/verify_credentials.json?include_email=true"
 
         result.user.update()
 

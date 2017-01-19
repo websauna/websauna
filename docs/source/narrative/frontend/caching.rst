@@ -18,6 +18,8 @@ Caching in view decorators
 
 You can pass ``http_cache`` (seconds) to both py:func:`websauna.system.core.route.simple_route` and :py:func:`pyramid.view.view_config` decorators to set caching time for the resulting HTTP response in the front end web server. The front end web server must be properly tuned for caching (Cloudflare, Apache mod_cache, Nginx proxy_cache, Varnish).
 
+You need to set ``public`` option to generate ``Cache-control: public`` header, or otherwise pages are not cached for HTTPS connections.
+
 Example:
 
 .. code-block:: python
@@ -27,7 +29,7 @@ Example:
     @simple_route("/calendar-widget",
         route_name="calendar_widget",
         renderer="partners/calendar_widget.html",
-        http_cache=3600)
+        http_cache=(3600, {"public": True}))
     def calendar_widget(request: Request)
         # ...
 

@@ -1,11 +1,15 @@
 """Authentication tweens."""
+import logging
+
+import sqlalchemy
 from pyramid.httpexceptions import HTTPFound
 from pyramid.registry import Registry
 
 from websauna.system.core import messages
 from websauna.system.http import Request
 
-from sqlalchemy import inspect
+
+logger = logging.getLogger(__name__)
 
 
 class SessionInvalidationTweenFactory:
@@ -22,23 +26,16 @@ class SessionInvalidationTweenFactory:
         user = request.user
 
         if user:
-
-            # TODO: Temporary workaround of error logs.
-            # We simply discard user object in the case of transaction conflict,
-            # Waiting for pyramid_tm 2.0 to handle this correctly
-            # otherwise we get sqlalchemy.orm.exc.DetachedInstanceError: Instance in new few lines
-            state = inspect(user)
-
-            if state.detached or state.transient:
-                # Do it here, because this is simply the point here this crap hits first
-                request.user = None
-
-            else:
+            try:
                 session_created_at = request.session["created_at"]
                 if not user.is_valid_session(session_created_at):
                     request.session.invalidate()
                     messages.add(request, kind="error", msg="Your have been logged out due to authentication changes.   ", msg_id="msg-session-invalidated")
                     return HTTPFound(request.application_url)
+            except sqlalchemy.orm.exc.DetachedInstanceError:
+                # TODO: pyramid_tm 2.0 needed,
+                # now temporary just kill user object instead of failing with an internal error, so that development server doesn't fail with CSS etc. resources
+                request.user = None
 
         response = self.handler(request)
         return response

@@ -1,4 +1,4 @@
-"""INI-file basd secrets reading."""
+"""INI-file based secrets reading."""
 import os
 import io
 

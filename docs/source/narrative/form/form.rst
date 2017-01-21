@@ -1,13 +1,13 @@
 .. _forms:
 
-===========
-Form basics
-===========
+============
+Deform forms
+============
 
 .. contents:: :local:
 
 Introduction
-============
+------------
 
 Websauna comes with a form subsystem to easily create and manage various website forms.
 
@@ -31,8 +31,8 @@ In Websauna forming
 
 * Form subsystem is configured in :py:meth:`websauna.system.Initializer.configure_forms`. If you want to drop in your own forming system override this method.
 
-Deform
-======
+About Deform
+------------
 
 `Deform documentation <http://deform.readthedocs.org/en/latest/>`_ is the best source how to create forms with Deform.
 
@@ -78,7 +78,7 @@ Below is an example how to create and validate one form::
                     # Save form data from appstruct
 
                     # Thank user and take him/her to the next page
-                    messages.add(request, kind="info", message="Thank you for submission")
+                    messages.add(request, kind="info", msg="Thank you for submission")
                     return HTTPFound(request.route_url("another_page_displayed_after_succesful_submission"))
 
                 except deform.ValidationFailure as e:
@@ -292,24 +292,77 @@ The widget parameters can be manipulated after constructing the form instance. E
 Validation
 ----------
 
-Here is an example data-driven validator::
+`See Deform documentation <http://docs.pylonsproject.org/projects/deform/en/master/validation.html>`_.
+
+Read only fields
+----------------
+
+Below is an example of read-only, populated, fields on a form.
+
+Example:
+
+.. code-block:: python
+
+    """Newsletter admin inteface."""
 
     import colander
+    import deform
+    from pyramid.view import view_config
+    from pyramid import httpexceptions
+
+    from websauna.system.core import messages
+    from websauna.system.core.utils import get_secrets
     from websauna.system.form.schema import CSRFSchema
+    from websauna.system.form.resourceregistry import ResourceRegistry
+    from websauna.system.http import Request
+    from websauna.newsletter.interfaces import INewsletterGenerator
 
 
-    def validate_unique_user_email(node, value, **kwargs):
-    """Make sure we cannot enter the same username twice."""
+    class NewsletterSend(CSRFSchema):
+        """Send a news letter."""
 
-        request = node.bindings["request"]
-        dbsession = request.dbsession
-        User = get_user_class(request.registry)
-        if dbsession.query(User).filter_by(email=value).first():
-            raise colander.Invalid(node, "Email address already taken")
+        domain = colander.SchemaNode(
+            colander.String(),
+            missing=colander.null,
+            widget=deform.widget.TextInputWidget(readonly=True),
+            title="Mailgun outbound domain",
+            description="From secrets.ini",
+        )
 
 
-    class MySchema(CSRFSchema):
-        email = colander.SchemaNode(colander.String(), validator=validate_unique_user_email)
+    @view_config(context=Admin,
+        name="newsletter",
+        route_name="admin",
+        permission="edit",
+        renderer="newsletter/admin.html")
+    def newsletter(context: Admin, request: Request):
+        """Newsletter admin form."""
+        schema = NewsletterSend().bind(request=request)
+
+        # Create a styled button with some extra Bootstrap 3 CSS classes
+        b = deform.Button(name='process', title="Send", css_class="btn-block btn-lg")
+        form = deform.Form(schema, buttons=(b, ), resource_registry=ResourceRegistry(request))
+
+        secrets = get_secrets(request.registry)
+        domain = secrets.get("mailgun.domain", "")
+
+        # User submitted this form
+        if request.method == "POST":
+            # ...
+            pass
+        else:
+            # Default values for read only fields
+            rendered_form = form.render({
+                "api_key": api_key,
+                "domain": domain,
+                "mailing_list": mailing_list,
+            })
+
+        # This loads widgets specific CSS/JavaScript in HTML code,
+        # if form widgets specify any static assets.
+        form.resource_registry.pull_in_resources(request, form)
+
+        return locals()
 
 Overriding widget template
 --------------------------

@@ -120,7 +120,7 @@ class Entry:
 class RouteEntry(Entry):
     """Menu entry which has a Pyramid route as a link. """
 
-    def __init__(self, id:str, label:str, route_name:str, **kwargs):
+    def __init__(self, id: str, label :str, route_name: str, **kwargs):
         """
         :param route_name: Link target name for ``request.route_url()``
         """
@@ -145,7 +145,7 @@ class TraverseEntry(Entry):
         admin.get_admin_menu().add_entry(entry)
     """
 
-    def __init__(self, id:str, label:str, resource:Resource, name:str, **kwargs):
+    def __init__(self, id: str, label: str, resource: Resource, name: str, **kwargs):
         """
         :param context: Any Pyramid resource object
         :param name: Traversable view name

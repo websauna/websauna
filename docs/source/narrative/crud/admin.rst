@@ -1041,6 +1041,36 @@ Create a matching template, ``admin/user_owned_account_panel.html`` in our case:
     {% endblock panel_content %}
 
 
+Menu items
+==========
+
+Admin interface has menus where you can add new items.
+
+* There is an admin navbar where you can directly include links or submenus
+
+* You can add submenu entries like ones under models menu
+
+Example:
+
+.. code-block:: python
+
+    from pyramid.events import subscriber
+
+    from websauna.system.admin.events import AdminConstruction
+    from websauna.system.admin.menu import TraverseEntry
+
+
+    @subscriber(AdminConstruction)
+    def contribute_model_admin(event):
+        """Create newsletter menu entry in the admin interface."""
+
+        admin = event.admin
+
+        menu = admin.get_admin_menu()
+        entry = TraverseEntry("admin-menu-newsletter", label="Newsletter", resource=admin, name="newsletter", icon="fa-envelope")
+        menu.add_entry(entry)
+
+
 Nested model admins
 ===================
 

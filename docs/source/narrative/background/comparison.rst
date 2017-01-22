@@ -2,26 +2,26 @@
 Comparison
 ==========
 
-Here is a comparison with Websauna and other popular Python frameworks.
+Here is a feature comparison of a few popular Python frameworks with Websauna.
 
 .. contents:: :local:
 
 Introduction
 ============
 
-Websauna does not want to offer only a pile of Python code for the developers to play with - it wants to offer enough tools and integrated approach to cover the full website lifecycle.
+Websauna does not want to only offer a pile of Python code for the developers to play with - it wants to offer enough tools and an integrated approach to cover the full website lifecycle.
 
 Websauna does things differently as it...
 
-* wants to offer a functional site out of the box
+* wants to provide a functional site out of the box
 
-* does not make too tight couping between the components, like CRUD and models
+* does not make a too tight coupling between the components, like CRUD and models
 
 * standardizes timed and asynchronous tasks
 
-* extends framework to cover basic devops like backups
+* extends the framework to cover basic devops like backups
 
-The modern web development is not simple having a script on the server which writes HTTP response on HTTP request read. The topics cover tasks like setting up servers, optimizing response times, balancing the load, handling operations securely. Websauna does not force its approaches upon the developers, but offers at least one solution to tackle each of the issues required for the full website life cycle management.
+Modern web development is not simply having a script on the server which sends HTTP responses to HTTP requests. The topic covers tasks like setting up servers, optimizing response times, balancing the load, handling operations securely. Websauna does not force its approaches upon the developer, but want to offer at least one solution, that conforms to the best practices in that field, aiming to a **minimum fuzz** full website life cycle management.
 
 Frameworks
 ==========
@@ -36,7 +36,7 @@ Default template engine: :term:`Jinja`
 Pyramid
 -------
 
-A small, fast, down-to-earth, open source. From developers to developers.
+A small, fast, down-to-earth, open source Python web framework. From developers to developers.
 
 Default template engine: None
 
@@ -59,7 +59,7 @@ Comparison
 
 .. note ::
 
-    The following table considers a feature present only if it's in the default project scaffold, core system and tutorials. Many frameworks may have these features as an addon, but require additional integration on the behalf of a developer.
+    The following table considers a feature present only if it's contained in the default project scaffold, core system and tutorials. Many frameworks may have these features as an addon, but require additional integration on the behalf of a developer.
 
 .. raw:: html
 

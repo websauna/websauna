@@ -36,12 +36,12 @@ Websauna runs on Pyramid micro framework - a HTTP request routing engine known f
 Responsive design
 -----------------
 
-The default website templates are mobile first, based on Bootstrap, the most popular HTML, CSS, and JS framework for developing responsive, mobile first projects on the web. The site default theme and forms follow Boostrap best practices, but you are free to drop in your own frontend.
+The default website templates are mobile first, based on Bootstrap, the most popular HTML, CSS, and JS framework for developing responsive, mobile first projects on the web. The site default theme and forms follow Bootstrap best practices, but you are free to drop in your own frontend.
 
 Automatic admin interface
 -------------------------
 
-When you write a database model, you usually need to have the basic create-read-update-delete (CRUD) cycle for them. Websauna can automatically generate most of this administrative interface for you, minimizing the effort needed for writing repeative form handling tasks. Furthermore Websauna is not limited to one admin interface, but can have different admins available for different users, and tries hard to make sure that admin views are extensible and flexible.
+When you write a database model, you usually need to have the basic create-read-update-delete (CRUD) cycle for them. Websauna can automatically generate most of this administrative interface for you, minimizing the effort needed for writing repetitive form handling tasks. Furthermore Websauna is not limited to one admin interface, but can have different admins available for different users, and tries hard to make sure that admin views are extensible and flexible.
 
 IPython Notebook integration
 ----------------------------
@@ -61,17 +61,17 @@ A special focus has been on making the framework secure and tolerate against hum
 Database management and migration
 ---------------------------------
 
-Websauna provides tools for automatic and manual database migrations and backup. Migration scripts are package specific, making it possible to build non-monolithic applications with packages with independent life cycle.
+Websauna provides tools for automatic and manual database migration and backup. Migration scripts are package specific, making it possible to build non-monolithic applications from packages with independent life cycles.
 
 High quality documentation
 --------------------------
 
-The documentation is the business card of an open source project. Websauna has no question left unanswered policy, covering all aspects of software development and devops, so that developers can independently learn and apply the framework.
+The documentation is the business card of an open source project. Websauna follows a *no question left unanswered* policy, covering all aspects of software development and devops, so that every developer can independently learn and apply the framework.
 
 Type hinting
 ------------
 
-Websauna supports Python 3.5 type hinting. This makes it plays nicely with autocompletion, code insight and boosts developer productivity. With type hinting, the editor can be smart about the written code and red line mistakes while you are typing them.
+Websauna supports Python 3.5 type hinting. This makes it play nicely with autocompletion, code insight and boosts developers productivity. With type hinting, the editor can be smart about the written code and red line mistakes while you are typing them.
 
 Optimistic concurrency control
 ------------------------------
@@ -81,21 +81,21 @@ Handling concurrency is non-trivial matter. The framework supports optimistic co
 Extensibility
 -------------
 
-There exist a default addon scaffold and extension mechanism, making it possible to build reusable modules and ecosystem around Websauna core.
+There exist a default addon scaffold and extension mechanism, making it possible to build reusable modules and ecosystems around the Websauna core.
 
 Design goals
 ============
 
-* **Integrate, not develop**: Websauna does not try to invent anything itself. It takes a set of components and best practices vetted by the best developers and makes them to easily adoptable package.
+* **Integrate, not develop**: Websauna does not try to invent anything itself. It takes a set of components and best practices vetted by the best developers and makes them to an easily adoptable package.
 
-* **Always a solution**: Make sure that persons armed with basic knowledge finds an answer to every of their question to get the first version of the site out.
+* **Always a solution**: Make sure that persons armed with basic knowledge finds an answer to every question to get the first version of the site out of the door.
 
-* **Least resistance**: When compromises and choices between default components are made, a path of least resistance is preferred. This usually means picking up a choice most developers feel comfortable with.
+* **Least resistance**: When compromises and choices between default components has to be made, a path of least resistance is preferred. This usually means picking up the choice that most developers feel comfortable with.
 
 Default stack
 =============
 
-Websauna suggests the following set of components to build the first version of a website. These are not set for the stone, but well tested, document and covered by tools. If you know better and you know your project requirements you are free to mix and match with more suitable options.
+Websauna suggests the following set of components to build the first version of a website. These are not set in stone, but well tested, documented and covered by tools. If you know better and your project requirements differ, you are free to mix and match with more suitable options.
 
 Backend
 -------
@@ -124,4 +124,4 @@ Frontend
 If you need something else
 ==========================
 
-If you are looking for a content management system check out Kotti CMS and Substance D. If you need for a stock eCommerce site check out Shopify.
+If you are looking for a content management system, check out Kotti CMS and Substance D. If you are in need for a stock eCommerce site, check out Shopify.

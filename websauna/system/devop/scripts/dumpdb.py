@@ -4,6 +4,7 @@ Wrapper for pgsql-dump.bash script. Extract database settings from registry and 
 """
 
 import subprocess
+import logging
 
 import os
 import sys
@@ -13,6 +14,9 @@ from websauna.system.devop.exportenv import create_settings_env
 
 
 DUMP_SCRIPT = os.path.join(os.path.dirname(__file__), "psql-dump.bash")
+
+
+logger = logging.getLogger(__name__)
 
 
 def usage(argv):
@@ -37,6 +41,9 @@ def main(argv=sys.argv):
     # subprocess.check_output([DUMP_SCRIPT] + args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=env)
     args = argv[2:]
     cmd = [DUMP_SCRIPT] + args
+
+    logger.info("Running %s", " ".join(cmd))
+
     with subprocess.Popen(cmd, stdout=subprocess.PIPE, bufsize=1, env=bash_env, universal_newlines=True) as p:
         for line in p.stdout:
             print(line, end='')

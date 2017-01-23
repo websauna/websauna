@@ -138,10 +138,17 @@ ws-dump-db
 
 Print PostgreSQL SQL to stdout from the currently configured database. This is equivalent of running ``pg_dump`` command with some arguments against the SQLAlchemy database configured in given INI file.
 
-Example how to backup your development database::
+Example how to backup your development database:
+
+.. code-block:: console
 
     ws-dump-db development.ini > dump.sql
 
+Example how to get a remote production database to your local computer:
+
+.. code-block:: console
+
+    ssh myserver -C "sudo -i -u wsgi /srv/pyramid/myapp/venv/bin/ws-dump-db /srv/pyramid/myapp/myapp/conf/generated.ini" > dump.sql
 
 ws-sanity-check
 ---------------

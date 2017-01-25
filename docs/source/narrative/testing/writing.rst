@@ -60,7 +60,7 @@ Example test which comes with the default :ref:`scaffold` (``myapp/tests/test_lo
 
         :param dbsession: Active SQLAlchemy database session for the test run.
 
-        :param init: Websauna Initializer which ramps up the environment with the default ``test.ini`` and exposes the test config.
+        :param registry: Pyramid registry with all configuration settings from test.ini used to ramp up the test web server
         """
 
         with transaction.manager:

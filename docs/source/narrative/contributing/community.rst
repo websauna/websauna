@@ -7,8 +7,8 @@ Get in touch with the community
 Technical questions
 ===================
 
-StackOverlow
-------------
+StackOverflow
+-------------
 
 `Ask questions on StackOverflow using Websauna tag <https://stackoverflow.com/questions/ask?tags=websauna>`_. Other tags you can use are ``deform`` for form related questions,
 

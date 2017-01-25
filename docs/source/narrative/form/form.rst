@@ -50,9 +50,11 @@ Below is an example how to create and validate one form::
     from pyramid.httpexceptions import HTTPFound
     from pyramid.httpexceptions import HTTPBadRequest
 
+    from websauna.system.http import Request
     from websauna.system.core import messages
     from websauna.system.form.schema import CSRFSchema
     from websauna.system.form.resourceregistry import ResourceRegistry
+    from websauna.system.core.route import simple_route
 
 
     class MySchema(CSRFSchema):
@@ -60,7 +62,7 @@ Below is an example how to create and validate one form::
 
 
     @simple_route("/form", route_name="my_form", renderer="myapp/my_form.html")
-    def my_form(request):
+    def my_form(request: Request):
 
         schema = MySchema().bind(request=request)
 
@@ -75,11 +77,13 @@ Below is an example how to create and validate one form::
                 try:
                     appstruct = form.validate(request.POST.items())
 
-                    # Save form data from appstruct
+                    # TODO: Now you have parsed and validated form data
+                    # in appstruct dict.
+                    # Do something about it.
 
-                    # Thank user and take him/her to the next page
+                    # Thank user and take him/her to the lading page
                     messages.add(request, kind="info", msg="Thank you for submission")
-                    return HTTPFound(request.route_url("another_page_displayed_after_succesful_submission"))
+                    return HTTPFound(request.route_url("home"))
 
                 except deform.ValidationFailure as e:
                     # Render a form version where errors are visible next to the fields,

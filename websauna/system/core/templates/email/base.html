@@ -3,6 +3,8 @@
 Based on a template by Lee Munroe
 
 * https://github.com/leemunroe/responsive-html-email-template
+
+Takes in template context variable ``email_css`` that is a template name for CSS code to be included within ``<style>...</style>`` block.
 #}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTMlsL 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -10,9 +12,17 @@ Based on a template by Lee Munroe
 <meta name="viewport" content="width=device-width" />
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title>{{subject}}</title>
-<style>
-  {% include "email/email.css" %}
-</style>
+
+
+{% if email_css %}
+  <style>
+    {% include email_css %}
+  </style>
+{% else %}
+  <style>
+    {% include "email/email.css" %}
+  </style>
+{% endif %}
 {% block extra_head %}
 {% endblock %}
 </head>

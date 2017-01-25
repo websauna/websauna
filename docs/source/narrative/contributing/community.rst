@@ -10,7 +10,7 @@ Technical questions
 StackOverlow
 ------------
 
-Ask questions on StackOverflow using `Websauna tag <https://stackoverflow.com/questions/ask?tags=websauna>`_. Other tags you can use are ``deform`` for form related questions,
+`Ask questions on StackOverflow using Websauna tag <https://stackoverflow.com/questions/ask?tags=websauna>`_. Other tags you can use are ``deform`` for form related questions,
 
 .. warning::
 

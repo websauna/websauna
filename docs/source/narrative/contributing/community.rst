@@ -4,6 +4,18 @@ Get in touch with the community
 
 .. contents:: :local:
 
+Technical questions
+===================
+
+StackOverlow
+------------
+
+Ask questions on StackOverflow using `Websauna tag <https://stackoverflow.com/questions/ask?tags=websauna>`_. Other tags you can use are ``deform`` for form related questions,
+
+.. warning::
+
+   Do not use ``python`` or any other popular tags, as trigger-happy moderators and StackOverflow refresh monkeys often close your question when they are not aware of or do not understand technologies outside mainstream Python.
+
 Chat
 ====
 

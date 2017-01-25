@@ -89,7 +89,6 @@ Example:
 
 .. code-block:: python
 
-    from celery.task import Task
     from websauna.system.task.tasks import task
     from websauna.system.task.tasks import RetryableTransactionTask
 
@@ -126,14 +125,13 @@ Example of deferring a task executing outside HTTP request processing in ``tasks
 
 .. code-block:: python
 
-    from celery.task import Task
     from websauna.system.task.tasks import task
     from websauna.system.task.tasks import RetryableTransactionTask
     # ...
 
 
     @task(base=RetryableTransactionTask, bind=True)
-    def send_review_sms_notification(self: Task, delivery_id: int):
+    def send_review_sms_notification(self: RetryableTransactionTask, delivery_id: int):
 
         request = self.request.request  # type: websauna.system.http.Request
 

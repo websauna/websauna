@@ -37,6 +37,7 @@ def ensure_transactionless(msg=None, transaction_manager=transaction.manager):
     """
 
     txn = transaction_manager._txn
+
     if txn:
         if not msg:
             msg = "Dangling transction open in transaction.manager. You should not start new one."

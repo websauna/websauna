@@ -36,6 +36,9 @@ class WebsaunaTask(Task):
 
         return request
 
+    def is_eager(self) -> bool:
+        return self.request.is_eager
+
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         """What happens if a task raises exception.
 

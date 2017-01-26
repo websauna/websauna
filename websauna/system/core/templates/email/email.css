@@ -99,6 +99,7 @@ table.body-wrap {
 
 table.body-wrap .container {
     border: 1px solid #eaeaea;
+    box-shadow: 2px 2px #bbb;
 }
 
 

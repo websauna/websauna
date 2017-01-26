@@ -94,10 +94,10 @@ Example:
 
 
     @task(base=RetryableTransactionTask, bind=True)
-    def my_task(self: Task):
+    def my_task(self: RetryableTransactionTask):
         # self.request is celery.app.task.Context
         # self.request.request is websauna.system.http.Request
-        dbsession = self.request.request.dbsession
+        dbsession = self.get_request().dbsession
         # ...
 
 Task dispatch on commit
@@ -133,7 +133,7 @@ Example of deferring a task executing outside HTTP request processing in ``tasks
     @task(base=RetryableTransactionTask, bind=True)
     def send_review_sms_notification(self: RetryableTransactionTask, delivery_id: int):
 
-        request = self.request.request  # type: websauna.system.http.Request
+        request = self.get_request()
 
         dbsession = request.dbsession
         delivery = dbsession.query(models.Delivery).get(delivery_id)
@@ -183,8 +183,8 @@ Here is an example task for calling API and storing the results in Redis. In you
 
 
     @task(name="update_conversion_rates", base=TransactionalTask, bind=True)
-    def update_btc_rate(self):
-        request = self.request.request
+    def update_btc_rate(self: TransactionalTask):
+        request = self.get_request()
         redis = get_redis(request)
         converter = RedisConverter(redis)
         converter.update()

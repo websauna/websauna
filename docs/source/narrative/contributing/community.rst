@@ -46,6 +46,21 @@ Gitter offers a native IRC bridge. You can connect to this chat via IRC:
 * Join channel ``#websauna/websauna``
 
 Issue tracking
---------------
+==============
 
 `See Github repository <https://github.com/websauna/websauna>`_.
+
+Example code
+============
+
+You can search code examples from various code examples in Websauna addons on Github.
+
+In Github search box type::
+
+    user:websauna my_function_name
+
+Example:
+
+    user:websauna get_secrets
+
+... then click *Code* view.

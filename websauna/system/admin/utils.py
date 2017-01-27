@@ -9,8 +9,10 @@ def get_admin(request) -> IAdmin:
     return admin_class(request)
 
 
-def get_admin_for_model(admin:IAdmin, model:type) -> Resource:
-    """Return Admin resource for a model manager interface."""
+def get_admin_for_model(admin: IAdmin, model: type) -> Resource:
+    """Return Admin resource for a model manager interface.
+
+    """
 
     model_manager = admin["models"]
 
@@ -19,8 +21,17 @@ def get_admin_for_model(admin:IAdmin, model:type) -> Resource:
     return model_manager[model.id]
 
 
-def get_model_admin_for_sqlalchemy_object(admin:IAdmin, instance:type) -> Resource:
+def get_model_admin_for_sqlalchemy_object(admin: IAdmin, instance: type) -> Resource:
     """Return Admin resource for a SQLAlchemy object instance.
+
+    Example:
+
+    .. code-block:: python
+
+        from websauna.system.admin.utils import get_model_admin_for_sqlalchemy_object
+
+        asset = request.dbsession.query(Asset).filter_by(name="foobar").one()
+        return get_model_admin_for_sqlalchemy_object(request.admin, asset)
 
     :param admin: Admin root object
 

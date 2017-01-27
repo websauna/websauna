@@ -131,10 +131,6 @@ def create_session_maker(engine):
     """
     dbmaker = sessionmaker()
     dbmaker.configure(bind=engine)
-
-
-    #
-
     return dbmaker
 
 

@@ -184,6 +184,8 @@ class Initializer:
 
         For more information see Pyramid auth documentation.
         """
+
+
         import pyramid.tweens
         from websauna.system.auth.principals import resolve_principals
         from websauna.system.auth.authentication import get_request_user
@@ -195,13 +197,24 @@ class Initializer:
         self.config.set_authentication_policy(authn_policy)
         self.config.set_authorization_policy(authz_policy)
 
-        self.config.add_request_method(get_request_user, 'user', reify=True)
+        #self.config.add_tween("websauna.system.auth.tweens.SessionInvalidationTweenFactory", over=pyramid.tweens.MAIN)
 
-        self.config.add_tween("websauna.system.auth.tweens.SessionInvalidationTweenFactory", over=pyramid.tweens.MAIN)
+        self.config.add_tween("websauna.system.auth.tweens.SessionInvalidationTweenFactory", under="pyramid_tm.tm_tween_factory")
 
         # Grab incoming auth details changed events
         from websauna.system.auth import subscribers
         self.config.scan(subscribers)
+
+        # Experimental support for transaction aware properties
+        try:
+            from pyramid_tm.reify import transaction_aware_reify
+            self.config.add_request_method(
+                callable=transaction_aware_reify(self.config, get_request_user),
+                name="user",
+                property=True,
+                reify=False)
+        except ImportError:
+            self.config.add_request_method(get_request_user, 'user', reify=True)
 
     @event_source
     def configure_panels(self):

@@ -8,6 +8,13 @@ from pyramid.registry import Registry
 from websauna.system.core import messages
 from websauna.system.http import Request
 
+try:
+    from pyramid_tm import reify
+    good_reify = True
+except ImportError:
+    good_reify = False
+
+
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +40,11 @@ class SessionInvalidationTweenFactory:
                     messages.add(request, kind="error", msg="Your have been logged out due to authentication changes.   ", msg_id="msg-session-invalidated")
                     return HTTPFound(request.application_url)
             except sqlalchemy.orm.exc.DetachedInstanceError:
+
+                if good_reify:
+                    # pyramid_tm 2.0
+                    raise
+
                 # TODO: pyramid_tm 2.0 needed,
                 # now temporary just kill user object instead of failing with an internal error, so that development server doesn't fail with CSS etc. resources
                 request.user = None

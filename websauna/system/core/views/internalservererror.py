@@ -7,6 +7,12 @@ import logging
 from pyramid.settings import asbool
 from pyramid.view import view_config
 
+try:
+    from pyramid_tm.reify import can_access_transaction_in_excview
+    HAS_NEW_PYRAMID_TM = True
+except ImportError:
+    HAS_NEW_PYRAMID_TM = False
+
 
 from ..events import InternalServerError
 
@@ -23,21 +29,21 @@ def internal_server_error(context, request):
     Also see https://github.com/Pylons/pyramid_tm/issues/40
     """
 
+    if HAS_NEW_PYRAMID_TM:
+        if not can_access_transaction_in_excview(context, request):
+            # Kill some of db aware properties in the case templates
+            # might accidentally touch them
+            request.__dict__["user"] = None
+
+    # Tell Sentry handler to log this exception on sentry
     request.registry.notify(InternalServerError(context, request))
 
     if asbool(request.registry.settings.get("websauna.log_internal_server_error", True)):
         logger.exception(context)
 
-    request.user = None
-
-    # The template rendering opens a new transaction which is not rolled back by Pyramid transaction machinery, because we are in a very special view. This tranasction will cause the tests to hang as the open transaction blocks Base.drop_all() in PostgreSQL. Here we have careful instructions to roll back any pending transaction by hand.
-    transaction.abort()  # https://github.com/Pylons/pyramid_tm/issues/40
     html = render('core/internalservererror.html', {}, request=request)
     resp = Response(html)
     resp.status_code = 500
-
-    # Do it again in the case rendering starts another TX
-    transaction.abort()  # https://github.com/Pylons/pyramid_tm/issues/40
 
     return resp
 

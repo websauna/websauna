@@ -1,4 +1,5 @@
 from websauna.system.admin.interfaces import IAdmin
+from websauna.system.admin.modeladmin import ModelAdmin
 from websauna.system.core.traversal import Resource
 from websauna.system.model.meta import Base
 
@@ -21,21 +22,28 @@ def get_admin_for_model(admin: IAdmin, model: type) -> Resource:
     return model_manager[model.id]
 
 
-def get_model_admin_for_sqlalchemy_object(admin: IAdmin, instance: type) -> Resource:
-    """Return Admin resource for a SQLAlchemy object instance.
+def get_admin_resource_for_sqlalchemy_object(admin: IAdmin, instance: object) -> ModelAdmin.Resource:
+    """Return ModelAdmin.Resource for an SQLAlchemy object.
 
-    Example:
+    Example how to get an admin edit link for an SQLAlchemy object:
 
     .. code-block:: python
 
-        from websauna.system.admin.utils import get_model_admin_for_sqlalchemy_object
+        resource = get_admin_resource_for_sqlalchemy_object(request.admin, asset)
+        return request.resource_url(resource, "edit")
 
-        asset = request.dbsession.query(Asset).filter_by(name="foobar").one()
-        return get_model_admin_for_sqlalchemy_object(request.admin, asset)
 
-    :param admin: Admin root object
+    :param admin: ``request.admin``
+    :param instance: SQLAlchemy instance
+    """
+    admin = get_model_admin_for_sqlalchemy_object(admin, instance)
+    res = admin.wrap_to_resource(instance)
+    return res
 
-    :param instance: SQLAlchemy object
+
+def get_model_admin_for_sqlalchemy_object(admin: IAdmin, instance: object) -> ModelAdmin:
+    """Return ModelAdmin resource for a SQLAlchemy object instance.
+
     """
 
     model_manager = admin["models"]

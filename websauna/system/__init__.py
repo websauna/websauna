@@ -1,4 +1,11 @@
 """Websauna framework initialization routine."""
+
+#
+# NOTE: Be careful about not to import anything in this file head that might cause the import of `transaction` package. If Websauna is used with gevent async event loop and gevent monkey patches, the patching order would become incorrect. This is because importlib and setuptools autoscan all top level imports on the application startup and this order cannot be controlled. Thus, to make gevent work you must not import anything dbsession/tranaction related in the package main file to be on the safe side.
+#
+# This, and the reason that we can use component architecture and replace and disable framework parts in Initializer, are the driving factors of not to do module level imports here.
+#
+
 import sys
 
 # Check Python version
@@ -199,7 +206,7 @@ class Initializer:
         #self.config.add_tween("websauna.system.auth.tweens.SessionInvalidationTweenFactory", over=pyramid.tweens.MAIN)
 
         # We need to carefully be above TM view, but below exc view so that internal server error page doesn't trigger session authentication that accesses the database
-        self.config.add_tween("websauna.system.auth.tweens.SessionInvalidationTweenFactory", under="pyramid_tm.tm_tween_factory", over="pyramid.tweens.excview_tween_factory")
+        self.config.add_tween("websauna.system.auth.tweens.SessionInvalidationTweenFactory", under="pyramid_tm.tm_tween_factory")
 
         # Grab incoming auth details changed events
         from websauna.system.auth import subscribers

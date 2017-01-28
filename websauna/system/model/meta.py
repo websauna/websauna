@@ -79,7 +79,7 @@ def create_transaction_manager_aware_dbsession(request: Request) -> Session:
 
     Looks up database settings from the INI and creates an SQLALchemy session based on the configuration. The session is terminated on the HTTP request finalizer.
     """
-    dbsession = create_dbsession(request.registry)
+    dbsession = create_dbsession(request.registry, request.tm)
 
     def terminate_session(request):
         # Close db session at the end of the request and return the db connection back to the pool

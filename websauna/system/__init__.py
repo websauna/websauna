@@ -2,8 +2,6 @@
 import sys
 
 # Check Python version
-from websauna.system.mail.utils import create_mailer
-
 assert sys.version_info >= (3,4), "Websauna needs Python 3.4 or newer"
 
 primary, major, minor, *rest = sys.version_info
@@ -143,6 +141,7 @@ class Initializer:
     def configure_mailer(self):
         """Configure outgoing email backend and email test views."""
         from pyramid_mailer import IMailer
+        from websauna.system.mail.utils import create_mailer
 
         # TODO: There is upstrean issue in pyramid_mailer, see send_template_mail.
         # mailer gets created again
@@ -199,7 +198,8 @@ class Initializer:
 
         #self.config.add_tween("websauna.system.auth.tweens.SessionInvalidationTweenFactory", over=pyramid.tweens.MAIN)
 
-        self.config.add_tween("websauna.system.auth.tweens.SessionInvalidationTweenFactory", under="pyramid_tm.tm_tween_factory")
+        # We need to carefully be above TM view, but below exc view so that internal server error page doesn't trigger session authentication that accesses the database
+        self.config.add_tween("websauna.system.auth.tweens.SessionInvalidationTweenFactory", under="pyramid_tm.tm_tween_factory", over="pyramid.tweens.excview_tween_factory")
 
         # Grab incoming auth details changed events
         from websauna.system.auth import subscribers

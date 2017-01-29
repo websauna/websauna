@@ -245,16 +245,20 @@ def start_ws_pserve(cmdline: str, cwd: str, wait_and_see: float=5.0):
     """
 
     # Clean up all prior processes
-    from psutil import process_iter
+    import psutil
     import signal
 
-    for proc in process_iter():
-        for conns in proc.net_connections(kind='inet'):
-            if conns.laddr[1] == 6543:
-                print("Killing ", proc)
-                proc.send_signal(signal.SIGKILL)
-                time.sleep(0.5)
-                continue
+    # http://stackoverflow.com/a/20691431/315168
+    for proc in psutil.process_iter():
+        try:
+            for conns in proc.connections(kind='inet'):
+                if conns.laddr[1] == 6543:
+                    print("Killing a proc blocking the port", proc)
+                    proc.send_signal(signal.SIGKILL)
+                    time.sleep(0.5)
+                    continue
+        except (psutil.AccessDenied, psutil.NoSuchProcess):
+            pass
 
     # Run ws-pserve inside the virtualenc
     cmdline = ". {}/venv/bin/activate && ".format(cwd) + cmdline

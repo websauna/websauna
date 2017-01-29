@@ -80,12 +80,20 @@ class ScheduleOnCommitTask(WebsaunaTask):
     The created task only executes through ``apply_async`` if the web transaction successfully commits and only after transaction successfully commits. Thus, it is safe to pass ids to any database objects for the task and expect the task to be able to read them.
     """
 
-    def make_faux_request(self):
+    def make_faux_request(self, transaction_manager=None):
         """In the case we can't use real request object, make a new request from registry given to Celery."""
         # Real request has been already committed in this point,
         # so create a faux request to satisfy the presence of dbsession et. al.
         registry = self.app.registry
+
         request = _make_request("/", registry)
+
+        # Make sure we have a transaction manager
+        if not transaction_manager:
+            transaction_manager = transaction.manager
+
+        request.tm = transaction_manager
+
         apply_request_extensions(request)
         return request
 
@@ -101,7 +109,11 @@ class ScheduleOnCommitTask(WebsaunaTask):
 
     def exec_eager(self, *args, **kwargs):
         """Run transaction aware task in eager mode."""
-        self.request.update(request=self.make_faux_request())
+
+        # We are run in a post-commit hook, so there is no transaction manager available
+        tm = TransactionManager()
+
+        self.request.update(request=self.make_faux_request(transaction_manager=tm))
         return self.run(*args, **kwargs)
 
     def __call__(self, *args, **kwargs):
@@ -177,9 +189,12 @@ class RetryableTransactionTask(ScheduleOnCommitTask):
 
     def exec_eager(self, *args, **kwargs):
         """Run transaction aware task in eager mode."""
-        self.request.update(request=self.make_faux_request())
 
-        with transaction.manager:
+        # We are run in a post-commit hook, so there is no transaction manager available
+        tm = TransactionManager()
+        self.request.update(request=self.make_faux_request(transaction_manager=tm))
+
+        with tm:
             # This doesn't do transaction retry attempts, but should be good enough for eager
             return self.run(*args, **kwargs)
 

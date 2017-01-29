@@ -235,7 +235,7 @@ def app_scaffold(request) -> str:
     return folder
 
 
-def start_ws_pserve(cmdline: str, cwd: str, wait_and_see: float=3.0):
+def start_ws_pserve(cmdline: str, cwd: str, wait_and_see: float=5.0):
     """Simulate starting ws-pserve command from the command line inside the virtualenv.
 
     :param cmdline: Command line to run ws-pserve

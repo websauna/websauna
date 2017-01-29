@@ -5,8 +5,7 @@ from logging.config import fileConfig
 import sys
 
 from pyramid import scripting
-from pyramid.paster import bootstrap, setup_logging, _getpathsec
-from transaction import TransactionManager
+from pyramid.paster import bootstrap, _getpathsec
 
 from rainbow_logging_handler import RainbowLoggingHandler
 
@@ -99,13 +98,15 @@ def init_websauna(config_uri: str, sanity_check: bool=False, console_app=False, 
     request = pyramid_env["request"]
 
     # Request needs a transaction manager
-    request.tm = TransactionManager()
+    # NOTE: I'd like to use new TransactionManager() here,
+    # but a lot of legacy command line apps rely on transaction.manager thread local
+    import transaction  # Delayed import to avoid issues with gevent
+    request.tm = transaction.manager
 
     # Export application object for test suites
     request.app = app
 
     return pyramid_env["request"]
-
 
 
 def init_websauna_script_env(config_uri: str) -> dict:
@@ -130,4 +131,3 @@ def init_websauna_script_env(config_uri: str) -> dict:
     pyramid_env["initializer"] = initializer
 
     return pyramid_env
-

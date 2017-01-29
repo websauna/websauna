@@ -79,7 +79,7 @@ def main(argv=sys.argv):
         if argv[4] == "--admin":
             admin = True
 
-    with transaction.manager:
+    with request.tm:
         u = create(request, email=argv[2], username=argv[2], password=password, admin=admin)
         print("Created user #{}: {}, admin: {}".format(u.id, u.email, u.is_admin()))
 

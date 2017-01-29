@@ -25,7 +25,11 @@ def notfound(request):
     logger.warn("404 Not Found. user:%s URL:%s referrer:%s", request.url, username, request.referrer)
 
     # Make sure 404 page does not have any status information, as it is often overlooked special case for caching and we don't want to cache user information
-    request.user = None
+    try:
+        request.user = None
+    except:
+        # pyramid_tm 2.0 - this fails
+        pass
 
     # The template rendering opens a new transaction which is not rolled back by Pyramid transaction machinery, because we are in a very special view. This tranaction will cause the tests to hang as the open transaction blocks Base.drop_all() in PostgreSQL. Here we have careful instructions to roll back any pending transaction by hand.
     html = render('core/notfound.html', {}, request=request)

@@ -11,7 +11,7 @@ Welcome to Websauna, a full stack Python application framework.
 
 `Installation <https://websauna.org/tutorials/gettingstarted/index.html>`_.
 
-`Chat <https://websauna.org/narrative/contributing/community.html>`_.
+`Chat <https://websauna.org/docs/narrative/contributing/community.html#chat>`_.
 
 `Github repository <https://github.com/websauna/websauna>`_.
 

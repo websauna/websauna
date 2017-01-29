@@ -155,7 +155,9 @@ def test_create_user(app_scaffold, dev_db, browser):
 
     execute_venv_command("ws-sync-db myapp/conf/development.ini", app_scaffold, cd_folder="myapp")
 
-    execute_venv_command("ws-create-user myapp/conf/development.ini mikko@example.com secret", app_scaffold, cd_folder="myapp")
+    exitcode, stdout, stderr = execute_venv_command("ws-create-user myapp/conf/development.ini mikko@example.com secret", app_scaffold, cd_folder="myapp")
+
+    print("Got ws-create-usr ", stdout, stderr)
 
     server = start_ws_pserve("cd myapp && ws-pserve myapp/conf/development.ini", app_scaffold)
 

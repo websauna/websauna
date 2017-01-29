@@ -249,10 +249,10 @@ def start_ws_pserve(cmdline: str, cwd: str, wait_and_see: float=5.0):
     import signal
 
     for proc in process_iter():
-        for conns in proc.get_connections(kind='inet'):
+        for conns in proc.net_connections(kind='inet'):
             if conns.laddr[1] == 6543:
                 print("Killing ", proc)
-                proc.send_signal(signal.SIGKILL)  # or SIGKILL
+                proc.send_signal(signal.SIGKILL)
                 time.sleep(0.5)
                 continue
 

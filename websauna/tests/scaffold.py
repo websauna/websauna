@@ -244,7 +244,19 @@ def start_ws_pserve(cmdline: str, cwd: str, wait_and_see: float=5.0):
     :return:
     """
 
-    # Run ws-pserve inside the virtualevn
+    # Clean up all prior processes
+    from psutil import process_iter
+    import signal
+
+    for proc in process_iter():
+        for conns in proc.get_connections(kind='inet'):
+            if conns.laddr[1] == 6543:
+                print("Killing ", proc)
+                proc.send_signal(signal.SIGKILL)  # or SIGKILL
+                time.sleep(0.5)
+                continue
+
+    # Run ws-pserve inside the virtualenc
     cmdline = ". {}/venv/bin/activate && ".format(cwd) + cmdline
 
     worker = subprocess.Popen(cmdline, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd)

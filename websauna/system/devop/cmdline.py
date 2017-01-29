@@ -6,6 +6,8 @@ import sys
 
 from pyramid import scripting
 from pyramid.paster import bootstrap, setup_logging, _getpathsec
+from transaction import TransactionManager
+
 from rainbow_logging_handler import RainbowLoggingHandler
 
 from websauna.system.http import Request
@@ -96,7 +98,10 @@ def init_websauna(config_uri: str, sanity_check: bool=False, console_app=False, 
     pyramid_env = scripting.prepare(registry=app.initializer.config.registry)
     request = pyramid_env["request"]
 
-    # Export application object for testing
+    # Request needs a transaction manager
+    request.tm = TransactionManager()
+
+    # Export application object for test suites
     request.app = app
 
     return pyramid_env["request"]

@@ -31,7 +31,6 @@ def get_user(session_token: str, request: Request) -> User:
 
 def get_request_user(request: Request) -> User:
     """Reify method for request.user"""
-    print("get_request_user")
     user_id = request.unauthenticated_userid
     return get_user(user_id, request) if user_id else None
 

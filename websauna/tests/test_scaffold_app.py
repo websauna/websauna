@@ -44,7 +44,7 @@ def test_pserve(app_scaffold, dev_db, browser):
     # User models are needed to start the web server
     execute_venv_command("cd myapp && ws-sync-db myapp/conf/development.ini", app_scaffold)
 
-    server = start_ws_pserve("cd myapp && ws-pserve myapp/conf/development.ini", app_scaffold, wait_and_see=3.0)
+    server = start_ws_pserve("cd myapp && ws-pserve myapp/conf/development.ini", app_scaffold)
 
     try:
 
@@ -66,7 +66,7 @@ def test_pyramid_debugtoolbar(app_scaffold, dev_db, browser):
 
     # User models are needed to start the web server
     execute_venv_command("ws-sync-db myapp/conf/development.ini", app_scaffold, cd_folder="myapp")
-    server = start_ws_pserve("cd myapp && ws-pserve myapp/conf/development.ini", app_scaffold, wait_and_see=3.0)
+    server = start_ws_pserve("cd myapp && ws-pserve myapp/conf/development.ini", app_scaffold)
 
     try:
 
@@ -148,7 +148,7 @@ def test_dump_db(app_scaffold, dev_db):
     execute_venv_command("cd myapp && ws-dump-db myapp/conf/development.ini", app_scaffold)
 
 
-@pytest.mark.skipif(sys.version_info < (3,5), reason="For unknown reason this fails on Python 3.4 on TravisCI")
+#@pytest.mark.skipif(sys.version_info < (3,5), reason="For unknown reason this fails on Python 3.4 on TravisCI")
 @flaky  # Browser doesn't come up timely on Travis
 def test_create_user(app_scaffold, dev_db, browser):
     """Test creating user from command line and logging in as this user."""
@@ -157,7 +157,7 @@ def test_create_user(app_scaffold, dev_db, browser):
 
     execute_venv_command("ws-create-user myapp/conf/development.ini mikko@example.com secret", app_scaffold, cd_folder="myapp")
 
-    server = start_ws_pserve("cd myapp && ws-pserve myapp/conf/development.ini", app_scaffold, wait_and_see=3.0)
+    server = start_ws_pserve("cd myapp && ws-pserve myapp/conf/development.ini", app_scaffold)
 
     try:
 

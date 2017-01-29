@@ -148,7 +148,7 @@ setup(
 
         "notebook": [
             "ipython[notebook]>=5.1",
-            "pyramid_notebook>=0.2",
+            "pyramid_notebook>=0.2.1",
             # Needed by python_notebook etc. who call pyramid.paster module
             "PasteDeploy",
         ],

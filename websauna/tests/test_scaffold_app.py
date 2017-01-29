@@ -5,14 +5,14 @@ Rerunning these tests can be greatly sped up by creating a local Python package 
     bash websauna/tests/create_wheelhouse.bash
 
 """
-import time
+
 import os
 import sys
 
 import pytest
 from flaky import flaky
 
-from .scaffold import execute_venv_command
+from .scaffold import execute_venv_command, start_ws_pserve
 from .scaffold import replace_file
 from .scaffold import app_scaffold  # noqa
 from .scaffold import create_psq_db
@@ -44,10 +44,7 @@ def test_pserve(app_scaffold, dev_db, browser):
     # User models are needed to start the web server
     execute_venv_command("cd myapp && ws-sync-db myapp/conf/development.ini", app_scaffold)
 
-    execute_venv_command("cd myapp && ws-pserve myapp/conf/development.ini --pid-file=test_pserve.pid", app_scaffold, wait_and_see=3.0)
-
-    # Give ws-pserve some time to wake up
-    time.sleep(4.0)
+    server = start_ws_pserve("cd myapp && ws-pserve myapp/conf/development.ini", app_scaffold, wait_and_see=3.0)
 
     try:
 
@@ -59,7 +56,7 @@ def test_pserve(app_scaffold, dev_db, browser):
         assert b.is_element_present_by_css("#demo-text")
 
     finally:
-        execute_venv_command("cd myapp && ws-pserve myapp/conf/development.ini --stop-daemon --pid-file=test_pserve.pid", app_scaffold)
+        server.kill()
 
 
 @flaky  # On Travis there might be abnormal delays in this test
@@ -69,10 +66,7 @@ def test_pyramid_debugtoolbar(app_scaffold, dev_db, browser):
 
     # User models are needed to start the web server
     execute_venv_command("ws-sync-db myapp/conf/development.ini", app_scaffold, cd_folder="myapp")
-    execute_venv_command("ws-pserve myapp/conf/development.ini --pid-file=test_pserve.pid", app_scaffold, wait_and_see=3.0, cd_folder="myapp")
-
-    # Give ws-pserve some time to wake up in CI
-    time.sleep(3.0)
+    server = start_ws_pserve("cd myapp && ws-pserve myapp/conf/development.ini", app_scaffold, wait_and_see=3.0)
 
     try:
 
@@ -84,7 +78,7 @@ def test_pyramid_debugtoolbar(app_scaffold, dev_db, browser):
         assert b.is_element_present_by_css(".traceback")
 
     finally:
-        execute_venv_command("ws-pserve myapp/conf/development.ini --stop-daemon --pid-file=test_pserve.pid", app_scaffold, cd_folder="myapp")
+        server.kill()
 
 
 def test_pytest(app_scaffold, test_db, scaffold_webdriver):
@@ -162,10 +156,7 @@ def test_create_user(app_scaffold, dev_db, browser):
 
     execute_venv_command("ws-create-user myapp/conf/development.ini mikko@example.com secret", app_scaffold, cd_folder="myapp")
 
-    execute_venv_command("ws-pserve myapp/conf/development.ini --pid-file=test_pserve.pid", app_scaffold, wait_and_see=3.0, cd_folder="myapp")
-
-    # Give ws-pserve some time to wake up in CI
-    time.sleep(4)
+    server = start_ws_pserve("cd myapp && ws-pserve myapp/conf/development.ini", app_scaffold, wait_and_see=3.0)
 
     try:
 
@@ -182,7 +173,7 @@ def test_create_user(app_scaffold, dev_db, browser):
         assert b.is_element_present_by_css("#nav-admin")
 
     finally:
-        execute_venv_command("cd myapp && ws-pserve myapp/conf/development.ini --stop-daemon --pid-file=test_pserve.pid", app_scaffold)
+        server.kill()
 
 
 def test_tweens(app_scaffold, dev_db):

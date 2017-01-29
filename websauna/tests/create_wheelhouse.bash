@@ -28,7 +28,7 @@ pip install -q -U pip
 
 # We do the messages three phases as otherwise Travis considers our build stalled after 10m and I hope this solves this
 echo "Installing project core dependencies."
-pip install -q .
+pip install -q ".[celery,utils,notebook]"
 echo "Installing project test dependencies."
 pip install -q ".[test]"
 echo "Installing project dev dependencies."

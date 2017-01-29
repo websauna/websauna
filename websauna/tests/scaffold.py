@@ -233,3 +233,28 @@ def app_scaffold(request) -> str:
     request.addfinalizer(teardown)
 
     return folder
+
+
+def start_ws_pserve(cmdline: str, cwd: str, wait_and_see: float=3.0):
+    """Simulate starting ws-pserve command from the command line inside the virtualenv.
+
+    :param cmdline: Command line to run ws-pserve
+    :param cwd: Set current workind directory
+    :param wait_and_see: Seconds to see if the server comes up
+    :return:
+    """
+
+    # Run ws-pserve inside the virtualevn
+    cmdline = ". {}/venv/bin/activate && ".format(cwd) + cmdline
+
+    worker = subprocess.Popen(cmdline, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd)
+
+    time.sleep(wait_and_see)
+    worker.poll()
+
+    if worker.returncode is not None:
+        # Return code is set if the worker dies within the timeout
+        print_subprocess_fail(worker, cmdline)
+        raise AssertionError("Could not ws-pserve: {}".format(cmdline))
+
+    return worker

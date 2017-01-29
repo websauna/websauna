@@ -11,7 +11,7 @@ import os
 import pytest
 from flaky import flaky
 
-from .scaffold import execute_venv_command, insert_content_after_line
+from .scaffold import execute_venv_command, insert_content_after_line, start_ws_pserve
 from .scaffold import replace_file
 from .scaffold import create_psq_db
 from .scaffold import app_scaffold  # noqa
@@ -61,10 +61,7 @@ def test_addon_pserve(addon_scaffold, addon_dev_db, browser):
 
     # User models are needed to start the web server
     execute_venv_command("ws-sync-db websauna/myaddon/conf/development.ini", addon_scaffold, cd_folder="websauna.myaddon")
-    execute_venv_command("ws-pserve websauna/myaddon/conf/development.ini --pid-file=test_pserve.pid", addon_scaffold, wait_and_see=3.0, cd_folder="websauna.myaddon")
-
-    # Give pserve some time to wake up in CI
-    time.sleep(4)
+    server = start_ws_pserve("cd websauna.myaddon && ws-pserve websauna/myaddon/conf/development.ini", addon_scaffold)
 
     try:
 
@@ -76,7 +73,7 @@ def test_addon_pserve(addon_scaffold, addon_dev_db, browser):
         assert b.is_element_present_by_css("#demo-text")
 
     finally:
-        execute_venv_command("ws-pserve websauna/myaddon/conf/development.ini --stop-daemon --pid-file=test_pserve.pid", addon_scaffold, cd_folder="websauna.myaddon")
+        server.kill()
 
 
 def test_addon_migration(addon_scaffold, addon_dev_db):

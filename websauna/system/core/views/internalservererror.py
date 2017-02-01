@@ -9,6 +9,7 @@ from pyramid.view import view_config
 
 try:
     from pyramid_tm.reify import can_access_transaction_in_excview
+    from pyramid_tm.reify import reset_transaction_aware_properties
     HAS_NEW_PYRAMID_TM = True
 except ImportError:
     HAS_NEW_PYRAMID_TM = False
@@ -35,6 +36,13 @@ def internal_server_error(context, request):
             # might accidentally touch them
             request.__dict__["user"] = None
 
+        else:
+            # We should have db and request.user available,
+            # we have just started a new transction for this view
+            reset_transaction_aware_properties(request)
+    else:
+        request.__dict__["user"] = None
+
     # Tell Sentry handler to log this exception on sentry
     request.registry.notify(InternalServerError(context, request))
 
@@ -44,6 +52,9 @@ def internal_server_error(context, request):
     html = render('core/internalservererror.html', {}, request=request)
     resp = Response(html)
     resp.status_code = 500
+
+    # Make sure nothing is written or no transaction left open on 500
+    request.tm.abort()
 
     return resp
 

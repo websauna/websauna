@@ -9,7 +9,7 @@ try:
     from gevent import monkey
 
     # print("Warning! celeryloader running in implicit gevent monkey patch")
-    # monkey.patch_all()
+    monkey.patch_all()
 
 except ImportError:
     pass

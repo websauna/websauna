@@ -13,7 +13,7 @@ from websauna.system.http import Request
 from websauna.utils.configincluder import monkey_patch_paster_config_parser, IncludeAwareConfigParser
 
 
-def setup_logging(config_uri):
+def setup_logging(config_uri, disable_existing_loggers=False):
     """Include-aware Python logging setup from INI config file.
     """
     path, _ = _getpathsec(config_uri, None)
@@ -23,7 +23,7 @@ def setup_logging(config_uri):
     if parser.has_section('loggers'):
         config_file = os.path.abspath(path)
         defaults = dict(parser, here=os.path.dirname(config_file))
-        return fileConfig(parser, defaults)
+        return fileConfig(parser, defaults, disable_existing_loggers)
 
 
 def setup_console_logging(log_level=None):

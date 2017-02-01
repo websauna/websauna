@@ -17,11 +17,13 @@ except ImportError:
 import sys
 
 from celery.loaders.base import BaseLoader
+from celery.signals import setup_logging as _setup_logging_signal
 
 from websauna.system.devop.cmdline import init_websauna
 from websauna.system.http.utils import make_routable_request
 from websauna.system.model.retry import ensure_transactionless
 from websauna.utils.configincluder import IncludeAwareConfigParser
+from websauna.system.devop.cmdline import setup_logging
 
 
 from .celery import parse_celery_config
@@ -110,6 +112,12 @@ class WebsaunaLoader(BaseLoader):
         # Each tasks gets a new request with its own transaction manager and dbsession
         request = make_routable_request(dbsession=None, registry=self.request.registry)
         task.request.update(request=request)
+
+
+@_setup_logging_signal.connect
+def fix_celery_logging(loglevel, logfile, format, colorize, **kwargs):
+    """Fix Celery logging by re-enforcing our loggers after Celery messes up them."""
+    setup_logging(ini_file)
 
 
 def main():

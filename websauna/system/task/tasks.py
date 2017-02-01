@@ -180,8 +180,7 @@ class ScheduleOnCommitTask(WebsaunaTask):
 
         if success:
             result = super().apply_async(*args, **kwargs)
-
-        logger.debug("Commit hook resulted to a Celery task %s", result)
+            logger.debug("Commit hook resulted to a Celery task %s", result)
 
 
 class RetryableTransactionTask(ScheduleOnCommitTask):

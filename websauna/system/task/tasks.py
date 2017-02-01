@@ -145,6 +145,8 @@ class ScheduleOnCommitTask(WebsaunaTask):
         tm = self.get_transaction_manager(**kwargs)
         kwargs.pop("tm")
 
+        logger.debug("Setting after commit hook tm is %s", tm)
+
         # This will break things that expect to get an AsyncResult because
         # we're no longer going to be returning an async result from this when
         # called from within a request, response cycle. Ideally we shouldn't be
@@ -173,8 +175,13 @@ class ScheduleOnCommitTask(WebsaunaTask):
 
     def _after_commit_hook(self, success, *args, **kwargs):
         """When HTTP request terminates and the transaction is committed, actually submit the task to Celery."""
+
+        logger.debug("Calling after commit hook")
+
         if success:
-            super().apply_async(*args, **kwargs)
+            result = super().apply_async(*args, **kwargs)
+
+        logger.debug("Commit hook resulted to a Celery task %s", result)
 
 
 class RetryableTransactionTask(ScheduleOnCommitTask):

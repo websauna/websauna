@@ -1,5 +1,4 @@
 """Celery process."""
-import os
 
 try:
     # Could not find way around this :(
@@ -14,7 +13,9 @@ try:
 except ImportError:
     pass
 
+import os
 import sys
+import logging
 
 from celery.loaders.base import BaseLoader
 from celery.signals import setup_logging as _setup_logging_signal
@@ -27,6 +28,10 @@ from websauna.system.devop.cmdline import setup_logging
 
 
 from .celery import parse_celery_config
+
+
+logger = logging.getLogger(__name__)
+
 
 #: Passed through Celery loader mechanism
 ini_file = None
@@ -103,14 +108,9 @@ class WebsaunaLoader(BaseLoader):
         # - otherwise it means init code has left transaction open
         ensure_transactionless("Thread local TX was ongoing when Celery fired up a new task {}: {}".format(task_id, task))
 
-        # Kill thread-local transaction manager, so we minimize issues
-        # with different Celery threading models.
-        # Always use request.tm instead.
-        import transaction
-        transaction.manager = None
-
         # Each tasks gets a new request with its own transaction manager and dbsession
         request = make_routable_request(dbsession=None, registry=self.request.registry)
+
         task.request.update(request=request)
 
 

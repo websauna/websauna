@@ -12,7 +12,7 @@ from pyramid.request import apply_request_extensions
 from pyramid.scripting import _make_request
 from pyramid_tm import tm_tween_factory
 from transaction import TransactionManager
-
+from websauna.system.model.retry import retryable
 
 from websauna.system.task.celery import get_celery
 from websauna.system.http import Request
@@ -158,7 +158,11 @@ class ScheduleOnCommitTask(WebsaunaTask):
         )
 
     def apply_async_instant(self, *args, **options):
-        """Schedule async task from beat process."""
+        """Schedule async task from a beat process or another task.
+
+        Doesnt' wait a commit to finish to schedule a task.
+        You usually don't want to cal this directly, but call `apply_async` from Celery normal interface.
+        """
         return super().apply_async(*args, **options)
 
     def apply_async(self, *args, **options):
@@ -180,6 +184,7 @@ class ScheduleOnCommitTask(WebsaunaTask):
 
         if success:
             result = super().apply_async(*args, **kwargs)
+
             logger.debug("Commit hook resulted to a Celery task %s", result)
 
 
@@ -206,25 +211,23 @@ class RetryableTransactionTask(ScheduleOnCommitTask):
 
     def __call__(self, *args, **kwargs):
 
-        # Get bound Task.__call__
-        # http://stackoverflow.com/a/1015405/315168
-        underlying = Task.__call__.__get__(self, Task)
-
         if self.request.is_eager:
             return self.exec_eager(*args, **kwargs)
 
         request = self.get_request()
+        task = self
 
         try:
-            def handler(request):
-                try:
-                    return underlying(*args, **kwargs)
-                except Exception as e:
-                    logger.error("TransactionalTask task raised an exception %s", e)
-                    logger.exception(e)
-                    raise
 
-            handler = tm_tween_factory(handler, request.registry)
+            # Celery 4.0+
+            # Here we call directly run, because celery.app.Task.__call__ messes with thread locals clearing the task context. Thus, the second transaction attempt would file Task.get_request() == None
+
+            @retryable(tm=request.tm)
+            def handler(request: Request):
+                if task.__self__ is not None:
+                    return task.run(task.__self__, *args, **kwargs)
+                return task.run(*args, **kwargs)
+
             result = handler(request)
         finally:
             # TODO: Do we need closer?

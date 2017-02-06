@@ -5,7 +5,7 @@ Rerunning these tests can be greatly sped up by creating a local Python package 
     bash websauna/tests/create_wheelhouse.bash
 
 """
-import time
+import sys
 
 import os
 import pytest
@@ -153,3 +153,5 @@ ADDON_INSTALLED_INITIALIZER = """
         self.config.include("websauna.myaddon")
 
 """
+
+

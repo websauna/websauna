@@ -9,6 +9,9 @@ Changelog for Websauna
 
 - Use proper JSON field for ``User.user_data`` in the admin interfaces
 
+- ``RetryableTransactionTask`` now correctly retries the Celery tasks. Previously the second attempt did not get full Celery task context meaning the tasks usually failed. Furthermore we no longer use pyramid_tm inside Celery tasks, but Websauna specific retryable decorator.
+
+- Update jQuery to 3.1.1. Old jQuery is kept in the source tree for backwards compatibility.
 
 1.0a4 (2017-01-07)
 ------------------

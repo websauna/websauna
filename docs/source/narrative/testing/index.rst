@@ -11,5 +11,4 @@ Testing
     running
     form
     admin
-    mail
     init

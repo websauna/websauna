@@ -128,3 +128,4 @@ def send_templated_mail(request: Request, recipients: Iterable, template: str, c
     else:
         mailer.send(message)
 
+

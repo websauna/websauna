@@ -108,3 +108,7 @@ def test_context_sensitive_shell(web_server, browser, dbsession, init):
 
     # Back to home screen
     assert b.is_element_visible_by_css("#nav-logout")
+
+
+
+

@@ -1,11 +1,14 @@
 """Default CRUD views."""
+import csv
 from abc import abstractmethod
+from io import StringIO
 
 from pyramid.httpexceptions import HTTPFound
 from pyramid.renderers import render
 from pyramid.request import Request
 from pyramid.response import Response
 from pyramid.view import view_config
+from slugify import slugify
 from sqlalchemy.orm import Query
 import deform
 import colander
@@ -18,6 +21,7 @@ from websauna.system.core import messages
 from websauna.system.form import interstitial
 from websauna.system.form.fieldmapper import EditMode
 from websauna.system.form.resourceregistry import ResourceRegistry
+from websauna.system.crud.listing import Table
 
 from . import paginator
 from . import Resource
@@ -126,15 +130,15 @@ class CRUDView:
 class Listing(CRUDView):
     """List items in CRUD."""
 
-    #: Instance of :py:class:`websauna.crud.listing.Table` describing how the list should be rendered
-    table = None
+    #: Describe what columns our listing should contain
+    table = None  # type: Table
 
     #: How the result of this list should be split to pages
     paginator = paginator.DefaultPaginator()
 
     resource_buttons = [TraverseLinkButton(id="add", name="Add", view_name="add", permission="add")]
 
-    def __init__(self, context, request):
+    def __init__(self, context: CRUD, request: Request):
         """
         :param context: Points to ``CRUD`` instance.
         :param request:
@@ -210,6 +214,67 @@ class Listing(CRUDView):
         return template_vars
 
 
+class CSVListing(Listing):
+    """A listing view that exports the listing table as CSV.
+
+    CSVListing users the same :py:class:`Table` structure to define the listing as the listing HTML page. For columns, we use only id and :py:meth:`websauna.system.crud.listing.Column.get_value` to stringify entries from SQLAlchemy model attributes to CSV writer stream.
+
+    For example usage see :py:class:`websauna.system.user.adminviews.UserCSVListing`.
+
+    .. note ::
+
+        This view optimizes for non-buffered speed. If there is an exception in the middle of CSV generation a corrupted file might be delivered to the downstream client.
+
+    Original implementation in https://github.com/nandoflorestan/bag/blob/master/bag/spreadsheet/csv.py by Nando Florestan.
+    """
+
+    #: How many rows we buffer in a chunk before writing into a response
+    buffered_rows = 100
+
+    @view_config(context=CRUD, name="csv-export", permission='view')
+    def listing(self):
+        """Listing core."""
+
+        table = self.table
+        columns = table.get_columns()
+        query = self.get_query()
+        query = self.order_query(query)
+
+        file_title = slugify(self.context.title)
+        encoding = "utf-8"
+
+        response = Response()
+        response.headers["Content-Type"] = "text/csv"
+        response.headers["Content-Disposition"] = \
+        "attachment;filename={}.{}.csv".format(file_title, encoding)
+
+        buf = StringIO()
+        writer = csv.writer(buf)
+        buffered_rows = self.buffered_rows
+        view = self
+
+        def generate_csv_data():
+
+            # Write headers
+            writer.writerow([c.id for c in columns])
+
+            # Write each listing item
+            for idx, model_instance in enumerate(query):
+
+                # Extract column values for this row
+                values = [c.get_value(view, model_instance) for c in columns]
+
+                writer.writerow(values)
+                if idx % buffered_rows == 0:
+                    yield buf.getvalue().encode(encoding)
+                    buf.truncate(0)  # But in Python 3, truncate() does not move
+                    buf.seek(0)  # the file pointer, so we seek(0) explicitly.
+
+            yield buf.getvalue().encode(encoding)
+
+        response.app_iter = generate_csv_data()
+        return response
+
 
 class FormView(CRUDView):
     """An abstract base class for form-based CRUD views.
@@ -230,7 +295,7 @@ class FormView(CRUDView):
         self.context = context
         self.request = request
 
-    def create_form(self, mode:EditMode, buttons=(), nested=None) -> deform.Form:
+    def create_form(self, mode: EditMode, buttons=(), nested=None) -> deform.Form:
         model = self.get_model()
         assert getattr(self, "form_generator", None), "Class {} must define a form_generator".format(self)
         return self.form_generator.generate_form(request=self.request, context=self.context, model=model, mode=mode, buttons=buttons)
@@ -258,7 +323,7 @@ class FormView(CRUDView):
         """Get human-readable title for for template page title."""
         return "#{}".format(self.get_object().id)
 
-    def customize_schema(self, schema:colander.Schema):
+    def customize_schema(self, schema: colander.Schema):
         """After Colander schema is automatically generated from the SQLAlchemy model, edit it in-place for fine-tuning.
 
         Override this in your view subclass for schema customizations.

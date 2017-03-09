@@ -52,6 +52,16 @@ def ensure_transactionless(msg=None, transaction_manager=transaction.manager):
 
 
 def is_retryable(txn, error):
+    """Check if this transaction is one caused by database conflict.
+
+    These transactions should not be caught in catch all exception expressions.
+
+
+
+    :param txn:
+    :param error:
+    :return:
+    """
     # Emulate TransactionManager.is_retryable
     for dm in txn._resources:
         should_retry = getattr(dm, 'should_retry', None)

@@ -13,6 +13,8 @@ Changelog for Websauna
 
 - Update jQuery to 3.1.1. Old jQuery is kept in the source tree for backwards compatibility.
 
+- Added :py:class:`websauna.system.crud.views.CSVListing` and user CSV export
+
 1.0a4 (2017-01-07)
 ------------------
 

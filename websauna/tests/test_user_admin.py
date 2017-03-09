@@ -320,15 +320,14 @@ def test_csv_export_users(dbsession, registry, browser, web_server):
 
     # Copy session cookie over to request, so we can do an authenticated user request using requests lib
     cookies = b.driver.get_cookies()
+
     # Convert to plain dict
     cookies = {c["name"]: c["value"] for c in cookies}
     resp = requests.get("{}/admin/models/user/csv-export".format(web_server), cookies=cookies)
 
     assert resp.status_code == 200
-    assert resp["headers"]["Content-Type"] == "text/csv"
+    assert resp.headers["Content-Type"] == "text/csv; charset=utf-8"
     assert unicode_bomb in resp.text
-
-    assert b.status_code.is_success()
 
 
 

@@ -12,3 +12,4 @@ Testing
     form
     admin
     init
+    session

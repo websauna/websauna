@@ -244,7 +244,7 @@ class CSVListing(Listing):
         encoding = "utf-8"
 
         response = Response()
-        response.headers["Content-Type"] = "text/csv"
+        response.headers["Content-Type"] = "text/csv; charset={}".format(encoding)
         response.headers["Content-Disposition"] = \
         "attachment;filename={}.{}.csv".format(file_title, encoding)
 
@@ -252,6 +252,7 @@ class CSVListing(Listing):
         writer = csv.writer(buf)
         buffered_rows = self.buffered_rows
         view = self
+        request = self.request
 
         def generate_csv_data():
 
@@ -271,6 +272,11 @@ class CSVListing(Listing):
                     buf.seek(0)  # the file pointer, so we seek(0) explicitly.
 
             yield buf.getvalue().encode(encoding)
+
+            # Abort the transaction, otherwise it might not be closed by underlying machinery
+            # (at least tests hang)
+            # TODO: Confirm this behavior with pyramid_tm 2.0 when it's out
+            request.tm.abort()
 
         response.app_iter = generate_csv_data()
         return response

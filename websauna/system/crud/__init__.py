@@ -6,6 +6,7 @@ from pyramid.interfaces import IRequest
 
 from websauna.system.core.traversal import Resource as _Resource
 from websauna.system.http import Request
+from websauna.compat.typing import Any
 
 from .urlmapper import Base64UUIDMapper
 
@@ -29,7 +30,7 @@ class Resource(_Resource):
         self.request = request
         self.obj = obj
 
-    def get_object(self) -> object:
+    def get_object(self) -> Any:
         """Return the wrapped database object."""
         return self.obj
 

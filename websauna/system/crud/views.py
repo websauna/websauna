@@ -17,6 +17,7 @@ from websauna.compat import typing
 from websauna.compat.typing import Iterable
 from websauna.compat.typing import List
 from websauna.compat.typing import Optional
+from websauna.compat.typing import Any
 from websauna.system.core import messages
 from websauna.system.form import interstitial
 from websauna.system.form.fieldmapper import EditMode
@@ -149,7 +150,7 @@ class Listing(CRUDView):
     def get_crud(self) -> CRUD:
         return self.context
 
-    def get_model(self) -> object:
+    def get_model(self) -> Any:
         return self.context.get_model()
 
     def get_query(self) -> Query:
@@ -223,7 +224,7 @@ class CSVListing(Listing):
 
     .. note ::
 
-        This view optimizes for non-buffered speed. If there is an exception in the middle of CSV generation a corrupted file might be delivered to the downstream client.
+        This is TODO, having pyramid_tm issue open https://github.com/Pylons/pyramid_tm/issues/56
 
     Original implementation in https://github.com/nandoflorestan/bag/blob/master/bag/spreadsheet/csv.py by Nando Florestan.
     """
@@ -266,19 +267,21 @@ class CSVListing(Listing):
                 values = [c.get_value(view, model_instance) for c in columns]
 
                 writer.writerow(values)
-                if idx % buffered_rows == 0:
-                    yield buf.getvalue().encode(encoding)
-                    buf.truncate(0)  # But in Python 3, truncate() does not move
-                    buf.seek(0)  # the file pointer, so we seek(0) explicitly.
+                # if idx % buffered_rows == 0:
+                #    yield buf.getvalue().encode(encoding)
+                #    buf.truncate(0)  # But in Python 3, truncate() does not move
+                #    buf.seek(0)  # the file pointer, so we seek(0) explicitly.
 
-            yield buf.getvalue().encode(encoding)
+            # yield buf.getvalue().encode(encoding)
 
             # Abort the transaction, otherwise it might not be closed by underlying machinery
             # (at least tests hang)
             # TODO: Confirm this behavior with pyramid_tm 2.0 when it's out
-            request.tm.abort()
+            # request.tm.abort()
 
-        response.app_iter = generate_csv_data()
+        # TODO: This use to be response.app_iter, but apparently it doesn't place nicely with pyramid_tm
+        generate_csv_data()
+        response.body = buf.getvalue().encode(encoding)
         return response
 
 

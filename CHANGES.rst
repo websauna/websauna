@@ -15,6 +15,8 @@ Changelog for Websauna
 
 - Added :py:class:`websauna.system.crud.views.CSVListing` and user CSV export
 
+- :ref:`ws-shell` `request.application_url` comes from :ref:`websauna.site_url` setting and does not default to localhost
+
 1.0a4 (2017-01-07)
 ------------------
 

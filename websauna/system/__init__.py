@@ -35,6 +35,7 @@ from pyramid.settings import asbool
 
 from websauna.utils.autoevent import event_source
 from websauna.utils.configincluder import IncludeAwareConfigParser
+from websauna.compat.typing import Optional
 
 
 class SanityCheckFailed(Exception):
@@ -63,7 +64,7 @@ class Initializer:
         We deliberate push imports inside methods, so that it is unlikely we'd have any import time side effects caused by some less elegant solutions, like gevent.
     """
 
-    def __init__(self, global_config:dict, settings:dict=None):
+    def __init__(self, global_config: dict, settings: Optional[dict]=None):
         """
         :param global_config: Dictionary as passed to WSGI entry point.
 

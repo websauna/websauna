@@ -216,6 +216,131 @@ Your project INI configuration file has a section for Celery and Celery tasks. I
             }
         }
 
+Tasks storing results
+=====================
+
+Often it is necessary that you store the result of a task. E.g.
+
+* Long running tasks processing background batch jobs whose results get displayed in web UI
+
+* Delayed tasks need to report if they succeeded or failed
+
+It is best to store a result of a task in :ref:`SQLAlchemy model <models>` (complex results) or :ref:`Redis` (simple results that can be regenerated).
+
+Here is an example task.
+
+First we have a function that executes a long running batch job `calc_seo_assets`. It returns the result as Python dictionary that gets stored as JSON in Redis.
+
+Example `rebuild_seo_data`:
+
+.. code-block:: python
+
+    from websauna.system.core.redis import get_redis
+
+    # This is our example SQLAlchemy model for which we need to perform
+    # long running tasks, one per item
+    from myapp.models import Asset
+
+
+    def rebuild_seo_data(request, asset: Asset):
+        """Rebuild daily SEO data for an asset item. """
+        key_name = "asset_seo_{}".format(asset.slug)
+        logger.info("Building asset SEO %s", key_name)
+        # Execute some very long running function
+        data = calc_asset_seo(request, asset)
+
+        # Store results in Redis as JSON
+        redis = get_redis(request)
+        redis.set(key_name, json.dumps(data))
+        return data
+
+We have several items for which we need to run this job. We iterate them in a Celery scheduled tasks that gets called twice in a day:
+
+.. code-block:: python
+
+    from websauna.system.task.tasks import task, WebsaunaTask
+    from websauna.system.http import Request
+    from websauna.system.model.retry import retryable
+
+    # This is our example SQLAlchemy model for which we need to perform
+    # long running tasks, one per item
+    from myapp.models import Asset
+
+
+    def _build_seo_data(request: Request):
+        """Build SEO data for all assets in our database.
+
+        We declare the function body as a separete function from the task function, so
+        that this function can be called directly from ws-shell for manual testing.
+        """
+        dbsession = request.dbsession
+
+        # Because doing calculations for individual jobs can be time consuming,
+        # we split our jobs over several transactions, so that we do not hold
+        # database locks for a single asset unnecessarily
+
+        @retryable(tm=request.tm)
+        def _get_ids():
+            # Get all assets that have website set, so we know we can build SEO data for them
+            asset_ids = [asset.id for asset in dbsession.query(Asset).all() if asset.other_data.get("website")]
+            return asset_ids
+
+        @retryable(tm=request.tm)
+        def _run_for_id(id):
+            asset = dbsession.query(Asset).get(id)
+            rebuild_seo_data(request, asset)
+
+        # Transaction 1
+        ids = _get_ids()
+
+        # Transaction 2...N
+        for id in ids:
+            _run_for_id(id)
+
+    @task(name="data.build_seo_data", queue="data", bind=True, time_limit=60*30, soft_time_limit=60*15, base=WebsaunaTask)
+    def build_seo_data(self: WebsaunaTask):
+        """Individual asset graphs.
+
+        This task is listed in Celery schedule in production.ini.
+        """
+        _build_seo_data(self.get_request())
+
+After the task is run (by Celery or manually) the data is available in Redis and you can use it in :ref:`view` in the front end:
+
+.. code-block:: python
+
+    import json
+    from websauna.system.core.redis import get_redis
+
+
+    def fetch_seo_data(request, asset: Asset) -> dict:
+        """Get SEO data build in the background task.
+
+        :return: If data is not yet build return None, otherwise return decoded resuls.
+        """
+        key_name = "asset_seo_{}".format(asset.slug)
+
+        redis = get_redis(request)
+        data = redis.get(key_name)
+
+        if data:
+            return json.loads(data.decode("utf-8"))
+        else:
+            return None
+
+    def my_view(request):
+        seo = fetch_seo_data(self.request, self.asset)
+        return seo
+
+
+See also
+
+* :ref:`occ`
+
+* :py:func:`websauna.system.model.retry.retryable`
+
+* :py:func:`from websauna.system.core.redis.get_redis`
+
 
 More information
 ================

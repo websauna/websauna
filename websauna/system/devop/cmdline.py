@@ -122,8 +122,18 @@ def init_websauna_script_env(config_uri: str) -> dict:
     initializer = getattr(app, "initializer", None)
     assert initializer is not None, "Configuration did not yield to Websauna application with Initializer set up"
 
+    registry = initializer.config.registry
+    dbsession = create_dbsession(registry)
+
+
     pyramid_env = scripting.prepare(registry=app.initializer.config.registry)
     pyramid_env["app"] = app
     pyramid_env["initializer"] = initializer
+
+    # Websauna specific
+    # Set up the request with websauna.site_url setting as the base URL
+    request = make_routable_request(dbsession, registry)
+    pyramid_env["request"] = request
+    pyramid_env["dbsession"] = dbsession
 
     return pyramid_env

@@ -133,6 +133,8 @@ def retryable(tm: Optional[TransactionManager]=None, get_tm: Optional[Callable]=
                 # Performed inside TX retry boundary
                 ops = self.get_waiting_operation_ids()
 
+    Transaction manager needs ``retry_attempt_count`` attribute set by Websauna framework.
+
     :param tm: Transaction manager used to control the TX execution
 
     :param get_tm: Factory function that is called with *args and **kwargs to get the transaction manager
@@ -157,7 +159,7 @@ def retryable(tm: Optional[TransactionManager]=None, get_tm: Optional[Callable]=
             ensure_transactionless(transaction_manager=manager)
 
             retry_attempt_count = getattr(manager, "retry_attempt_count", None)
-            if not retry_attempt_count:
+            if retry_attempt_count is None:
                 raise NotRetryable("TransactionManager is not configured with default retry attempt count")
 
             # Run attempt loop

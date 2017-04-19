@@ -113,6 +113,9 @@ class ScheduleOnCommitTask(WebsaunaTask):
         # We are run in a post-commit hook, so there is no transaction manager available
         tm = TransactionManager()
 
+        # Do not attempt any transaction retries in eager mode
+        tm.retry_attempt_count = 1
+
         self.request.update(request=self.make_faux_request(transaction_manager=tm))
         return self.run(*args, **kwargs)
 
@@ -203,6 +206,10 @@ class RetryableTransactionTask(ScheduleOnCommitTask):
 
         # We are run in a post-commit hook, so there is no transaction manager available
         tm = TransactionManager()
+
+        # Do not attempt any transaction retries in eager mode
+        tm.retry_attempt_count = 1
+
         self.request.update(request=self.make_faux_request(transaction_manager=tm))
 
         with tm:

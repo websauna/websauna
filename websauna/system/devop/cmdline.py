@@ -60,6 +60,16 @@ def setup_console_logging(log_level=None):
 def init_websauna(config_uri: str, sanity_check: bool=False, console_app=False, extra_options=None) -> Request:
     """Initialize Websauna WSGI application for a command line oriented script.
 
+    Example:
+
+    .. code-block:: python
+
+        import sys
+        from websauna.system.devop.cmdline import init_websauna
+
+        config_uri = sys.argv[1]
+        request = init_websauna(config_uri)
+
     :param config_uri: Path to config INI file
 
     :param sanity_check: Perform database sanity check on start
@@ -124,7 +134,6 @@ def init_websauna_script_env(config_uri: str) -> dict:
 
     registry = initializer.config.registry
     dbsession = create_dbsession(registry)
-
 
     pyramid_env = scripting.prepare(registry=app.initializer.config.registry)
     pyramid_env["app"] = app

@@ -187,6 +187,7 @@ def retryable(tm: Optional[TransactionManager]=None, get_tm: Optional[Callable]=
                         latest_exc = e
                         continue
                     else:
+                        txn.abort()  # We could not commit
                         raise e
 
             raise CannotRetryAnymore("Out of transaction retry attempts, tried {} times".format(num + 1)) from latest_exc

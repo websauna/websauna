@@ -74,7 +74,7 @@ setup(
     install_requires=[
 
         # Pyramid dependencies
-        'pyramid>=1.7a2',
+        'pyramid<1.9',
         'waitress',
         'pyramid_redis_sessions',
         'pyramid-layout',

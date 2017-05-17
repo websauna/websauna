@@ -23,7 +23,13 @@ def get_logging_user_context(request: Request) -> dict:
 
     :return: Dict containing human readable user parameters to help identify the user on this request
     """
-    user = getattr(request, "user", None)
+    try:
+        user = getattr(request, "user", None)
+    except sqlalchemy.exc.InvalidRequestError:
+        # We had a rollback and could not capture the user,
+        # because user has been rolled back
+        user = None
+
     user_context = {}
 
     try:

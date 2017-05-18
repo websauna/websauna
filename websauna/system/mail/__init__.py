@@ -13,12 +13,13 @@ from websauna.system.mail.utils import create_mailer
 from websauna.system.http import Request
 from websauna.compat.typing import Iterable
 from websauna.compat.typing import Optional
+from websauna.compat.typing import Tuple
 
 
 logger = logging.getLogger(__name__)
 
 
-def send_templated_mail(request: Request, recipients: Iterable, template: str, context: dict, sender=None, immediate=None, tm: Optional[TransactionManager]=None):
+def send_templated_mail(request: Request, recipients: Iterable, template: str, context: dict, sender=None, immediate=None, tm: Optional[TransactionManager]=None) -> Tuple[str, str, str]:
     """Send out templatized HTML and plain text emails.
 
     Each HTML email should have a plain text fallback. Premailer package is used to convert any CSS styles in HTML email messages to inline, so that email clients display them.
@@ -66,6 +67,8 @@ def send_templated_mail(request: Request, recipients: Iterable, template: str, c
     :param immediate: Set True to send to the email immediately and do not wait the transaction to commit. This is very useful for debugging outgoing email issues in an interactive traceback inspector. If this is ``None`` then use setting ``mail.immediate`` that defaults to ``False``.
 
     :param tm: Give transaction manager that is used instead of ``request.tm`` for the commit hook.
+
+    :return: tuple(subject, text_body, html_body)
     """
 
     assert recipients
@@ -127,5 +130,7 @@ def send_templated_mail(request: Request, recipients: Iterable, template: str, c
         mailer.send_immediately(message)
     else:
         mailer.send(message)
+
+    return subject, text_body, html_body
 
 

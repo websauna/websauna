@@ -63,6 +63,10 @@ def is_retryable(txn, error):
     :return:
     """
     # Emulate TransactionManager.is_retryable
+
+    if txn is None:
+        return False
+
     for dm in txn._resources:
         should_retry = getattr(dm, 'should_retry', None)
         if (should_retry is not None) and should_retry(error):

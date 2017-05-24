@@ -10,12 +10,14 @@ class SessionAuthenticationPolicy(_SessionAuthenticationPolicy):
     Originally from https://github.com/pypa/warehouse/blob/master/warehouse/accounts/auth_policy.py
     """
 
-    created_at_key = "created_at"
+    authenticated_at_key = "authenticated_at"
+    unauthenticated_at_key = "authenticated_at"
 
     def remember(self, request, userid, **kw):
         """ Store a userid in the session."""
         request.session[self.userid_key] = userid
-        request.session[self.created_at_key] = now()
+        request.session[self.authenticated_at_key] = now()
+
         return []
 
     def unauthenticated_userid(self, request):
@@ -25,4 +27,5 @@ class SessionAuthenticationPolicy(_SessionAuthenticationPolicy):
         # request.add_response_callback(add_vary_callback_if_cookie("Cookie"))
 
         # Dispatch to the real SessionAuthenticationPolicy
+        request.session[self.unauthenticated_at_key] = now()
         return super().unauthenticated_userid(request)

@@ -1,6 +1,11 @@
 """Session creation."""
+import logging
+
 from pyramid_redis_sessions import session_factory_from_settings
 from websauna.utils.time import now
+
+
+logger = logging.getLogger(__name__)
 
 
 def set_creation_time_aware_session_factory(config):
@@ -24,6 +29,12 @@ def set_creation_time_aware_session_factory(config):
         session = session_factory(request)
         if "created_at" not in session:
             session["created_at"] = now()
+            session["client_addr"] = request.client_addr
+
+        # TODO:
+        # For some Redis session backends, looks like we may have a race condition creatin CSRF token (no idea how?),
+        # and thus we call get_csrf_token() here to explicitly trace and check it
+        logger.info("Created session %s %s %s", request.client_addr, session.session_id, session.get_csrf_token())
         return session
 
     config.set_session_factory(create_session)

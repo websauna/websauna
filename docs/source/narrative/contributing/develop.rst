@@ -48,7 +48,7 @@ Running tests
 -------------
 
 Unit tests are `PyTest based <http://pytest.org/>`_. They use `Selenium browser automation framework
-<http://selenium-python.readthedocs.org/>`_ and `Splinter simplified element interatcion
+<http://selenium-python.readthedocs.org/>`_ and `Splinter simplified element interaction
 <https://splinter.readthedocs.org/en/latest/>`_.
 
 

@@ -34,10 +34,10 @@ class SessionInvalidationTweenFactory:
 
         if user:
             try:
-                session_created_at = request.session["created_at"]
-                if not user.is_valid_session(session_created_at):
+                session_authenticated_at = request.session["authenticated_at"]
+                if not user.is_valid_session(session_authenticated_at):
                     request.session.invalidate()
-                    messages.add(request, kind="error", msg="Your have been logged out due to authentication changes.   ", msg_id="msg-session-invalidated")
+                    messages.add(request, kind="error", msg="Your have been logged out due to authentication changes.", msg_id="msg-session-invalidated")
                     return HTTPFound(request.application_url)
             except sqlalchemy.orm.exc.DetachedInstanceError:
 

@@ -34,7 +34,8 @@ def set_creation_time_aware_session_factory(config):
         # TODO:
         # For some Redis session backends, looks like we may have a race condition creatin CSRF token (no idea how?),
         # and thus we call get_csrf_token() here to explicitly trace and check it
-        logger.info("Created session %s %s %s", request.client_addr, session.session_id, session.get_csrf_token())
+        ensure_csrf = session.get_csrf_token()
+        logger.debug("Created session %s %s %s", request.client_addr, session.session_id, ensure_csrf)
         return session
 
     config.set_session_factory(create_session)

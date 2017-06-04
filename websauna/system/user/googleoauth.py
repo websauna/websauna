@@ -39,6 +39,7 @@ class Google(OAuth2):
     * timezone
     * username
 
+    .. |oauth2| replace:: oauth2
     .. note::
 
         To get the user info, you need to activate the **Google+ API**

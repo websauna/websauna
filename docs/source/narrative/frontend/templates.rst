@@ -16,7 +16,7 @@ How templating works
 
 URLs are never directly connected to template files. Instead, URLs point to views. Views prepare the data as input for the page template. This usually includes doing database look ups and processing form posts. A view returns a dictionary which contains items which can be later substituted in template using ``{{ variable }}`` syntax.
 
-:doc:`Read how views work <./views>`.
+:doc:`Read how views work <views>`.
 
 Template reference
 ==================

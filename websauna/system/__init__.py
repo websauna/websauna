@@ -599,9 +599,14 @@ class Initializer:
         except pkg_resources.DistributionNotFound:
             return
 
-        import websauna.system.notebook.views
-        import websauna.system.notebook.adminviews
-        import websauna.system.notebook.subscribers
+        try:
+            import websauna.system.notebook.views
+            import websauna.system.notebook.adminviews
+            import websauna.system.notebook.subscribers
+        except ImportError:
+            # Have installed IPython[Notebook], but not pyramid_notebook
+            return
+
         self.config.add_route('admin_shell', '/notebook/admin-shell')
         self.config.add_route('shutdown_notebook', '/notebook/shutdown')
         self.config.add_route('notebook_proxy', '/notebook/*remainder')

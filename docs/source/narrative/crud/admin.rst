@@ -1295,3 +1295,17 @@ We customize ``OrganizationCustomer`` add view, so that created customers automa
 
             # Gives id to the added object, allows us to redirect to show it
             self.request.dbsession.flush()
+
+Adding admin users manually
+===========================
+
+You can add new admin users through the :ref:`ws-shell`.
+
+Example:
+
+.. code-block:: python
+
+    with transaction.manager:
+        u = dbsession.query(User).filter_by(email="useremail@example.com").one()
+        g = dbsession.query(Group).filter_by(name="admin").one()
+        g.users.append(u)

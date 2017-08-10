@@ -54,7 +54,9 @@ def test_csrf_fail(web_server, browser):
     b.evaluate_script(SPOOF_CSRF_JS.replace("\n", " "))
 
     b.find_by_name("login_email").click()
-    assert b.title == "400 Bad CSRF Token"  # TODO: Firefox specific?
+
+    # Only present on our custom page
+    assert b.is_element_present_by_css("#heading-bad-csrf-token")
 
 
 

@@ -363,6 +363,9 @@ class Initializer:
             self.config.scan(errortrigger)
             self.config.add_route('error_trigger', '/error-trigger')
 
+        from websauna.system.core.views import badcsrftoken
+        self.config.scan(badcsrftoken)
+
     @event_source
     def configure_root(self):
         """Root object defines permissions for route URLs which have not their own traversing context.

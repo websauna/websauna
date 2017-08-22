@@ -15,7 +15,6 @@ except ImportError:
     good_reify = False
 
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -34,11 +33,16 @@ class SessionInvalidationTweenFactory:
 
         if user:
             try:
-                session_authenticated_at = request.session["authenticated_at"]
-                if not user.is_valid_session(session_authenticated_at):
-                    request.session.invalidate()
-                    messages.add(request, kind="error", msg="Your have been logged out due to authentication changes.", msg_id="msg-session-invalidated")
-                    return HTTPFound(request.application_url)
+                session_authenticated_at = request.session.get("authenticated_at")
+
+                # User was deauthenticatd in this request for some reason
+                if session_authenticated_at:
+
+                    if not user.is_valid_session(session_authenticated_at):
+                        request.session.invalidate()
+                        messages.add(request, kind="error", msg="Your have been logged out due to authentication changes.", msg_id="msg-session-invalidated")
+                        logger.info("User log out forced due to security sensitive settings change, user %s, session id %s", user, request.session.session_id)
+                        return HTTPFound(request.application_url)
             except sqlalchemy.orm.exc.DetachedInstanceError:
 
                 if good_reify:

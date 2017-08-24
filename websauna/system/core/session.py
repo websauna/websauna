@@ -4,17 +4,19 @@ import logging
 import pickle as cPickle
 import functools
 
+from pyramid.session import signed_serialize
+
 from pyramid_redis_sessions import get_default_connection
 from pyramid_redis_sessions.util import persist, _parse_settings, get_unique_session_id
-from pyramid_redis_sessions import _set_cookie
 from pyramid_redis_sessions import _generate_session_id
 from pyramid_redis_sessions import RedisSession
-from pyramid_redis_sessions import _delete_cookie, _cookie_callback, _get_session_id_from_cookie
+from pyramid_redis_sessions import _delete_cookie, _get_session_id_from_cookie
 
 from websauna.utils.time import now
 
 
 logger = logging.getLogger(__name__)
+
 
 
 class WebsaunaSession(RedisSession):
@@ -47,6 +49,86 @@ class WebsaunaSession(RedisSession):
         if self.managed_dict:
             self.managed_dict.update(self.initial_data)
         self.managed_dict[key] = value
+
+
+def _set_cookie(
+    session,
+    request,
+    response,
+    cookie_name,
+    cookie_max_age,
+    cookie_path,
+    cookie_domain,
+    cookie_secure,
+    cookie_httponly,
+    secret,
+):
+    """
+    `session` is via functools.partial
+    `request` and `response` are appended by add_response_callback
+    """
+    cookieval = signed_serialize(session.session_id, secret)
+    response.set_cookie(
+        cookie_name,
+        value=cookieval,
+        max_age=cookie_max_age,
+        path=cookie_path,
+        domain=cookie_domain,
+        secure=cookie_secure,
+        httponly=cookie_httponly,)
+
+
+def _cookie_callback(
+    session,
+    request,
+    response,
+    session_cookie_was_valid,
+    cookie_on_exception,
+    set_cookie,
+    delete_cookie,
+    cookieless_headers,
+    ):
+    """
+    Response callback to set the appropriate Set-Cookie header.
+    `session` is via functools.partial
+    `request` and `response` are appended by add_response_callback
+    """
+
+    # The view signals this is cacheable response
+    # and we should not stamp a session cookie on it
+    for header in cookieless_headers:
+        if header in response.headers:
+            return
+
+    if session._invalidated:
+        if session_cookie_was_valid:
+            delete_cookie(response=response)
+        return
+
+    # Do not session cookie if we have not written anything to session yet
+    has_content = len(session.keys()) > 0
+
+    if session.new and has_content:
+
+        if cookie_on_exception is True or request.exception is None:
+
+            set_cookie(request=request, response=response)
+
+            # If we set a cookie we need to make sure that downstream
+            # web serves do not serve this response from a cache
+            # for requests coming in with a different session cookie.
+            # Otherwise we might leak sessions between users.
+            varies = ("Cookie",)
+            vary = set(response.vary if response.vary is not None else [])
+            vary |= set(varies)
+            response.vary = vary
+
+        elif session_cookie_was_valid:
+            # We don't set a cookie for the new session here (as
+            # cookie_on_exception is False and an exception was raised), but we
+            # still need to delete the existing cookie for the session that the
+            # request started with (as the session has now been invalidated).
+            delete_cookie(response=response)
 
 
 def WebsaunaSessionFactory(

@@ -11,7 +11,7 @@ import os
 import pytest
 from flaky import flaky
 
-from .scaffold import execute_venv_command, insert_content_after_line, start_ws_pserve
+from .scaffold import execute_venv_command, insert_content_after_line, start_ws_pserve, print_subprocess_fail
 from .scaffold import replace_file
 from .scaffold import create_psq_db
 from .scaffold import app_scaffold  # noqa
@@ -45,7 +45,7 @@ def addon_scaffold(request, app_scaffold):
 
     folder = app_scaffold
 
-    execute_venv_command("pcreate -s websauna_addon myaddon", folder)
+    execute_venv_command("pcreate --overwrite -s websauna_addon myaddon", folder)
 
     content_folder = os.path.join(folder, "websauna.myaddon")
 
@@ -56,19 +56,21 @@ def addon_scaffold(request, app_scaffold):
 
 
 @pytest.mark.skipif(sys.version_info < (3,4), reason="For unknown reason this keeps randomly failing on Python 3.4")
-@flaky
 def test_addon_pserve(addon_scaffold, addon_dev_db, browser):
     """Install and configure demo app for addon an and see if pserve starts."""
 
     # User models are needed to start the web server
     execute_venv_command("ws-sync-db websauna/myaddon/conf/development.ini", addon_scaffold, cd_folder="websauna.myaddon")
-    server = start_ws_pserve("cd websauna.myaddon && ws-pserve websauna/myaddon/conf/development.ini", addon_scaffold)
+    cmdline = "cd websauna.myaddon && ws-pserve websauna/myaddon/conf/development.ini"
+    server = start_ws_pserve(cmdline, addon_scaffold)
 
     try:
 
         # Make sure we get some sensible output from the server
         b = browser
         b.visit("http://localhost:6543/example-view")
+
+        print("cd " + addon_scaffold + " && " + cmdline)
 
         # See our scaffold home page loads and demo text is there
         assert b.is_element_present_by_css("#demo-text")

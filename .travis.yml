@@ -53,8 +53,9 @@ script:
   # https://pypi.python.org/pypi/coverage_enable_subprocess
   - pip install coverage-enable-subprocess
   - export COVERAGE_PROCESS_START=$PWD/.coveragerc
+  # This env variable is passed to scaffold tests that test the tests themselves
   - export SPLINTER_WEBDRIVER=chrome
-  - tox -- --ini=websauna/conf/travis.ini
+  - tox -- --ini=websauna/conf/travis.ini --spinter-webdriver=chrome
 
 after_success:
   # Update coverage information in codecov.io.

@@ -59,7 +59,7 @@ before_script:
   - sudo ln -s /usr/bin/google-chrome-stable /usr/bin/chrome
 
   - echo "Using chrome version $(chrome --version) from $(which google-chrome-stable)"
-  - echo "Using chrome version $(chrome --version) from $(which chromedriver)"
+  - echo "Using chromedriver version $(chromedriver --version) from $(which chromedriver)"
 
 script:
   # https://pypi.python.org/pypi/coverage_enable_subprocess

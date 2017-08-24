@@ -2,7 +2,7 @@ language: python
 
 addons:
   postgresql: "9.4"
-  firefox: "45.0"
+  chrome: stable
 
 services:
   - postgresql
@@ -42,9 +42,10 @@ before_script:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
   - sleep 3 # give xvfb some time to start
-  - tar -xjf /tmp/firefox-45.0.tar.bz2 --directory /tmp
-  - export PATH="/tmp/firefox:$PATH"
-  - echo "Using firefox version `firefox --version`"
+  # - tar -xjf /tmp/firefox-45.0.tar.bz2 --directory /tmp
+  # - export PATH="/tmp/firefox:$PATH"
+  # - echo "Using firefox version `firefox --version`"
+  - echo "Using chrome version $(chrome --version) from $(which google-chrome-stable)"
   - psql -c 'create database websauna_test;' -U postgres
   - pip install -U pip
 
@@ -52,6 +53,7 @@ script:
   # https://pypi.python.org/pypi/coverage_enable_subprocess
   - pip install coverage-enable-subprocess
   - export COVERAGE_PROCESS_START=$PWD/.coveragerc
+  - export SPLINTER_WEBDRIVER=chrome
   - tox -- --ini=websauna/conf/travis.ini
 
 after_success:

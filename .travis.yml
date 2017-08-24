@@ -49,6 +49,13 @@ before_script:
   - psql -c 'create database websauna_test;' -U postgres
   - pip install -U pip
 
+# Install chromedriver - https://sites.google.com/a/chromium.org/chromedriver/
+# This is not provided by Travis, but is needed by Selenium
+  - wget -N http://chromedriver.storage.googleapis.com/2.31/chromedriver_linux64.zip
+  - unzip chromedriver_linux64.zip
+  - chmod +x chromedriver
+  - sudo mv chromedriver /usr/bin
+
 script:
   # https://pypi.python.org/pypi/coverage_enable_subprocess
   - pip install coverage-enable-subprocess

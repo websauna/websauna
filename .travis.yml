@@ -45,7 +45,6 @@ before_script:
   # - tar -xjf /tmp/firefox-45.0.tar.bz2 --directory /tmp
   # - export PATH="/tmp/firefox:$PATH"
   # - echo "Using firefox version `firefox --version`"
-  - echo "Using chrome version $(chrome --version) from $(which google-chrome-stable)"
   - psql -c 'create database websauna_test;' -U postgres
   - pip install -U pip
 
@@ -55,6 +54,12 @@ before_script:
   - unzip chromedriver_linux64.zip
   - chmod +x chromedriver
   - sudo mv chromedriver /usr/bin
+
+# Make chrome available as "chrome"
+  - sudo ln -s /usr/bin/google-chrome-stable /usr/bin/chrome
+
+  - echo "Using chrome version $(chrome --version) from $(which google-chrome-stable)"
+  - echo "Using chrome version $(chrome --version) from $(which chromedriver)"
 
 script:
   # https://pypi.python.org/pypi/coverage_enable_subprocess

@@ -61,7 +61,7 @@ script:
   - export COVERAGE_PROCESS_START=$PWD/.coveragerc
   # This env variable is passed to scaffold tests that test the tests themselves
   - export SPLINTER_WEBDRIVER=chrome
-  - tox -- --ini=websauna/conf/travis.ini --splinter-webdriver=chrome
+  - tox -- --ini=websauna/conf/travis.ini --splinter-webdriver=chrome --splinter-headless=true
 
 after_success:
   # Update coverage information in codecov.io.

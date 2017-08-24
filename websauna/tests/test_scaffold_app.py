@@ -81,7 +81,7 @@ def test_pyramid_debugtoolbar(app_scaffold, dev_db, browser):
         server.kill()
 
 
-@pytest.mark.skipif(os.environ.get("TRAVIS"), "Needs a packaged release of pytest-splinter and splinter")
+@pytest.mark.skipif(os.environ.get("TRAVIS") == "true", "Needs a packaged release of pytest-splinter and splinter")
 def test_pytest(app_scaffold, test_db, scaffold_webdriver):
     """Create an application and see if py.test tests pass. """
 

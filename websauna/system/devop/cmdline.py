@@ -112,6 +112,10 @@ def init_websauna(config_uri: str, sanity_check: bool=False, console_app=False, 
     # Set up the request with websauna.site_url setting as the base URL
     request = make_routable_request(dbsession, registry)
 
+    # This exposes the app object for the integration tests e.g test_static_asset
+    # TODO: Find a cleaner way to do this
+    request.app = app
+
     return request
 
 

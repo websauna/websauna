@@ -1,4 +1,5 @@
 language: python
+dist: trusty
 
 addons:
   postgresql: "9.4"

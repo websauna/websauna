@@ -44,10 +44,6 @@ setup(name='{{project}}',
             "pytest-runner",
             "pytest-splinter",
             "webtest",
-
-            # Wait until Marionette matures
-            # http://stackoverflow.com/questions/37761668/cant-open-browser-with-selenium-after-firefox-update
-            "selenium==2.53.6",
         ],
 
 

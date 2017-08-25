@@ -95,7 +95,7 @@ def test_addon_migration(addon_scaffold, addon_dev_db):
         assert any("added_mymodel.py" in f for f in files), "Got files {}".format(files)
 
 
-@pytest.mark.skipif(os.environ.get("TRAVIS") == "true", "Needs a packaged release of pytest-splinter and splinter")
+@pytest.mark.skipif(os.environ.get("TRAVIS") == "true", reason="Needs a packaged release of pytest-splinter and splinter")
 def test_addon_pytest(addon_scaffold, addon_test_db, scaffold_webdriver):
     """Create an addon and see if the default py.test tests pass. """
 

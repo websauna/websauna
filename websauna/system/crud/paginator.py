@@ -1,5 +1,4 @@
 from urllib.parse import urlencode, urlsplit, parse_qsl, urlunsplit
-import itertools
 import math
 
 
@@ -8,16 +7,17 @@ def merge_url_qs(url, **kw):
     If any query string element exists in ``url`` that also exists in
     ``kw``, replace it."""
     segments = urlsplit(url)
-    extra_qs = [ (k, v) for (k, v) in
-                 parse_qsl(segments.query, keep_blank_values=1)
-                 if k not in kw ]
+    extra_qs = [
+        (k, v)
+        for (k, v) in parse_qsl(segments.query, keep_blank_values=1)
+        if k not in kw
+    ]
     qs = urlencode(sorted(kw.items()))
     if extra_qs:
         qs += '&' + urlencode(extra_qs)
     return urlunsplit(
         (segments.scheme, segments.netloc, segments.path, qs, segments.fragment)
-        )
-
+    )
 
 
 class Batch(object):
@@ -179,7 +179,10 @@ class Batch(object):
         end = start + size
         if end > seqlen:
             end = seqlen
-        items = list(itertools.islice(seq, start, end))
+
+        # normal list slicing is mucho faster than islice
+        items = seq[start:end]
+
         length = len(items)
         last = int(math.ceil(seqlen / float(size)) - 1)
 
@@ -243,7 +246,6 @@ class Batch(object):
         return True
 
     __bool__ = __nonzero__ # py3
-
 
 
 class DefaultPaginator:

@@ -17,6 +17,8 @@ Changelog for Websauna
 
 - :ref:`ws-shell` `request.application_url` comes from :ref:`websauna.site_url` setting and does not default to localhost
 
+- Write the session cookie and Redis session data only if something was stored in the session. This makes it more scalable to serve anonymous pages, as one does not need to reset the cookie on every crawling request.
+
 1.0a4 (2017-01-07)
 ------------------
 

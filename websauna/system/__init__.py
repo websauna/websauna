@@ -350,7 +350,7 @@ class Initializer:
             from websauna.system.core.views import notfound
             self.config.scan(notfound)
 
-        # Internal server error must be only activated in the production mode, as it clashes with pyramid_debugtoolbar
+        # Internal server error page must be only activated in the production mode, as it clashes with pyramid_debugtoolbar, as both handle uncaught exceptions
         has_debug_toolbar = "pyramid_debugtoolbar" in aslist(settings.get("pyramid.includes", []))
         debug_toolbar_enabled = has_debug_toolbar and asbool(settings.get("debugtoolbar.enabled", True))
 

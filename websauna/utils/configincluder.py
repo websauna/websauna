@@ -1,4 +1,5 @@
 """Support for INI file inclusion mechanism."""
+from paste.deploy import loadwsgi
 from urllib.parse import urlparse
 from logging.config import fileConfig
 import configparser
@@ -6,6 +7,18 @@ import os
 import pkg_resources
 
 from pyramid.settings import aslist
+
+
+def _getpathsec(config_uri, name):
+    if '#' in config_uri:
+        path, section = config_uri.split('#', 1)
+    else:
+        path, section = config_uri, 'main'
+
+    if name:
+        section = name
+
+    return path, section
 
 
 #: Cache accessed resources
@@ -117,6 +130,20 @@ class IncludeAwareConfigParser(configparser.SafeConfigParser):
         return {k:v for k,v in parser.items(section)}
 
 
+class PatchedNicerConfigParser(loadwsgi.NicerConfigParser):
+    """
+    The NicerConfigParser of paste.deploy.loadwsgi patched with minimal changes from IncludeAwareConfigParser.
+    """
+
+    def _read(self, fp, fpname):
+        super(loadwsgi.NicerConfigParser, self)._read(fp, fpname)
+        self.process_includes(fpname)
+
+    process_includes = IncludeAwareConfigParser.process_includes
+    read_include = IncludeAwareConfigParser.read_include
+    resolve = IncludeAwareConfigParser.resolve
+
+
 # Monkey-patched python.paster.setup_logging()
 def setup_logging(config_uri, global_conf=None, fileConfig=fileConfig,
                   configparser=configparser):
@@ -129,8 +156,6 @@ def setup_logging(config_uri, global_conf=None, fileConfig=fileConfig,
     and ``here`` variables, similar to PasteDeploy config loading.
     """
 
-    from pyramid.paster import _getpathsec
-
     path, _ = _getpathsec(config_uri, None)
     parser = IncludeAwareConfigParser()
     parser.read([path])
@@ -138,30 +163,3 @@ def setup_logging(config_uri, global_conf=None, fileConfig=fileConfig,
     if parser.has_section('loggers'):
         config_file = os.path.abspath(path)
         return fileConfig(parser, dict(__file__=config_file, here=os.path.dirname(config_file)), disable_existing_loggers=False)
-
-
-def monkey_patch_paster_config_parser():
-    """Tell Paster to play by my rules.
-
-    Call this before calling ``loadapp()``.
-
-    FASDFWQ#€=IA this shit. Can't wait to BURN paster configs and start something based on YAML. Like with REAL include directives, not this half asset shit.
-    """
-
-    from paste.deploy import loadwsgi
-    from pyramid import paster
-
-    if hasattr(loadwsgi.NicerConfigParser, "_monkey_patched"):
-        return
-
-    def _read(self, fp, fpname):
-        super(loadwsgi.NicerConfigParser, self)._read(fp, fpname)
-        self.process_includes(fpname)
-
-    loadwsgi.NicerConfigParser._read = _read
-    loadwsgi.NicerConfigParser.process_includes = IncludeAwareConfigParser.process_includes
-    loadwsgi.NicerConfigParser.read_include = IncludeAwareConfigParser.read_include
-    loadwsgi.NicerConfigParser.resolve = IncludeAwareConfigParser.resolve
-
-    paster.setup_logging = setup_logging
-    loadwsgi.NicerConfigParser._monkey_patched = True

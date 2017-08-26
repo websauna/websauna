@@ -74,7 +74,7 @@ setup(
     install_requires=[
 
         # Pyramid dependencies
-        'pyramid<1.9',
+        'pyramid',
         'waitress',
         'pyramid_redis_sessions',
         'pyramid-layout',
@@ -183,9 +183,22 @@ setup(
         'paste.app_factory': [
             'main=websauna.system:main',
 
-            # Scheduler auomated test suite entry point with some extra configured taskss
+            # Scheduler automated test suite entry point with some extra configured taskss
             'task_test=websauna.tests.demotasks:main',
             'tutorial_test=websauna.tests.tutorial:main',
+        ],
+
+        'pyramid.scaffold': [
+            "websauna_app=websauna.scaffolds:App",
+            "websauna_addon=websauna.scaffolds:Addon",
+        ],
+
+        'plaster.loader_factory': [
+            'ws=websauna.utils.configloader:Loader',
+        ],
+
+        'plaster.wsgi_loader_factory': [
+            'ws=websauna.utils.configloader:Loader',
         ],
     },
 )

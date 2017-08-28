@@ -71,7 +71,6 @@ def test_addon_pserve(addon_scaffold, addon_dev_db, browser):
         b.visit("http://localhost:6543/example-view")
 
         print("cd " + addon_scaffold + " && " + cmdline)
-
         # See our scaffold home page loads and demo text is there
         assert b.is_element_present_by_css("#demo-text")
 

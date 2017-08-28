@@ -50,6 +50,13 @@ class WebsaunaSession(RedisSession):
             self.managed_dict.update(self.initial_data)
         self.managed_dict[key] = value
 
+    def get_csrf_token(self):
+        token = self.get('_csrft_', None)
+        if token is None:
+            token = self.new_csrf_token()
+        else:
+            token = str(token)
+        return token
 
 def _set_cookie(
     session,
@@ -108,7 +115,8 @@ def _cookie_callback(
     # Do not session cookie if we have not written anything to session yet
     has_content = len(session.keys()) > 0
 
-    if session.new and has_content:
+    # if session.new and has_content:
+    if session.new:  # TODO: Wait until Pyramid 1.9 fixes land Websauna and then we can address this properly
 
         if cookie_on_exception is True or request.exception is None:
 

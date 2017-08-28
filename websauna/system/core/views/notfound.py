@@ -22,8 +22,7 @@ def notfound(request):
     else:
         username = "<anomymous>"
 
-    # TODO: We log not founds. However using warn level might be too extensive.
-    logger.warn("404 Not Found. user:%s URL:%s referrer:%s", request.url, username, request.referrer)
+    logger.info("404 Not Found. user:%s URL:%s referrer:%s", request.url, username, request.referrer)
 
     # Make sure 404 page does not have any status information, as it is often overlooked special case for caching and we don't want to cache user information
     try:

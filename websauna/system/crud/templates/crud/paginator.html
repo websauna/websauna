@@ -1,46 +1,43 @@
 <div class="pagination-wrapper">
-
     {% if not batch.required %}
-      <div class="total-message total-message-only text-center">
-          {{ batch.seqlen }} entries total
-      </div>
-    {% endif %}
-
-    {% if batch.required %}
-      <div class="text-center">
-        <div class="label label-primary">
-          Page # ${batch.num+1}
-             (${'%d-%d of %d' % (batch.startitem+1, batch.enditem+1, batch.seqlen)})
+        <div class="total-message total-message-only text-center">
+            {{ batch.seqlen }} entries total
         </div>
-      </div>
     {% endif %}
 
     {% if batch.required %}
-        <ul  class="pager pager-compact">
-        <li class="{% if batch.first_url %}disabled{% endif %}">
-          <a href="{{ batch.first_url }}">
-            <i class="fa fa-fast-backward"> </i>
-                ${first_batch_label|request.localizer.translate('First')}</a>
-        </li>
-
-        <li class="${(not batch.prev_url and 'disabled') or ''}">
-          <a href="${batch.prev_url}">
-            <i class="glyphicon glyphicon-backward"> </i>
-                ${prev_batch_label|request.localizer.translate('Previous')}</a>
-        </li>
-
-            <li class="${(not batch.next_url and 'disabled') or ''}">
-          <a href="${batch.next_url}">
-            <i class="glyphicon glyphicon-forward"> </i>
-                ${next_batch_label|request.localizer.translate('Next')}</a>
-        </li>
-        <li class="${(not batch.last_url and 'disabled') or ''}">
-          <a href="${batch.last_url}">
-            <i class="glyphicon glyphicon-fast-forward"> </i>
-                ${last_batch_label|request.localizer.translate('Last')}</a>
-        </li>
-      </ul>
+        <div class="text-center">
+            <div class="label label-primary">
+                Page #{{ batch.num+1 }} ({{ '%d-%d of %d' % (batch.startitem+1, batch.enditem+1, batch.seqlen) }})
+            </div>
+        </div>
     {% endif %}
 
-</div>
+    {% if batch.required %}
+        <ul class="pager pager-compact">
+            <li class="{% if not batch.first_url %}disabled{% endif %}">
+                <a href="{{ batch.first_url or 'javascript:void(0)' }}">
+                    <i class="fa fa-angle-double-left"></i> First
+                </a>
+            </li>
 
+            <li class="{% if not batch.prev_url %}disabled{% endif %}">
+                <a href="{{ batch.prev_url or 'javascript:void(0)' }}">
+                    <i class="fa fa-angle-left"></i> Previous
+                </a>
+            </li>
+
+            <li class="{% if not batch.next_url %}disabled{% endif %}">
+                <a href="{{ batch.next_url or 'javascript:void(0)' }}">
+                    Next <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+
+            <li class="{% if not batch.last_url %}disabled{% endif %}">
+                <a href="{{ batch.last_url or 'javascript:void(0)' }}">
+                    Last <i class="fa fa-angle-double-right"></i>
+                </a>
+            </li>
+        </ul>
+    {% endif %}
+</div>

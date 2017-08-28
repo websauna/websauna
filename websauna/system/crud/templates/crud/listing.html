@@ -30,7 +30,7 @@
                     </thead>
 
                     <tbody>
-                        {% for obj in query %}
+                        {% for obj in batch %}
                             <tr class="crud-row crud-row-{{ obj.id }}">
                                 {% with instance=crud.wrap_to_resource(obj) %}
                                     {% for column in columns  %}
@@ -64,9 +64,7 @@
         </div>
     {% endblock %}
 
-    {#
     {% block paginator %}
         {% include "crud/paginator.html" %}
     {% endblock %}
-    #}
 {% endblock crud_content %}

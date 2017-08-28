@@ -22,7 +22,6 @@ from websauna.system.core import messages
 from websauna.system.form import interstitial
 from websauna.system.form.fieldmapper import EditMode
 from websauna.system.form.resourceregistry import ResourceRegistry
-from websauna.system.crud.listing import Table
 
 from . import paginator
 from . import Resource
@@ -93,7 +92,7 @@ class ResourceButton:
 class TraverseLinkButton(ResourceButton):
     """A button which is a link to another page on this resource."""
 
-    def __init__(self, view_name:str, **kwargs):
+    def __init__(self, view_name: str, **kwargs):
         """
         :param view_name: request.resource_url() view name where this button points at
         :param kwargs: Other ResourceButton construction arguments
@@ -160,11 +159,11 @@ class Listing(CRUDView):
         """
         return self.context.get_query()
 
-    def get_count(self, query:Query):
+    def get_count(self, query: Query):
         """Calculate total item count based on query."""
         return query.count()
 
-    def order_query(self, query:Query):
+    def order_query(self, query: Query):
         """Sort the query."""
         return query
 
@@ -172,14 +171,16 @@ class Listing(CRUDView):
         """Get the user-readable name of the listing view (breadcrumbs, etc.)"""
         return "All {}".format(self.get_crud().plural_name)
 
-    def paginate(self, query, template_context):
+    def paginate(self, template_context):
         """Create template variables for paginatoin results."""
-        total_items =  self.get_count(query)
-        batch = self.paginator.paginate(query, self.request, total_items)
+        batch = self.paginator.paginate(
+            template_context["query"],
+            self.request,
+            template_context["count"]
+        )
         template_context["batch"] = batch
-        template_context["count"] = total_items
 
-    @view_config(context=CRUD, name="listing", renderer="crud/listing.html", permission='view')
+    @view_config(context=CRUD, name="listing", renderer="crud/listing.html", permission="view")
     def listing(self):
         """View for listing model contents in CRUD."""
 
@@ -202,17 +203,28 @@ class Listing(CRUDView):
         base_template = self.base_template
 
         # This is to support breadcrums with titled views
-        current_view_name = title = self.get_title()
+        current_view_name = self.get_title()
 
         title = self.context.title
-        count =  self.get_count(query)
+        count = self.get_count(query)
+
         # Base listing template variables
-        template_vars = dict(title=title, columns=columns, base_template=base_template, query=query, crud=crud, current_view_name=current_view_name, resource_buttons=self.get_resource_buttons(), count=count, view=self)
+        template_context = {
+            "title": title,
+            "current_view_name": current_view_name,
+            "query": query,
+            "count": count,
+            "crud": crud,
+            "columns": columns,
+            "resource_buttons": self.get_resource_buttons(),
+            "base_template": base_template,
+            "view": self,
+        }
 
         # Include pagination template context
-        # self.paginate(query, template_vars)
+        self.paginate(template_context)
 
-        return template_vars
+        return template_context
 
 
 class CSVListing(Listing):

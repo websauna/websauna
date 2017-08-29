@@ -48,11 +48,11 @@ Links
 
 * `Website <https://websauna.org/>`_
 
-* `Getting started and installation <https://websauna.org/tutorials/gettingstarted/index.html>`_
+* `Getting started and installation <https://websauna.org/docs/tutorials/gettingstarted/index.html>`_
 
-* `Chat <https://websauna.org/narrative/contributing/community.html>`_ - It always pays off to ask first!
+* `Chat <https://websauna.org/docs/narrative/contributing/community.html>`_ - It always pays off to ask first!
 
-* `Documentation <https://websauna.org/>`_
+* `Documentation <https://websauna.org/docs>`_
 
 * `Twitter <https://twitter.com/websauna9000>`_
 

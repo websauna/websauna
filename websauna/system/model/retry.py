@@ -141,7 +141,7 @@ def retryable(tm: Optional[TransactionManager]=None, get_tm: Optional[Callable]=
 
     :param tm: Transaction manager used to control the TX execution
 
-    :param get_tm: Factory function that is called with *args and **kwargs to get the transaction manager
+    :param get_tm: Factory function that is called with ``\*args`` and ``\**kwargs`` to get the transaction manager
     """
 
     def _transaction_retry_wrapper(func):

@@ -28,7 +28,7 @@ Automatic sitemap generation is one of more powerful use cases of traversal base
 
 .. note ::
 
-    Automatic sitemap generation doesn't work with parametrized public urls like ``/my_view/{object-id}``. Thus, it is recommended to :ref:`traversal` based routing if you have any container like URLs. If you use parametrized URL dispatching and you want to these routes to be included in the sitemap, see Manual sitemap generation below.
+    Automatic sitemap generation doesn't work with parametrized public urls like ``/my_view/{object-id}``. Thus, it is recommended to :ref:`Traversal <traversal>` based routing if you have any container like URLs. If you use parametrized URL dispatching and you want to these routes to be included in the sitemap, see Manual sitemap generation below.
 
 Set up the sitemap handler in :py:meth:`websauna.system.Initializer.configure_sitemap`. Example:
 

@@ -96,7 +96,7 @@ class ModelSchemaType:
 class ForeignKeyValue(ModelSchemaType, colander.String):
     """Hold a reference to one SQLAlchemy object for Colander schema serialization.
 
-    See :ref:`widgets` for more information.
+    See :ref:`Widgets <deform:widget>` for more information.
     """
 
     def serialize(self, node, appstruct):
@@ -145,7 +145,7 @@ class ModelSet(ModelSchemaType, colander.Set):
 
     This automatically turns SQLAlchemy objects to (id, label) tuples, so that they can be referred in various widgets (select, checkbox).
 
-    See :ref:`widgets` for more information.
+    See :ref:`Widgets <deform:widget>` for more information.
     """
 
     def serialize(self, node, appstruct):
@@ -201,7 +201,7 @@ class UUIDForeignKeyValue(ForeignKeyValue):
 
     Useful for select widget, etc.
 
-    See :ref:`widgets` for more information.
+    See :ref:`Widgets <deform:widget>` for more information.
     """
 
     #: The name of the column from where we extract UUID value. Defauts to ``uuid``.
@@ -226,7 +226,7 @@ class UUIDForeignKeyValue(ForeignKeyValue):
 class UUIDModelSet(ModelSet):
     """A set of SQLAlchemy objects queried by base64 encoded UUID value.
 
-    See :ref:`widgets` for more information.
+    See :ref:`Widgets <deform:widget>` for more information.
     """
 
     match_column = "uuid"
@@ -247,4 +247,3 @@ class UUIDModelSet(ModelSet):
         """Convert items to appstruct ids.
         """
         return [uuid_to_slug(getattr(i, self.match_column)) for i in appstruct]
-

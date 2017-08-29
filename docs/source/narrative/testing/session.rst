@@ -7,7 +7,7 @@ User sessions in tests
 Accesing session cookie with Splinter
 =====================================
 
-Below is an example how you can export a session cookie from :term:`Splinter`browser and then use this with :py:mod:`requests`. This is especially useful for checking non-HTML responses that :term:`Selenium` is not able to cope with.
+Below is an example how you can export a session cookie from :term:`Splinter` browser and then use this with :py:mod:`requests`. This is especially useful for checking non-HTML responses that :term:`Selenium` is not able to cope with.
 
 .. code-block:: python
 

@@ -331,7 +331,3 @@ intersphinx_mapping = {
     'zcomponent': ('http://docs.zope.org/zope.component', None),
     "celery": ("http://docs.celeryproject.org/en/master/", None),
 }
-
-
-
-

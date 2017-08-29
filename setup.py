@@ -126,7 +126,7 @@ setup(
             'pyramid_autodoc',
             'ruamel.yaml',
             'setuptools_git',
-            'sphinx',
+            'sphinx==1.5.6',
             'sphinx-autodoc-typehints',
             'sphinx_rtd_theme',
             'sphinxcontrib-zopeext',

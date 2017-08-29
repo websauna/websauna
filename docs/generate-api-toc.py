@@ -32,7 +32,10 @@ Core
 :doc:`websauna.system.Initializer <./websauna.system>`
     Websauna application entry point as an Initializer class, also serving as the platform configuration for customization.
 
+.. toctree::
+    :maxdepth: 4
 
+    modules
 {% for name, intro in modules.core %}
 
 .. toctree::

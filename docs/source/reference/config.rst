@@ -461,6 +461,7 @@ See :py:func:`websauna.system.core.vars.site_name`.
 
 websauna.site_url
 -----------------
+.. _websauna_site_url:
 
 See :py:func:`websauna.system.core.vars.site_url`.
 

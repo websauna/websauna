@@ -73,7 +73,7 @@ If you are planning to build a reusable addon you may choose to declare your mod
 
 ... and then let later the addon consumer to plug-in the model of base class of their choice in :py:class:`websauna.system.Initializer.configure_instrumented_models` by using :py:class:`websauna.system.model.utils.attach_model_to_base`.
 
-.. uuid-security:
+.. _uuid-security:
 
 Primary keys: UUID, running counter or both?
 --------------------------------------------
@@ -612,4 +612,3 @@ Below is an example of get or create pattern which creates two foreign key neste
 .. note ::
 
     This was written before any PostgreSQL UPSERT support in SQLAlchemy.
-

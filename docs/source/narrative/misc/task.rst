@@ -9,7 +9,7 @@ Tasks
 Introduction
 ============
 
-You can achieve responsive page rendering by offloading long running blocking calls from HTTP request processing to external worker processes. Websauna uses :ref:`Celery` for asynchronous task processing. Celery allows asynchronous execution of delayed and scheduled tasks.
+You can achieve responsive page rendering by offloading long running blocking calls from HTTP request processing to external worker processes. Websauna uses `Celery <http://docs.celeryproject.org/en/latest/>`__ for asynchronous task processing. Celery allows asynchronous execution of delayed and scheduled tasks.
 
 Installation
 ============
@@ -305,7 +305,7 @@ We have several items for which we need to run this job. We iterate them in a Ce
         """
         _build_seo_data(self.get_request())
 
-After the task is run (by Celery or manually) the data is available in Redis and you can use it in :ref:`view` in the front end:
+After the task is run (by Celery or manually) the data is available in Redis and you can use it in :ref:`views` in the front end:
 
 .. code-block:: python
 
@@ -360,7 +360,7 @@ See
 URLs and request routes in tasks
 ================================
 
-Because tasks are not served over HTTP endpoint, requests do not have URL information available in them. You need to set :ref:`websauna.site_url` in configuration if you want to expose URLs generated within tasks.
+Because tasks are not served over HTTP endpoint, requests do not have URL information available in them. You need to set :ref:`websauna.site_url <websauna_site_url>` in configuration if you want to expose URLs generated within tasks.
 
 See :py:meth:`websauna.system.http.utils.make_routable_request`.
 

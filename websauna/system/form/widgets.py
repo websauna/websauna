@@ -49,7 +49,7 @@ class JSONWidget(deform.widget.TextAreaWidget):
                 widget=JSONWidget(),
                 description="JSON bag of attributes of the object",
                 missing=dict)
-    
+
     """
 
     readonly_template = 'readonly/json'
@@ -77,4 +77,3 @@ class JSONWidget(deform.widget.TextAreaWidget):
 
         values["cstruct"] = self.process_prettyprint(values["cstruct"])
         return field.renderer(template, **values)
-

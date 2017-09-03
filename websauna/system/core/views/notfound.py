@@ -36,5 +36,9 @@ def notfound(request):
     html = render('core/notfound.html', {}, request=request)
     resp = Response(html)
     resp.status_code = 404
+
+    # Hint pyramid_redis_session not to generate any session cookies for this response
+    resp.cache_control.public = True
+
     transaction.abort()
     return resp

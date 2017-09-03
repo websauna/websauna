@@ -1306,6 +1306,6 @@ Example:
 .. code-block:: python
 
     with transaction.manager:
-        u = dbsession.query(User).filter_by(email="useremail@example.com").one()
+        u = dbsession.query(User).filter_by(email="admin@example.com").one()
         g = dbsession.query(Group).filter_by(name="admin").one()
         g.users.append(u)

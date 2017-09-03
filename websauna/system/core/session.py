@@ -1,8 +1,10 @@
 """Session management."""
 
 import logging
+import os
 import pickle as cPickle
 import functools
+from urllib.parse import urlparse
 
 from pyramid.session import signed_serialize
 
@@ -17,6 +19,9 @@ from websauna.utils.time import now
 
 logger = logging.getLogger(__name__)
 
+
+#: Todo temporary fix until we manage address this properly in pyramid_redis_sessions
+NO_SESSION_FILE_EXTENSIONS = [".js", ".css", ".ico", ".png", ".gif", ".jpg"]
 
 
 class WebsaunaSession(RedisSession):
@@ -375,6 +380,15 @@ def set_creation_time_aware_session_factory(config):
             "created_at": now(),
         }
 
+        # Make sure we do not get accidental race conditions when populating sessions when browser asynchronously fetches more resources
+        path = urlparse(request.url).path
+        ext = os.path.splitext(path)[1]
+
+        if ext in NO_SESSION_FILE_EXTENSIONS:
+            # print("Skipped session creation for", request.url)
+            return {}
+
+        # print("Creating session for", request.url, ext)
         session = session_factory(request, initial_data)
         return session
 

@@ -1,14 +1,32 @@
 {# 404 page #}
-{% extends "site/base.html" %}
+
+{# We cannot extend extend base.html as we do not want to touch any session'y stuff in special views. We do this to avoid session conflicts when browsers fetch requests and may have race condition e.g. with missing favicon.ico #}
+{% extends "site/base_compact.html" %}
 
 {# TODO: Not sure if we should extend base_compact.html here so that we would have more protection against having state variables on 404 page #}
 
-{% block content %}
-    <div id="not-found">
-        <h1>Not found</h1>
+{% block body %}
 
-        <p>
-            Nothing in this URL. Are you sure the address is correct?
-        </p>
-    </div>
+    <main>
+        <section id="it-is-broken">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                      <div id="not-found">
+                          <h1>Not found</h1>
+
+                          <p>
+                              Nothing in this URL. Are you sure the address is correct?
+                          </p>
+
+                          <p>
+                            <a href="{{ request.application_url }}">View site front page.</a>
+                          </p>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+          </section>
+    </main>
+
 {% endblock %}

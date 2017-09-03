@@ -390,6 +390,9 @@ def set_creation_time_aware_session_factory(config):
 
         # print("Creating session for", request.url, ext)
         session = session_factory(request, initial_data)
+
+        # Allow session backend to use this information to debug session problems
+        session.url = request.url
         return session
 
     config.set_session_factory(create_session)

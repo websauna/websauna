@@ -39,7 +39,6 @@ class NullMailer:
         """Save message to a file for debugging
         """
         self.send_count += 1
-        import pdb ; pdb.set_trace()
 
     send = _send
     send_immediately = _send
@@ -66,3 +65,8 @@ class ThreadFriendlyDummyMailer(DummyMailer):
         ThreadFriendlyDummyMailer.outbox = []
         ThreadFriendlyDummyMailer.queue = []
 
+    def _send(self, message, fail_silently=False):
+        """Save message to a file for debugging
+        """
+        self.output.append(message)
+        self.send_count += 1

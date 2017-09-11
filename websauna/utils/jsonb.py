@@ -36,4 +36,4 @@ def sanitize_for_json(d: dict) -> dict:
 
     This ensures we see data as it would be after JSON encode.
     """
-    return json.loads(json.dumps(d, cls=_DecimalEncoder))
+    return json.loads(complex_json_dumps(d))

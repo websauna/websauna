@@ -178,6 +178,7 @@ setup(
             'ws-create-table=websauna.system.devop.scripts.createtable:main',
             'ws-sanity-check=websauna.system.devop.scripts.sanitycheck:main',
             'ws-collect-static=websauna.system.devop.scripts.collectstatic:main',
+            'ws-settings=websauna.system.devop.scripts.settings:main',
         ],
 
         'paste.app_factory': [

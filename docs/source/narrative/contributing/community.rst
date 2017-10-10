@@ -30,7 +30,7 @@ Gitter
 
 A real-time chat is available via `Gitter <https://gitter.im/websauna/websauna>`_.
 
-You can use web, desktop and mobible clients. You need a Github account.
+You can use web, desktop and mobile clients. You need a Github account.
 
 IRC
 ---

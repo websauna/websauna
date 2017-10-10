@@ -10,7 +10,7 @@ Before you can start deploying your application you first must freeze it's Pytho
 How to perform a freeze
 =======================
 
-In your application package root folder run the freeze command. Change ``myapp`` to your package name::
+In your application package root folder run the freeze command. Change ``myapp`` to your package name:
 
 .. code-block:: console
 

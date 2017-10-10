@@ -52,7 +52,7 @@ This is the most common way to customize :doc:`CRUD <../crud/crud>` forms. Each 
 
 Edit :py:meth:`websauna.system.crud.views.FormView.includes` attribute to include the list of fields to include. This list can contain
 
-* ``string``: String presents a name of a column that goes to form. You can omit the names of the columsn you don't want to show on the form.
+* ``string``: String presents a name of a column that goes to form. You can omit the names of the columns you don't want to show on the form.
 
 * :py:class:`colander.SchemaNode` - add custom field and customize widgets for existing columns. Rememeber to have ``name`` attribute matching to a column.
 

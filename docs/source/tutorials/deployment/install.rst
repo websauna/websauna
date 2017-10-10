@@ -18,7 +18,7 @@ Clone the repository from Github to get started with your Playbook:
 
 .. code-block:: console
 
-    git clone https://github.com/websauna/websauna.ansible.git
+    git clone git@github.com:websauna/websauna.ansible.git
 
 Create a :term:`virtual environment` for Ansible. This must be a separate from the virtual environment of your application due to Python version differences:
 

@@ -9,17 +9,17 @@ Modelling with SQLAlchemy
 Introduction
 ============
 
-Websauna data modeling are based on :term:`SQLALchemy` library. SQLAlchemy provides a full suite of well known enterprise-level persistence patterns, designed for efficient and high-performing database access, adapted into a simple and Pythonic domain language.
+Websauna data modeling is based on the :term:`SQLALchemy` library. SQLAlchemy provides a full suite of well known enterprise-level persistence patterns, designed for efficient and high-performing database access, adapted into a simple and Pythonic domain language.
 
 Getting started
 ===============
 
-See :ref:`Websauna's getting started <gettingstarted>` tutorial for more handheld introduction. Peek also into SQLAlchemy's `Object Relation Tutorial <http://docs.sqlalchemy.org/en/latest/orm/tutorial.html>`_.
+See :ref:`Websauna's getting started <gettingstarted>` tutorial for a more hands-on introduction. Also peek into SQLAlchemy's `Object Relation Tutorial <http://docs.sqlalchemy.org/en/latest/orm/tutorial.html>`_.
 
 Creating models
 ===============
 
-The basic model creation pattern is same as in SQLAlchemy (`SQLAlchemy declarative model documentation <http://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/basic_use.html#defining-attributes>`_):
+The basic model creation pattern is the same as in SQLAlchemy (`SQLAlchemy declarative model documentation <http://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/basic_use.html#defining-attributes>`_):
 
 .. code-block:: python
 
@@ -55,7 +55,7 @@ The basic model creation pattern is same as in SQLAlchemy (`SQLAlchemy declarati
         #: When this question was published
         published_at = Column(UTCDateTime, default=None)
 
-Below is a destructing of the example code.
+Below is a description of the example code.
 
 Base class
 ----------
@@ -66,19 +66,19 @@ If you are planning to build a reusable addon you may choose to declare your mod
 
 .. code-block:: python
 
-    class Question:  # <-- It's just plain Python class
+    class Question:  # <-- It's just a plain Python class
 
         #: The table in the database
         __tablename__ = "question"
 
-... and then let later the addon consumer to plug-in the model of base class of their choice in :py:class:`websauna.system.Initializer.configure_instrumented_models` by using :py:class:`websauna.system.model.utils.attach_model_to_base`.
+... and then later let the addon choose the appropriate base class from :py:class:`websauna.system.Initializer.configure_instrumented_models` by using :py:class:`websauna.system.model.utils.attach_model_to_base`.
 
 .. _uuid-security:
 
 Primary keys: UUID, running counter or both?
 --------------------------------------------
 
-Websauna has extensively support for using :term:`UUID`, or more specifically UUID version 4 (random), for primary key ids. UUID v4 gives you a 122 bit non-guessable integer with 6 bit for error checking.
+Websauna has extensive support for :term:`UUID` as primary key ids. It uses UUID version 4 (random), which gives you a 122 bit non-guessable integer with 6 bit for error checking.
 
 .. note ::
 
@@ -118,7 +118,7 @@ Read blog post `UUID Primary Keys in PostgreSQL <https://blog.starkandwayne.com/
 UUID primary keys
 +++++++++++++++++
 
-Secure-wise, the best practice is to use a random UUID ``id`` as a primary key:
+Security-wise, the best practice is to use a random UUID ``id`` as a primary key:
 
 .. code-block:: python
 
@@ -153,7 +153,7 @@ The default string format of an UUID id is longish and not very URL friendly:
     >>> str(u)
     '234a7847-2a08-41ef-8443-5194fd089ca1'
 
-For using UUIDs in web context, Websauna offers two helper methods to UUID :term:`Base64` string presentation
+For using UUIDs in a web context, Websauna offers two helper methods to UUID :term:`Base64` string presentation
 
 * :py:func:`websauna.utils.slug.uuid_to_slug`
 
@@ -180,7 +180,7 @@ Example:
 Running counter id primary key and UUID column
 ++++++++++++++++++++++++++++++++++++++++++++++
 
-This approach is a combination of both traditional running counter ids (human readable) and non-guessable UUIDs. This is also the approach :ref:`tutorial <gettingstarted>` takes:
+This approach is a combination of both traditional running counter ids (human readable) and non-guessable UUIDs. This is also the approach the :ref:`tutorial <gettingstarted>` takes:
 
 .. code-block:: python
 
@@ -209,14 +209,14 @@ This approach is a combination of both traditional running counter ids (human re
         question = relationship("Question", back_populates="choices", uselist=False)
 
 
-* ``id`` is used internally in foreign keys and not exposed anywhere else than admin. This allows human operators to easily discuss and cognitively track down database rows having issues. For example, you get nice running counter in user admin based on the order of sign ups.
+* ``id`` is used internally in foreign keys and not exposed anywhere else than admin. This allows human operators to easily discuss and cognitively track down database rows having issues. For example, you get a nice running counter in the user admin based on the order of sign ups.
 
 * ``uuid`` is used in all external links. A malicious party cannot potentially guess the URL of any edit form and thus they cannot launch attacks against predefined URLs.
 
 Running counter as a primary key
 ++++++++++++++++++++++++++++++++
 
-If you have legacy data it is possible to use only running counter ids when referring to data. This includes running counter ids in links too. This is discouraged as this may expose a lot of busines sensitive information (number of users, number of orders) to third parties.
+If you have legacy data it is possible to only use running counter ids when referring to data. This includes running counter ids in links too. This is discouraged as this may expose a lot of busines sensitive information (number of users, number of orders) to third parties.
 
 Example:
 
@@ -264,10 +264,10 @@ The following is a common pattern to add created and updated at timestamps to yo
 
     You can also generate these timestamps using database functions, see ``server_default`` in SQLAlchemy documentation.
 
-Accessing single item
-=====================
+Accessing a single item
+=======================
 
-First see :ref:`dbsession` information how to get access to database session in different contexts. ``dbsession`` is the root of all SQL queries.
+First see the :ref:`dbsession` information on how to get access to database a session in different contexts. ``dbsession`` is the root of all SQL queries.
 
 By primary key
 --------------

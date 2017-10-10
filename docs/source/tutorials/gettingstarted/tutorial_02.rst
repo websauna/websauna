@@ -70,7 +70,7 @@ If it shows a different version use ``brew switch`` command to upgrade
 .. code-block:: console
 
     brew upgrade python3
-    brew link —overwrite python3
+    brew link —-overwrite python3
 
 Installing dependencies on Ubuntu 14.04
 ---------------------------------------

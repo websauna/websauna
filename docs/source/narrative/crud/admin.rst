@@ -1074,7 +1074,7 @@ Example:
 Nested model admins
 ===================
 
-Often data is naturally modelled in a :ref:`traversal` tree like *Organization* > *Customer* > *Invoice* where each branch may have different access level requirements. Pyramid supports traversal with permission control through :term:`ACL` and this pattern can be applied to the admin interface too. This way it is easy to give to the users fine grained access to the particular parts of an admin interface and its subobject they have a permission for.
+Often data is naturally modelled in a :ref:`Traversal <traversal>` tree like *Organization* > *Customer* > *Invoice* where each branch may have different access level requirements. Pyramid supports traversal with permission control through :term:`ACL` and this pattern can be applied to the admin interface too. This way it is easy to give to the users fine grained access to the particular parts of an admin interface and its subobject they have a permission for.
 
 Unlike with URL dispatch routing, with traversal path patterns are not predefined beforehand and you can easily divulge to different complex URL path layouts depending on your use case, but still enjoying simplicity and security of traversal based access control.
 
@@ -1295,3 +1295,17 @@ We customize ``OrganizationCustomer`` add view, so that created customers automa
 
             # Gives id to the added object, allows us to redirect to show it
             self.request.dbsession.flush()
+
+Adding admin users manually
+===========================
+
+You can add new admin users through the :ref:`ws-shell`.
+
+Example:
+
+.. code-block:: python
+
+    with transaction.manager:
+        u = dbsession.query(User).filter_by(email="admin@example.com").one()
+        g = dbsession.query(Group).filter_by(name="admin").one()
+        g.users.append(u)

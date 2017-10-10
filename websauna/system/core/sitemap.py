@@ -80,8 +80,9 @@ class TraverseItem(SitemapItem):
 
 class Sitemap:
     """Sitemap helper.
+    See :ref:`Sitemap <sitemap>`.
 
-    See :ref:`sitemap`.
+    .. _sitemap:
     """
 
     def __init__(self):
@@ -128,7 +129,7 @@ class ReflectiveSitemapBuilder:
 
     This method might not yet work for more advanced view configuration use cases. Check :py:mod:`websauna.tests.sitemapsamples` for covered use cases.
 
-    See :ref:`sitemap` for examples.
+    See :ref:`Sitemap <sitemap>` for examples.
     """
 
     def __init__(self, request: Request):

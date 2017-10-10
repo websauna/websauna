@@ -1,3 +1,6 @@
+from pyramid_mailer.mailer import DummyMailer
+
+
 class StdoutMailer:
     """Print all outgoing email to console.
 
@@ -42,3 +45,28 @@ class NullMailer:
     send_to_queue = _send
     send_sendmail = _send
     send_immediately_sendmail = _send
+
+
+class ThreadFriendlyDummyMailer(DummyMailer):
+    """Multi-thread aware mailing test backend.
+
+    We store outbox messages in class globals. If a web server or another thread sends out a message this allows us to access the message in a test thread.
+    """
+
+    outbox = []
+    queue = []
+
+    def __init__(self):
+        # Override DummyMailer self init here
+        pass
+
+    @classmethod
+    def reset(cls):
+        ThreadFriendlyDummyMailer.outbox = []
+        ThreadFriendlyDummyMailer.queue = []
+
+    def _send(self, message, fail_silently=False):
+        """Save message to a file for debugging
+        """
+        self.output.append(message)
+        self.send_count += 1

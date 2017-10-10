@@ -40,7 +40,9 @@ Takes in template context variable ``email_css`` that is a template name for CSS
             <!-- content -->
             <div class="content">
             <table>
-                {% include "email/header.html" %}
+                {% block header %}
+                  {% include "email/header.html" %}
+                {% endblock %}
                 <tr>
                     <td>
                         {% block content %}
@@ -57,7 +59,9 @@ Takes in template context variable ``email_css`` that is a template name for CSS
 </table>
 <!-- /body -->
 
+{% block footer %}
 {% include "email/footer.html" %}
+{% endblock %}
 
 
 </body>

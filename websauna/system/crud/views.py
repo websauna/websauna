@@ -1,11 +1,14 @@
 """Default CRUD views."""
+import csv
 from abc import abstractmethod
+from io import StringIO
 
 from pyramid.httpexceptions import HTTPFound
 from pyramid.renderers import render
 from pyramid.request import Request
 from pyramid.response import Response
 from pyramid.view import view_config
+from slugify import slugify
 from sqlalchemy.orm import Query
 import deform
 import colander
@@ -14,6 +17,7 @@ from websauna.compat import typing
 from websauna.compat.typing import Iterable
 from websauna.compat.typing import List
 from websauna.compat.typing import Optional
+from websauna.compat.typing import Any
 from websauna.system.core import messages
 from websauna.system.form import interstitial
 from websauna.system.form.fieldmapper import EditMode
@@ -88,7 +92,7 @@ class ResourceButton:
 class TraverseLinkButton(ResourceButton):
     """A button which is a link to another page on this resource."""
 
-    def __init__(self, view_name:str, **kwargs):
+    def __init__(self, view_name: str, **kwargs):
         """
         :param view_name: request.resource_url() view name where this button points at
         :param kwargs: Other ResourceButton construction arguments
@@ -126,15 +130,15 @@ class CRUDView:
 class Listing(CRUDView):
     """List items in CRUD."""
 
-    #: Instance of :py:class:`websauna.crud.listing.Table` describing how the list should be rendered
-    table = None
+    #: Describe what columns our listing should contain
+    table = None  # type: Table
 
     #: How the result of this list should be split to pages
     paginator = paginator.DefaultPaginator()
 
     resource_buttons = [TraverseLinkButton(id="add", name="Add", view_name="add", permission="add")]
 
-    def __init__(self, context, request):
+    def __init__(self, context: CRUD, request: Request):
         """
         :param context: Points to ``CRUD`` instance.
         :param request:
@@ -145,7 +149,7 @@ class Listing(CRUDView):
     def get_crud(self) -> CRUD:
         return self.context
 
-    def get_model(self) -> object:
+    def get_model(self) -> Any:
         return self.context.get_model()
 
     def get_query(self) -> Query:
@@ -155,11 +159,11 @@ class Listing(CRUDView):
         """
         return self.context.get_query()
 
-    def get_count(self, query:Query):
+    def get_count(self, query: Query):
         """Calculate total item count based on query."""
         return query.count()
 
-    def order_query(self, query:Query):
+    def order_query(self, query: Query):
         """Sort the query."""
         return query
 
@@ -167,14 +171,16 @@ class Listing(CRUDView):
         """Get the user-readable name of the listing view (breadcrumbs, etc.)"""
         return "All {}".format(self.get_crud().plural_name)
 
-    def paginate(self, query, template_context):
+    def paginate(self, template_context):
         """Create template variables for paginatoin results."""
-        total_items =  self.get_count(query)
-        batch = self.paginator.paginate(query, self.request, total_items)
+        batch = self.paginator.paginate(
+            template_context["query"],
+            self.request,
+            template_context["count"]
+        )
         template_context["batch"] = batch
-        template_context["count"] = total_items
 
-    @view_config(context=CRUD, name="listing", renderer="crud/listing.html", permission='view')
+    @view_config(context=CRUD, name="listing", renderer="crud/listing.html", permission="view")
     def listing(self):
         """View for listing model contents in CRUD."""
 
@@ -197,18 +203,98 @@ class Listing(CRUDView):
         base_template = self.base_template
 
         # This is to support breadcrums with titled views
-        current_view_name = title = self.get_title()
+        current_view_name = self.get_title()
 
         title = self.context.title
-        count =  self.get_count(query)
+        count = self.get_count(query)
+
         # Base listing template variables
-        template_vars = dict(title=title, columns=columns, base_template=base_template, query=query, crud=crud, current_view_name=current_view_name, resource_buttons=self.get_resource_buttons(), count=count, view=self)
+        template_context = {
+            "title": title,
+            "current_view_name": current_view_name,
+            "query": query,
+            "count": count,
+            "crud": crud,
+            "columns": columns,
+            "resource_buttons": self.get_resource_buttons(),
+            "base_template": base_template,
+            "view": self,
+        }
 
         # Include pagination template context
-        # self.paginate(query, template_vars)
+        self.paginate(template_context)
 
-        return template_vars
+        return template_context
 
+
+class CSVListing(Listing):
+    """A listing view that exports the listing table as CSV.
+
+    CSVListing users the same :py:class:`Table` structure to define the listing as the listing HTML page. For columns, we use only id and :py:meth:`websauna.system.crud.listing.Column.get_value` to stringify entries from SQLAlchemy model attributes to CSV writer stream.
+
+    For example usage see :py:class:`websauna.system.user.adminviews.UserCSVListing`.
+
+    .. note ::
+
+        This is TODO, having pyramid_tm issue open https://github.com/Pylons/pyramid_tm/issues/56
+
+    Original implementation in https://github.com/nandoflorestan/bag/blob/master/bag/spreadsheet/csv.py by Nando Florestan.
+    """
+
+    #: How many rows we buffer in a chunk before writing into a response
+    buffered_rows = 100
+
+    @view_config(context=CRUD, name="csv-export", permission='view')
+    def listing(self):
+        """Listing core."""
+
+        table = self.table
+        columns = table.get_columns()
+        query = self.get_query()
+        query = self.order_query(query)
+
+        file_title = slugify(self.context.title)
+        encoding = "utf-8"
+
+        response = Response()
+        response.headers["Content-Type"] = "text/csv; charset={}".format(encoding)
+        response.headers["Content-Disposition"] = \
+        "attachment;filename={}.{}.csv".format(file_title, encoding)
+
+        buf = StringIO()
+        writer = csv.writer(buf)
+        buffered_rows = self.buffered_rows
+        view = self
+        request = self.request
+
+        def generate_csv_data():
+
+            # Write headers
+            writer.writerow([c.id for c in columns])
+
+            # Write each listing item
+            for idx, model_instance in enumerate(query):
+
+                # Extract column values for this row
+                values = [c.get_value(view, model_instance) for c in columns]
+
+                writer.writerow(values)
+                # if idx % buffered_rows == 0:
+                #    yield buf.getvalue().encode(encoding)
+                #    buf.truncate(0)  # But in Python 3, truncate() does not move
+                #    buf.seek(0)  # the file pointer, so we seek(0) explicitly.
+
+            # yield buf.getvalue().encode(encoding)
+
+            # Abort the transaction, otherwise it might not be closed by underlying machinery
+            # (at least tests hang)
+            # TODO: Confirm this behavior with pyramid_tm 2.0 when it's out
+            # request.tm.abort()
+
+        # TODO: This use to be response.app_iter, but apparently it doesn't place nicely with pyramid_tm
+        generate_csv_data()
+        response.body = buf.getvalue().encode(encoding)
+        return response
 
 
 class FormView(CRUDView):
@@ -230,7 +316,7 @@ class FormView(CRUDView):
         self.context = context
         self.request = request
 
-    def create_form(self, mode:EditMode, buttons=(), nested=None) -> deform.Form:
+    def create_form(self, mode: EditMode, buttons=(), nested=None) -> deform.Form:
         model = self.get_model()
         assert getattr(self, "form_generator", None), "Class {} must define a form_generator".format(self)
         return self.form_generator.generate_form(request=self.request, context=self.context, model=model, mode=mode, buttons=buttons)
@@ -258,7 +344,7 @@ class FormView(CRUDView):
         """Get human-readable title for for template page title."""
         return "#{}".format(self.get_object().id)
 
-    def customize_schema(self, schema:colander.Schema):
+    def customize_schema(self, schema: colander.Schema):
         """After Colander schema is automatically generated from the SQLAlchemy model, edit it in-place for fine-tuning.
 
         Override this in your view subclass for schema customizations.

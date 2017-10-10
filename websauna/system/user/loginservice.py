@@ -155,7 +155,7 @@ class DefaultLoginService:
 
         user = self.check_credentials(username, password)
 
-        return self.authenticate_user(user, login_source)
+        return self.authenticate_user(user, login_source, location)
 
     def logout(self, location=None) -> Response:
         """Log out user from the site.

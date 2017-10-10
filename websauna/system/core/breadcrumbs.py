@@ -29,7 +29,7 @@ def get_breadcrumbs(context: Resource, request: Request, root_iface: type=None, 
 
     :param current_view_url: Full URL to the current view
 
-    :param root_iface: If you want to traverse only subset of elements and stop a certain parent, optional root can be marked with an interface. If not given assume :class:`websauna.system.core.interfaces.IRoot`. Optionally traversing is terminated when reaching ``None`` as the ``__parent__` pointer.
+    :param root_iface: If you want to traverse only subset of elements and stop a certain parent, optional root can be marked with an interface. If not given assume :class:`websauna.system.core.interfaces.IRoot`. Optionally traversing is terminated when reaching ``None`` as the ``__parent__`` pointer.
 
     :return: List of {url, name, resource} dictionaries
     """

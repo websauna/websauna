@@ -253,6 +253,10 @@ Below are some examples how to customize listing columns
             ]
         )
 
+CSV listing
+-----------
+
+There exist a handy :py:class:`websauna.system.crud.views.CSVListing` view that allows your listing to output a CSV file export instead of a HTML page.
 
 More examples
 -------------

@@ -18,7 +18,7 @@ Clone the repository from Github to get started with your Playbook:
 
 .. code-block:: console
 
-    git co git@github.com:websauna/websauna.ansible.git
+    git clone git@github.com:websauna/websauna.ansible.git
 
 Create a :term:`virtual environment` for Ansible. This must be a separate from the virtual environment of your application due to Python version differences:
 
@@ -42,7 +42,6 @@ On macOS (recent macOS versions do not ship with OpenSSL, so instead of above `p
     brew install openssl --force
     echo 'export PATH="/usr/local/opt/openssl/bin:$PATH"' >> ~/.zshrc # zsh
     env LDFLAGS="-L/usr/local/opt/openssl/lib" CPPFLAGS="-I/usr/local/opt/openssl/include" CFLAGS="-I/usr/local/opt/openssl/include" pip install "ansible<2.2"
-
 
 .. note ::
 

@@ -6,6 +6,8 @@ import sys
 
 from pyramid import scripting
 from pyramid.paster import bootstrap, _getpathsec
+from websauna.system.http.utils import make_routable_request
+from websauna.system.model.meta import create_dbsession
 
 from rainbow_logging_handler import RainbowLoggingHandler
 
@@ -58,6 +60,16 @@ def setup_console_logging(log_level=None):
 def init_websauna(config_uri: str, sanity_check: bool=False, console_app=False, extra_options=None) -> Request:
     """Initialize Websauna WSGI application for a command line oriented script.
 
+    Example:
+
+    .. code-block:: python
+
+        import sys
+        from websauna.system.devop.cmdline import init_websauna
+
+        config_uri = sys.argv[1]
+        request = init_websauna(config_uri)
+
     :param config_uri: Path to config INI file
 
     :param sanity_check: Perform database sanity check on start
@@ -94,19 +106,17 @@ def init_websauna(config_uri: str, sanity_check: bool=False, console_app=False, 
     initializer = getattr(app, "initializer", None)
     assert initializer is not None, "Configuration did not yield to Websauna application with Initializer set up"
 
-    pyramid_env = scripting.prepare(registry=app.initializer.config.registry)
-    request = pyramid_env["request"]
+    registry = initializer.config.registry
+    dbsession = create_dbsession(registry)
 
-    # Request needs a transaction manager
-    # NOTE: I'd like to use new TransactionManager() here,
-    # but a lot of legacy command line apps rely on transaction.manager thread local
-    import transaction  # Delayed import to avoid issues with gevent
-    request.tm = transaction.manager
+    # Set up the request with websauna.site_url setting as the base URL
+    request = make_routable_request(dbsession, registry)
 
-    # Export application object for test suites
+    # This exposes the app object for the integration tests e.g test_static_asset
+    # TODO: Find a cleaner way to do this
     request.app = app
 
-    return pyramid_env["request"]
+    return request
 
 
 def init_websauna_script_env(config_uri: str) -> dict:
@@ -126,8 +136,17 @@ def init_websauna_script_env(config_uri: str) -> dict:
     initializer = getattr(app, "initializer", None)
     assert initializer is not None, "Configuration did not yield to Websauna application with Initializer set up"
 
+    registry = initializer.config.registry
+    dbsession = create_dbsession(registry)
+
     pyramid_env = scripting.prepare(registry=app.initializer.config.registry)
     pyramid_env["app"] = app
     pyramid_env["initializer"] = initializer
+
+    # Websauna specific
+    # Set up the request with websauna.site_url setting as the base URL
+    request = make_routable_request(dbsession, registry)
+    pyramid_env["request"] = request
+    pyramid_env["dbsession"] = dbsession
 
     return pyramid_env

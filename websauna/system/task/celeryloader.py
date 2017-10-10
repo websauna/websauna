@@ -1,18 +1,5 @@
 """Celery process."""
 
-try:
-    # Could not find way around this :(
-    # Make Celery play nice if gevent is used
-    # http://stackoverflow.com/a/30707837/315168
-    import gevent
-    from gevent import monkey
-
-    # print("Warning! celeryloader running in implicit gevent monkey patch")
-    monkey.patch_all()
-
-except ImportError:
-    pass
-
 import os
 import sys
 import logging

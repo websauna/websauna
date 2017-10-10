@@ -54,7 +54,6 @@ def test_collect_recurse():
     assert collected["deform-static"]["pickadate/translations/ja_JP.js"].startswith( 'perma-asset/pickadate/translations/ja_JP.')
 
 
-@flaky
 def test_map_static_asset(browser, caching_web_server):
     """Use collected information to return static URLs"""
 

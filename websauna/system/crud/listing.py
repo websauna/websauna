@@ -1,6 +1,7 @@
 from websauna.compat.typing import Optional
 from websauna.compat.typing import List
 from websauna.compat.typing import Callable
+from websauna.compat.typing import Any
 
 
 class Column:
@@ -52,13 +53,14 @@ class Column:
         if navigate_url_getter:
             self.navigate_url_getter = navigate_url_getter
 
-    def get_value(self, view, obj):
+    def get_value(self, view: Any, obj: Any):
         """Extract value from the object for this column.
 
         Called in listing body.
 
         :param view: View class calling us
-        :param obj: The object we are listing
+
+        :param obj: The object the list is iterating. Usually sqlachemy model instance.
         """
 
         if self.getter:
@@ -155,5 +157,5 @@ class Table:
         """
         self.columns = columns or []
 
-    def get_columns(self):
+    def get_columns(self) -> List[Column]:
         return self.columns

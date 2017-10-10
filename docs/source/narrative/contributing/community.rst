@@ -22,13 +22,15 @@ Chat
 Gitter
 ------
 
-.. image:: https://badges.gitter.im/websauna/websauna.svg
-   :alt: Join the chat at https://gitter.im/websauna/websauna
-   :target: https://gitter.im/websauna/websauna?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+.. raw:: html
+
+  <a class="reference external image-reference" href="https://gitter.im/websauna/websauna?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
+    <img alt="Join the chat at https://gitter.im/websauna/websauna" src="https://badges.gitter.im/websauna/websauna.svg" />
+  </a>
 
 A real-time chat is available via `Gitter <https://gitter.im/websauna/websauna>`_.
 
-You can use web, desktop and mobible clients. You need a Github account.
+You can use web, desktop and mobile clients. You need a Github account.
 
 IRC
 ---

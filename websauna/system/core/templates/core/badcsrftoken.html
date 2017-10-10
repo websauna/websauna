@@ -1,0 +1,44 @@
+{# Do Bad CSRF page. Do not have full framing as this page may appear inside <iframe> #}
+{% extends "site/base_compact.html" %}
+
+{% block body %}
+    <main>
+        <section id="it-is-broken">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+
+                        <div>
+                            <h1 id="heading-bad-csrf-token" class="text-center">Form submission error</h1>
+
+                            <p>
+                              Cross site request forgery check failed.
+                            </p>
+
+                            <p>
+                              <strong>Try refreshing the page.</strong>
+                            </p>
+
+
+                            <p>
+                              Things that might cause this error include
+                            </p>
+
+                          <ul>
+                              <li>Browser cookies have been turned off</li>
+                              <li>Browser addon that blocks cookies</li>
+                              <li>Network connectivity issues</li>
+                            </ul>
+
+                            <p>
+                              Form submission is denied. This server can not verify that your cross-site request forgery token belongs to your login session. Either you supplied the wrong cross-site request forgery token or your session no longer exists. This may be due to session timeout or because browser is not supplying the credentials required, as can happen when the browser has cookies turned off.
+                            </p>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+{% endblock %}

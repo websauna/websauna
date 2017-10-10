@@ -10,7 +10,7 @@ from pyramid.view import view_config
 from websauna.system.admin.utils import get_admin_url_for_sqlalchemy_object
 from websauna.system.core import messages
 from websauna.system.crud.sqlalchemy import sqlalchemy_deleter
-from websauna.system.crud.views import TraverseLinkButton
+from websauna.system.crud.views import TraverseLinkButton, CSVListing
 from websauna.system.form.fieldmapper import EditMode
 from websauna.system.form.fields import defer_widget_values
 from websauna.system.crud.formgenerator import SQLAlchemyFormGenerator
@@ -69,12 +69,47 @@ class UserListing(admin_views.Listing):
         ]
     )
 
+    # Include our CSV export button in the user interface
+    resource_buttons = admin_views.Listing.resource_buttons + [
+        TraverseLinkButton(id="csv-export", name="CSV Export", view_name="csv-export", permission="view")
+    ]
+
     def order_query(self, query):
         return query.order_by(self.get_model().created_at.desc())
 
     @view_config(context=UserAdmin, route_name="admin", name="listing", renderer="crud/listing.html", permission='view')
     def listing(self):
         return super(UserListing, self).listing()
+
+
+def _get_user_navigate_target(view, column, obj):
+    request = view.request
+    admin = request.admin
+    return get_admin_url_for_sqlalchemy_object(admin, obj)
+
+
+@view_overrides(context=UserAdmin, route_name="admin")
+class UserCSVListing(CSVListing):
+    """CSV export of the site users."""
+
+    title = "users-export"
+
+    table = listing.Table(
+        columns = [
+            listing.Column("id"),
+            listing.Column("uuid"),
+            listing.Column("link", getter=_get_user_navigate_target),
+            listing.Column("enabled"),
+            listing.Column("created_at"),
+            listing.Column("last_login_at"),
+            listing.Column("username"),
+            listing.Column("email"),
+            listing.Column("friendly_name"),
+        ]
+    )
+
+    def order_query(self, query):
+        return query.order_by(self.get_model().created_at.desc())
 
 
 class UserShow(admin_views.Show):

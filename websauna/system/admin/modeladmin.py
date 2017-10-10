@@ -52,7 +52,7 @@ class ModelAdmin(CRUD):
 class ModelAdminRoot(Resource):
     """Admin resource under which all model admins lurk.
 
-    To get access this resource::
+    To get access this resource:
 
 
     """

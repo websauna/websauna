@@ -202,7 +202,7 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
         A view callable needn't always return a Response object. If a view happens to return something which does not implement the Pyramid Response interface, Pyramid will attempt to use a renderer to construct a response. Usually renderer is a template name. The template engine loads this template and passes the view return value to it as template context. `More information <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/renderers.html/>`__.
 
     resource
-        In :term:`traversal` resource class presents one path part of the hierarchy. More information in :doc:`traversal documentation <../narrative/frontend/traversal>`
+        In :term:`traversal` resource class presents one path part of the hierarchy. More information in :doc:`traversal documentation <../narrative/view/traversal>`
 
     Robot Framework
         Robot Framework is a generic test automation framework for acceptance testing and acceptance test-driven development (ATDD). It has easy-to-use tabular test data syntax and it utilizes the keyword-driven testing approach. Its testing capabilities can be extended by test libraries implemented either with Python or Java, and users can create new higher-level keywords from existing ones using the same syntax that is used for creating test cases. `More information <http://robotframework.org/>`__.
@@ -215,6 +215,9 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
 
     secrets
         The secrets are passwords, API keys and other sensitive data which you want to avoid exposing. They are usually stored separately from the source code tree. Websauna has best practices how to store your secrets. See :ref:`secrets` in configuration documentation.
+
+    Selenium
+        Selenium automates browsers. That's it! What you do with that power is entirely up to you. Primarily, it is for automating web applications for testing purposes, but is certainly not limited to just that. Boring web-based administration tasks can (and should!) also be automated as well. `More information <http://www.seleniumhq.org/>`__.
 
     Sentry
         Sentry is the modern error logging and aggregation platform for production servers. It allows you easily set alerts when errors start appear in :term:`production`. `More information <https://docs.getsentry.com/hosted/>`__.
@@ -259,7 +262,7 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
         `More information <http://supervisord.org/>`__.
 
     TDD
-        Test-driven development (TDD) is a software development process that relies on the repetition of a very short development cycle: first the developer writes an (initially failing) automated test case that defines a desired improvement or new function, then produces the minimum amount of code to pass that test, and finally refactors the new code to acceptable standards. `https://en.wikipedia.org/wiki/Test-driven_development>`__.
+        Test-driven development (TDD) is a software development process that relies on the repetition of a very short development cycle: first the developer writes an (initially failing) automated test case that defines a desired improvement or new function, then produces the minimum amount of code to pass that test, and finally refactors the new code to acceptable standards. `More information <https://en.wikipedia.org/wiki/Test-driven_development/>`__.
 
     test fixture
         The purpose of test fixtures is to provide a fixed baseline upon which tests can reliably and repeatedly execute. This pattern is extensively used by :term:`pytest`. `More information <http://pytest.org/latest/fixture.html>`__.

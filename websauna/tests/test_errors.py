@@ -1,3 +1,5 @@
+import requests
+
 SPOOF_CSRF_JS = """
 (function() {
 console.log('Preparing CSRF spoofing');
@@ -22,9 +24,14 @@ def test_not_found(web_server, browser):
     """Show not found page on unknown URL."""
 
     b = browser
-    b.visit("{}/foobar".format(web_server))
+    missing_url = "{}/foobar".format(web_server)
+    b.visit(missing_url)
 
     assert b.is_element_visible_by_css("#not-found")
+
+    # Splinter b.status_code is not reliable
+    resp = requests.get(missing_url)
+    assert resp.status_code == 404
 
 
 def test_forbidden(web_server, browser):
@@ -47,7 +54,9 @@ def test_csrf_fail(web_server, browser):
     b.evaluate_script(SPOOF_CSRF_JS.replace("\n", " "))
 
     b.find_by_name("login_email").click()
-    assert b.title == "400 Bad CSRF Token"  # TODO: Firefox specific?
+
+    # Only present on our custom page
+    assert b.is_element_present_by_css("#heading-bad-csrf-token")
 
 
 

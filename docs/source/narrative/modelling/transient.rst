@@ -1,5 +1,7 @@
 .. _transient:
 
+.. _redis:
+
 ==============
 Transient data
 ==============

@@ -9,7 +9,9 @@ class Resource:
 
     All traverable context classes should inherit from this class. Note that this is not a strict requirement, as often anything implementing :py:class:`pyramid.interfaces.ILocation` and ``get_title()`` will work.
 
-    For more information see :ref:`traversal`.
+    For more information see :ref:`Traversal <traversal>`.
+
+    ..  _traversal:
     """
 
     # TODO: Cannot annotate request as it breaks sphinx-autodoc-typehints, sphinx-autodoc-typehints==1.1.0, when doing make html

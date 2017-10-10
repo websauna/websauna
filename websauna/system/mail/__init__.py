@@ -11,14 +11,50 @@ from pyramid_mailer.message import Message
 
 from websauna.system.mail.utils import create_mailer
 from websauna.system.http import Request
-from websauna.compat.typing import Iterable
 from websauna.compat.typing import Optional
+from websauna.compat.typing import Tuple
+from websauna.compat.typing import List
+
 
 
 logger = logging.getLogger(__name__)
 
 
-def send_templated_mail(request: Request, recipients: Iterable, template: str, context: dict, sender=None, immediate=None, tm: Optional[TransactionManager]=None):
+def render_templated_mail(request: Request, template: str, context: dict) -> Tuple[str, str, str]:
+    """Render an email that is divided to three template files.
+
+    The email is assembled from three different templates:
+
+    * Read subject from a subject specific template $template.subject.txt
+
+    * Generate HTML email from HTML template, $template.body.html
+
+    * Generate plain text email from HTML template, $template.body.txt
+
+    Make sure you have configured your template engine (Jinja 2) to read TXT templates beside HTML.
+
+    HTML body goes through Premailer transform step, inlining any CSS styles.
+
+    :param template: Template filename base string for template tripled (subject, HTML body, plain text body). For example ``email/my_message`` would map to templates ``email/my_message.subject.txt``, ``email/my_message.body.txt``, ``email/my_message.body.html``
+
+    :param context: Template context dictionary passed to the rendererer
+
+    :return: Tuple(subject, text_body, html_body)
+    """
+
+    subject = render(template + ".subject.txt", context, request=request)
+    subject = subject.strip()
+
+    html_body = render(template + ".body.html", context, request=request)
+    text_body = render(template + ".body.txt", context, request=request)
+
+    # Inline CSS styles
+    html_body = premailer.transform(html_body)
+
+    return subject, text_body, html_body
+
+
+def send_templated_mail(request: Request, recipients: List, template: str, context: dict, sender=None, immediate=None, tm: Optional[TransactionManager]=None) -> Tuple[str, str, str]:
     """Send out templatized HTML and plain text emails.
 
     Each HTML email should have a plain text fallback. Premailer package is used to convert any CSS styles in HTML email messages to inline, so that email clients display them.
@@ -59,13 +95,15 @@ def send_templated_mail(request: Request, recipients: Iterable, template: str, c
 
     :param template: Template filename base string for template tripled (subject, HTML body, plain text body). For example ``email/my_message`` would map to templates ``email/my_message.subject.txt``, ``email/my_message.body.txt``, ``email/my_message.body.html``
 
-    :param context: Template context variables as a dict
+    :param context: Template context dictionary passed to the rendererer
 
     :param sender: Override the sender email - if not specific use the default set in the config as ``mail.default_sender``
 
     :param immediate: Set True to send to the email immediately and do not wait the transaction to commit. This is very useful for debugging outgoing email issues in an interactive traceback inspector. If this is ``None`` then use setting ``mail.immediate`` that defaults to ``False``.
 
     :param tm: Give transaction manager that is used instead of ``request.tm`` for the commit hook.
+
+    :return: tuple(subject, text_body, html_body)
     """
 
     assert recipients
@@ -75,11 +113,7 @@ def send_templated_mail(request: Request, recipients: Iterable, template: str, c
     for r in recipients:
         assert r, "Received empty recipient when sending out email {}".format(template)
 
-    subject = render(template + ".subject.txt", context, request=request)
-    subject = subject.strip()
-
-    html_body = render(template + ".body.html", context, request=request)
-    text_body = render(template + ".body.txt", context, request=request)
+    subject, text_body, html_body = render_templated_mail(request, template, context)
 
     # Have some logging by default, as inspecting mail issues is gruesome devops tasks
     logger.info("Sending out email to:%s subject:%s", recipients, subject)
@@ -91,9 +125,6 @@ def send_templated_mail(request: Request, recipients: Iterable, template: str, c
         sender_name =  request.registry.settings.get("mail.default_sender_name")
         if sender_name:
             sender = formataddr((str(Header(sender_name, 'utf-8')), sender))
-
-    # Inline CSS styles
-    html_body = premailer.transform(html_body)
 
     message = Message(subject=subject, sender=sender, recipients=recipients, body=text_body, html=html_body)
     message.validate()
@@ -127,4 +158,7 @@ def send_templated_mail(request: Request, recipients: Iterable, template: str, c
         mailer.send_immediately(message)
     else:
         mailer.send(message)
+
+    return subject, text_body, html_body
+
 

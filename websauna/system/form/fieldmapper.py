@@ -203,7 +203,7 @@ class DefaultSQLAlchemyFieldMapper(ColumnToFieldMapper):
         :param request: HTTP request
         :param context: Current traversing context or None
         :param model: The SQLAlchemy model class for which we generate schema
-        :param includes: List of column, relationship and property names or ``colander.SchemaNode(name=name) instances to be included on the form.
+        :param includes: List of column, relationship and property names or ``colander.SchemaNode(name=name)`` instances to be included on the form.
         :param nested: Legacy. Going away.
         """
 
@@ -222,5 +222,3 @@ class DefaultSQLAlchemyFieldMapper(ColumnToFieldMapper):
 
         schema = PropertyAwareSQLAlchemySchemaNode(model, dbsession, includes=includes, type_overrides=_map_column, relationship_overrides=_map_relationship, automatic_relationships=True, nested=nested)
         return schema
-
-

@@ -83,7 +83,7 @@ Now console is flooded with *very* verbose logging::
 Initialization loggers from INI file
 ====================================
 
-If you need to initialize loggers in your own applications see :py:func:`websauna.system.devop.cmdline.setup_logging` for how Websauna picks up loggers from :ref:`INI` configuration file.
+If you need to initialize loggers in your own applications see :py:func:`websauna.system.devop.cmdline.setup_logging` for how Websauna picks up loggers from `INI <https://en.wikipedia.org/wiki/INI_file>`__ configuration file.
 
 More information
 ================
@@ -95,4 +95,3 @@ More information
 `Discussion about log message formatting and why we are still using old style string formatting <http://reinout.vanrees.org/weblog/2015/06/05/logging-formatting.html>`_.
 
 `structlog package <http://structlog.readthedocs.io/en/stable/index.html>`_ - add context to your logged messages like user id or HTTP request URL.
-

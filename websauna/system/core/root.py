@@ -43,5 +43,3 @@ class Root(Resource):
     def get_title(self):
         """Title used in breadcrumbs."""
         return "Home"
-
-

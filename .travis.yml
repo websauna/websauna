@@ -1,8 +1,9 @@
 language: python
+dist: trusty
 
 addons:
   postgresql: "9.4"
-  firefox: "45.0"
+  chrome: stable
 
 services:
   - postgresql
@@ -39,20 +40,30 @@ install:
 
 # https://docs.travis-ci.com/user/gui-and-headless-browsers/
 before_script:
-  - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"
-  - sleep 3 # give xvfb some time to start
-  - tar -xjf /tmp/firefox-45.0.tar.bz2 --directory /tmp
-  - export PATH="/tmp/firefox:$PATH"
-  - echo "Using firefox version `firefox --version`"
   - psql -c 'create database websauna_test;' -U postgres
   - pip install -U pip
+
+# Install chromedriver - https://sites.google.com/a/chromium.org/chromedriver/
+# This is not provided by Travis, but is needed by Selenium
+  - wget -N http://chromedriver.storage.googleapis.com/2.32/chromedriver_linux64.zip
+  - unzip chromedriver_linux64.zip
+  - chmod +x chromedriver
+  - sudo mv chromedriver /usr/bin
+
+# Make chrome available as "chrome"
+  - sudo ln -s /usr/bin/google-chrome-stable /usr/bin/chrome
+
+  - echo "Using chrome version $(chrome --version) from $(which chrome)"
+  - echo "Using chromedriver version $(chromedriver --version) from $(which chromedriver)"
 
 script:
   # https://pypi.python.org/pypi/coverage_enable_subprocess
   - pip install coverage-enable-subprocess
   - export COVERAGE_PROCESS_START=$PWD/.coveragerc
-  - tox -- --ini=websauna/conf/travis.ini
+  # This env variable is passed to scaffold tests that test the tests themselves
+  - export SPLINTER_WEBDRIVER=chrome
+  - export TRAVIS=true
+  - tox -- --ini=websauna/conf/travis.ini --splinter-webdriver=chrome --splinter-headless=true
 
 after_success:
   # Update coverage information in codecov.io.

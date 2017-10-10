@@ -22,7 +22,8 @@ def notfound(request):
     else:
         username = "<anomymous>"
 
-    logger.warn("404 Not Found. user:%s URL:%s referrer:%s", request.url, username, request.referrer)
+    # TODO: Maybe make this configurable, default to WARN, configurable as INFO for high volume sites
+    logger.info("404 Not Found. user:%s URL:%s referrer:%s", request.url, username, request.referrer)
 
     # Make sure 404 page does not have any status information, as it is often overlooked special case for caching and we don't want to cache user information
     try:
@@ -35,5 +36,9 @@ def notfound(request):
     html = render('core/notfound.html', {}, request=request)
     resp = Response(html)
     resp.status_code = 404
+
+    # Hint pyramid_redis_session not to generate any session cookies for this response
+    resp.cache_control.public = True
+
     transaction.abort()
     return resp

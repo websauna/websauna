@@ -52,7 +52,21 @@ def ensure_transactionless(msg=None, transaction_manager=transaction.manager):
 
 
 def is_retryable(txn, error):
+    """Check if this transaction is one caused by database conflict.
+
+    These transactions should not be caught in catch all exception expressions.
+
+
+
+    :param txn:
+    :param error:
+    :return:
+    """
     # Emulate TransactionManager.is_retryable
+
+    if txn is None:
+        return False
+
     for dm in txn._resources:
         should_retry = getattr(dm, 'should_retry', None)
         if (should_retry is not None) and should_retry(error):
@@ -123,9 +137,11 @@ def retryable(tm: Optional[TransactionManager]=None, get_tm: Optional[Callable]=
                 # Performed inside TX retry boundary
                 ops = self.get_waiting_operation_ids()
 
+    Transaction manager needs ``retry_attempt_count`` attribute set by Websauna framework.
+
     :param tm: Transaction manager used to control the TX execution
 
-    :param get_tm: Factory function that is called with *args and **kwargs to get the transaction manager
+    :param get_tm: Factory function that is called with ``\*args`` and ``\**kwargs`` to get the transaction manager
     """
 
     def _transaction_retry_wrapper(func):
@@ -147,7 +163,7 @@ def retryable(tm: Optional[TransactionManager]=None, get_tm: Optional[Callable]=
             ensure_transactionless(transaction_manager=manager)
 
             retry_attempt_count = getattr(manager, "retry_attempt_count", None)
-            if not retry_attempt_count:
+            if retry_attempt_count is None:
                 raise NotRetryable("TransactionManager is not configured with default retry attempt count")
 
             # Run attempt loop
@@ -175,6 +191,7 @@ def retryable(tm: Optional[TransactionManager]=None, get_tm: Optional[Callable]=
                         latest_exc = e
                         continue
                     else:
+                        txn.abort()  # We could not commit
                         raise e
 
             raise CannotRetryAnymore("Out of transaction retry attempts, tried {} times".format(num + 1)) from latest_exc

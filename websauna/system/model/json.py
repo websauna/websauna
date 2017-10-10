@@ -116,10 +116,7 @@ class MutationList(WebsaunaFriendlyMutable):
         if not isinstance(value, MutationList):
             if isinstance(value, list):
                 return cls(value)
-            try:
-                return Mutable.coerce(key, value)
-            except ValueError as e:
-                import pdb ; pdb.set_trace()
+            return Mutable.coerce(key, value)
         else:
             return value
 

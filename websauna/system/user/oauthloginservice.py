@@ -110,8 +110,8 @@ class AuthomaticLoginHandler:
         request = self.request
 
         if e:
-            # Leave a cue for sysadmins everything is not right
-            logger.exception(e)
+            # Leave a cue for sysadmins everything is not right. Use INFO level as usually this is just the user pressing Cancel on the OAuth pop up screen.
+            logger.info(e)
 
         messages.add(self.request, kind="error", msg=str(e), msg_id="msg-authomatic-login-error")
         login_url = self.request.route_url("login")

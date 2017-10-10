@@ -53,6 +53,9 @@ def internal_server_error(context, request):
     resp = Response(html)
     resp.status_code = 500
 
+    # Hint pyramid_redis_session not to generate any session cookies for this response
+    resp.cache_control.public = True
+
     # Make sure nothing is written or no transaction left open on 500
     request.tm.abort()
 

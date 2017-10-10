@@ -74,7 +74,7 @@ setup(
     install_requires=[
 
         # Pyramid dependencies
-        'pyramid>=1.7a2',
+        'pyramid<1.9',
         'waitress',
         'pyramid_redis_sessions',
         'pyramid-layout',
@@ -126,7 +126,7 @@ setup(
             'pyramid_autodoc',
             'ruamel.yaml',
             'setuptools_git',
-            'sphinx',
+            'sphinx==1.5.6',
             'sphinx-autodoc-typehints',
             'sphinx_rtd_theme',
             'sphinxcontrib-zopeext',
@@ -147,7 +147,7 @@ setup(
         ],
 
         "notebook": [
-            "ipython[notebook]>=5.1",
+            "ipython[notebook]<5.2",
             "pyramid_notebook>=0.2.1",
             # Needed by python_notebook etc. who call pyramid.paster module
             "PasteDeploy",
@@ -178,6 +178,7 @@ setup(
             'ws-create-table=websauna.system.devop.scripts.createtable:main',
             'ws-sanity-check=websauna.system.devop.scripts.sanitycheck:main',
             'ws-collect-static=websauna.system.devop.scripts.collectstatic:main',
+            'ws-settings=websauna.system.devop.scripts.settings:main',
         ],
 
         'paste.app_factory': [

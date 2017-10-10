@@ -15,6 +15,10 @@ def forbidden(request):
     html = render('core/forbidden.html', {}, request=request)
     resp = Response(html)
     resp.status_code = 403
+
+    # Hint pyramid_redis_session not to generate any session cookies for this response
+    resp.cache_control.public = True
+
     transaction.abort()
     return resp
 

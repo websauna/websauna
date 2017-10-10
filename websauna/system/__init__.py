@@ -35,6 +35,7 @@ from pyramid.settings import asbool
 
 from websauna.utils.autoevent import event_source
 from websauna.utils.configincluder import IncludeAwareConfigParser
+from websauna.compat.typing import Optional
 
 
 class SanityCheckFailed(Exception):
@@ -63,7 +64,7 @@ class Initializer:
         We deliberate push imports inside methods, so that it is unlikely we'd have any import time side effects caused by some less elegant solutions, like gevent.
     """
 
-    def __init__(self, global_config:dict, settings:dict=None):
+    def __init__(self, global_config: dict, settings: Optional[dict]=None):
         """
         :param global_config: Dictionary as passed to WSGI entry point.
 
@@ -349,7 +350,7 @@ class Initializer:
             from websauna.system.core.views import notfound
             self.config.scan(notfound)
 
-        # Internal server error must be only activated in the production mode, as it clashes with pyramid_debugtoolbar
+        # Internal server error page must be only activated in the production mode, as it clashes with pyramid_debugtoolbar, as both handle uncaught exceptions
         has_debug_toolbar = "pyramid_debugtoolbar" in aslist(settings.get("pyramid.includes", []))
         debug_toolbar_enabled = has_debug_toolbar and asbool(settings.get("debugtoolbar.enabled", True))
 
@@ -361,6 +362,9 @@ class Initializer:
             from websauna.system.core.views import errortrigger
             self.config.scan(errortrigger)
             self.config.add_route('error_trigger', '/error-trigger')
+
+        from websauna.system.core.views import badcsrftoken
+        self.config.scan(badcsrftoken)
 
     @event_source
     def configure_root(self):
@@ -598,9 +602,14 @@ class Initializer:
         except pkg_resources.DistributionNotFound:
             return
 
-        import websauna.system.notebook.views
-        import websauna.system.notebook.adminviews
-        import websauna.system.notebook.subscribers
+        try:
+            import websauna.system.notebook.views
+            import websauna.system.notebook.adminviews
+            import websauna.system.notebook.subscribers
+        except ImportError:
+            # Have installed IPython[Notebook], but not pyramid_notebook
+            return
+
         self.config.add_route('admin_shell', '/notebook/admin-shell')
         self.config.add_route('shutdown_notebook', '/notebook/shutdown')
         self.config.add_route('notebook_proxy', '/notebook/*remainder')

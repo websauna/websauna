@@ -19,6 +19,9 @@ Changelog for Websauna
 
 - Write the session cookie and Redis session data only if something was stored in the session. This makes it more scalable to serve anonymous pages, as one does not need to reset the cookie on every crawling request.
 
+- Use `typing <https://pypi.python.org/pypi/typing>`_ instead of `backports.typing <https://pypi.python.org/pypi/backports.typing>`_ for Python 3.4.
+
+
 1.0a4 (2017-01-07)
 ------------------
 

@@ -78,7 +78,7 @@ If you are planning to build a reusable addon you may choose to declare your mod
 Primary keys: UUID, running counter or both?
 --------------------------------------------
 
-Websauna has extensive support for :term:`UUID` for primary key ids. It uses UUID version 4 (random), which gives you a 122 bit non-guessable integer with 6 bit for error checking.
+Websauna has extensive support for :term:`UUID` as primary key ids. It uses UUID version 4 (random), which gives you a 122 bit non-guessable integer with 6 bit for error checking.
 
 .. note ::
 

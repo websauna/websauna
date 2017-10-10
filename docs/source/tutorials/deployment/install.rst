@@ -27,7 +27,21 @@ Create a :term:`virtual environment` for Ansible. This must be a separate from t
     cd websauna.ansible
     virtualenv -p python2.7 venv
     source venv/bin/activate
-    pip install "ansible<2.2"  # Stouts.nginx is currently incompatible with latest Ansible
+
+And install Ansible using pip.
+On Linux:
+
+.. code-block:: console
+   
+   pip install "ansible<2.2"  # Stouts.nginx is currently incompatible with latest Ansible
+
+On macOS (recent macOS versions do not ship with OpenSSL, so instead of above `pip` command do):
+
+.. code-block:: console
+
+    brew install openssl --force
+    echo 'export PATH="/usr/local/opt/openssl/bin:$PATH"' >> ~/.zshrc # zsh
+    env LDFLAGS="-L/usr/local/opt/openssl/lib" CPPFLAGS="-I/usr/local/opt/openssl/include" CFLAGS="-I/usr/local/opt/openssl/include" pip install "ansible<2.2"
 
 .. note ::
 

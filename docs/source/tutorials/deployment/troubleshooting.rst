@@ -17,7 +17,7 @@ Example:
     ssh -A yourserver  # Login to the server, SSH agent enabled
     sudo -i -u wsgi  # Switch to wsgi user under which your web application runs
     cd /srv/pyramid/yourapp  # Go to the folder where your application git checkout is
-    source venv/bin/active  # Activate virtual environment where your application Python packages are installed
+    source venv/bin/activate  # Activate virtual environment where your application Python packages are installed
     pip install -r requirements.txt  # Run pip and now it runs interactively in your terminal
 
 

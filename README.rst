@@ -1,6 +1,6 @@
 Websauna is a full stack Python web framework for building web services and back offices with admin interface and sign up process.
 
-.. |ci| image:: https://travis-ci.org/websauna/websauna.svg
+.. |ci| image:: https://img.shields.io/travis/websauna/websauna/master.svg?style=flat-square
     :target: https://travis-ci.org/websauna/websauna/
 
 .. |cov| image:: https://codecov.io/github/websauna/websauna/coverage.svg?branch=master

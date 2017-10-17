@@ -187,10 +187,5 @@ setup(
             'task_test=websauna.tests.demotasks:main',
             'tutorial_test=websauna.tests.tutorial:main',
         ],
-
-        'pyramid.scaffold': [
-            "websauna_app=websauna.scaffolds:App",
-            "websauna_addon=websauna.scaffolds:Addon",
-        ]
     },
 )

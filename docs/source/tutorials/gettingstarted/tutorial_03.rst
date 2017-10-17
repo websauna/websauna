@@ -20,7 +20,7 @@ Websauna uses :term:`cookiecutter` tool to bootstrap a new project. To install i
 
     .. code-block:: shell
 
-        pip install cookiecutter websauna.js2secret
+        pip install cookiecutter websauna.j2secret
 
 
 Now, it is possible to create a new application:

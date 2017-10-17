@@ -75,7 +75,7 @@ Websauna currently supports simple :term:`INI` based secrets.
 
 * The secrets reading supports environment variable interpolation. This is useful for open continuous integration systems like Travis.
 
-* Random tokens are randomized during the project generation by ``websauna_app`` :term:`scaffold`.
+* Random tokens are randomized during the project generation by ``cookiecutter-websauna-app`` :term:`cookiecutter` template.
 
 Example ``development-secrets.ini``::
 

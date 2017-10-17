@@ -25,7 +25,7 @@ Installing a Bootstrap theme
 Downloading a theme
 -------------------
 
-In this example we install a premium theme on your Websauna site based on ``websauna_app`` :term:`scaffold`.
+In this example we install a premium theme on your Websauna site based on ``cookiecutter-websauna-app`` :term:`cookiecutter` template.
 
 Bootstrap theme is distributed as a zip file. We download the zip file, extract it and examine its contents::
 
@@ -71,7 +71,7 @@ The Bootstrap theme is distributed as :term:`Less` source code files and precomp
 Setting up files
 ----------------
 
-To simplify the process we first copy the whole ``assets`` folder to ``myapp/static``.
+To simplify the process we first copy the whole ``assets`` folder to ``company/application/static``.
 
 Ignored theme parts
 -------------------
@@ -85,7 +85,7 @@ Theme contains Font Awesome files and Bootstrap source files. We ignore them and
 Setting up CSS
 --------------
 
-Edit ``templates/site/css.html`` as provided by :term:`scaffold`:
+Edit ``templates/site/css.html`` as provided by :term:`cookiecutter` template:
 
 .. code-block:: html+jinja
 
@@ -107,10 +107,10 @@ Edit ``templates/site/css.html`` as provided by :term:`scaffold`:
     -->
     {# Include CSS from premium theme - see file location from your theme package #}
 
-    <link rel="stylesheet" href="{{ 'myapp:static/assets/css/main.css'|static_url }}">
+    <link rel="stylesheet" href="{{ 'company.application:static/assets/css/main.css'|static_url }}">
 
     {# We leave here a local theme.css file where we can overlay CSS fixes if needed #}
-    <link rel="stylesheet" href="{{ 'myapp:static/theme.css'|static_url }}">
+    <link rel="stylesheet" href="{{ 'company.application:static/theme.css'|static_url }}">
 
     {# Include CSS for widgets #}
     {% if request.on_demand_resource_renderer %}
@@ -118,6 +118,7 @@ Edit ``templates/site/css.html`` as provided by :term:`scaffold`:
         <link rel="stylesheet" href="{{ css_url }}"></link>
       {% endfor %}
     {% endif %}
+
 
 Now let's start the site with :ref:`ws-pserve` and we should see the changes (fonts, colors):
 

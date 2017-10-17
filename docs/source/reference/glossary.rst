@@ -53,6 +53,9 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
     colanderalchemy
         A Python package to generate :term:`Colander` forms from :term:`SQLAlchemy` models. `More information <https://pypi.python.org/pypi/ColanderAlchemy>`__.
 
+    cookiecutter
+        A Python package to create projects and packages from project templates. `More information <https://pypi.python.org/pypi/cookiecutter>`__.
+
     CRUD
         In computer programming, create, read, update and delete, sometimes called SCRUD with an "S" for Search, are the four basic functions of persistent storage. :doc:`Read about CRUD in Websauna <../narrative/crud/crud>`.
         `More info <https://en.wikipedia.org/wiki/Create,_read,_update_and_delete>`__.
@@ -211,7 +214,7 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
         Sanity check is a Websauna feature which prevents starting up a website in a state where Python code is inconsistent with databases. It checks all databases are up and models are correctly declared in the database. See :ref:`websauna.sanity_check` setting for more info.
 
     scaffold
-        A project skeleton which generates a starting point for your application. Websauna uses `Pyramid scaffolding <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/scaffolding.html>`__ for its ``websauna_app`` and ``websauna_addon`` scaffols.
+        A project skeleton which generates a starting point for your application. Websauna uses :term:`cookiecutter` as the tool to create it, using ``cookiecutter-websauna-app`` and ``cookiecutter-websauna-addon`` templates.
 
     secrets
         The secrets are passwords, API keys and other sensitive data which you want to avoid exposing. They are usually stored separately from the source code tree. Websauna has best practices how to store your secrets. See :ref:`secrets` in configuration documentation.

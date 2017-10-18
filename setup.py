@@ -133,6 +133,7 @@ setup(
         ],
 
         'test': [
+            'cookiecutter',
             'codecov',
             'pytest>=3.0',
             'pytest-runner',
@@ -142,6 +143,7 @@ setup(
             'pytest-runner',
             'pytest-splinter',
             'pytest-timeout',
+            'websauna.j2secret',
             'webtest',
         ],
 

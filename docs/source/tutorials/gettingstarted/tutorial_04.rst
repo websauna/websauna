@@ -17,7 +17,7 @@ To get Websauna application started, you need to
 Creating the database
 =====================
 
-The default development database name is ``myapp_dev`` where ``myapp`` originates from your application name.
+The default development database name is ``application_dev`` where ``application`` originates from your application name.
 
 Creating database on OSX
 ------------------------
@@ -50,7 +50,7 @@ Websauna stores data in SQL database's tables. When these tables are changed, th
 We use the :ref:`ws-alembic` command for this task. You run `ws-alembic` in your package root folder::
 
     cd myapp
-    ws-alembic -c myapp/conf/development.ini -x packages=all revision --auto -m "Initial migration"
+    ws-alembic -c company/application/conf/development.ini -x packages=all revision --auto -m "Initial migration"
 
 This creates the migration script for the default ``user`` and ``groups`` SQL tables.
 
@@ -65,18 +65,18 @@ Running the migration script
 
 The migration scripts can be run repeatedly against multiple databases. First you need to run it against the database on your local development computer::
 
-    ws-alembic -c myapp/conf/development.ini -x packages=all upgrade head
+    ws-alembic -c company/application/conf/development.ini -x packages=all upgrade head
 
 Checking what's in your database
 ================================
 
 Install utils to including the Python package dependency for *pgcli*, using :term:`pip`::
 
-    pip install -e "myapp[utils]"
+    pip install -e "company.application[utils]"
 
 Then you can use :ref:`ws-db-shell` to open a *pgcli* prompt to explore your PostgreSQL database::
 
-    ws-db-shell myapp/conf/development.ini
+    ws-db-shell company/application/conf/development.ini
 
     wattcoin_dev> \dt
     +----------+--------------------------+--------+---------+

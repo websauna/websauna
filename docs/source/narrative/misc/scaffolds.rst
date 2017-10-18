@@ -4,17 +4,20 @@
 Scaffolds
 =========
 
-There are two different starting points for new Websauna projects. Both are available through :term:`pcreate` command.
+There are two different starting points for new Websauna projects. Both are available using :term:`cookiecutter` and our project templates.
 
-websauna_app
-------------
 
-A standalone Websauna application
+Websauna Application
+--------------------
 
-websauna_addon
+To create a standalone Websauna application, use the template `cookiecutter-websauna-app`_.
+
+
+Websauna Addon
 --------------
 
-A Python package / library which you can reuse across Websauna applications.
+To create a Python package / library which you can reuse across Websauna applications, use the template `cookiecutter-websauna-addon`_
+
 
 Addon guidelines and limitations
 ================================
@@ -23,7 +26,33 @@ Never use :py:class:`websauna.system.model.meta.Base` but always leave models ba
 
 Maintain independent migration history.
 
-Advanced
-========
 
-See :py:mod:`websauna.scaffolds` package.
+Basic usage
+===========
+
+Using a Python 3 virtual environment, install cookiecutter and websauna.j2secret:
+
+    .. code-block:: shell
+
+        pip install cookiecutter websauna.j2secret
+
+
+Then create a new application, following the instructions displayed by cookiecutter:
+
+    .. code-block:: shell
+
+        cookiecutter gh:websauna/cookiecutter-websauna-app
+
+
+Or a new addon:
+
+    .. code-block:: shell
+
+        cookiecutter gh:websauna/cookiecutter-websauna-addon
+
+
+.. note:: For a detailed usage guide refer to each template repository or to our tutorial.
+
+
+.. _`cookiecutter-websauna-addon`: https://github.com/websauna/cookiecutter-websauna-addon
+.. _`cookiecutter-websauna-app`: https://github.com/websauna/cookiecutter-websauna-app

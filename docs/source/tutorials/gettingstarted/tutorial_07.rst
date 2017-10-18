@@ -9,7 +9,7 @@ In this tutorial chapter, we'll create a :term:`model` for polling. The model de
 Adding a model
 ==============
 
-Models are added to a ``models.py`` file, that the ``websauna_app`` scaffold generated for you. Websauna uses :term:`SQLAlchemy` for modelling.
+Models are added to a ``models.py`` file, that the ``cookiecutter-websauna-app`` :term:`cookiecutter` template generated for you. Websauna uses :term:`SQLAlchemy` for modelling.
 
 Open ``models.py`` and add::
 
@@ -87,7 +87,7 @@ Having Python code in place is not enough for a new or changed model. You need t
 
 If you try to start your development server in this point the :term:`sanity check` feature aborts the start up::
 
-    ws-pserve myapp/conf/development.ini --reload
+    ws-pserve company/application/conf/development.ini --reload
 
     ...
     Model <class 'myapp.models.Question'> declares table question which does not exist in database Engine(postgresql://localhost/myapp_dev)
@@ -97,7 +97,7 @@ If you try to start your development server in this point the :term:`sanity chec
 
 To create a migration script for your application, run the following command in your application folder::
 
-    ws-alembic -c myapp/conf/development.ini revision --auto -m "Added choices and questions"
+    ws-alembic -c company/application/conf/development.ini revision --auto -m "Added choices and questions"
 
     ... a lot of output ...
     .. All done
@@ -110,7 +110,7 @@ You need to do this every time columns change. After the migration script is cre
 
 Now migrate your local database::
 
-    ws-alembic -c myapp/conf/development.ini upgrade head
+    ws-alembic -c company/application/conf/development.ini upgrade head
 
     ... a lot of output ...
     .. All done

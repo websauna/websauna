@@ -21,6 +21,8 @@ Changelog for Websauna
 
 - Use `typing <https://pypi.python.org/pypi/typing>`_ instead of `backports.typing <https://pypi.python.org/pypi/backports.typing>`_ for Python 3.4.
 
+- Fixes `Issue #29`_: Replace pcreate with cookiecutter.
+
 
 1.0a4 (2017-01-07)
 ------------------
@@ -41,3 +43,5 @@ Changelog for Websauna
 
 - Life sucks and then you die. But Websauna is out: https://www.youtube.com/watch?v=AOfiziY-htU
 
+
+.. _`Issue #29`: https://github.com/websauna/websauna/issues/29

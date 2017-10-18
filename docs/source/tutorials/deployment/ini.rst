@@ -20,7 +20,7 @@ Example ``vars`` settings::
     - site_mode: production
 
     # Local secrets file we copy to the server
-    - ini_secrets_file: ../myapp/conf/production-secrets.ini
+    - ini_secrets_file: ../company/application/conf/production-secrets.ini
 
 Customizing production.ini
 ==========================

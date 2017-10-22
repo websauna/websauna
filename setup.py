@@ -195,11 +195,11 @@ setup(
         ],
 
         'plaster.loader_factory': [
-            'ws=websauna.utils.configloader:Loader',
+            'ws=websauna.utils.config.loader:Loader',
         ],
 
         'plaster.wsgi_loader_factory': [
-            'ws=websauna.utils.configloader:Loader',
+            'ws=websauna.utils.config.loader:Loader',
         ],
     },
 )

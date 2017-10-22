@@ -1,5 +1,3 @@
-from websauna.utils.configincluder import monkey_patch_paster_config_parser
-monkey_patch_paster_config_parser()
 
 import os
 import sys

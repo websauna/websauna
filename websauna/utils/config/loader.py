@@ -1,39 +1,31 @@
 """Support for INI file inclusion mechanism."""
-import plaster
-import plaster_pastedeploy
-from paste.deploy import loadwsgi
-from urllib.parse import urlparse
-from logging.config import fileConfig
-import configparser
+import logging
 import os
-import pkg_resources
 
-from pyramid.settings import aslist
-from .configincluder import PatchedNicerConfigParser
+import plaster_pastedeploy
 
-
-#: Cache accessed resources
-_resource_manager = pkg_resources.ResourceManager()
-
-
-class NonExistingInclude(Exception):
-    pass
+from paste.deploy import loadwsgi
+from logging.config import fileConfig
+from websauna.utils.config.includer import IncludeAwareConfigParser
 
 
 class ConfigLoader(loadwsgi.ConfigLoader):
+    """Configuration Loader."""
+
     def __init__(self, filename):
         self.filename = filename = filename.strip()
         defaults = {
             'here': os.path.dirname(os.path.abspath(filename)),
             '__file__': os.path.abspath(filename)
-            }
-        self.parser = PatchedNicerConfigParser(filename, defaults=defaults)
-        self.parser.optionxform = str  # Don't lower-case keys
+        }
+        self.parser = IncludeAwareConfigParser(filename, defaults=defaults)
         with open(filename) as f:
             self.parser.read_file(f)
 
 
 class Loader(plaster_pastedeploy.Loader):
+    """Loader returning a WSGI application."""
+
     def __init__(self, uri):
         uri.scheme = 'file'
         super().__init__(uri)
@@ -58,25 +50,36 @@ class Loader(plaster_pastedeploy.Loader):
         :param defaults: The defaults that will be used when passed to
             :func:`logging.config.fileConfig`.
         :return: ``None``.
-
         """
-
+        defaults = defaults if defaults else {}
         if 'loggers' in self.get_sections():
+            uri_path = self.uri.path
             parser = self._get_parser()
-            fileConfig(parser, dict(__file__=self.uri.path, here=os.path.dirname(self.uri.path)), disable_existing_loggers=False)
-
+            defaults.update(
+                {
+                    '__file__': uri_path,
+                    'here': os.path.dirname(uri_path),
+                    'disable_existing_loggers': False
+                }
+            )
+            fileConfig(
+                parser,
+                defaults,
+            )
         else:
             logging.basicConfig()
 
     def get_wsgi_app(self, name=None, defaults=None):
-        return self._get_loader().get_app(name, defaults)
+        return self._get_loader(defaults).get_app(name, defaults)
 
     def get_wsgi_filter(self, name=None, defaults=None):
-        return self._get_loader().get_filter(name, defaults)
+        return self._get_loader(defaults).get_filter(name, defaults)
 
     def get_wsgi_server(self, name=None, defaults=None):
-        return self._get_loader().get_server(name, defaults)
+        return self._get_loader(defaults).get_server(name, defaults)
 
     def __repr__(self):
-        return '{}.{}(uri="{}")'.format(self.__class__.__module__, self.__class__.__qualname__, self.uri)
+        klass_module = self.__class__.__module__
+        klass_qualname = self.__class__.__qualname__
+        return '{0}.{1}(uri="{2}")'.format(klass_module, klass_qualname, self.uri)
 

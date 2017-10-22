@@ -161,7 +161,6 @@ def retryable(tm: Optional[TransactionManager]=None, get_tm: Optional[Callable]=
 
             # Make sure we don't re-enter to transaction
             ensure_transactionless(transaction_manager=manager)
-
             retry_attempt_count = getattr(manager, "retry_attempt_count", None)
             if retry_attempt_count is None:
                 raise NotRetryable("TransactionManager is not configured with default retry attempt count")

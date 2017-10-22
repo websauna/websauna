@@ -4,9 +4,9 @@ import os
 from logging.config import fileConfig
 import sys
 
+import plaster
 from pyramid import scripting
 from pyramid.paster import bootstrap
-from websauna.utils.configincluder import _getpathsec
 from websauna.system.http.utils import make_routable_request
 from websauna.system.model.meta import create_dbsession
 
@@ -18,14 +18,7 @@ from websauna.system.http import Request
 def setup_logging(config_uri, disable_existing_loggers=False):
     """Include-aware Python logging setup from INI config file.
     """
-    path, _ = _getpathsec(config_uri, None)
-    parser = IncludeAwareConfigParser()
-    parser.read([path])
-
-    if parser.has_section('loggers'):
-        config_file = os.path.abspath(path)
-        defaults = dict(parser, here=os.path.dirname(config_file))
-        return fileConfig(parser, defaults, disable_existing_loggers)
+    pass
 
 
 def setup_console_logging(log_level=None):
@@ -94,8 +87,11 @@ def init_websauna(config_uri: str, sanity_check: bool=False, console_app=False, 
     if extra_options:
         options.update(extra_options)
 
-    bootstrap_env = bootstrap(config_uri, options=options)
-    app = bootstrap_env["app"]
+    # bootstrap_env = bootstrap(config_uri, options=options)
+    if not config_uri.startswith('ws://'):
+        config_uri = 'ws://{config_uri}'.format(config_uri=config_uri)
+    loader = plaster.get_loader(config_uri)
+    app = loader.get_wsgi_app(defaults=options)
     initializer = getattr(app, "initializer", None)
     assert initializer is not None, "Configuration did not yield to Websauna application with Initializer set up"
 

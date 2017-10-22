@@ -4,7 +4,6 @@ import sys
 from shutil import which
 
 from websauna.system.devop.cmdline import init_websauna
-from websauna.utils.configincluder import monkey_patch_paster_config_parser
 
 
 def usage(argv):
@@ -15,7 +14,6 @@ def usage(argv):
 
 
 def main(argv=sys.argv):
-    monkey_patch_paster_config_parser()
 
     if len(argv) < 2:
         usage(argv)

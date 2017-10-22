@@ -7,10 +7,11 @@ import logging
 from celery.loaders.base import BaseLoader
 from celery.signals import setup_logging as _setup_logging_signal
 
+import plaster
 from websauna.system.devop.cmdline import init_websauna
 from websauna.system.http.utils import make_routable_request
 from websauna.system.model.retry import ensure_transactionless
-from websauna.utils.configincluder import IncludeAwareConfigParser
+from websauna.utils.config.includer import IncludeAwareConfigParser
 from websauna.system.devop.cmdline import setup_logging
 
 
@@ -30,19 +31,26 @@ class WebsaunaLoader(BaseLoader):
     Support binding request object to Celery tasks and loading Celery settings through Pyramid INI configuration.
     """
 
+    def get_celery_config(self, config_file: str) -> dict:
+        """Return celery configuration, from given config_file"""
+        ws_config = 'ws://{0}'.format(config_file)
+
+        loader = plaster.get_loader(ws_config)
+        settings = loader.get_settings('app:main')
+
+        # TODO: We have ugly app:main hardcode hack here
+        value = settings.get('websauna.celery_config')
+        if not value:
+            raise RuntimeError("Could not find websauna.celery_config in {}".format(ini_file))
+        return value
+
+
     def read_configuration(self) -> dict:
         """Load Celery config from Pyramid INI file.
 
         We need to be able to do this without ramping up full Websauna, because that's the order of the evens Celery worker wants. This way we avoid circular dependencies during Celery worker start up.
         """
-        config = IncludeAwareConfigParser()
-        config.read(ini_file)
-
-        # TODO: We have ugly app:main hardcode hack here
-        value = config.get("app:main", "websauna.celery_config")
-        if not value:
-            raise RuntimeError("Could not find websauna.celery_config in {}".format(ini_file))
-
+        value = self.get_celery_config(ini_file)
         config = parse_celery_config(value)
         return config
 

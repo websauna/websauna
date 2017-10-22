@@ -125,8 +125,11 @@ def init_websauna_script_env(config_uri: str) -> dict:
     :return: Dictionary of shell variables
     """
 
-    bootstrap_env = bootstrap(config_uri, options=dict(sanity_check=False))
-    app = bootstrap_env["app"]
+    options = {"sanity_check": False}
+    config_uri = prepare_config_uri(config_uri)
+    loader = plaster.get_loader(config_uri)
+    app = loader.get_wsgi_app(defaults=options)
+
     initializer = getattr(app, "initializer", None)
     assert initializer is not None, "Configuration did not yield to Websauna application with Initializer set up"
 

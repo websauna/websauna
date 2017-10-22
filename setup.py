@@ -93,6 +93,7 @@ setup(
         "alembic",
         "colanderalchemy",
         "pyramid_tm",
+        "pyramid_retry",
         "sqlalchemy-utils",
 
         # User management

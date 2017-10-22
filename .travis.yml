@@ -40,7 +40,6 @@ install:
 # https://docs.travis-ci.com/user/gui-and-headless-browsers/
 before_script:
   - psql -c 'create database websauna_test;' -U postgres
-  - pip install -U pyramid>=1.9
   - pip install -U pip
 
 # Install chromedriver - https://sites.google.com/a/chromium.org/chromedriver/

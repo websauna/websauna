@@ -15,6 +15,17 @@ from rainbow_logging_handler import RainbowLoggingHandler
 from websauna.system.http import Request
 
 
+def prepare_config_uri(config_uri: str) -> str:
+    """Make sure a configuration uri has the prefix ws://.
+
+    :param config_uri: Configuration uri, i.e.: websauna/conf/development.ini
+    :return: Configuration uri with the prefix ws://.
+    """
+    if not config_uri.startswith('ws://'):
+        config_uri = 'ws://{uri}'.format(uri=config_uri)
+    return config_uri
+
+
 def setup_logging(config_uri, disable_existing_loggers=False):
     """Include-aware Python logging setup from INI config file.
     """
@@ -87,9 +98,7 @@ def init_websauna(config_uri: str, sanity_check: bool=False, console_app=False, 
     if extra_options:
         options.update(extra_options)
 
-    # bootstrap_env = bootstrap(config_uri, options=options)
-    if not config_uri.startswith('ws://'):
-        config_uri = 'ws://{config_uri}'.format(config_uri=config_uri)
+    config_uri = prepare_config_uri(config_uri)
     loader = plaster.get_loader(config_uri)
     app = loader.get_wsgi_app(defaults=options)
     initializer = getattr(app, "initializer", None)

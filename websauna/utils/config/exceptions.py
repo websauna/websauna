@@ -1,5 +1,6 @@
 """Exceptions."""
 
+
 class WebsaunaConfigException(Exception):
     """Websauna config exception base class."""
 

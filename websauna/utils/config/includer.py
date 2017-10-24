@@ -1,15 +1,20 @@
 """Support for INI file inclusion mechanism."""
+# Standard Library
 import configparser
 import io
 import os
-import pkg_resources
-
+import typing as t
 from urllib.parse import urlparse
 
-from paste.deploy import loadwsgi
+# Pyramid
 from pyramid.settings import aslist
-from websauna.utils.config import _resource_manager
+
+import pkg_resources
+from paste.deploy import loadwsgi
+
+# Websauna
 from websauna.utils.config import exceptions as exc
+from websauna.utils.config import _resource_manager
 
 
 _VALID_SCHEMAS_ = (
@@ -50,15 +55,14 @@ class IncludeAwareConfigParser(loadwsgi.NicerConfigParser):
         super()._read(fp, fpname)
         self.process_includes(fpname)
 
-    def resolve(self, include_file: str, fpname: str):
-        """Resolve include_file and return
+    def resolve(self, include_file: str, fpname: str) -> t.TextIO:
+        """Resolve include_file and return a readable file like object.
 
         :param include_file: File to be include.
         :param fpname: Main configuration filename.
-        :return:
+        :return: Return a readable file-like object for the specified resource.
         """
         parts = urlparse(include_file)
-
         if parts.scheme not in _VALID_SCHEMAS_:
             raise exc.InvalidResourceScheme(
                 "Supported resources: {resources}. Got {include} in {fpname}".format(
@@ -75,8 +79,8 @@ class IncludeAwareConfigParser(loadwsgi.NicerConfigParser):
         req = pkg_resources.Requirement.parse(package)
 
         if not _resource_manager.resource_exists(req, path):
-            raise exc.NonExistingInclude("Could not find {include}".format(
-                include=include_file)
+            raise exc.NonExistingInclude(
+                "Could not find {include}".format(include=include_file)
             )
 
         config_source = _resource_manager.resource_stream(req, path)
@@ -99,7 +103,7 @@ class IncludeAwareConfigParser(loadwsgi.NicerConfigParser):
             source_section = s
             target_section = s
 
-            if not target_section in self.sections():
+            if target_section not in self.sections():
                 self.add_section(target_section)
 
             # What we have currently - include must not override existing settings
@@ -121,7 +125,7 @@ class IncludeAwareConfigParser(loadwsgi.NicerConfigParser):
                 self.read_include(include, fpname)
 
     @classmethod
-    def retrofit_settings(cls, global_config, section='app:main'):
+    def retrofit_settings(cls, global_config: dict, section: str='app:main') -> dict:
         """Update settings dictionary given to WSGI application constructor by Paster to have included settings.
 
         :param global_config: global_config dict as given by Paster

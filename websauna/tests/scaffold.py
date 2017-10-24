@@ -1,18 +1,20 @@
 """Scaffold test utility functions."""
-import sys
+# Standard Library
+import os
 import subprocess
+import sys
 import time
 from contextlib import closing, contextmanager
-import os
-from shutil import which
 from tempfile import mkdtemp
 
+# SQLAlchemy
 import psycopg2
+
 import pytest
-
 from cookiecutter.main import cookiecutter
-from websauna.compat.typing import List
 
+# Websauna
+from websauna.compat.typing import List
 
 PYTHON_INTERPRETER = "python{}.{}".format(sys.version_info.major, sys.version_info.minor)
 
@@ -47,11 +49,8 @@ def execute_venv_command(cmdline, folder, timeout=15.0, wait_and_see=None, asser
     Assume virtualenv is under ``venv`` folder.
 
     :param wait_and_see: Wait this many seconds to see if app starts up.
-
     :param assert_exit: Assume exit code is this
-
     :param cd_folder: cd to this folder before executing the command (relative to folder)
-
     :return: tuple (exit code, stdout, stderr)
     """
 
@@ -255,10 +254,7 @@ def app_scaffold(request, cookiecutter_config) -> str:
         'release_date': 'today',
         'year': '2017',
         'version': '1.0.0a1',
-        'create_virtualenv': 'No',
-        'authentication_random': '6c613c8193060d3738ca90103a6c79878150220b',
-        'authomatic_random': 'dc999820aa1e1b71b166039f7f3cc8cee61567e0',
-        'session_random': '42a8a98f766b8eba77a6326a579ecdf6d22b14b7',
+        'create_virtualenv': 'No'
     }
     template = 'https://github.com/websauna/cookiecutter-websauna-app/archive/master.zip'
     project_dir = cookiecutter(

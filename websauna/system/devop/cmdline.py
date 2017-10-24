@@ -1,18 +1,21 @@
 """Helper functions to initializer Websauna framework for command line applications."""
+# Standard Library
 import logging
 import os
-from logging.config import fileConfig
 import sys
+import typing as t
 
+# Pyramid
 import plaster
-from pyramid import scripting
-from pyramid.paster import bootstrap
-from websauna.system.http.utils import make_routable_request
-from websauna.system.model.meta import create_dbsession
+from pyramid import router, scripting
 
 from rainbow_logging_handler import RainbowLoggingHandler
 
+# Websauna
+from websauna.system import Initializer
 from websauna.system.http import Request
+from websauna.system.http.utils import make_routable_request
+from websauna.system.model.meta import create_dbsession
 
 
 def prepare_config_uri(config_uri: str) -> str:
@@ -26,16 +29,39 @@ def prepare_config_uri(config_uri: str) -> str:
     return config_uri
 
 
+def get_wsgi_app(config_uri: str,  defaults: dict) -> router.Router:
+    """Return a Websauna WSGI application given a configuration uri. 
+
+    :param config_uri: Configuration uri, i.e.: websauna/conf/development.ini.
+    :param defaults: Extra options to be passed to the app.
+    :return: A Websauna WSGI Application
+    """
+    config_uri = prepare_config_uri(config_uri)
+    loader = plaster.get_loader(config_uri)
+    return loader.get_wsgi_app(defaults=defaults)
+
+
+def initializer_from_app(app: router.Router) -> Initializer:
+    """Return the initializer for the given app.
+
+    :param app: Websauna WSGI application
+    :return: Websauna Initializer
+    """
+    initializer = getattr(app, 'initializer', None)
+    assert initializer is not None, "Configuration did not yield to Websauna application with Initializer set up"
+    return initializer
+
+
 def setup_logging(config_uri, disable_existing_loggers=False):
     """Include-aware Python logging setup from INI config file.
     """
     pass
 
 
-def setup_console_logging(log_level=None):
+def setup_console_logging(log_level: t.Optional[str]=None):
     """Setup console logging.
 
-    Aimed to give easy sane defaults for loggig in command line applications.
+    Aimed to give easy sane defaults for logging in command line applications.
 
     Don't use logging settings from INI, but use hardcoded defaults.
     """
@@ -61,7 +87,7 @@ def setup_console_logging(log_level=None):
     logger.setLevel(logging.ERROR)
 
 
-def init_websauna(config_uri: str, sanity_check: bool=False, console_app=False, extra_options=None) -> Request:
+def init_websauna(config_uri: str, sanity_check: bool=False, console_app: bool=False, extra_options: dict=None) -> Request:
     """Initialize Websauna WSGI application for a command line oriented script.
 
     Example:
@@ -98,11 +124,8 @@ def init_websauna(config_uri: str, sanity_check: bool=False, console_app=False, 
     if extra_options:
         options.update(extra_options)
 
-    config_uri = prepare_config_uri(config_uri)
-    loader = plaster.get_loader(config_uri)
-    app = loader.get_wsgi_app(defaults=options)
-    initializer = getattr(app, "initializer", None)
-    assert initializer is not None, "Configuration did not yield to Websauna application with Initializer set up"
+    app = get_wsgi_app(config_uri, defaults=options)
+    initializer = initializer_from_app(app)
 
     registry = initializer.config.registry
     dbsession = create_dbsession(registry)
@@ -126,12 +149,9 @@ def init_websauna_script_env(config_uri: str) -> dict:
     """
 
     options = {"sanity_check": False}
-    config_uri = prepare_config_uri(config_uri)
-    loader = plaster.get_loader(config_uri)
-    app = loader.get_wsgi_app(defaults=options)
+    app = get_wsgi_app(config_uri, defaults=options)
 
-    initializer = getattr(app, "initializer", None)
-    assert initializer is not None, "Configuration did not yield to Websauna application with Initializer set up"
+    initializer = initializer_from_app(app)
 
     registry = initializer.config.registry
     dbsession = create_dbsession(registry)

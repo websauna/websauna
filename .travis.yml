@@ -23,6 +23,10 @@ matrix:
           env:
           - PYTHON_VERSION=python3.5
           - TOXENV=py35-sqlite
+        - python: 3.6
+          env:
+          - PYTHON_VERSION=python3.6
+          - TOXENV=py36
 
 
 # http://stackoverflow.com/a/19460794/315168

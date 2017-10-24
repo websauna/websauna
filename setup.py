@@ -143,7 +143,6 @@ setup(
             'pytest-runner',
             'pytest-splinter',
             'pytest-timeout',
-            'websauna.j2secret',
             'webtest',
         ],
 

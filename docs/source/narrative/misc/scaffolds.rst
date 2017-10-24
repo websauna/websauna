@@ -30,11 +30,11 @@ Maintain independent migration history.
 Basic usage
 ===========
 
-Using a Python 3 virtual environment, install cookiecutter and websauna.j2secret:
+Using a Python 3 virtual environment, install cookiecutter:
 
     .. code-block:: shell
 
-        pip install cookiecutter websauna.j2secret
+        pip install cookiecutter
 
 
 Then create a new application, following the instructions displayed by cookiecutter:

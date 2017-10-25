@@ -148,7 +148,7 @@ Example how to get a remote production database to your local computer:
 
 .. code-block:: console
 
-    ssh myserver -C "sudo -i -u wsgi /srv/pyramid/myapp/venv/bin/ws-dump-db /srv/pyramid/myapp/myapp/conf/generated.ini" > dump.sql
+    ssh myserver -C "sudo -i -u wsgi /srv/pyramid/company.application/venv/bin/ws-dump-db /srv/pyramid/company.application/company/application/conf/generated.ini" > dump.sql
 
 ws-sanity-check
 ---------------

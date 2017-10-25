@@ -44,13 +44,13 @@ To launch a Celery worker:
 
 .. code-block: shell
 
-    ws-celery myapp/conf/development.ini -- worker
+    ws-celery company/application/conf/development.ini -- worker
 
 To launch a Celery beat do:
 
 .. code-block: shell
 
-    ws-celery myapp/conf/development.ini -- beat
+    ws-celery company/application/conf/development.ini -- beat
 
 Below is a ``run-celery.bash`` script to manage Celery for local development:
 
@@ -69,8 +69,8 @@ Below is a ``run-celery.bash`` script to manage Celery for local development:
 
     # celery command implicitly overrides root log level,
     # let's at least state it explicitly here
-    ws-celery myapp/conf/development.ini -- worker --loglevel=debug &
-    ws-celery myapp/conf/development.ini -- beat --loglevel=debug &
+    ws-celery company/application/conf/development.ini -- worker --loglevel=debug &
+    ws-celery company/application/conf/development.ini -- beat --loglevel=debug &
 
     # Wait for CTRL+C
     sleep 99999999

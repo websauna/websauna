@@ -51,7 +51,7 @@ Now you can get your OAuth API keys. On the settings page. Press *App secret* ->
 
 * **App Secret** is the OAuth **consumer secret**.
 
-Open ``myapp/conf/development-secrets.ini``. Fill in information in ``[facebook]`` section::
+Open ``company/application/conf/development-secrets.ini``. Fill in information in ``[facebook]`` section::
 
     [facebook]
     class = authomatic.providers.oauth2.Facebook
@@ -60,7 +60,7 @@ Open ``myapp/conf/development-secrets.ini``. Fill in information in ``[facebook]
     scope = user_about_me, email
     mapper = websauna.system.user.social.FacebookMapper
 
-Now edit ``myapp/conf/development.ini``. Under ``[app:main]`` add a new setting::
+Now edit ``company/application/conf/development.ini``. Under ``[app:main]`` add a new setting::
 
     websauna.social_logins =
         facebook

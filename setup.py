@@ -122,7 +122,6 @@ setup(
 
         # Dependencies needed to build and release Websauna
         'dev': [
-            'check-manifest',
             'pyramid_autodoc',
             'ruamel.yaml',
             'setuptools_git',
@@ -130,10 +129,11 @@ setup(
             'sphinx-autodoc-typehints',
             'sphinx_rtd_theme',
             'sphinxcontrib-zopeext',
-            'zest.releaser'
+            'zest.releaser[recommended]'
         ],
 
         'test': [
+            'cookiecutter',
             'codecov',
             'pytest>=3.0',
             'pytest-runner',
@@ -188,10 +188,5 @@ setup(
             'task_test=websauna.tests.demotasks:main',
             'tutorial_test=websauna.tests.tutorial:main',
         ],
-
-        'pyramid.scaffold': [
-            "websauna_app=websauna.scaffolds:App",
-            "websauna_addon=websauna.scaffolds:Addon",
-        ]
     },
 )

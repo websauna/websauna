@@ -16,7 +16,8 @@ Create a new playbook file. This can be directly in ``websauna.ansible`` root fo
 
       # These need to be set up before reading default.yml - more variables are generated based on these
       vars:
-        - package_name: myapp
+        - package_name: my.app
+        - package_path: my/app
         - site_id: myapp
 
         # Websocket is only needed to connect to IPython Notebook running on the server

@@ -30,7 +30,6 @@ cache:
   directories:
     # /home/travis/.cache/pip/wheels is the normal pip cache folder
     - $HOME/.cache/pip
-    - .tox
 
 install:
   - travis_retry pip install tox

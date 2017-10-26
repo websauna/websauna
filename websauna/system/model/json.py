@@ -151,6 +151,8 @@ for wrapper_class in (MutationDict, MutationList):
             ('__repr__', False),
             ('get', False),
             ('keys', False),
+            ('values', False),
+            ('items', False),
 
             ('__setitem__', True),
             ('__delitem__', True),

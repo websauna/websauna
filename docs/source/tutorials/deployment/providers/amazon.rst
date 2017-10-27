@@ -88,7 +88,8 @@ Create a playbook file ``playbook-amazon.yml``:
 
       # These need to be set up before reading default.yml - more variables are generated based on these
       vars:
-        - package_name: myapp
+        - package_name: my.app
+        - package_path: my/app
         - server_name mysite.example.com
         - site_id: myapp_staging
         - mandrill: on

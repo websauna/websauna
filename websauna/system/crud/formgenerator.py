@@ -80,7 +80,7 @@ class FormGenerator:
         customizer(schema=schema, request=request, context=context, mode=mode, model=model)
 
         # Bind schema
-        binder = default_schema_binder or self.schema_binder
+        binder = self.schema_binder or default_schema_binder
         schema = binder(schema=schema, request=request, context=context, mode=mode, model=model)
 
         form = deform.Form(schema, buttons=buttons, resource_registry=ResourceRegistry(request))

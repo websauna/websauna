@@ -9,7 +9,7 @@ Starting a local web development server
 
 Run::
 
-    ws-pserve myapp/conf/development.ini --reload
+    ws-pserve company/application/conf/development.ini --reload
 
 The web server keeps running until
 
@@ -34,9 +34,9 @@ Creating your admin user
 
     This method highlights creating the initial site administrator user from the command line, using email and password. You can also configure any of social media logins (Facebook, Google) as described later in this tutorial. If your first login to the site comes through social media accounts, the very first logged in user becomes admin.
 
-On a shell where your projects virtual environment is activated, cd into ``myproject/myapp`` and type::
+On a shell where your projects virtual environment is activated, cd into ``myproject/company.application`` and type::
 
-    ws-create-user myapp/conf/development.ini myemail@example.com
+    ws-create-user company/application/conf/development.ini myemail@example.com
 
 This will prompt you for a password for the new user. Because this is the first user of the site, the user becomes an administrator.
 

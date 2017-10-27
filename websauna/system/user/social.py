@@ -19,8 +19,8 @@ class NotSatisfiedWithData(Exception):
 
 
 @implementer(ISocialLoginMapper)
-class SocialLoginMapper(ABC):
-    """Map Authomatic LoginResult objects (social network logins) to our internal database users."""
+class EmailSocialLoginMapper:
+    """Base class for mapping internal users to social network (OAuth) users."""
 
     def __init__(self, registry:Registry, provider_id:str):
         """Create a mapper.
@@ -33,16 +33,6 @@ class SocialLoginMapper(ABC):
         self.provider_id = provider_id
         self.registry = registry
 
-    @abstractmethod
-    def capture_social_media_user(self, request:Request, result:LoginResult) -> IUserModel:
-        """Extract social media information from the Authomatic login result in order to associate the user account."""
-
-
-
-class EmailSocialLoginMapper(SocialLoginMapper):
-    """Base class for mapping internal users to social network (OAuth) users."""
-
-
     def activate_user(request, dbsession, user):
         """Checks to perform when the user becomes a valid user for the first time.
 
@@ -53,17 +43,6 @@ class EmailSocialLoginMapper(SocialLoginMapper):
         # Cancel any pending email activations if the user chooses the option to use social media login
         if user.activation:
             dbsession.delete(user.activation)
-
-    def update_first_login_social_data(self, user:object, data:dict):
-        """Set the initial data on the user model.
-
-        When the user logs in from a social network for the first time (no prior logins with this email before) we fill in blanks in the user model with incoming data.
-
-        Default action is not to set any items.
-
-        :param data: Normalized data
-        """
-        pass
 
     def update_every_login_social_data(self, user:IUserModel, data:dict):
         """Update internal user data on every login.
@@ -77,15 +56,6 @@ class EmailSocialLoginMapper(SocialLoginMapper):
 
         # Because we are doing direct
         flag_modified(user, "user_data")
-
-    @abstractmethod
-    def import_social_media_user(self, user:authomatic.core.User) -> dict:
-        """Map incoming social network data to internal data structure.
-
-        Sometimes social networks change how the data is presented over API and you might need to do some wiggling to get it a proper shape you wish to have.
-
-        The resulting dict must be JSON serializable as it is persisted as is.
-        """
 
     def create_blank_user(self, user_model, dbsession, email) -> IUserModel:
         """Create a new blank user instance as we could not find matching user with the existing details."""

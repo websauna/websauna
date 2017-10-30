@@ -23,6 +23,8 @@ I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) source
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
+	@echo "  all        to generate the full documentation for Websauna, websauna.ansible and create a sitemap"
+	@echo "  world      same as make all, but also publish the results to S3"
 	@echo "  html       to make standalone HTML files"
 	@echo "  dirhtml    to make HTML files named index.html in directories"
 	@echo "  singlehtml to make a single large HTML file"
@@ -216,4 +218,6 @@ publish-epub: epub
 sitemap: html
 	python generate-sitemap.py > build/html/sitemap.xml
 
-world: apidoc-clean clean templatedoc filterdoc playbookdoc apidoc html sitemap publish publish-epub
+all: apidoc-clean clean templatedoc filterdoc playbookdoc apidoc html sitemap
+
+world: all publish publish-epub

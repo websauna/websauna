@@ -22,6 +22,51 @@ Generally, keep your lines under 132 characters. `Consider this guidelining <htt
 
 Text processors have been able to wrap text lines sensible since RAM limitations allowed it first time in 1979. It's sad that computer programmers, who write these applications, often do not have this ability in their own tools. Every programmer agrees that it should be the job of a machine to wrap lines in intelligent manner in the context they are viewed. Let's push for a change, so that tooling gets better and we can get rid of line length debate once and for all.
 
+Import order
+------------
+
+Imports should be ordered by their origin. Names should be imported in this order:
+
+    #. Future (__future__)
+    #. Python standard library
+    #. Pyramid imports
+    #. SQLAlchemy imports
+    #. Third party packages
+    #. Websauna imports
+    #. Other modules from the current package
+
+.. warning:: Do not import all the names from a package (in other words, never use from package import \*); import just the ones that are needed. Single-line imports apply here as well: each name from the other package should be imported on its own line.
+
+No mutable objects as default arguments
+=======================================
+
+Remember that since Python only parses the default argument for a function/method just once, they cannot be safely used as default arguments.
+
+Do **not** do this:
+
+.. code-block:: python
+
+    def somefunc(default={}):
+        if default.get(...):
+            # do something
+
+
+.Either of these is fine:
+
+.. code-block:: python
+
+    def somefunc(default=None):
+        default = default or {}
+
+
+
+.. code-block:: python
+
+    def somefunc(default=None):
+        if default is None:
+            default = {}
+
+
 No generic exception catch
 ==========================
 

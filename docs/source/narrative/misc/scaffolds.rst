@@ -32,21 +32,21 @@ Basic usage
 
 Using a Python 3 virtual environment, install cookiecutter:
 
-    .. code-block:: shell
+    .. code-block:: console
 
         pip install cookiecutter
 
 
 Then create a new application, following the instructions displayed by cookiecutter:
 
-    .. code-block:: shell
+    .. code-block:: console
 
         cookiecutter gh:websauna/cookiecutter-websauna-app
 
 
 Or a new addon:
 
-    .. code-block:: shell
+    .. code-block:: console
 
         cookiecutter gh:websauna/cookiecutter-websauna-addon
 

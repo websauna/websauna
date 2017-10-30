@@ -1,8 +1,4 @@
-"""Exercise websauna_app scaffold and Websauna command line scripts.
-Rerunning these tests can be greatly sped up by creating a local Python package cache (wheelhouse)::
-    bash websauna/tests/create_wheelhouse.bash
-"""
-
+"""Test the creation of a new websauna application, using cookiecutter templates."""
 import os
 import sys
 

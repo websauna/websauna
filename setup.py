@@ -122,10 +122,9 @@ setup(
 
         # Dependencies needed to build and release Websauna
         'dev': [
-            'pyramid_autodoc',
             'ruamel.yaml',
             'setuptools_git',
-            'sphinx==1.5.6',
+            'sphinx>=1.6.1',
             'sphinx-autodoc-typehints',
             'sphinx_rtd_theme',
             'sphinxcontrib-zopeext',

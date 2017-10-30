@@ -6,7 +6,5 @@ Introduction
 
     intro
     background
-    heavy_comparison
-    old_comparison
     comparison
     architecture

@@ -9,7 +9,7 @@ Welcome to Websauna, a full stack Python application framework.
 
 `Documentation <https://websauna.org/>`_ (`download as offline e-book <https://websauna.org/Websauna.epub>`_).
 
-`Installation <https://websauna.org/tutorials/gettingstarted/index.html>`_.
+`Installation <https://websauna.org/docs/tutorials/gettingstarted/index.html>`_.
 
 `Chat <https://websauna.org/docs/narrative/contributing/community.html#chat>`_.
 

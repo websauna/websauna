@@ -16,7 +16,7 @@ Installation
 
 Make sure you have installed Websauna with ``celery`` extra dependencies to use tasks:
 
-.. code-block:: shell
+.. code-block:: console
 
     pip install websauna[celery]
 

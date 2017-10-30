@@ -10,7 +10,7 @@ Creating application package
 
 Enter to your project folder and make sure the :term:`virtual environment` is active on your shell:
 
-    .. code-block:: shell
+    .. code-block:: console
         
         cd myproject
         source venv/bin/activate
@@ -18,14 +18,14 @@ Enter to your project folder and make sure the :term:`virtual environment` is ac
 
 Websauna uses :term:`cookiecutter` tool to bootstrap a new project. To install it, inside this :term:`virtual environment`, type:
 
-    .. code-block:: shell
+    .. code-block:: console
 
         pip install cookiecutter
 
 
 Now, it is possible to create a new application:
 
-    .. code-block:: shell
+    .. code-block:: console
     
         cookiecutter gh:websauna/cookiecutter-websauna-app
 
@@ -91,7 +91,7 @@ After you have created your application, you need to install it to your current 
 
 Install the package in edit mode, including Python package dependencies needed for development and testing, using :term:`pip`:
 
-    .. code-block:: shell
+    .. code-block:: console
 
         pip install -e ".[dev,test]"
 

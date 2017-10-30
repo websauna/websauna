@@ -236,7 +236,7 @@ This needs to be run on production and staging server where one has configured c
 
 Example:
 
-.. code-block:: shell
+.. code-block:: console
 
     ws-collect-static conf/production.ini
 

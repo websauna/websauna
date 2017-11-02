@@ -1,19 +1,26 @@
 """Session management."""
-
+# Standard Library
+import functools
 import logging
 import os
 import pickle as cPickle
-import functools
+import typing as t
 from urllib.parse import urlparse
 
+# Pyramid
+from pyramid.request import Request
 from pyramid.session import signed_serialize
 
-from pyramid_redis_sessions import get_default_connection
-from pyramid_redis_sessions.util import persist, _parse_settings, get_unique_session_id
-from pyramid_redis_sessions import _generate_session_id
 from pyramid_redis_sessions import RedisSession
-from pyramid_redis_sessions import _delete_cookie, _get_session_id_from_cookie
+from pyramid_redis_sessions import _delete_cookie
+from pyramid_redis_sessions import _generate_session_id
+from pyramid_redis_sessions import _get_session_id_from_cookie
+from pyramid_redis_sessions import get_default_connection
+from pyramid_redis_sessions.util import _parse_settings
+from pyramid_redis_sessions.util import get_unique_session_id
+from pyramid_redis_sessions.util import persist
 
+# Websauna
 from websauna.utils.time import now
 
 
@@ -24,14 +31,25 @@ logger = logging.getLogger(__name__)
 NO_SESSION_FILE_EXTENSIONS = [".js", ".css", ".ico", ".png", ".gif", ".jpg"]
 
 
+def ignore_session(url: str) -> bool:
+    """Should we ignore session for this request? 
+
+    Static assets requests do not need a session, exception made to requests to /notebook, because those requests are proxies to another daemon. 
+    :param url: Request url.
+    :return: Flag indicating if session should be ignored.
+    """
+    path = urlparse(url).path
+    to_notebook = path.startswith('/notebook/')
+    ext = str(os.path.splitext(path)[1]).lower()
+    return True if (ext in NO_SESSION_FILE_EXTENSIONS and not to_notebook) else False
+
+
 class WebsaunaSession(RedisSession):
     """A specialized session handler that supports initial parameters.
 
-    We can pass `initial_data` that prepopulates session data keys when the session is written for the first time. Usually this is when CSRF token is genratd.
+    We can pass `initial_data` that pre-populates session data keys when the session is written for the first time. Usually this is when CSRF token is generated.
 
-    .. note ::
-
-        Move this to upstream pyramid_redis_session - its development has stalled for now
+    .. note::Move this to upstream pyramid_redis_session - its development has stalled for now.
     """
 
     def __init__(
@@ -49,7 +67,6 @@ class WebsaunaSession(RedisSession):
 
     @persist
     def __setitem__(self, key, value):
-
         # Check if do not have any values in the session and then initialize its data
         if self.managed_dict:
             self.managed_dict.update(self.initial_data)
@@ -62,6 +79,7 @@ class WebsaunaSession(RedisSession):
         else:
             token = str(token)
         return token
+
 
 def _set_cookie(
     session,
@@ -168,7 +186,7 @@ def WebsaunaSessionFactory(
     serialize=cPickle.dumps,
     deserialize=cPickle.loads,
     id_generator=_generate_session_id,
-    cookieless_headers=["expires", "cache-control"],
+    cookieless_headers=('expires', 'cache-control'),
     klass=WebsaunaSession,
     ):
     """
@@ -354,25 +372,27 @@ def WebsaunaSessionFactory(
 
 
 def set_creation_time_aware_session_factory(config):
-    """Setup a session factory that rememembers time when the session was created.
+    """Setup a session factory that remembers time when the session was created.
 
     We need this information to later invalidate session for the authentication change details.
     """
-
     settings = config.registry.settings
 
     # special rule for converting dotted python paths to callables
-    for option in ('client_callable', 'serialize', 'deserialize',
-                   'id_generator'):
-        key = 'redis.sessions.%s' % option
+    for option in ('client_callable', 'serialize', 'deserialize', 'id_generator'):
+        key = 'redis.sessions.{option}'.format(option=option)
         if key in settings:
             settings[key] = config.maybe_dotted(settings[key])
 
     options = _parse_settings(settings)
     session_factory = WebsaunaSessionFactory(**options)
 
-    def create_session(request):
+    def create_session(request: Request) -> t.Union[WebsaunaSession, t.Dict]:
+        """Given a request, return a WebsaunaSession or an empty dict.
 
+        :param request: A client request.
+        :return: An instance of WebsaunaSession or an empty dict
+        """
         # Pass in the the data we use to track session on the server side.
         # Esp. created_at is used to later manually purge old sessions
         initial_data = {
@@ -381,18 +401,15 @@ def set_creation_time_aware_session_factory(config):
         }
 
         # Make sure we do not get accidental race conditions when populating sessions when browser asynchronously fetches more resources
-        path = urlparse(request.url).path
-        ext = os.path.splitext(path)[1]
-
-        if ext in NO_SESSION_FILE_EXTENSIONS:
-            # print("Skipped session creation for", request.url)
+        url = request.url
+        if ignore_session(url):
+            logger.debug("Skipped session creation for {url}".format(url=url))
             return {}
 
-        # print("Creating session for", request.url, ext)
         session = session_factory(request, initial_data)
 
         # Allow session backend to use this information to debug session problems
-        session.url = request.url
+        session.url = url
         return session
 
     config.set_session_factory(create_session)

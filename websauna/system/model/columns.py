@@ -10,6 +10,7 @@ from sqlalchemy import DateTime
 from sqlalchemy import processors
 from sqlalchemy.dialects.postgresql import JSONB as _JSONB
 from sqlalchemy.dialects.postgresql import INET as _INET
+from sqlalchemy.exc import UnsupportedCompilationError
 from sqlalchemy_utils.types.json import JSONType
 from sqlalchemy_utils.types.ip_address import IPAddressType
 from sqlalchemy_utils.types.uuid import UUIDType
@@ -75,6 +76,19 @@ class INET(IPAddressType):
             return dialect.type_descriptor(_INET())
         else:
             return dialect.type_descriptor(self.impl)
+
+    def __str__(self):
+        """Printable info for this type.
+
+        Override to avoid issues with logging raising an UnsupportedCompilationError here.
+        :return: Representation of this type.
+        """
+        try:
+            repr = str(self.compile())
+        except UnsupportedCompilationError:
+            dialect = self.impl._default_dialect()
+            repr = str(self.compile(dialect=dialect))
+        return repr
 
 
 class UUID(UUIDType):

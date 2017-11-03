@@ -106,4 +106,4 @@ def proxy_to_pyramid_script(script: str, argv: t.List[str]):
             load_entry_point('pyramid', 'console_scripts', script)()
         )
     except SanityCheckFailed as exc:
-        feedback_and_exit(FAIL_MSG.format(exception=str(exc)), 10)
+        feedback_and_exit(FAIL_MSG.format(exception=str(exc)), 1)

@@ -1,3 +1,4 @@
+"""Test utils.slug."""
 import uuid
 from websauna.utils.slug import slug_to_uuid
 from websauna.utils.slug import uuid_to_slug

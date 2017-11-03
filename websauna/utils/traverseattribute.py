@@ -6,17 +6,22 @@ def traverse_attribute(obj, attribute_name):
 
     E.g. if you have:
 
-    .. code-block:: pycon
+    .. code-block:: python
 
-        >>> obj.__parent__ = parent
+        >>> class Dummy:
+        ...     __parent__ = None
+        ...
+        >>> grandparent = Dummy()
+        >>> parent = Dummy()
         >>> parent.__parent__ = grandparent
+        >>> obj = Dummy()
+        >>> obj.__parent__ = parent
 
-    You can turn this to list:
+    You can turn this to a list:
 
-    .. code-block:: pycon
+    .. code-block:: python
 
         >>> tree = traverse_attribute(obj, "__parent__")
-
         >>> list(tree)
         [obj, parent, grandparent]
 
@@ -25,4 +30,3 @@ def traverse_attribute(obj, attribute_name):
     while obj is not None:
         yield obj
         obj = getattr(obj, attribute_name, None)
-

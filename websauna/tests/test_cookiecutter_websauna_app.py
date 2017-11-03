@@ -27,9 +27,9 @@ def test_pserve(app_scaffold, dev_db, browser):
     """Create an application and see if ws-pserve starts. """
 
     # User models are needed to start the web server
-    execute_venv_command("cd my.app && ws-sync-db my/app/conf/development.ini", app_scaffold)
+    execute_venv_command("cd my.app && ws-sync-db ws://my/app/conf/development.ini", app_scaffold)
 
-    server = start_ws_pserve("cd my.app && ws-pserve my/app/conf/development.ini", app_scaffold)
+    server = start_ws_pserve("cd my.app && ws-pserve ws://my/app/conf/development.ini", app_scaffold)
 
     try:
 
@@ -50,8 +50,8 @@ def test_pyramid_debugtoolbar(app_scaffold, dev_db, browser):
     """Pyramid debug toolbar should be effective with the default development ws-pserve."""
 
     # User models are needed to start the web server
-    execute_venv_command("ws-sync-db my/app/conf/development.ini", app_scaffold, cd_folder="my.app")
-    server = start_ws_pserve("cd my.app && ws-pserve my/app/conf/development.ini", app_scaffold)
+    execute_venv_command("ws-sync-db ws://my/app/conf/development.ini", app_scaffold, cd_folder="my.app")
+    server = start_ws_pserve("cd my.app && ws-pserve ws://my/app/conf/development.ini", app_scaffold)
 
     try:
 
@@ -73,17 +73,17 @@ def test_sdist(app_scaffold):
 
 def test_app_syncdb(app_scaffold, dev_db):
     """Create an application and see if database is correctly created."""
-    execute_venv_command("cd my.app && ws-sync-db my/app/conf/development.ini", app_scaffold)
+    execute_venv_command("cd my.app && ws-sync-db ws://my/app/conf/development.ini", app_scaffold)
 
 
 def test_shell(app_scaffold, dev_db):
     """Create an application and see if shell is started."""
-    execute_venv_command("cd my.app && ws-shell my/app/conf/development.ini", app_scaffold, wait_and_see=2.0)
+    execute_venv_command("cd my.app && ws-shell ws://my/app/conf/development.ini", app_scaffold, wait_and_see=2.0)
 
 
 def test_db_shell(app_scaffold, dev_db):
     """Create an application and see if shell is started."""
-    execute_venv_command("cd my.app && ws-db-shell my/app/conf/development.ini", app_scaffold, wait_and_see=2.0)
+    execute_venv_command("cd my.app && ws-db-shell ws://my/app/conf/development.ini", app_scaffold, wait_and_see=2.0)
 
 
 def test_gitignore(app_scaffold, dev_db):
@@ -112,14 +112,14 @@ def test_migration(app_scaffold, dev_db):
 
 def test_app_sanity_check_fail(app_scaffold, dev_db):
     """Create an application and see we don't start if migrations are not run."""
-    execute_venv_command("cd my.app && ws-pserve my/app/conf/development.ini", app_scaffold, assert_exit=1)
+    execute_venv_command("cd my.app && ws-pserve ws://my/app/conf/development.ini", app_scaffold, assert_exit=1)
 
 
 @flaky  # DB dump on Travis might hung?
 def test_dump_db(app_scaffold, dev_db):
     """Test database dump."""
-    execute_venv_command("cd my.app && ws-sync-db my/app/conf/development.ini", app_scaffold)
-    execute_venv_command("cd my.app && ws-dump-db my/app/conf/development.ini", app_scaffold)
+    execute_venv_command("cd my.app && ws-sync-db ws://my/app/conf/development.ini", app_scaffold)
+    execute_venv_command("cd my.app && ws-dump-db ws://my/app/conf/development.ini", app_scaffold)
 
 
 #@pytest.mark.skipif(sys.version_info < (3,5), reason="For unknown reason this fails on Python 3.4 on TravisCI")
@@ -127,13 +127,13 @@ def test_dump_db(app_scaffold, dev_db):
 def test_create_user(app_scaffold, dev_db, browser):
     """Test creating user from command line and logging in as this user."""
 
-    execute_venv_command("ws-sync-db my/app/conf/development.ini", app_scaffold, cd_folder="my.app")
+    execute_venv_command("ws-sync-db ws://my/app/conf/development.ini", app_scaffold, cd_folder="my.app")
 
-    exitcode, stdout, stderr = execute_venv_command("ws-create-user my/app/conf/development.ini mikko@example.com secret", app_scaffold, cd_folder="my.app")
+    exitcode, stdout, stderr = execute_venv_command("ws-create-user ws://my/app/conf/development.ini mikko@example.com secret", app_scaffold, cd_folder="my.app")
 
     print("Got ws-create-usr ", stdout, stderr)
 
-    server = start_ws_pserve("cd my.app && ws-pserve my/app/conf/development.ini", app_scaffold)
+    server = start_ws_pserve("cd my.app && ws-pserve ws://my/app/conf/development.ini", app_scaffold)
 
     try:
 
@@ -157,21 +157,21 @@ def test_tweens(app_scaffold, dev_db):
     """Test tweens command."""
 
     # TODO: Tweens should not really depent on database, but let's fix this later
-    execute_venv_command("cd my.app && ws-sync-db my/app/conf/development.ini", app_scaffold)
-    execute_venv_command("cd my.app && ws-tweens my/app/conf/development.ini", app_scaffold)
+    execute_venv_command("cd my.app && ws-sync-db ws://my/app/conf/development.ini", app_scaffold)
+    execute_venv_command("cd my.app && ws-tweens ws://my/app/conf/development.ini", app_scaffold)
 
 
 def test_create_table(app_scaffold, dev_db):
     """Test ws-create-table command."""
 
-    execute_venv_command("ws-create-table my/app/conf/development.ini", app_scaffold, cd_folder="my.app")
+    execute_venv_command("ws-create-table ws://my/app/conf/development.ini", app_scaffold, cd_folder="my.app")
 
 
 def test_sanity_check(app_scaffold, dev_db):
     """Test sanity check command."""
-    execute_venv_command("ws-sanity-check my/app/conf/development.ini", app_scaffold, cd_folder="my.app", assert_exit=10)
-    execute_venv_command("ws-sync-db my/app/conf/development.ini", app_scaffold, cd_folder="my.app")
-    execute_venv_command("ws-sanity-check my/app/conf/development.ini", app_scaffold, cd_folder="my.app", assert_exit=0)
+    execute_venv_command("ws-sanity-check ws://my/app/conf/development.ini", app_scaffold, cd_folder="my.app", assert_exit=10)
+    execute_venv_command("ws-sync-db ws://my/app/conf/development.ini", app_scaffold, cd_folder="my.app")
+    execute_venv_command("ws-sanity-check ws://my/app/conf/development.ini", app_scaffold, cd_folder="my.app", assert_exit=0)
 
 
 

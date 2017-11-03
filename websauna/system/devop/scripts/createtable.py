@@ -1,27 +1,31 @@
-"""ws-create-table script."""
-import getpass
+"""ws-create-table script.
 
-import os
+Print out sql statements needed to construct all the currently configured models.
+"""
+# Standard Library
 import sys
+import typing as t
 
+# SQLAlchemy
 from sqlalchemy.sql.ddl import CreateTable
+
+# Websauna
 from websauna.system.devop.cmdline import init_websauna
+from websauna.system.devop.scripts import get_config_uri
+from websauna.system.devop.scripts import usage_message
 from websauna.system.model.meta import Base
 
 
-def usage(argv):
-    cmd = os.path.basename(argv[0])
-    print('usage: %s <config_uri>\n'
-          '(example: "%s development.ini")' % (cmd, cmd))
-    sys.exit(1)
+def main(argv: t.List[str]=sys.argv):
+    """Print out sql statements needed to construct currently configured models.
 
-
-def main(argv=sys.argv):
-
+    :param argv: Command line arguments, second one needs to be the uri to a configuration file.
+    :raises sys.SystemExit:
+    """
     if len(argv) < 2:
-        usage(argv)
+        usage_message(argv)
 
-    config_uri = argv[1]
+    config_uri = get_config_uri(argv)
     request = init_websauna(config_uri)
     engine = request.dbsession.get_bind()
 

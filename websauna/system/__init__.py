@@ -777,7 +777,7 @@ class Initializer:
             if not sanitycheck.is_sane_database(Base, dbsession):
                 raise SanityCheckFailed("The database sanity check failed. Check log for details.")
         except sqlalchemy.exc.OperationalError as e:
-            raise SanityCheckFailed("The database {} is not responding. Make sure the database is running on your local computer or correctly configured in settings INI file. For more information see https://websauna.org/docs/tutorials/gettingstarted/tutorial_02.html.".format(db_connection_string)) from e
+            raise SanityCheckFailed("The database {} is not responding.\nMake sure the database is running on your local computer or correctly configured in settings INI file.\nFor more information see https://websauna.org/docs/tutorials/gettingstarted/tutorial_02.html.".format(db_connection_string)) from e
 
         dbsession.close()
 

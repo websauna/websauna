@@ -30,7 +30,7 @@ See classes in :py:mod:`websauna.system.user.adminviews` for examples how to cus
 
 Internally form generation uses highly modified :term:`colanderalchemy` library.
 
-.. note ::
+.. note::
 
     Due to high customization this dependency is likely to go away.
 

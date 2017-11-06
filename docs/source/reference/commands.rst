@@ -16,22 +16,34 @@ ws-pserve
 
 Run a development web server on your local computer.
 
-Example::
+Example:
 
-    ws-pserve development.ini --reload
+.. code-block:: console
+
+    ws-pserve ws://development.ini --reload
+
 
 This is a wrapped around Pyramid `pserve <http://docs.pylonsproject.org/projects/pyramid/en/latest/pscripts/pserve.html?highlight=pserve>`_ command.
+
+.. warning:: This command is deprecated and will be removed in a future version of Websauna.
+
 
 ws-proutes
 ----------
 
 Get an overview of all registered routes.
 
-Example::
+Example:
 
-    ws-proutes development.ini
+.. code-block:: console
+
+    ws-proutes ws://development.ini
+
 
 This is a wrapper around Pyramid's `proutes <http://docs.pylonsproject.org/projects/pyramid/en/latest/pscripts/proutes.html>`_ command.
+
+.. warning:: This command is deprecated and will be removed in a future version of Websauna.
+
 
 .. _ws-celery:
 
@@ -49,9 +61,12 @@ ws-shell
 
 Open `IPython terminal shell <http://ipython.readthedocs.org/en/stable/index.html>`_ prompt for interactive Python session with your application. It imports all your configured models by default, creates initial database session, so you are good to go to manipulate your application.
 
-Example::
+Example:
 
-    ws-shell development.ini
+.. code-block:: console
+
+    ws-shell ws://development.ini
+
 
 .. _ws-db-shell:
 
@@ -60,9 +75,11 @@ ws-db-shell
 
 *ws-db-shell* command opens `pgcli <https://github.com/dbcli/pgcli>`_ command line tool for the configured PostgreSQL database.
 
-Example::
+Example:
 
-    ws-db-shell development.ini
+.. code-block:: console
+
+    ws-db-shell ws://development.ini
 
 Then you can manipulate database directly using PostgreSQL commands. Example how to list tables::
 
@@ -120,9 +137,12 @@ ws-create-table
 
 Print out :term:`SQL` ``CREATE TABLE`` statements needed to construct currently configured models.
 
-Example::
+Example:
 
-    ws-create-table development.ini
+.. code-block:: console
+
+    ws-create-table ws://development.ini
+
 
 .. _ws-alembic:
 
@@ -142,30 +162,33 @@ Example how to backup your development database:
 
 .. code-block:: console
 
-    ws-dump-db development.ini > dump.sql
+    ws-dump-db ws://development.ini > dump.sql
 
 Example how to get a remote production database to your local computer:
 
 .. code-block:: console
 
-    ssh myserver -C "sudo -i -u wsgi /srv/pyramid/company.application/venv/bin/ws-dump-db /srv/pyramid/company.application/company/application/conf/generated.ini" > dump.sql
+    ssh myserver -C "sudo -i -u wsgi /srv/pyramid/company.application/venv/bin/ws-dump-db ws:///srv/pyramid/company.application/company/application/conf/generated.ini" > dump.sql
 
 ws-sanity-check
 ---------------
 
 Performs database sanity check.
 
-Exit values
+Exit values:
 
-* 0: All ok
+    * 0: All ok
 
-* 10: Sanity check failed - we have unrun migrations
+    * 10: Sanity check failed - we have unrun migrations
 
-* Any other value: Launch failed due to Python exception or similar
+    * Any other value: Launch failed due to Python exception or similar
 
-Example::
+Example:
 
-    ws-sanity-check conf/production.ini
+.. code-block:: console
+
+    ws-sanity-check ws://conf/production.ini
+
 
 .. _ws-tweens:
 
@@ -174,9 +197,12 @@ ws-tweens
 
 Display Pyramid tween stack.
 
-Example::
+Example:
 
-    ws-tweens development.ini
+.. code-block:: console
+
+    ws-tweens ws://development.ini
+
 
 Example output::
 
@@ -194,36 +220,38 @@ Example output::
     -           MAIN
 
 
+.. warning:: This command is deprecated and will be removed in a future version of Websauna.
+
 
 ws-sync-db
 ----------
 
 Create initial tables for the database configuration in the settings file. This equals running :py:meth:`Base.metadata.create_all()` SQLAlchemy command.
 
-Example::
+Example:
 
-    ws-sync-db development.ini
+.. code-block:: console
 
-.. note ::
+    ws-sync-db ws://development.ini
 
-    Using ws-sync-db is command is not recommended outside testing and prototyping. If you edit your models ws-sync-db doesn't know what to do and you need to drop your tables and data and start over. To have repeatable changes to your databases, use ws-alembic command instead.
+.. note:: Using ws-sync-db is command is not recommended outside testing and prototyping. If you edit your models ws-sync-db doesn't know what to do and you need to drop your tables and data and start over. To have repeatable changes to your databases, use ws-alembic command instead.
 
 ws-create-user
 --------------
 
 Create a new site user. If this user is the first user of the site the user becomes an administrator.
 
-.. note ::
+.. note:: Recommended only to be used on a local development site. For a production sites for the first user do a normal email sign up.
 
-    Recommended only to be used on a local development site. For a production sites for the first user do a normal email sign up.
+Example:
 
-Example::
+.. code-block:: console
 
-    ws-create-user development.ini myemail@example.com
+    ws-create-user ws://development.ini myemail@example.com
 
-.. note ::
 
-    It is possible to give password as the third command line argument, but this is not recommended because the password is recorded to your shell history.
+.. note:: It is possible to give password as the third command line argument, but this is not recommended because the password is recorded to your shell history.
+
 
 .. _ws-collect-static:
 
@@ -238,7 +266,7 @@ Example:
 
 .. code-block:: console
 
-    ws-collect-static conf/production.ini
+    ws-collect-static ws://conf/production.ini
 
 For more information see :ref:`static assets <static>`.
 

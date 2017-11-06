@@ -861,7 +861,7 @@ Creating a new admin views
 
 Below is instructions how to create your own admin views. We use a view called *phone order* as an example.
 
-.. note ::
+.. note::
 
     These instructions are for creating a view that is different type from the stock :ref:`CRUD` list, show, add, edit and delete views. If you need to customize any of existing view types please see instructions above.
 

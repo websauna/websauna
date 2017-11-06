@@ -87,7 +87,7 @@ JSON columns can take default values as form of ``None``, empty ``dict`` or ``li
 
 Default values are converted to :py:class:`websauna.system.model.json.NestedMixin` instances under the hood. This is done by decorating the classes with :py:func:`websauna.system.model.json.init_for_json` when you use Websauna ``Base`` model or :py:func:`websauna.system.model.utils.attach_model_to_base` helper. The connection is made through SQLAlchemy events.
 
-.. note ::
+.. note::
 
     By SQLAlchemy rules, the default data is not available to modify/read until you have called ``dbsession.flush``.
 

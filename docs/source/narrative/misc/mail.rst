@@ -30,7 +30,7 @@ Setting up real SMTP service
 
 For actual outgoing emails you need to have an SMTP service agreement from some of the providers. You may or may not want to use Postfix server as a local buffer. The default behavior of :ref:`production.ini` is to use local SMTP server at localhost:25.
 
-.. note ::
+.. note::
 
     You need to change outbound email settings in :ref:`development.ini` if you want to test email out from your local laptop.
 

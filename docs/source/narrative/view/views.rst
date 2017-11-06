@@ -147,7 +147,7 @@ Below is an example how to do a redirect (HTTP 302 temporary redirect) for logge
         return {}
 
 
-.. note ::
+.. note::
 
     One could also do a redirect by ``raise HTTPFound()`` and let exception handling mechanism to perform the redirect. In this case, however, nothing is written to the database, like user login records, because exceptions cause transaction rollback.
 

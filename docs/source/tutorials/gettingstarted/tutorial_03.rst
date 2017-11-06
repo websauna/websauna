@@ -65,7 +65,7 @@ After a while, the generation will be finished and the following message will be
         ===============================================================================
         Websauna Application.
         Package company.application was generated.
-        Now, code it, create a git repository, push to your Github account.
+        Now, code it, create a git repository, push to your GitHub account.
         Sorry for the convenience.
         ===============================================================================
 

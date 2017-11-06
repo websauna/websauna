@@ -17,7 +17,7 @@ You can enter the notebook in two ways
 
 * The *Shell* button of an :ref:`admin` interface object opens a notebook session prepopulated with this particular item
 
-.. note ::
+.. note::
 
     Firing up the shell takes some seconds as IPython Notebook is rather heavyish.
 

@@ -14,7 +14,7 @@ To be able to develop web applications with Websauna you should be somewhat fami
 
 * OSX or Linux usage basics
 
-.. note ::
+.. note::
 
     Currently Websauna is not tested on Microsoft Windows platforms. This doesn't mean it doesn't work, but none of the authors are able to support it and documentation does not cover Microsoft Windows.
 

@@ -80,7 +80,7 @@ Primary keys: UUID, running counter or both?
 
 Websauna has extensive support for :term:`UUID` as primary key ids. It uses UUID version 4 (random), which gives you a 122 bit non-guessable integer with 6 bit for error checking.
 
-.. note ::
+.. note::
 
     One should never expose a running counter database keys, like a running counter ``id`` to the world. Leaking ids also leaks business intelligence like number of users or number of orders. Furthermore guessable ids give a malicious party the ability to guess URL endpoints, scrape data and exploit other known weaknesses effectively. If possible it is recommended that you do not have any running counter ids on your models to avoid the issue altogether.
 
@@ -260,7 +260,7 @@ The following is a common pattern to add created and updated at timestamps to yo
         #: When the account data was updated last time
         updated_at = Column(UTCDateTime, onupdate=now, nullable=True)
 
-.. note ::
+.. note::
 
     You can also generate these timestamps using database functions, see ``server_default`` in SQLAlchemy documentation.
 
@@ -406,7 +406,7 @@ Relationship queries
 
 TODO
 
-.. note ::
+.. note::
 
     When you are accessing child items over a relationship attribute, the resulting object depends if the relationship is set as ``relationship(lazy='dynamic')`` (gives :py:class:`sqlalchemy.orm.Query`) object or the default ``relationship(lazy='select')`` (gives a list). This is important if you want to further filter down the list.
 
@@ -419,7 +419,7 @@ Updating items
 
     TODO
 
-.. note ::
+.. note::
 
     **Why there is no save()?**
 
@@ -609,6 +609,6 @@ Below is an example of get or create pattern which creates two foreign key neste
         return asset, False
 
 
-.. note ::
+.. note::
 
     This was written before any PostgreSQL UPSERT support in SQLAlchemy.

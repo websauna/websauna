@@ -45,7 +45,7 @@ This will usually show import errors.
 
 Test local web server::
 
-    ws-pserve conf/production.ini
+    ws-pserve ws://conf/production.ini
 
 This will usually show if your database is not in migrated state or PostgreSQL or Redis is not running properly.
 

@@ -32,7 +32,7 @@ Gitter
 
 A real-time chat is available via `Gitter <https://gitter.im/websauna/websauna>`_.
 
-You can use web, desktop and mobile clients. You need a Github account.
+You can use web, desktop and mobile clients. You need a GitHub account.
 
 IRC
 ---
@@ -43,7 +43,7 @@ Gitter offers a native IRC bridge. You can connect to this chat via IRC:
 
     * Hit *login* link
 
-    * You get your personal IRC server connection details after logging in with your Github account.
+    * You get your personal IRC server connection details after logging in with your GitHub account.
 
     * Use SSL and your personal server password connect to irc.gitter.im (note: this is *not** the same as irc.freenode.net server)
 
@@ -52,15 +52,15 @@ Gitter offers a native IRC bridge. You can connect to this chat via IRC:
 Issue tracking
 ==============
 
-`See Github repository <https://github.com/websauna/websauna>`_.
+`See GitHub repository <https://github.com/websauna/websauna>`_.
 
 
 Example code
 ============
 
-You can search code examples from various code examples in Websauna addons on Github.
+You can search code examples from various code examples in Websauna addons on GitHub.
 
-In Github search box type::
+In GitHub search box type::
 
     user:websauna my_function_name
 

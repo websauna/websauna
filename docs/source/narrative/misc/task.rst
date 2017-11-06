@@ -34,7 +34,7 @@ Running Celery
 
 Celery runs separate long running processes called *workers* to execute the tasks. Furthermore a separate process called *beat* needs to be run to initiate scheduled tasks. Below is an example how to run Celery on your development installation.
 
-.. note :::
+.. note:::
 
     For local development you don't need to run full Celery setup on your computer. Instead you set Celery tasks to eager execution. This means that delayed tasks are run immediately blocking the HTTP response. See **task_always_eager** Celery configuration variable. This is turned on with the default *development.ini*.
 
@@ -117,7 +117,7 @@ Delayed tasks run tasks outside HTTP request processing. Delayed tasks take non-
 
 Below is an example which calls third party API (Twilio SMS out) - you don't want to block page render if the third party API fails or is delayed. The API is HTTP based, so calling it adds great amount of milliseconds on the request processing. The task also adds some extra delay and the SMS is not shoot up right away - it can be delayed hour or two after the user completes an order.
 
-.. note ::
+.. note::
 
     All task arguments must be JSON serializable. You cannot pass any SQLAlchemy objects to Celery. Instead use primary keys of database objects.
 

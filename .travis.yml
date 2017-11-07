@@ -10,6 +10,8 @@ services:
   - redis-server
 
 matrix:
+    allow_failures:
+        - python: nightly
     include:
         - python: 3.4
           env:
@@ -31,8 +33,6 @@ matrix:
           env:
           - PYTHON_VERSION=python3.7
           - TOXENV=py37
-    allow_failures:
-        - env: TOXENV=py37
 
 # http://stackoverflow.com/a/19460794/315168
 cache:

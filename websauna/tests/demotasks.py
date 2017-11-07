@@ -31,7 +31,6 @@ def crash():
 @task(base=RetryableTransactionTask, bind=True)
 def modify_username(self, user_id):
     """A demo task we use to detect that Celery tasks write database changes correctly."""
-    print(self)
     request = self.request.request
     dbsession = request.dbsession
 

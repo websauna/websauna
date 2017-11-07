@@ -4,10 +4,9 @@ We provide UUID to Base64 encoded string and back coding.
 
 `More information what term slug means <http://stackoverflow.com/questions/427102/what-is-a-slug-in-django>`_.
 """
-
-import uuid
 import binascii
 import base64
+import uuid
 
 
 class SlugDecodeError(Exception):
@@ -37,7 +36,7 @@ def uuid_to_slug(uuid_: uuid.UUID) -> str:
     return encoded.decode("utf-8").rstrip('=\n').replace('/', '_').replace("+", "-")
 
 
-def slug_to_uuid(slug: str) -> str:
+def slug_to_uuid(slug: str) -> uuid.UUID:
     """Convert UUID URL slug string to UUID object.
 
     This method raises `ValueError` if slug cannot be converted to UUID:

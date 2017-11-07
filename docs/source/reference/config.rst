@@ -114,7 +114,7 @@ Configuration inclusion
 
 For examples see any INI file produced by :term:`scaffold`.
 
-.. note ::
+.. note::
 
     Configuration inclusion system will be phased out in the future versions to be replaced with more generic configuration solution.
 
@@ -153,7 +153,7 @@ websauna.admin_as_superuser
 
 All members in admin group are also superusers.
 
-.. note ::
+.. note::
 
     It is only safe to enable this settings on your local computer. Never enable this in an environment which can be accessed over Internet.
 

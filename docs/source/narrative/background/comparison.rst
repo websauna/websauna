@@ -57,7 +57,7 @@ Default template engine: :term:`Jinja`
 Comparison
 ==========
 
-.. note ::
+.. note::
 
     The following table considers a feature present only if it's contained in the default project scaffold, core system and tutorials. Many frameworks may have these features as an addon, but require additional integration on the behalf of a developer.
 

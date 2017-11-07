@@ -27,7 +27,7 @@ To start a local development web server in reload mode, point it to a :ref:`deve
 
 .. code-block:: console
 
-    ws-pserve conf/development.ini --reload
+    ws-pserve ws://conf/development.ini --reload
 
 Example output::
 

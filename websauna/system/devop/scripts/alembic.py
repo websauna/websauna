@@ -1,13 +1,19 @@
-"""Bootstrap sub for ws-alembic command."""
-import sys
-from pkg_resources import load_entry_point
+"""ws-alembic script.
 
-from websauna.utils.configincluder import monkey_patch_paster_config_parser
-from websauna.utils.configincluder import IncludeAwareConfigParser
+Wrapper for underlying ``alembic`` script, that is able to handle configuration with includes. 
+"""
+# Standard Library
+from pkg_resources import load_entry_point
+import sys
+
+# SQLAlchemy
+from alembic.util import compat
+
+# Websauna
+from websauna.utils.config.includer import IncludeAwareConfigParser
 
 
 # We need to monkey-patch Alembic ConfigParser
-from alembic.util import compat
 compat.SafeConfigParser = IncludeAwareConfigParser
 
 def main():

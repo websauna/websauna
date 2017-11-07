@@ -87,7 +87,7 @@ Having Python code in place is not enough for a new or changed model. You need t
 
 If you try to start your development server in this point the :term:`sanity check` feature aborts the start up::
 
-    ws-pserve company/application/conf/development.ini --reload
+    ws-pserve ws://company/application/conf/development.ini --reload
 
     ...
     Model <class 'myapp.models.Question'> declares table question which does not exist in database Engine(postgresql://localhost/myapp_dev)

@@ -26,6 +26,7 @@ if pyramid_ver[0] == 1:
     assert pyramid_ver[0] >= 1 and pyramid_ver[1] >= 7, "Pyramid version 1.7 or newer required"
 
 import logging
+import plaster
 
 from pyramid.config import Configurator
 from pyramid.interfaces import IDebugLogger, IViewMapperFactory, IRequest
@@ -34,7 +35,7 @@ from pyramid.settings import aslist
 from pyramid.settings import asbool
 
 from websauna.utils.autoevent import event_source
-from websauna.utils.configincluder import IncludeAwareConfigParser
+from websauna.utils.config.includer import IncludeAwareConfigParser
 from websauna.compat.typing import Optional
 
 
@@ -70,8 +71,15 @@ class Initializer:
 
         :param settings: DEPRECATED. Extra settings as passed to WSGI entry point. TODO: How to handle these?
         """
+        import plaster
         if not settings:
-            settings = IncludeAwareConfigParser.retrofit_settings(global_config)
+            config = global_config['__file__']
+            if not config.startswith('ws://'):
+                config = 'ws://{0}'.format(config)
+
+            loader = plaster.get_loader(config)
+            # Read [app] section
+            settings = loader.get_settings('app:main')
 
         #: This is the refer    ence to the config file which started our process. We need to later pass it to Notebook.
         settings["websauna.global_config"] = global_config
@@ -114,9 +122,9 @@ class Initializer:
         """
 
         # Extract logging configuration from INI
-        from websauna.utils.configincluder import setup_logging
+        # from websauna.utils.configincluder import setup_logging
 
-        setup_logging(self.global_config["__file__"])
+        # setup_logging(self.global_config["__file__"])
 
         # Make sure we can target Pyramid router debug messages in logging configuration
         pyramid_debug_logger = logging.getLogger("pyramid_debug")
@@ -308,6 +316,7 @@ class Initializer:
         from .model.meta import create_transaction_manager_aware_dbsession
         from .model.interfaces import ISQLAlchemySessionFactory
 
+        self.config.include("pyramid_retry")
         self.config.include("pyramid_tm")
         self.config.include(".model.meta")
 
@@ -768,7 +777,7 @@ class Initializer:
             if not sanitycheck.is_sane_database(Base, dbsession):
                 raise SanityCheckFailed("The database sanity check failed. Check log for details.")
         except sqlalchemy.exc.OperationalError as e:
-            raise SanityCheckFailed("The database {} is not responding. Make sure the database is running on your local computer or correctly configured in settings INI file. For more information see https://websauna.org/docs/tutorials/gettingstarted/tutorial_02.html.".format(db_connection_string)) from e
+            raise SanityCheckFailed("The database {} is not responding.\nMake sure the database is running on your local computer or correctly configured in settings INI file.\nFor more information see https://websauna.org/docs/tutorials/gettingstarted/tutorial_02.html.".format(db_connection_string)) from e
 
         dbsession.close()
 

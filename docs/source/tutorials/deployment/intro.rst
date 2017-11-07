@@ -16,7 +16,7 @@ Ansible playbook automatisation
 
 Websauna provides an automated server deployment using :term:`Ansible` tool.
 
-.. note ::
+.. note::
 
     **Why ansible?**
 
@@ -78,7 +78,7 @@ To work with this model you need at least one developer who knows how to use :te
 
 * After all stakeholders are happy with the changes the production server is updated by a playbook. Playbook fetches new source code from the git repository master branch, runs database migration scripts and gracefully restarts the web servers so that website visitors do not see any interruption.
 
-.. note ::
+.. note::
 
     You do not need to run a staging server or have automated tests for your application. This is highly recommend though if the application bears any business value, as testing and staging process captures errors before they land on a live website.
 

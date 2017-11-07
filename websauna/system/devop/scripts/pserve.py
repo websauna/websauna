@@ -1,6 +1,14 @@
-"""Config file includer aware wrapper for pserve."""
+"""ws-pserve script.
+
+DEPRECATED: Wrapper around Pyramid pserve script.
+"""
+# Standard Library
 import sys
-from pkg_resources import load_entry_point
+import typing as t
+
+# Websauna
+from websauna.system.devop.scripts import proxy_to_pyramid_script
+
 
 try:
     import gevent.monkey
@@ -8,13 +16,12 @@ try:
 except ImportError:
     pass
 
-from websauna.utils.configincluder import monkey_patch_paster_config_parser
-from websauna.utils.configincluder import IncludeAwareConfigParser
 
-monkey_patch_paster_config_parser()
+def main(argv: t.List[str]=sys.argv):
+    """Proxy to Pyramid pserve script.
 
-
-def main():
-    sys.exit(
-        load_entry_point('pyramid', 'console_scripts', 'pserve')()
-    )
+    This script is deprecated and will be removed in Websauna 1.0.0
+    :param argv: Command line arguments, second one needs to be the uri to a configuration file.
+    :raises sys.SystemExit:
+    """
+    proxy_to_pyramid_script('pserve', argv)

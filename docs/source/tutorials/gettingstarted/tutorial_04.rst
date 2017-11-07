@@ -41,7 +41,7 @@ If you need to change the default database name or its connection details you ca
 Creating migration scripts
 ==========================
 
-.. note ::
+.. note::
 
     This will be covered later in detail.
 

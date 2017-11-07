@@ -28,10 +28,10 @@ Ubuntu
     apt-get install build-essential python-dev python-virtualenv python-pip git redis postgresql
 
 
-Install from Github
+Install from GitHub
 -------------------
 
-Considering a local work folder name Websauna, clone websauna and websauna.ansible repositories from the Github:
+Considering a local work folder name Websauna, clone websauna and websauna.ansible repositories from the GitHub:
 
 .. code-block:: console
 

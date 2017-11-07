@@ -131,7 +131,7 @@ html_theme = "sphinx_rtd_theme"
 
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
-# Add Edit on Github link
+# Add Edit on GitHub link
 html_context = {
     'display_github' : True,
     'github_user': "websauna",

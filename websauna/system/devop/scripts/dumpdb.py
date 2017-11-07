@@ -1,38 +1,41 @@
-"""ws-dump-db command entry point.
+"""ws-dump-db script.
 
 Wrapper for pgsql-dump.bash script. Extract database settings from registry and pass to Bash script.
 """
-
-import subprocess
+# Standard Library
 import logging
-
 import os
+import subprocess
 import sys
+import typing as t
 
+# Websauna
 from websauna.system.devop.cmdline import init_websauna
 from websauna.system.devop.exportenv import create_settings_env
+from websauna.system.devop.scripts import get_config_uri
+from websauna.system.devop.scripts import usage_message
 
 
-DUMP_SCRIPT = os.path.join(os.path.dirname(__file__), "psql-dump.bash")
+DUMP_SCRIPT = os.path.join(os.path.dirname(__file__), 'psql-dump.bash')
 
 
 logger = logging.getLogger(__name__)
 
 
-def usage(argv):
-    cmd = os.path.basename(argv[0])
-    print('usage: %s <config_uri> [ARG1, ARG2]\n'
-          '(example: "%s development.ini") \n'
-          'All arguments are passed to pg_dump command' % (cmd, cmd))
-    sys.exit(1)
+def main(argv: t.List[str]=sys.argv):
+    """Wrapper for pgsql-dump.bash script.
 
-
-def main(argv=sys.argv):
-
+    :param argv: Command line arguments, second one needs to be the uri to a configuration file.
+    :raises sys.SystemExit:
+    """
     if len(argv) < 2:
-        usage(argv)
-    config_uri = argv[1]
+        usage_message(
+            argv,
+            additional_params='[ARG1, ARG2]',
+            additional_line='All arguments are passed to pg_dump command'
+        )
 
+    config_uri = get_config_uri(argv)
     request = init_websauna(config_uri)
 
     # Export all secrets and settings

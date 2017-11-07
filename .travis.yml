@@ -23,6 +23,10 @@ matrix:
           env:
           - PYTHON_VERSION=python3.5
           - TOXENV=py35-sqlite
+        - python: 3.6
+          env:
+          - PYTHON_VERSION=python3.6
+          - TOXENV=py36
 
 
 # http://stackoverflow.com/a/19460794/315168
@@ -30,6 +34,7 @@ cache:
   directories:
     # /home/travis/.cache/pip/wheels is the normal pip cache folder
     - $HOME/.cache/pip
+    #- .tox
 
 install:
   - travis_retry pip install tox
@@ -62,7 +67,7 @@ script:
   # This env variable is passed to scaffold tests that test the tests themselves
   - export SPLINTER_WEBDRIVER=chrome
   - export TRAVIS=true
-  - tox -- --ini=websauna/conf/travis.ini --splinter-webdriver=chrome --splinter-headless=true
+  - tox -- --ini=websauna/conf/travis.ini --splinter-webdriver=chrome --splinter-headless=true --debug
 
 after_success:
   # Update coverage information in codecov.io.

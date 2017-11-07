@@ -10,13 +10,13 @@
 
 import os
 
+import plaster
 import transaction
 import pyramid.testing
 import pytest
 from pyramid.interfaces import IRequest
 from pyramid.registry import Registry
 from pyramid.router import Router
-from pyramid.paster import get_appsettings
 from pyramid.paster import bootstrap
 from sqlalchemy.orm.session import Session
 
@@ -56,21 +56,19 @@ def ini_settings(request, test_config_path) -> dict:
     :return: A dictionary representing the key/value pairs in an ``app`` section within the file represented by ``config_uri``
     """
 
-    # This enables our INI inclusion mechanism
-    # TODO: Don't use get_appsettings() from paster, but create a INI includer compatible version
-    from websauna.utils.configincluder import monkey_patch_paster_config_parser
-    monkey_patch_paster_config_parser()
-
     # Setup Python logging from the INI
-    setup_logging(test_config_path)
+    # Add Websauna loader
+    if not test_config_path.startswith('ws://'):
+        test_config_path = 'ws://{0}'.format(test_config_path)
 
+    loader = plaster.get_loader(test_config_path)
     # Read [app] section
-    config = get_appsettings(test_config_path)
+    settings = loader.get_settings('app:main')
 
     # To pass the config filename itself forward
-    config["_ini_file"] = test_config_path
+    settings["_ini_file"] = test_config_path
 
-    return config
+    return settings
 
 
 @pytest.fixture(scope='session')

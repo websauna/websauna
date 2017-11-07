@@ -1,36 +1,43 @@
-"""IPython shell prompt command: ws-shell"""
+"""ws-shell script.
 
-import os
+IPython shell prompt to Websauna. 
+"""
+# Standard Library
+import datetime
 import sys
+import typing as t
 from collections import OrderedDict
 
-import datetime
+# Pyramid
 import transaction
+
+# Websauna
+from websauna.system.core.redis import get_redis
+from websauna.system.devop.cmdline import init_websauna
+from websauna.system.devop.scripts import feedback
+from websauna.system.devop.scripts import get_config_uri
+from websauna.system.devop.scripts import usage_message
+from websauna.system.model.meta import Base
+from websauna.utils.time import now
+
 
 try:
     from IPython import embed
 except ImportError as e:
     raise ImportError("You need to install IPython to use this shell") from e
 
-from websauna.system.core.redis import get_redis
-from websauna.system.devop.cmdline import init_websauna
-from websauna.system.model.meta import Base
-from websauna.utils.time import now
 
 
-def usage(argv):
-    cmd = os.path.basename(argv[0])
-    print('usage: %s <config_uri> [var=value]\n'
-          '(example: "%s development.ini")' % (cmd, cmd))
-    sys.exit(1)
+def main(argv: t.List[str]=sys.argv):
+    """Execute the IPython shell prompt with Websauna configuration already initialised.
 
-
-def main(argv=sys.argv):
-
+    :param argv: Command line arguments, second one needs to be the uri to a configuration file.
+    :raises sys.SystemExit:
+    """
     if len(argv) < 2:
-        usage(argv)
+        usage_message(argv, additional_params='[var=value]')
 
-    config_uri = argv[1]
+    config_uri = get_config_uri(argv)
 
     request = init_websauna(config_uri)
 
@@ -50,11 +57,15 @@ def main(argv=sys.argv):
 
         imported_objects[name] = cls
 
-    print("")
-    print("Following classes and objects are available:")
+    feedback('', False)
+    feedback('Following classes and objects are available:', False)
     for var, val in imported_objects.items():
-        print("{:30}: {}".format(var, str(val).replace("\n", " ").replace("\r", " ")))
-    print("")
+        line = "{key:30}: {value}".format(
+            key=var,
+            value=str(val).replace('\n', ' ').replace('\r', ' ')
+        )
+        feedback(line)
+    feedback('', False)
 
     embed(user_ns=imported_objects)
 

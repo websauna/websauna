@@ -14,7 +14,7 @@ Installation
 
 Websauna's playbook ``websauna.ansible`` is provided in a separate :term:`Git` repository. See `websauna.ansible Git repository <https://github.com/websauna/websauna.ansible>`_.
 
-Clone the repository from Github to get started with your Playbook:
+Clone the repository from GitHub to get started with your Playbook:
 
 .. code-block:: console
 
@@ -43,7 +43,7 @@ On macOS (recent macOS versions do not ship with OpenSSL, so instead of above `p
     echo 'export PATH="/usr/local/opt/openssl/bin:$PATH"' >> ~/.zshrc # zsh
     env LDFLAGS="-L/usr/local/opt/openssl/lib" CPPFLAGS="-I/usr/local/opt/openssl/include" CFLAGS="-I/usr/local/opt/openssl/include" pip install "ansible<2.2"
 
-.. note ::
+.. note::
 
     Ansible runs on Python 2.x only. Ansible is a Red Hat product. Red Hat is committed to support Python 2.4 for their enterprise users. As long as Python 2.4 is supported, it is impossible to upgrade Ansible to support Python 3.x due to syntax incompatibilities.
 

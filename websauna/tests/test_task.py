@@ -75,7 +75,6 @@ def celery_worker(request, task_ini_file):
 @flaky
 def test_transaction_aware_task_success(celery_worker, task_app_request, dbsession, demo_user):
     """Transaction aware tasks works in eager mode.."""
-
     with transaction.manager:
         # Do a dummy database write
         u = dbsession.query(User).first()

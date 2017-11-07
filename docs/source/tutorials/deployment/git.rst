@@ -20,4 +20,4 @@ If you are not using Git hosting yet there two are the most popular options
 
 * `Bitbucket <https://bitbucket.org>`_: limited number of free private repositories
 
-* `Github <https://github.com>`_: free for open source repositories
+* `GitHub <https://github.com>`_: free for open source repositories

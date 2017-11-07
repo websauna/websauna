@@ -277,7 +277,7 @@ Colander schemas do not need to be fixed - you can construct them run-time. Here
 
         form = deform.Form(schema, buttons=("submit", "skip"))
 
-.. note ::
+.. note::
 
     TODO: Parts of the example are old - for example there is no longer global DBSession.
 

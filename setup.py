@@ -48,6 +48,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Framework :: Pyramid',
     ],
 
@@ -74,7 +75,7 @@ setup(
     install_requires=[
 
         # Pyramid dependencies
-        'pyramid<1.9',
+        'pyramid>=1.9',
         'waitress',
         'pyramid_redis_sessions',
         'pyramid-layout',
@@ -93,6 +94,7 @@ setup(
         "alembic",
         "colanderalchemy",
         "pyramid_tm",
+        "pyramid_retry",
         "sqlalchemy-utils",
 
         # User management
@@ -183,9 +185,22 @@ setup(
         'paste.app_factory': [
             'main=websauna.system:main',
 
-            # Scheduler auomated test suite entry point with some extra configured taskss
+            # Scheduler automated test suite entry point with some extra configured taskss
             'task_test=websauna.tests.demotasks:main',
             'tutorial_test=websauna.tests.tutorial:main',
+        ],
+
+        'pyramid.scaffold': [
+            "websauna_app=websauna.scaffolds:App",
+            "websauna_addon=websauna.scaffolds:Addon",
+        ],
+
+        'plaster.loader_factory': [
+            'ws=websauna.utils.config.loader:Loader',
+        ],
+
+        'plaster.wsgi_loader_factory': [
+            'ws=websauna.utils.config.loader:Loader',
         ],
     },
 )

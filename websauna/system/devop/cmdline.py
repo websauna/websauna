@@ -1,37 +1,67 @@
 """Helper functions to initializer Websauna framework for command line applications."""
+# Standard Library
 import logging
 import os
-from logging.config import fileConfig
 import sys
+import typing as t
 
-from pyramid import scripting
-from pyramid.paster import bootstrap, _getpathsec
-from websauna.system.http.utils import make_routable_request
-from websauna.system.model.meta import create_dbsession
+# Pyramid
+import plaster
+from pyramid import router, scripting
 
 from rainbow_logging_handler import RainbowLoggingHandler
 
+# Websauna
+from websauna.system import Initializer
 from websauna.system.http import Request
-from websauna.utils.configincluder import monkey_patch_paster_config_parser, IncludeAwareConfigParser
+from websauna.system.http.utils import make_routable_request
+from websauna.system.model.meta import create_dbsession
+
+
+def prepare_config_uri(config_uri: str) -> str:
+    """Make sure a configuration uri has the prefix ws://.
+
+    :param config_uri: Configuration uri, i.e.: websauna/conf/development.ini
+    :return: Configuration uri with the prefix ws://.
+    """
+    if not config_uri.startswith('ws://'):
+        config_uri = 'ws://{uri}'.format(uri=config_uri)
+    return config_uri
+
+
+def get_wsgi_app(config_uri: str,  defaults: dict) -> router.Router:
+    """Return a Websauna WSGI application given a configuration uri. 
+
+    :param config_uri: Configuration uri, i.e.: websauna/conf/development.ini.
+    :param defaults: Extra options to be passed to the app.
+    :return: A Websauna WSGI Application
+    """
+    config_uri = prepare_config_uri(config_uri)
+    loader = plaster.get_loader(config_uri)
+    return loader.get_wsgi_app(defaults=defaults)
+
+
+def initializer_from_app(app: router.Router) -> Initializer:
+    """Return the initializer for the given app.
+
+    :param app: Websauna WSGI application
+    :return: Websauna Initializer
+    """
+    initializer = getattr(app, 'initializer', None)
+    assert initializer is not None, "Configuration did not yield to Websauna application with Initializer set up"
+    return initializer
 
 
 def setup_logging(config_uri, disable_existing_loggers=False):
     """Include-aware Python logging setup from INI config file.
     """
-    path, _ = _getpathsec(config_uri, None)
-    parser = IncludeAwareConfigParser()
-    parser.read([path])
-
-    if parser.has_section('loggers'):
-        config_file = os.path.abspath(path)
-        defaults = dict(parser, here=os.path.dirname(config_file))
-        return fileConfig(parser, defaults, disable_existing_loggers)
+    pass
 
 
-def setup_console_logging(log_level=None):
+def setup_console_logging(log_level: t.Optional[str]=None):
     """Setup console logging.
 
-    Aimed to give easy sane defaults for loggig in command line applications.
+    Aimed to give easy sane defaults for logging in command line applications.
 
     Don't use logging settings from INI, but use hardcoded defaults.
     """
@@ -57,7 +87,7 @@ def setup_console_logging(log_level=None):
     logger.setLevel(logging.ERROR)
 
 
-def init_websauna(config_uri: str, sanity_check: bool=False, console_app=False, extra_options=None) -> Request:
+def init_websauna(config_uri: str, sanity_check: bool=False, console_app: bool=False, extra_options: dict=None) -> Request:
     """Initialize Websauna WSGI application for a command line oriented script.
 
     Example:
@@ -81,13 +111,6 @@ def init_websauna(config_uri: str, sanity_check: bool=False, console_app=False, 
     :return: Faux Request object pointing to a site root, having registry and every configured.
     """
 
-    monkey_patch_paster_config_parser()
-
-    if console_app:
-        setup_console_logging()
-    else:
-        setup_logging(config_uri)
-
     # Paster thinks we are a string
     if sanity_check:
         sanity_check = "true"
@@ -101,10 +124,8 @@ def init_websauna(config_uri: str, sanity_check: bool=False, console_app=False, 
     if extra_options:
         options.update(extra_options)
 
-    bootstrap_env = bootstrap(config_uri, options=options)
-    app = bootstrap_env["app"]
-    initializer = getattr(app, "initializer", None)
-    assert initializer is not None, "Configuration did not yield to Websauna application with Initializer set up"
+    app = get_wsgi_app(config_uri, defaults=options)
+    initializer = initializer_from_app(app)
 
     registry = initializer.config.registry
     dbsession = create_dbsession(registry)
@@ -127,14 +148,10 @@ def init_websauna_script_env(config_uri: str) -> dict:
     :return: Dictionary of shell variables
     """
 
-    monkey_patch_paster_config_parser()
+    options = {"sanity_check": False}
+    app = get_wsgi_app(config_uri, defaults=options)
 
-    setup_logging(config_uri)
-
-    bootstrap_env = bootstrap(config_uri, options=dict(sanity_check=False))
-    app = bootstrap_env["app"]
-    initializer = getattr(app, "initializer", None)
-    assert initializer is not None, "Configuration did not yield to Websauna application with Initializer set up"
+    initializer = initializer_from_app(app)
 
     registry = initializer.config.registry
     dbsession = create_dbsession(registry)

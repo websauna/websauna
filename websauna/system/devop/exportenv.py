@@ -1,10 +1,15 @@
 """Export settings and secrets as environment variables to subprocesses."""
-
+# Standard Library
 import os
 
+# Pyramid
 from pyramid.registry import Registry
-from websauna.system.core.utils import get_secrets
+
+# SQLAlchemy
 from sqlalchemy.engine.url import make_url
+
+# Websauna
+from websauna.system.core.utils import get_secrets
 
 
 def create_settings_env(registry: Registry):

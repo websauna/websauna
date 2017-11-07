@@ -1,34 +1,56 @@
-"""ws-create-user - creating users from command line."""
+"""ws-create-user script.
+
+Create a new site user from command line.
+"""
+# Standard Library
 import getpass
 import os
 import sys
+import typing as t
 
-import transaction
-
+# Websauna
 from websauna.system.devop.cmdline import init_websauna
+from websauna.system.devop.scripts import feedback_and_exit
+from websauna.system.devop.scripts import get_config_uri
 from websauna.system.user.events import UserCreated
+from websauna.system.user.interfaces import IUserModel
 from websauna.system.user.models import Group
-from websauna.system.user.utils import get_user_class, get_user_registry
+from websauna.system.user.utils import get_user_class
+from websauna.system.user.utils import get_user_registry
 from websauna.utils.time import now
 
 
-def usage(argv):
+def usage_message(argv: t.List[str]):
+    """Display usage message and exit.
+
+    :param argv: Command line arguments.
+    :raises sys.SystemExit:
+    """
     cmd = os.path.basename(argv[0])
-    print('usage: %s <config_uri> <email> [password] [--admin]>\n'
-          '(example: "%s development.ini mikko@example.com verysecret --admin")' % (cmd, cmd))
-    sys.exit(1)
+    msg = (
+        'usage: {cmd} <config_uri> [password] [--admin]\n'
+        '(example: "{cmd} ws://conf/production.ini mikko@example.com verysecret --admin")'
+    ).format(cmd=cmd)
+    feedback_and_exit(msg, status_code=1, display_border=False)
 
 
-def create(request, username, email, password=None, source="command_line", admin=False):
+def create(
+        request,
+        username: str,
+        email: str,
+        password: t.Optional[str]=None,
+        source: str='command_line',
+        admin: bool=False
+) -> IUserModel:
     """Create a new site user from command line.
 
     :param request:
-    :param username:
-    :param email:
-    :param password:
-    :param source:
+    :param username: Username, usually an email.
+    :param email: User's email.
+    :param password: Password.
+    :param source: Source of this user, in here, command_line.
     :param admin: Set this user to admin. The first user is always implicitly admin.
-    :return:
+    :return: Newly created user.
     """
     User = get_user_class(request.registry)
     dbsession = request.dbsession
@@ -48,40 +70,44 @@ def create(request, username, email, password=None, source="command_line", admin
     u.activated_at = now()
 
     request.registry.notify(UserCreated(request, u))
-
     if admin:
-        group = dbsession.query(Group).filter_by(name="admin").one_or_none()
+        group = dbsession.query(Group).filter_by(name='admin').one_or_none()
         group.users.append(u)
 
     return u
 
 
-def main(argv=sys.argv):
+def main(argv: t.List[str]=sys.argv):
+    """Create a new site user from command line.
 
+    :param argv: Command line arguments, second one needs to be the uri to a configuration file.
+    :raises sys.SystemExit:
+    """
     if len(argv) < 3:
-        usage(argv)
+        usage_message(argv)
 
-    config_uri = argv[1]
+    config_uri = get_config_uri(argv)
+
     request = init_websauna(config_uri)
+    email = argv[2]
+    is_admin = True if '--admin' in argv else False
+    password = argv[3] if len(argv) >= 4 and argv[3] != '--admin' else ''
 
-    if len(argv) >= 4:
-        password = argv[3]
-    else:
-        password = getpass.getpass("Password:")
-        password2 = getpass.getpass("Password (again):")
-
+    if not password:
+        password = getpass.getpass('Password:')
+        password2 = getpass.getpass('Password (again):')
         if password != password2:
-            sys.exit("Password did not match")
-
-    admin = False
-    if len(argv) == 5:
-        # TODO: use optparse
-        if argv[4] == "--admin":
-            admin = True
+            feedback_and_exit('Passwords did not match', display_border=False)
 
     with request.tm:
-        u = create(request, email=argv[2], username=argv[2], password=password, admin=admin)
-        print("Created user #{}: {}, admin: {}".format(u.id, u.email, u.is_admin()))
+        u = create(request, email=email, username=email, password=password, admin=is_admin)
+        message = 'Created user #{id}: {email}, admin: {is_admin}'.format(
+            id=u.id,
+            email=u.email,
+            is_admin=u.is_admin()
+        )
+
+    feedback_and_exit(message, status_code=None, display_border=True)
 
 
 if __name__ == "__main__":

@@ -9,7 +9,7 @@ Starting a local web development server
 
 Run::
 
-    ws-pserve company/application/conf/development.ini --reload
+    ws-pserve ws://company/application/conf/development.ini --reload
 
 The web server keeps running until
 
@@ -30,7 +30,7 @@ Point your web browser to `http://localhost:6543 <http://localhost:6543>`_.
 Creating your admin user
 ------------------------
 
-.. note ::
+.. note::
 
     This method highlights creating the initial site administrator user from the command line, using email and password. You can also configure any of social media logins (Facebook, Google) as described later in this tutorial. If your first login to the site comes through social media accounts, the very first logged in user becomes admin.
 

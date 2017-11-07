@@ -10,6 +10,7 @@ services:
   - redis-server
 
 matrix:
+    fast_finish: true
     allow_failures:
         - python: nightly
     include:

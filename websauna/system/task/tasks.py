@@ -2,20 +2,23 @@
 
 Inspired by Warehouse project https://raw.githubusercontent.com/pypa/warehouse/master/warehouse/celery.py
 """
-
+# Standard Library
 import logging
 
+# Pyramid
 import transaction
 import venusian
-from celery import Task
 from pyramid.request import apply_request_extensions
 from pyramid.scripting import _make_request
-from pyramid_tm import tm_tween_factory
 from transaction import TransactionManager
-from websauna.system.model.retry import retryable
 
-from websauna.system.task.celery import get_celery
+# Celery
+from celery import Task
+
+# Websauna
 from websauna.system.http import Request
+from websauna.system.model.retry import retryable
+from websauna.system.task.celery import get_celery
 
 
 logger = logging.getLogger(__name__)
@@ -40,16 +43,13 @@ class WebsaunaTask(Task):
         return self.request.is_eager
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
-        """What happens if a task raises exception.
-
-        """
+        """What happens if a task raises exception."""
         # Should be logged by properly configured Celery itself
         # logger.error("Celery task failure %s, args %s, kwargs %s", task_id, args, kwargs)
         pass
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
         """Clean up transaction after task run."""
-
         if not self.request.is_eager:
             # Close the request when task completes
             request = self.get_request()
@@ -308,5 +308,3 @@ def task(*args, **kwargs):
         return proxy
 
     return _inner
-
-

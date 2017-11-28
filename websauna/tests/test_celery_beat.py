@@ -11,7 +11,7 @@ from websauna.system.core.redis import get_redis
 
 def run_worker_and_beat(ini_file):
 
-    cmdline = "ws-celery {} -- worker --loglevel=debug".format(ini_file)
+    cmdline = "ws-celery ws://{} -- worker --loglevel=debug".format(ini_file)
 
     # You can start manually ws-celery websauna/tests/task-test.ini -- worker --loglevel=debug
     # and set worker = False

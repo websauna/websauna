@@ -37,6 +37,26 @@ from pyramid.settings import asbool
 from websauna.utils.autoevent import event_source
 from websauna.utils.config.includer import IncludeAwareConfigParser
 from websauna.compat.typing import Optional
+import os
+import typing as t
+
+
+def _expandvars(value: t.Any) -> t.Any:
+    processed = value
+    if isinstance(value, dict):
+        processed = expandvars_dict(value)
+    elif isinstance(value, (str, bytes)):
+        processed = os.path.expandvars(value)
+    return processed
+
+
+def expandvars_dict(settings: dict) -> dict:
+    """Expand all environment variables in a settings dictionary.
+
+    ref: http://stackoverflow.com/a/16446566
+    :returns: Dictionary with settings
+    """
+    return {key: _expandvars(value) for key, value in settings.items()}
 
 
 class SanityCheckFailed(Exception):
@@ -88,7 +108,8 @@ class Initializer:
         #: Reference to Celery app instance
         self.celery = None
 
-        self.settings = settings
+        self.settings = expandvars_dict(settings)
+
         self.config = self.create_configurator()
 
         self.config.registry.static_asset_policy = self.static_asset_policy = self.create_static_asset_policy()
@@ -101,6 +122,9 @@ class Initializer:
 
         # Exposed Websauna features
         self.config.registry.features = set()
+
+        # Secrets file
+        self.secrets = self.read_secrets()
 
     def create_configurator(self) -> Configurator:
         """Create Pyramid Configurator instance."""
@@ -665,6 +689,9 @@ class Initializer:
 
         _secrets = read_ini_secrets(secrets_file, strict=strict)
         self.config.registry.registerUtility(_secrets, ISecrets)
+        secret_settings = {k.replace('app:main.', ''): v for k, v in _secrets.items() if k.startswith('app:main.')}
+        settings.update(secret_settings)
+        self.config.registry.settings.update(secret_settings)
         return _secrets
 
     def include_addons(self):
@@ -684,8 +711,6 @@ class Initializer:
 
         # Avoid running the initializer twice. This might happen e.g. due to a bad testing set up where the initializer creation is not scoped properly. E.g. Jinja template engine will get very confused.
         assert not self._already_run, "Attempted to run initializer twice. Please avoid double initialization as it will lead to problems."
-
-        self.secrets = self.read_secrets()
 
         self.configure_logging()
 

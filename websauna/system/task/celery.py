@@ -1,17 +1,19 @@
 """Get Celery instance from Pyramid configuration."""
-
+# Standard Library
 import textwrap
 
-from celery import Celery
-
+# Pyramid
 from pyramid.registry import Registry
+
+# Celery
+from celery import Celery
 
 
 def parse_celery_config(celery_config_python: str) -> dict:
     # Expose timedelta object for config to be used in beat schedule
     # http://docs.celeryproject.org/en/master/userguide/periodic-tasks.html#beat-entries
     from datetime import timedelta  # noqa
-    from celery.schedules import crontab
+    from celery.schedules import crontab  # noqa
     
     _globals = globals().copy()
     _locals = locals().copy()
@@ -33,18 +35,17 @@ def get_celery_config(registry: Registry) -> dict:
 
     You need to have a setting key ``celery_config_python``. This is Python code to configure Celery. The code is executed and all locals are passed to Celery app.
 
-    More information
+    More information:
 
-    * http://docs.celeryproject.org/en/master/userguide/configuration.html
+        * http://docs.celeryproject.org/en/master/userguide/configuration.html
 
     :param registry: Pyramid registry from where we read the Celery configuratino
-
     :return: An object holding Celery configuration variables
     """
 
-    celery_config_python = registry.settings.get("websauna.celery_config")
+    celery_config_python = registry.settings.get('websauna.celery_config')
     if not celery_config_python:
-        raise RuntimeError("Using Celery with Websauna requires you to have celery_config_python configuration variable")
+        raise RuntimeError('Using Celery with Websauna requires you to have celery_config_python configuration variable')
 
     return parse_celery_config(celery_config_python)
 
@@ -64,12 +65,4 @@ def get_celery(registry: Registry):
         # Expose Pyramid registry to Celery app and tasks
         celery.registry = registry
 
-
     return celery
-
-
-
-
-
-
-

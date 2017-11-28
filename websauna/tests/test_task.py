@@ -17,7 +17,7 @@ from . import demotasks
 
 @pytest.fixture(scope='module')
 def task_ini_file():
-    return  os.path.join(os.path.dirname(__file__), "task-test.ini")
+    return os.path.join(os.path.dirname(__file__), "task-test.ini")
 
 
 @pytest.fixture(scope='module')
@@ -45,10 +45,9 @@ def celery_worker(request, task_ini_file):
     """py.test fixture to shoot up Celery worker process to process our test tasks when scheduled."""
 
     # Uncomment this and run ws-celery from command line for debug
-    # ws-celery websauna/tests/task-test.ini -- worker --loglevel=debug
+    # ws-celery ws://websauna/tests/task-test.ini -- worker --loglevel=debug
     # return
-
-    cmdline = "ws-celery {} -- worker".format(task_ini_file)
+    cmdline = "ws-celery ws://{ini_file} -- worker".format(ini_file=task_ini_file)
 
     # logger.info("Running celery worker: %s", cmdline)
 

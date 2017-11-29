@@ -14,7 +14,7 @@ from sqlalchemy.ext.declarative.clsregistry import _ModuleMarker
 from alembic import context
 from sqlalchemy.testing.schema import Table
 
-from websauna.system.devop.cmdline import init_websauna
+from websauna.system.devop.cmdline import init_websauna, setup_console_logging
 from websauna.system.devop.cmdline import setup_logging
 from websauna.system.model.meta import Base
 from websauna.compat.typing import List
@@ -190,7 +190,8 @@ def run_alembic(package:str):
     # This was -c passed to ws-alembic command
     config_file = config.config_file_name
 
-    setup_logging(config_file)
+    # Alembic always uses console logging
+    setup_console_logging(logging.INFO)
 
     # Load the WSGI application, etc.
     request = init_websauna(config_file)
@@ -213,7 +214,6 @@ def run_alembic(package:str):
     def include_object(object, name, type_, reflected, compare_to):
         """
         """
-
         # Try to figure out smartly table from different object types
         if type_ in ("index", "column", "foreign_key_constraint", "unique_constraint"):
             table_name = object.table.name

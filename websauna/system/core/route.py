@@ -13,31 +13,20 @@ class simple_route(object):
 
     Pyramid's URL dispatch has separate concepts for routes and views. This gives additional flexibility in that you can one route map to multiple views, using different predicates (e.g.: predicates depending on Accept header, whether request is XHR or not, etc.). In many applications, this flexibility is not needed and having both routes and views adds a bit of complexity and duplication, and reduces DRYness. This module implements some easy-to-use mechanisms that create a route and a view in one step, resulting in simpler, easier to understand code. This kind of makes Pyramid's routing look a bit more like Flask, albeit without Flask's controversial thread locals.
 
-    Example:
+    .. note:: At the moment ``simple_route`` doesn't support ``viewdefaults``.
 
-    .. code-block:: python
+    Examples:
 
-        from websauna.system.core.route import simple_route
+    .. literalinclude:: ../../../websauna/tests/viewconfig/simple_route_tests_views.py
 
-        @simple_route('/path/to/view', renderer='myapp/example.html')
-        def view_callable(request):
-            return {'message': 'Hello'}
+    Respectively URLs for registered views are:
 
-    You can set route name explicitly:
-
-    .. code-block:: python
-
-        from websauna.system.core.route import simple_route
-
-        @simple_route('/path/to/view/{arg}', route_name="foobar")
-        def view_callable(request):
-            arg = request.matchdict["arg"]
-            return {'message': 'Hello {}'.format(arg}
-
-        url = request.route_url("foobar", dict(arg="123"))
+    .. literalinclude:: ../../../websauna/tests/test_simple_route.py
+        :pyobject: test_registered_routes_docs
+        :dedent: 11
+        :lines: 4-
 
     """
-
     def __init__(self, path, *args, **kwargs):
         """Constructor just here to accept parameters for decorator"""
         self.path = path

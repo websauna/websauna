@@ -1,9 +1,13 @@
 """Route related helpers."""
+# Standard Library
+import typing as t
+
+# Pyramid
 import venusian
 from pyramid.config import Configurator
 
+# Websauna
 from websauna.system.http import Request
-from websauna.compat.typing import Optional
 
 from .simpleroute import add_simple_route
 
@@ -72,7 +76,7 @@ class simple_route(object):
         return wrapped
 
 
-def add_template_only_view(config: Configurator, pattern: str, name: str, template: str, view_args: Optional[dict]=None, route_args: Optional[dict]=None):
+def add_template_only_view(config: Configurator, pattern: str, name: str, template: str, view_args: t.Optional[dict]=None, route_args: t.Optional[dict]=None):
     """Adds a view which do not have a specific view function assgined.
 
     The view will render a template with the default template context.
@@ -83,7 +87,6 @@ def add_template_only_view(config: Configurator, pattern: str, name: str, templa
     :param view_args: kwargs passed to :py:meth:`pyramid.config.Configurator.add_view`
     :param route_args: kwargs passed to :py:meth:`pyramid.config.Configurator.add_view`
     """
-
     def _default_view(request):
         return {}
 

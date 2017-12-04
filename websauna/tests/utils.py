@@ -1,27 +1,34 @@
 """Testing utility functions."""
 
+# Standard Library
 import time
+import typing as t
 
-from pyramid.interfaces import IRequest, IRequestFactory
+# Pyramid
+#: The default test login name
+import transaction
+from pyramid.interfaces import IRequest
+from pyramid.interfaces import IRequestFactory
 from pyramid.registry import Registry
 from pyramid.request import Request
 from pyramid.session import signed_deserialize
-from pyramid_redis_sessions import RedisSession, get_default_connection
-from selenium.webdriver.remote.webdriver import WebDriver
-
-#: The default test login name
-import transaction
-from splinter.driver import DriverAPI
-from sqlalchemy.orm import Session
-from websauna.system.user.interfaces import IPasswordHasher
-from websauna.system.user.utils import get_site_creator
-from websauna.system.user.models import User
-
-from websauna.compat.typing import Callable
-from websauna.utils.time import now
-
 #: Unit testing default email
 from zope.interface import implementer
+
+# SQLAlchemy
+from sqlalchemy.orm import Session
+
+from pyramid_redis_sessions import RedisSession
+from pyramid_redis_sessions import get_default_connection
+from selenium.webdriver.remote.webdriver import WebDriver
+from splinter.driver import DriverAPI
+
+# Websauna
+from websauna.system.user.interfaces import IPasswordHasher
+from websauna.system.user.models import User
+from websauna.system.user.utils import get_site_creator
+from websauna.utils.time import now
+
 
 EMAIL = "example@example.com"
 
@@ -100,12 +107,12 @@ def create_logged_in_user(dbsession:Session, registry:Registry, web_server:str, 
     assert b.is_element_present_by_css("#nav-logout")
 
 
-def wait_until(callback:Callable, expected:object, deadline=1.0, poll_period=0.05):
+def wait_until(callback:t.Callable, expected:object, deadline=1.0, poll_period=0.05):
     """A helper function to wait until a variable value is set (in another thread).
 
     This is useful for communicating between Selenium test driver and test runner main thread.
 
-    :param callback: Callable which we expect to return to ``expected`` value.
+    :param callback: t.Callable which we expect to return to ``expected`` value.
     :param deadline: Seconds how long we are going to wait max
     :param poll_period: Sleep period between check attemps
     :return: The final value of callback
@@ -224,5 +231,3 @@ def make_dummy_request(dbsession: Session, registry: Registry) -> IRequest:
     _request.registry = registry
 
     return _request
-
-

@@ -54,14 +54,13 @@ This implementation
 * Event handlers are not called if the subclass of ``MyClass`` overrides the parent method and doesn't call ``super()``. In this case you need to call :py:func:`fire_advisor_event` manually from the overriden method.
 
 """
+# Standard Library
+import functools
 import inspect
+import typing as t
 from collections import defaultdict
 from enum import Enum
 
-import functools
-
-from websauna.compat.typing import Callable
-from websauna.compat.typing import Optional
 
 #: List of unbound methods that are marked as advisors
 _advisor_methods = defaultdict(list)
@@ -95,7 +94,7 @@ def fire_advisor_event(source: object, event_source_name: str, role: AdvisorRole
             advisor(*args, **kwargs)
 
 
-def event_source(method: Callable, name: Optional[str]=None):
+def event_source(method: t.Callable, name: t.Optional[str]=None):
     """A decorator which makes the function act as a source of before and after call events.
 
     You can later subscribe to these event with :py:func:`before` and :py:func`after` decorators.
@@ -126,7 +125,7 @@ def event_source(method: Callable, name: Optional[str]=None):
     return _inner
 
 
-def after(target_event_source: Callable):
+def after(target_event_source: t.Callable):
     """Call decorated function before target function.
 
     :param target_event_source: Target method decorated with @event_source
@@ -145,7 +144,7 @@ def after(target_event_source: Callable):
     return _outer
 
 
-def before(target_event_source: Callable):
+def before(target_event_source: t.Callable):
     """Call decorated function before target function.
 
     :param target_event_source: Target method decorated with @event_source

@@ -1,15 +1,18 @@
 """Resolve principals (groups and pseudo roles) for ACL."""
+# Standard Library
+import typing as t
+
+# Pyramid
 from pyramid.security import Authenticated
 from pyramid.settings import asbool
 from pyramid.settings import aslist
 
+# Websauna
 from websauna.system.http import Request
-from websauna.compat.typing import List
-from websauna.compat.typing import Optional
 from websauna.system.user.utils import get_user_registry
 
 
-def resolve_principals(session_token: str, request: Request) -> Optional[List[str]]:
+def resolve_principals(session_token: str, request: Request) -> t.Optional[t.List[str]]:
     """Get applied groups and other for the user.
 
     This is a callback for :py:class:`pyramid.authentication.SessionAuthenticationPolicy`.

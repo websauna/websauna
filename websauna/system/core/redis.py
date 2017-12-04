@@ -1,18 +1,22 @@
 """Redis connection manager."""
+# Standard Library
 import logging
 import os
 import threading
+import typing as t
 
-from pyramid.events import subscriber, NewRequest
-from redis import StrictRedis
-from redis import ConnectionError
-from redis import ConnectionPool
-
+# Pyramid
 from pyramid.config import Configurator
+from pyramid.events import NewRequest
+from pyramid.events import subscriber
 from pyramid.registry import Registry
 
+from redis import ConnectionError
+from redis import ConnectionPool
+from redis import StrictRedis
+
+# Websauna
 from websauna.system.http import Request
-from websauna.compat.typing import Union
 
 
 logger = logging.getLogger(__name__)
@@ -78,7 +82,7 @@ def log_redis_statistics(redis: StrictRedis):
     logger.debug("Redis connection statistics - process: %s, thread: %s, created: %d, max: %d, in-use: %d, available: %d", process_name, thread_name, created, max_connections, available, in_use)
 
 
-def get_redis(request_or_registry: Union[Request, Registry], url: str=None, redis_client=StrictRedis, **redis_options) -> StrictRedis:
+def get_redis(request_or_registry: t.Union[Request, Registry], url: str=None, redis_client=StrictRedis, **redis_options) -> StrictRedis:
     """Get a connection to Redis.
 
     Example:

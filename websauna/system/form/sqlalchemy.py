@@ -1,14 +1,19 @@
 """SQLAlchemy integration for Colander and Deform frameworks."""
+# Standard Library
+import typing as t
+
+# Pyramid
 import colander
 from colander.compat import is_nonstr_iter
-from sqlalchemy import Column
-from sqlalchemy.orm import Query, Session
 
-from websauna.compat.typing import List
-from websauna.compat.typing import Tuple
-from websauna.compat.typing import Union
-from websauna.compat.typing import Callable
-from websauna.utils.slug import slug_to_uuid, uuid_to_slug
+# SQLAlchemy
+from sqlalchemy import Column
+from sqlalchemy.orm import Query
+from sqlalchemy.orm import Session
+
+# Websauna
+from websauna.utils.slug import slug_to_uuid
+from websauna.utils.slug import uuid_to_slug
 
 
 def extract_uuid_to_slug(item):
@@ -16,7 +21,7 @@ def extract_uuid_to_slug(item):
     return uuid_to_slug(item.uuid)
 
 
-def convert_query_to_tuples(query: Query, first_column: Union[str, Callable], second_column: Union[str, Callable], default_choice:str =None) -> List[Tuple]:
+def convert_query_to_tuples(query: Query, first_column: t.Union[str, t.Callable], second_column: t.Union[str, t.Callable], default_choice:str =None) -> t.List[t.Tuple]:
     """Convert SQLAlchemy query results to (id, name) tuples for select and checkbox widgets.
 
     :param first_column: Column name used to populate value in the first tuple
@@ -45,7 +50,7 @@ def convert_query_to_tuples(query: Query, first_column: Union[str, Callable], se
     return result
 
 
-def get_uuid_vocabulary_for_model(dbsession: Session, model: type, first_column=extract_uuid_to_slug, second_column=str, default_choice=None) -> List[Tuple]:
+def get_uuid_vocabulary_for_model(dbsession: Session, model: type, first_column=extract_uuid_to_slug, second_column=str, default_choice=None) -> t.List[t.Tuple]:
     """Create a select/checkbox vocabulary containing all items of a model."""
     query = dbsession.query(model).all()
     return convert_query_to_tuples(query, first_column, second_column, default_choice)
@@ -107,17 +112,17 @@ class ForeignKeyValue(ModelSchemaType, colander.String):
         value = self.preprocess_appstruct_value(node, appstruct)
         return value
 
-    def preprocess_cstruct_value(self, node: colander.SchemaNode, cstruct: set) -> Union[set, List]:
+    def preprocess_cstruct_value(self, node: colander.SchemaNode, cstruct: set) -> t.Union[set, t.List]:
         """Parse incoming form values to Python objects if needed.
         """
         return cstruct
 
-    def preprocess_appstruct_value(self, node: colander.SchemaNode, appstruct: set) -> List[str]:
+    def preprocess_appstruct_value(self, node: colander.SchemaNode, appstruct: set) -> t.List[str]:
         """Convert items to appstruct ids.
         """
         return str(appstruct)
 
-    def query_item(self, node: colander.SchemaNode, dbsession: Session, model: type, match_column: Column, value: set) -> List[object]:
+    def query_item(self, node: colander.SchemaNode, dbsession: Session, model: type, match_column: Column, value: set) -> t.List[object]:
         """Query the actual model to get the concrete SQLAlchemy objects."""
 
         if not value:
@@ -165,12 +170,12 @@ class ModelSet(ModelSchemaType, colander.Set):
         values = self.preprocess_cstruct_values(node, cstruct)
         return self.query_items(node, dbsession, model, match_column, values)
 
-    def preprocess_cstruct_values(self, node: colander.SchemaNode, cstruct: set) -> Union[set, List]:
+    def preprocess_cstruct_values(self, node: colander.SchemaNode, cstruct: set) -> t.Union[set, t.List]:
         """Parse incoming form values to Python objects if needed.
         """
         return cstruct
 
-    def preprocess_appstruct_values(self, node: colander.SchemaNode, appstruct: set) -> List[str]:
+    def preprocess_appstruct_values(self, node: colander.SchemaNode, appstruct: set) -> t.List[str]:
         """Convert items to appstruct ids.
         """
         if self.label_column:
@@ -178,7 +183,7 @@ class ModelSet(ModelSchemaType, colander.Set):
         else:
             return [str(i) for i in appstruct]
 
-    def query_items(self, node: colander.SchemaNode, dbsession: Session, model: type, match_column: Column, values: set) -> List[object]:
+    def query_items(self, node: colander.SchemaNode, dbsession: Session, model: type, match_column: Column, values: set) -> t.List[object]:
         """Query the actual model to get the concrete SQLAlchemy objects."""
         if not values:
             # Empty IN queries are not allowed
@@ -217,7 +222,7 @@ class UUIDForeignKeyValue(ForeignKeyValue):
         """
         return slug_to_uuid(cstruct)
 
-    def preprocess_appstruct_value(self, node: colander.SchemaNode, appstruct: set) -> List[str]:
+    def preprocess_appstruct_value(self, node: colander.SchemaNode, appstruct: set) -> t.List[str]:
         """Convert items to appstruct ids.
         """
         return uuid_to_slug(getattr(appstruct, self.match_column))
@@ -243,7 +248,7 @@ class UUIDModelSet(ModelSet):
         """
         return [slug_to_uuid(v) for v in cstruct]
 
-    def preprocess_appstruct_values(self, node: colander.SchemaNode, appstruct: set) -> List[str]:
+    def preprocess_appstruct_values(self, node: colander.SchemaNode, appstruct: set) -> t.List[str]:
         """Convert items to appstruct ids.
         """
         return [uuid_to_slug(getattr(i, self.match_column)) for i in appstruct]

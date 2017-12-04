@@ -1,8 +1,13 @@
+# Standard Library
+import typing as t
+
+# Pyramid
 from pyramid.request import Request
-from websauna.compat import typing
+from zope.interface import Interface
+
+# Websauna
 from websauna.system.core.interfaces import IRoot
 from websauna.system.core.traversal import Resource
-from zope.interface import Interface
 
 
 def get_human_readable_resource_name(resource:Resource) -> str:
@@ -19,7 +24,7 @@ def get_human_readable_resource_name(resource:Resource) -> str:
     return resource.__name__
 
 
-def get_breadcrumbs(context: Resource, request: Request, root_iface: type=None, current_view_name=None, current_view_url=None) -> typing.List:
+def get_breadcrumbs(context: Resource, request: Request, root_iface: type=None, current_view_name=None, current_view_url=None) -> t.List:
     """Create breadcrumbs path data how to get to this resource from the root.
 
     Traverse context :class:`Resource` up to the root resource in the reverse order. Fill in data for rendering

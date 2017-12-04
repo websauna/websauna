@@ -1,10 +1,15 @@
 """Automatic admin and CRUD for SQLAlchemy models."""
+# Standard Library
 import string
+import typing as t
 
+# Pyramid
 import venusian
 from pyramid.interfaces import IRequest
-from websauna.system.admin.interfaces import IModelAdmin, IAdmin
-from websauna.compat import typing
+
+# Websauna
+from websauna.system.admin.interfaces import IAdmin
+from websauna.system.admin.interfaces import IModelAdmin
 from websauna.system.core.traversal import Resource
 from websauna.system.crud.sqlalchemy import CRUD as CRUD
 from websauna.system.crud.sqlalchemy import Resource as AlchemyResource
@@ -79,7 +84,7 @@ class ModelAdminRoot(Resource):
         Resource.make_lineage(self, model_admin_resource, item)
         return model_admin_resource
 
-    def items(self) -> typing.List[typing.Tuple[str, ModelAdmin]]:
+    def items(self) -> t.List[t.Tuple[str, ModelAdmin]]:
         for id, model_cls in self.get_model_admins():
             yield id, self[id]
 

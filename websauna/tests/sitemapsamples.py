@@ -1,17 +1,20 @@
 """Permission test views."""
+# Standard Library
+import typing as t
+
+# Pyramid
 from pyramid.interfaces import ILocation
 from pyramid.response import Response
 from pyramid.view import view_config
-from websauna.system.core.route import simple_route
-from websauna.system.core.sitemap import include_in_sitemap
 from zope.interface import implementer
 
+# Websauna
 from websauna.system.core.interfaces import IContainer
 from websauna.system.core.root import Root
+from websauna.system.core.route import simple_route
+from websauna.system.core.sitemap import include_in_sitemap
 from websauna.system.core.traversal import Resource
 from websauna.system.http import Request
-from websauna.compat.typing import Iterable
-from websauna.compat.typing import Tuple
 
 
 class SampleResource(Resource):
@@ -29,7 +32,7 @@ class SampleContainer(SampleResource):
     def __init__(self, request, name):
         super(SampleContainer, self).__init__(request, name)
 
-    def items(self) -> Iterable[Tuple[str, ILocation]]:
+    def items(self) -> t.Iterable[t.Tuple[str, ILocation]]:
         # Every container instan
         request = self.request
 
@@ -141,5 +144,3 @@ def container_factory(request):
     container = SampleContainer(request, "Container folder")
     root = Root.root_factory(request)
     return Resource.make_lineage(root, container, "container")
-
-

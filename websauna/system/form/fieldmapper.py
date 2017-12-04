@@ -2,33 +2,41 @@
 
 Also encapsulate :term:`colanderalchemy` so that we don't need to directly expose it in the case we want to get rid of it later.
 """
+# Standard Library
 import logging
+import typing as t
+from abc import ABC
+from abc import abstractmethod
 
+# Pyramid
 import colander
-import deform
 
-from abc import ABC, abstractmethod
+# SQLAlchemy
 from sqlalchemy import Column
 from sqlalchemy import LargeBinary
 from sqlalchemy import Text
-from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID, JSONB, INET
+from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
+from sqlalchemy.dialects.postgresql import INET
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative.clsregistry import _class_resolver
-from sqlalchemy.orm import RelationshipProperty, Mapper
+from sqlalchemy.orm import Mapper
+from sqlalchemy.orm import RelationshipProperty
 from sqlalchemy.sql.type_api import TypeEngine
 
+import deform
+
+# Websauna
 from websauna.system.crud import Resource
-from websauna.system.form.colander import PropertyAwareSQLAlchemySchemaNode, TypeOverridesHandling
-from websauna.system.form.sqlalchemy import get_uuid_vocabulary_for_model, UUIDModelSet, UUIDForeignKeyValue
-from websauna.system.form.widgets import FriendlyUUIDWidget, JSONWidget
+from websauna.system.form.colander import PropertyAwareSQLAlchemySchemaNode
+from websauna.system.form.colander import TypeOverridesHandling
+from websauna.system.form.fields import JSONValue
+from websauna.system.form.sqlalchemy import UUIDForeignKeyValue
+from websauna.system.form.sqlalchemy import UUIDModelSet
+from websauna.system.form.sqlalchemy import get_uuid_vocabulary_for_model
+from websauna.system.form.widgets import FriendlyUUIDWidget
+from websauna.system.form.widgets import JSONWidget
 from websauna.system.http import Request
 from websauna.system.model import columns
-
-from websauna.system.form.fields import JSONValue
-from websauna.system.form.widgets import JSONWidget
-
-from websauna.compat.typing import List
-from websauna.compat.typing import Tuple
-from websauna.compat.typing import Optional
 
 from . import fields
 from .editmode import EditMode
@@ -36,7 +44,7 @@ from .editmode import EditMode
 
 # TODO: Clean this up when getting rid of colanderalchemy
 try:
-    # Temporary support to supress problematic form generation with geoalchemy
+    # Temporary support to suppress problematic form generation with geoalchemy
     from geoalchemy2 import Geometry
 except ImportError:
     Geometry = ()
@@ -49,7 +57,7 @@ class ColumnToFieldMapper(ABC):
     """A helper class to map a SQLAlchemy model to Colander/Deform form."""
 
     @abstractmethod
-    def map(self, mode:EditMode, request:Request, context:Resource, model:type, includes:List) -> colander.SchemaNode:
+    def map(self, mode:EditMode, request:Request, context:Resource, model:type, includes: t.List) -> colander.SchemaNode:
         """Map a model to a Colander form schema.
 
         :param mode: IS this add, edit or show form. For example, some relationship fields do not make sense on add form.
@@ -138,7 +146,7 @@ class DefaultSQLAlchemyFieldMapper(ColumnToFieldMapper):
         # Ok this is something we can handle, a single reference to another
         return self.map_standard_relationship(mode, request, node, model, name, rel)
 
-    def map_column(self, mode: EditMode, request: Request, node: colander.SchemaNode, model: type, name: str, column: Column, column_type: TypeEngine) -> Tuple[colander.SchemaType, dict]:
+    def map_column(self, mode: EditMode, request: Request, node: colander.SchemaNode, model: type, name: str, column: Column, column_type: TypeEngine) -> t.Tuple[colander.SchemaType, dict]:
         """Map non-relationship SQLAlchemy column to Colander SchemaNode.
 
         :return: Tuple(constructed colander.SchemaType, dict of addtional colander.SchemaNode construction arguments)
@@ -197,7 +205,7 @@ class DefaultSQLAlchemyFieldMapper(ColumnToFieldMapper):
             # Default mapping / unknown, let the parent handle
             return TypeOverridesHandling.unknown, {}
 
-    def map(self, mode: EditMode, request: Request, context: Optional[Resource], model: type, includes: List, nested=None) -> colander.SchemaNode:
+    def map(self, mode: EditMode, request: Request, context: t.Optional[Resource], model: type, includes: t.List, nested=None) -> colander.SchemaNode:
         """
         :param mode: What kind of form is this - show, add, edit
         :param request: HTTP request

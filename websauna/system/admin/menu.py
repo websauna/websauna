@@ -1,11 +1,13 @@
 """Simple mechanism to register admin menu entries."""
-
+# Standard Library
+import typing as t
 from collections import OrderedDict
-from websauna.compat.typing import Callable
-from websauna.compat.typing import List
 
+# Pyramid
 from pyramid.renderers import render
 from pyramid.request import Request
+
+# Websauna
 from websauna.system.core.traversal import Resource
 
 
@@ -28,7 +30,7 @@ class Menu:
         """Has this menu any entries to draw."""
         return any(entry.is_enabled(request) for entry in self.entries.values())
 
-    def get_entries(self) -> List:
+    def get_entries(self) -> t.List:
         """Get Entry objects to be rendered in this menu.
 
         Sort return by natural name order.
@@ -56,7 +58,7 @@ class Entry:
 
     caret = "fa fa-caret-down"
 
-    def __init__(self, id:str, label:str, icon:str=None, caret:str=None, css_class:str=None, template:str=None, submenu:Menu=None, condition:Callable=None, link:Callable=None, extra:dict=None):
+    def __init__(self, id:str, label:str, icon:str=None, caret:str=None, css_class:str=None, template:str=None, submenu:Menu=None, condition:t.Callable=None, link:t.Callable=None, extra:dict=None):
         """
         :param id: Machine id and CSS id for this menu entry
         :param label: Human-readable label of the menu item

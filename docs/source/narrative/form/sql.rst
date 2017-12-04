@@ -111,6 +111,7 @@ Below is an example how to create a relation picker in admin interface.
 
 .. code-block:: python
 
+    import typing as t
     import sqlalchemy as sa
     from sqlalchemy import orm
     import sqlalchemy.dialects.postgresql as psql
@@ -118,7 +119,6 @@ Below is an example how to create a relation picker in admin interface.
     from pyramid_sms.utils import normalize_us_phone_number
 
     from websauna.system.model.json import NestedMutationDict
-    from websauna.compat.typing import Tuple
     from websauna.system.model.columns import UTCDateTime
     from websauna.system.model.meta import Base
     from websauna.utils.time import now

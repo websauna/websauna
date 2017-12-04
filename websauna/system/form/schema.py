@@ -1,20 +1,17 @@
 """Various Colander schema base classes and utililties for forms."""
-
+# Standard Library
 import enum
 import json
+import typing as t
 
+# Pyramid
 import colander
-import deform
 
-from websauna.compat.typing import Optional
-from websauna.compat.typing import Tuple
-from websauna.compat.typing import Iterable
-from websauna.compat.typing import List
-
+import deform  # noQA
 
 #: Backwards compatibility
-from .csrf import CSRFSchema
-from .csrf import add_csrf
+from .csrf import CSRFSchema  # noQA
+from .csrf import add_csrf  # noQA
 
 
 def validate_json(node, value, **kwargs):
@@ -26,7 +23,7 @@ def validate_json(node, value, **kwargs):
         raise colander.Invalid(node, "Not valid JSON")
 
 
-def enum_values(source: enum.Enum, default:Optional[Tuple]=("", "Please choose"), name_transform=str.title) -> Iterable[Tuple]:
+def enum_values(source: enum.Enum, default:t.Optional[t.Tuple]=("", "Please choose"), name_transform=str.title) -> t.Iterable[t.Tuple]:
     """Turn Python Enum to key-value pairs lists to be used with selection widgets."""
 
     def inner():
@@ -129,5 +126,3 @@ def objectify(schema: colander.Schema, appstruct: dict, context: object, exclude
             setattr(context, name, appstruct[name])
         except AttributeError as e:
             raise AttributeError("Could not set attr {} on {} from schema {}".format(name, context, schema)) from e
-
-

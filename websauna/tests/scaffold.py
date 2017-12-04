@@ -4,7 +4,9 @@ import os
 import subprocess
 import sys
 import time
-from contextlib import closing, contextmanager
+import typing as t
+from contextlib import closing
+from contextlib import contextmanager
 from tempfile import mkdtemp
 
 # SQLAlchemy
@@ -13,8 +15,6 @@ import psycopg2
 import pytest
 from cookiecutter.main import cookiecutter
 
-# Websauna
-from websauna.compat.typing import List
 
 PYTHON_INTERPRETER = "python{}.{}".format(sys.version_info.major, sys.version_info.minor)
 
@@ -26,7 +26,7 @@ def print_subprocess_fail(worker, cmdline):
 
 
 
-def execute_command(cmdline: List, folder: str, timeout=5.0):
+def execute_command(cmdline: t.List, folder: str, timeout=5.0):
     """Run a command in a specific folder."""
     worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=folder)
 

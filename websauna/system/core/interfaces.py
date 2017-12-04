@@ -1,8 +1,9 @@
+# Standard Library
+import typing as t
+
+# Pyramid
 from pyramid.interfaces import ILocation
 from zope.interface import Interface
-
-from websauna.compat.typing import Iterable
-from websauna.compat.typing import Tuple
 
 
 class IRoot(Interface):
@@ -67,12 +68,10 @@ class IContainer(ILocation):
     TODO: Not sure if items() is the best way to do the child discovery. All ideas accepted.
     """
 
-    def items() -> Iterable[Tuple[str, ILocation]]:
+    def items() -> t.Iterable[t.Tuple[str, ILocation]]:
         """Return children in this container as (id, Resource instance) tuples.
 
         This usually dynamically populates from the database when this is called and there is no caching. The result is iterable only once.
 
         :return: Iterable (URL id, child object). Child objects can be any Python objects with `__parent__` pointer set as described by a generic interface :py:class:`pyramid.interfaces.ILocation`.
         """
-
-

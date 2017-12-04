@@ -1,14 +1,14 @@
 """Transaction retry point support for command line applications and daemons.."""
 
+# Standard Library
 import logging
 import threading
+import typing as t
 from functools import wraps
 
+# Pyramid
 import transaction
 from transaction import TransactionManager
-
-from websauna.compat.typing import Optional
-from websauna.compat.typing import Callable
 
 
 logger = logging.getLogger(__name__)
@@ -73,7 +73,7 @@ def is_retryable(txn, error):
             return True
 
 
-def retryable(tm: Optional[TransactionManager]=None, get_tm: Optional[Callable]=None):
+def retryable(tm: t.Optional[TransactionManager]=None, get_tm: t.Optional[t.Callable]=None):
     """Function decorator for§ SQL Serialized transaction conflict resolution through retries.
 
     You need to give either ``tm`` or ``get_tm`` argument.

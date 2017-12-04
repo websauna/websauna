@@ -7,27 +7,33 @@
 * Creating a WSGI application to test
 """
 
-
+# Standard Library
 import os
+import typing as t
 
+# Pyramid
 import plaster
-import transaction
 import pyramid.testing
-import pytest
+import transaction
 from pyramid.interfaces import IRequest
+from pyramid.paster import bootstrap
 from pyramid.registry import Registry
 from pyramid.router import Router
-from pyramid.paster import bootstrap
+
+# SQLAlchemy
 from sqlalchemy.orm.session import Session
 
+import pytest
+
+# Websauna
 from websauna.system.devop.cmdline import setup_logging
 from websauna.system.http.utils import make_routable_request
 from websauna.system.model.meta import create_dbsession
-from websauna.compat.typing import Optional
-from websauna.compat.typing import Callable
-from websauna.utils.qualname import get_qual_name
-
 from websauna.tests.utils import make_dummy_request
+#: Make sure py.test picks this up
+from websauna.tests.webserver import customized_web_server  # noqa
+from websauna.tests.webserver import web_server  # noqa
+from websauna.utils.qualname import get_qual_name
 
 
 @pytest.fixture(scope='session')
@@ -116,7 +122,7 @@ def paster_config(request, test_config_path, ini_settings) -> tuple:
     return global_config, ini_settings
 
 
-def get_app(ini_settings: dict, extra_init: Optional[Callable] = None) -> Router:
+def get_app(ini_settings: dict, extra_init: t.Optional[t.Callable] = None) -> Router:
     """Construct a WSGI application from INI settings.
 
     You can pass extra callable which is called back when Initializer is about to finish. This allows you to poke app configuration easily.
@@ -306,11 +312,3 @@ def scaffold_webdriver():
 
 def pytest_addoption(parser):
     parser.addoption("--ini", action="store", metavar="INI_FILE", help="use INI_FILE to configure SQLAlchemy")
-
-
-#: Make sure py.test picks this up
-from websauna.tests.webserver import web_server  # noqa
-from websauna.tests.webserver import customized_web_server  # noqa
-
-
-

@@ -1,26 +1,27 @@
 """Sending out HTML and plain text email."""
+# Standard Library
 import logging
+import typing as t
 from email.header import Header
 from email.utils import formataddr
 
-import premailer
-from transaction import TransactionManager
+# Pyramid
 from pyramid.renderers import render
 from pyramid.settings import asbool
+from transaction import TransactionManager
+
+import premailer
 from pyramid_mailer.message import Message
 
-from websauna.system.mail.utils import create_mailer
+# Websauna
 from websauna.system.http import Request
-from websauna.compat.typing import Optional
-from websauna.compat.typing import Tuple
-from websauna.compat.typing import List
-
+from websauna.system.mail.utils import create_mailer
 
 
 logger = logging.getLogger(__name__)
 
 
-def render_templated_mail(request: Request, template: str, context: dict) -> Tuple[str, str, str]:
+def render_templated_mail(request: Request, template: str, context: dict) -> t.Tuple[str, str, str]:
     """Render an email that is divided to three template files.
 
     The email is assembled from three different templates:
@@ -54,7 +55,7 @@ def render_templated_mail(request: Request, template: str, context: dict) -> Tup
     return subject, text_body, html_body
 
 
-def send_templated_mail(request: Request, recipients: List, template: str, context: dict, sender=None, immediate=None, tm: Optional[TransactionManager]=None) -> Tuple[str, str, str]:
+def send_templated_mail(request: Request, recipients: t.List, template: str, context: dict, sender=None, immediate=None, tm: t.Optional[TransactionManager]=None) -> t.Tuple[str, str, str]:
     """Send out templatized HTML and plain text emails.
 
     Each HTML email should have a plain text fallback. Premailer package is used to convert any CSS styles in HTML email messages to inline, so that email clients display them.
@@ -160,5 +161,3 @@ def send_templated_mail(request: Request, recipients: List, template: str, conte
         mailer.send(message)
 
     return subject, text_body, html_body
-
-

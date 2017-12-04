@@ -1,7 +1,17 @@
+"""SQLAlchemy form support."""
+# Standard Library
+import typing as t
+
+# Pyramid
 from pyramid.interfaces import IRequest
 
-from sqlalchemy.orm import Query, Session
+# SQLAlchemy
+from sqlalchemy.orm import Query
+from sqlalchemy.orm import Session
+
+# Websauna
 from websauna.system.http import Request
+
 from . import CRUD as _CRUD
 from . import Resource as _Resource
 
@@ -14,7 +24,10 @@ class Resource(_Resource):
 
     def get_title(self):
         """Title on show / edit / delete pages."""
-        return "{} #{}".format(self.__parent__.title, self.obj.id)
+        return "{parent_title} #{id}".format(
+            parent_title=self.__parent__.title,
+            id=self.obj.id
+        )
 
 
 class CRUD(_CRUD):
@@ -23,9 +36,10 @@ class CRUD(_CRUD):
     A traversing endpoint which maps listing, add, edit and delete views for an SQLAlchemy model.
     """
 
-    def __init__(self, request:IRequest, model:type=None):
+    def __init__(self, request: IRequest, model: t.Optional[type]=None):
         """Create a CRUD root resource for a given model.
 
+        :param request: Current HTTP Request.
         :param model: Can be set on class level or instance level.
         """
         super(CRUD, self).__init__(request)
@@ -34,13 +48,18 @@ class CRUD(_CRUD):
             self.model = model
 
     def get_model(self):
-        """Get the SQLAlchemy model instance we are managing."""
+        """Get the SQLAlchemy model instance we are managing.
+
+        :return: SQLAlchemy model instance.
+        """
         return self.model
 
     def get_dbsession(self) -> Session:
         """Override to use a different database session.
 
         Default to ``request.dbsession``.
+
+        :return: A database session.
         """
         return self.request.dbsession
 
@@ -48,6 +67,8 @@ class CRUD(_CRUD):
         """Get SQLAlchemy Query object which we use to populate this listing.
 
         Views can specify their own queries - e.g. filter by user. This is just the default for everything.
+
+        :return: SQLAlchemy query.
         """
         model = self.get_model()
         dbsession = self.get_dbsession()
@@ -57,6 +78,7 @@ class CRUD(_CRUD):
         """Delete one item in the CRUD.
 
         Called by delete view if no alternative logic is implemented.
+        :param obj: Raw object, e.g. SQLAlchemy instance.
         """
         dbsession = self.get_dbsession()
         return dbsession.delete(obj)
@@ -85,6 +107,9 @@ class CRUD(_CRUD):
 def sqlalchemy_deleter(view: object, context: Resource, request: Request):
     """A view callback to delete item in SQLAlchemy CRUD.
 
+    :param view: View object.
+    :param context: Traversal context
+    :param request: Current HTTP Request.
     """
     obj = context.get_object()
     dbsession = request.dbsession

@@ -1,12 +1,14 @@
 """An abstract CRUD implementation based on traversal. The default support for SQLAlchemy and Deform."""
-
+# Standard Library
 from abc import abstractmethod
+import typing as t
 
+# Pyramid
 from pyramid.interfaces import IRequest
 
+# Websauna
 from websauna.system.core.traversal import Resource as _Resource
 from websauna.system.http import Request
-from websauna.compat.typing import Any
 
 from .urlmapper import Base64UUIDMapper
 
@@ -20,17 +22,17 @@ class Resource(_Resource):
     """
 
     def __init__(self, request: Request, obj: object):
-        """
-        :param obj: The underlying object we wish to wrap for traversing. Usually SQLALchemy model instance.
-        """
+        """Initialize resource object.
 
+        :param obj: The underlying object we wish to wrap for traversing. Usually SQLAlchemy model instance.
+        """
         # Some safety checks we get arguments correctly.n
         assert IRequest.providedBy(request)
 
         self.request = request
         self.obj = obj
 
-    def get_object(self) -> Any:
+    def get_object(self) -> t.Any:
         """Return the wrapped database object."""
         return self.obj
 
@@ -71,7 +73,6 @@ class CRUD(_Resource):
 
         Delete: $base/$id/delete
     """
-
     # How the model is referred in templates. e.g. "User"
     title = "(untitled CRUD)"
 
@@ -86,10 +87,10 @@ class CRUD(_Resource):
     #: Mapper defines how objects are mapped to URL space. The default mapper assumes models have attribute ``uuid`` which is base64 encoded to URL. You can change this to :py:class:`websauna.system.crud.urlmapper.IdMapper` if you instead to want to use ``id`` as a running counter primary column in URLs. This is not recommended in security wise, though.
     mapper = Base64UUIDMapper()
 
-    def make_resource(self, obj) -> Resource:
+    def make_resource(self, obj: object) -> Resource:
         """Take raw model instance and wrap it to Resource for traversing.
 
-        :param obj: SQLALchemy object or similar model object.
+        :param obj: SQLAlchemy object or similar model object.
         :return: :py:class:`websauna.core.traverse.Resource`
         """
 
@@ -97,67 +98,72 @@ class CRUD(_Resource):
         if hasattr(self, "Resource"):
             return self.Resource(self.request, obj)
 
-        raise NotImplementedError("Does not know how to wrap to resource: {}".format(obj))
+        raise NotImplementedError("Does not know how to wrap to resource: {obj}".format(obj=obj))
 
-    def wrap_to_resource(self, obj) -> Resource:
-        # Wrap object to a traversable part
+    def wrap_to_resource(self, obj: object) -> Resource:
+        """Wrap object to a traversable part.
+
+        :param obj: SQLAlchemy object or similar model object.
+        :return: :py:class:`websauna.core.traverse.Resource`
+        """
         instance = self.make_resource(obj)
 
         path = self.mapper.get_path_from_object(obj)
-        assert type(path) == str, "Object {} did not map to URL path correctly, got path {}".format(obj, path)
+        assert type(path) == str, "Object {obj} did not map to URL path correctly, got path {path}".format(obj=obj, path=path)
         instance.make_lineage(self, instance, path)
         return instance
 
-    def traverse_to_object(self, path) -> Resource:
+    def traverse_to_object(self, path: str) -> Resource:
         """Wraps object to a traversable URL.
 
-        Loads raw database object with id and puts it inside ``Instance`` object,
-         with ``__parent__`` and ``__name__`` pointers.
-        """
+        Loads raw database object with id and puts it inside ``Instance`` object, with ``__parent__`` and ``__name__`` pointers.
 
+        :param path: Path to be traversed to.
+        :return: :py:class:`websauna.core.traverse.Resource`
+        """
         # First try if we get an view for the current instance with the name
         id = self.mapper.get_id_from_path(path)
         obj = self.fetch_object(id)
         return self.wrap_to_resource(obj)
 
     @abstractmethod
-    def fetch_object(self, id) -> object:
-        """Load object from the database for CRUD path for view/edit/delete."""
-        raise NotImplementedError("Please use concrete subclass like websauna.syste.crud.sqlalchemy")
+    def fetch_object(self, id: str) -> object:
+        """Load object from the database for CRUD path for view/edit/delete.
 
-    def get_object_url(self, obj, view_name=None) -> str:
+        :param id: Object id.
+        :return: Object from database.
+        """
+        raise NotImplementedError('Please use concrete subclass like websauna.syste.crud.sqlalchemy')
+
+    def get_object_url(self, obj: object, view_name: t.Optional[str]=None) -> str:
         """Get URL for view for an object inside this CRUD.
 
-        ;param request: HTTP request instance
-
         :param obj: Raw object, e.g. SQLAlchemy instance, which can be wrapped with ``wrap_to_resource``.
-
         :param view_name: Traverse view name for the resource. E.g. ``show``, ``edit``.
+        :return: URL to the object.
         """
         res = self.wrap_to_resource(obj)
+        args = [res, ]
         if view_name:
-            return self.request.resource_url(res, view_name)
-        else:
-            return self.request.resource_url(res)
+            args.append(view_name)
+        return self.request.resource_url(*args)
 
-    def delete_object(self, obj):
+    def delete_object(self, obj: object):
         """Delete one item in the CRUD.
 
         Called by delete view if no alternative logic is implemented.
+        :param obj: Raw object, e.g. SQLAlchemy instance.
         """
         raise NotImplementedError("The subclass must implement actual delete method or give deleter callback in Delete view.")
 
-    def __getitem__(self, path) -> Resource:
+    def __getitem__(self, path: str) -> Resource:
         """Traverse to a model instance.
 
         :param path: Part of URL which is resolved to an object via ``mapper``.
+        :return: :py:class:`websauna.core.traverse.Resource`
         """
-
-        if self.mapper.is_id(path):
-            return self.traverse_to_object(path)
-        else:
+        if not self.mapper.is_id(path):
             # Signal that this id is not part of the CRUD database and may be a view
             raise KeyError
 
-
-
+        return self.traverse_to_object(path)

@@ -1,11 +1,22 @@
-from urllib.parse import urlencode, urlsplit, parse_qsl, urlunsplit
+"""Paginator."""
+# Standard Library
 import math
+import typing as t
+from urllib.parse import parse_qsl
+from urllib.parse import urlencode
+from urllib.parse import urlsplit
+from urllib.parse import urlunsplit
 
 
-def merge_url_qs(url, **kw):
-    """ Merge the query string elements of a URL with the ones in ``kw``.
-    If any query string element exists in ``url`` that also exists in
-    ``kw``, replace it."""
+def merge_url_qs(url: str, **kw) -> str:
+    """Merge the query string elements of a URL with the ones in ``kw``.
+
+    If any query string element exists in ``url`` that also exists in ``kw``, replace it.
+
+    :param url: An URL.
+    :param kw: Dictionary with keyword arguments.
+    :return: An URL with keyword arguments merged into the query string.
+    """
     segments = urlsplit(url)
     extra_qs = [
         (k, v)
@@ -15,12 +26,10 @@ def merge_url_qs(url, **kw):
     qs = urlencode(sorted(kw.items()))
     if extra_qs:
         qs += '&' + urlencode(extra_qs)
-    return urlunsplit(
-        (segments.scheme, segments.netloc, segments.path, qs, segments.fragment)
-    )
+    return urlunsplit((segments.scheme, segments.netloc, segments.path, qs, segments.fragment))
 
 
-class Batch(object):
+class Batch:
     """Present one paginator batch in the list rendering output.
 
     Originally courtesy of SubstanceD project.
@@ -251,11 +260,16 @@ class Batch(object):
 class DefaultPaginator:
     """Default pagination implementation for CRUD, having 20 items per page."""
 
-    template = "crud/paginator.html"
+    template = 'crud/paginator.html'
 
     default_size = 20
 
-    def __init__(self, template=None, default_size=None):
+    def __init__(self, template: t.Optional[str]=None, default_size: t.Optional[int]=None):
+        """Initialize DefaultPaginator.
+
+        :param template: Path to paginator template.
+        :param default_size: Pagination size.
+        """
         if template:
             self.template = template
 

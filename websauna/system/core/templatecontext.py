@@ -1,23 +1,25 @@
 """Websauna template filters ."""
+# Standard Library
 import datetime
 import json
+import typing as t
 
-import arrow
+# Pyramid
+from jinja2 import Markup
+from jinja2 import contextfilter
 from pyramid.config import Configurator
 from pyramid.renderers import render
 from pyramid.threadlocal import get_current_request
 
-from pytz import timezone
-from jinja2 import contextfilter
-from jinja2 import Markup
+import arrow
 from arrow import Arrow
+from pytz import timezone
 
-from websauna.compat import typing
+# Websauna
 from websauna.system.admin.utils import get_admin_url_for_sqlalchemy_object
+from websauna.system.core.panel import render_panel as _render_panel
 from websauna.utils import html
 from websauna.utils import slug
-
-from websauna.system.core.panel import render_panel as _render_panel
 
 
 @contextfilter
@@ -293,7 +295,7 @@ def from_timestamp(jinja_ctx, context, **kw):
     return ct
 
 
-def include_filter(config:Configurator, name:str, func:typing.Callable, renderers=(".html", ".txt",)):
+def include_filter(config:Configurator, name:str, func: t.Callable, renderers=(".html", ".txt",)):
     """Register a new Jinja 2 template filter function.
 
     Example::
@@ -352,5 +354,3 @@ def includeme(config):
     include_filter(config, "arrow_format", arrow_format)
     include_filter(config, "render_panel", render_panel)
     include_filter(config, "admin_url", admin_url)
-
-

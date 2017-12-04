@@ -5,6 +5,14 @@ Changelog for Websauna
 1.0a5 (unreleased)
 ------------------
 
+- Added support for Pyramid 1.9
+
+- Added support for Python 3.6
+
+- Closes `Issue #29`_: Allow setting redis.sessions.url and websauna.celery_config from secrets file
+
+- Refactor SocialLoginMapper: separate ABC and Interface to their own classes.
+
 - Enable Twitter login
 
 - Use proper JSON field for ``User.user_data`` in the admin interfaces
@@ -45,3 +53,4 @@ Changelog for Websauna
 
 
 .. _`Issue #29`: https://github.com/websauna/websauna/issues/29
+.. _`Issue #145`: https://github.com/websauna/websauna/issues/145

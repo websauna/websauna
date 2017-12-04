@@ -490,17 +490,23 @@ Inspecting task queue
 
 Sometimes you run to issues of not being sure if the tasks are being executed or not. First check that Celery is running, both scheduler process and worker processes. Then you can check the status of Celery queue.
 
-Start shell or do through IPython Notebook::
+Start shell or do through IPython Notebook:
 
-    ws-shell production.ini
+.. code-block:: console
 
-How many tasks queued in the default celery queue::
+    ws-shell ws://my/app/conf/production.ini
+
+How many tasks queued in the default celery queue:
+
+.. code-block:: python
 
     from celery.task.control import inspect
     i = inspect()
     print(len(list(i.scheduled().values())[0]))
 
-Print out Celery queue and active tasks::
+Print out Celery queue and active tasks:
+
+.. code-block:: python
 
     from celery.task.control import inspect
     i = inspect()
@@ -518,9 +524,11 @@ Dropping task queue
 
 First stop worker.
 
-Then start worker locally attacted to the terminal with --purge and it will drop all the messages::
+Then start worker locally attacthed to the terminal with --purge and it will drop all the messages:
 
-    ws-celery production.ini -- worker --purge
+.. code-block:: console
+
+    ws-celery  ws://my/app/conf/production.ini -- worker --purge
 
 Stop with CTRL+C.
 

@@ -568,6 +568,13 @@ class Add(FormView):
         # Redirect back to view page after edit page has succeeded
         return HTTPFound(self.request.resource_url(resource, "show"))
 
+    def do_cancel(self) -> Response:
+        """Called when user presses the cancel button.
+
+        :return: HTTPResponse
+        """
+        return HTTPFound(self.request.resource_url(self.get_crud(), "listing"))
+
     def build_object(self, form, appstruct: dict) -> object:
         """Builds a new object.
 
@@ -622,7 +629,7 @@ class Add(FormView):
 
         elif "cancel" in self.request.POST:
             # User pressed cancel
-            return HTTPFound(self.request.resource_url(self.get_crud(), "listing"))
+            return self.do_cancel()
         else:
             # Render initial form view with populated values
             rendered_form = form.render()

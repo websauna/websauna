@@ -130,6 +130,7 @@ setup(
         'dev': [
             'ruamel.yaml',
             'setuptools_git',
+            'pyroma==2.2',  # This is needed until version 2.4 of Pyroma is released
             'sphinx>=1.6.1',
             'sphinx-autodoc-typehints',
             'sphinx_rtd_theme',

@@ -2,7 +2,7 @@ Changelog for Websauna
 ======================
 
 
-1.0a5 (unreleased)
+1.0a5 (2017-12-12)
 ------------------
 
 - Added support for Pyramid 1.9

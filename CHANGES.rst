@@ -5,7 +5,7 @@ Changelog for Websauna
 1.0a6 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Closes `Issue #155`_: AttributeError: 'super' has no attribute update_first_login_social_data on first user login.
 
 
 1.0a5 (2017-12-12)
@@ -60,3 +60,4 @@ Changelog for Websauna
 
 .. _`Issue #29`: https://github.com/websauna/websauna/issues/29
 .. _`Issue #145`: https://github.com/websauna/websauna/issues/145
+.. _`Issue #155`: https://github.com/websauna/websauna/issues/155

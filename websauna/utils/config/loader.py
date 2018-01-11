@@ -55,7 +55,7 @@ class Loader(plaster_pastedeploy.Loader):
         """
         return self._get_loader(defaults).parser
 
-    def setup_logging(self, defaults: t.Optional[dict]=None):
+    def setup_logging(self, defaults: t.Optional[dict]=None, disable_existing_loggers=False):
         """Set up logging via :func:`logging.config.fileConfig`.
 
         Defaults are specified for the special ``__file__`` and ``here``
@@ -63,6 +63,7 @@ class Loader(plaster_pastedeploy.Loader):
         optionally be specified as a dict in ``defaults``.
 
         :param defaults: The defaults that will be used when passed to :func:`logging.config.fileConfig`.
+        :param disable_existing_loggers: Should existing loggers be disabled.
         """
         defaults = defaults if defaults else {}
         if 'loggers' in self.get_sections():
@@ -72,7 +73,7 @@ class Loader(plaster_pastedeploy.Loader):
                 {
                     '__file__': uri_path,
                     'here': os.path.dirname(uri_path),
-                    'disable_existing_loggers': False
+                    'disable_existing_loggers': disable_existing_loggers
                 }
             )
             fileConfig(

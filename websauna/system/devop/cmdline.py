@@ -30,7 +30,7 @@ def prepare_config_uri(config_uri: str) -> str:
 
 
 def get_wsgi_app(config_uri: str,  defaults: dict) -> router.Router:
-    """Return a Websauna WSGI application given a configuration uri. 
+    """Return a Websauna WSGI application given a configuration uri.
 
     :param config_uri: Configuration uri, i.e.: websauna/conf/development.ini.
     :param defaults: Extra options to be passed to the app.
@@ -55,7 +55,9 @@ def initializer_from_app(app: router.Router) -> Initializer:
 def setup_logging(config_uri, disable_existing_loggers=False):
     """Include-aware Python logging setup from INI config file.
     """
-    pass
+    config_uri = prepare_config_uri(config_uri)
+    loader = plaster.get_loader(config_uri, protocols=['wsgi'])
+    loader.setup_logging(disable_existing_loggers=disable_existing_loggers)
 
 
 def setup_console_logging(log_level: t.Optional[str]=None):

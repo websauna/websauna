@@ -35,7 +35,7 @@ def kill_user_sessions(request, user, operation):
     # Notify session to drop this user
     user.last_auth_sensitive_operation_at = now()
     e = events.UserAuthSensitiveOperation(request, user, operation)
-    request.registry.notify(e)
+    request.registry.notify(e, request)
 
 
 @panel_config(name='admin_panel', context=UserAdmin, renderer='admin/user_panel.html')

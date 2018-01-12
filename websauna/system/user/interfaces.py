@@ -1,6 +1,7 @@
 """Define various interfaces telling how user subsystem objects interact and can be looked up from registry."""
 
 import zope
+import authomatic
 from pyramid.interfaces import IRequest, IResponse
 
 from zope.interface import Interface
@@ -48,6 +49,28 @@ class IAuthomatic(Interface):
 
 class ISocialLoginMapper(Interface):
     """Named marker interface to look up social login mappers."""
+
+    def capture_social_media_user(self, request:IRequest, result:authomatic.core.LoginResult) -> IUserModel:
+        """Extract social media information from the Authomatic login result in order to associate the user account."""
+
+    def import_social_media_user(self, user:authomatic.core.User) -> dict:
+        """Map incoming social network data to internal data structure.
+
+        Sometimes social networks change how the data is presented over API and you might need to do some wiggling to get it a proper shape you wish to have.
+
+        The resulting dict must be JSON serializable as it is persisted as is.
+
+        """
+
+    def update_first_login_social_data(self, user:object, data:dict):
+        """Set the initial data on the user model.
+
+        When the user logs in from a social network for the first time (no prior logins with this email before) we fill in blanks in the user model with incoming data.
+
+        Default action is not to set any items.
+
+        :param data: Normalized data
+        """
 
 
 class ISiteCreator(Interface):

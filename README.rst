@@ -1,14 +1,10 @@
 Websauna is a full stack Python web framework for building web services and back offices with admin interface and sign up process.
 
-.. |ci| image:: https://travis-ci.org/websauna/websauna.svg
+.. |ci| image:: https://img.shields.io/travis/websauna/websauna/master.svg?style=flat-square
     :target: https://travis-ci.org/websauna/websauna/
 
 .. |cov| image:: https://codecov.io/github/websauna/websauna/coverage.svg?branch=master
     :target: https://codecov.io/github/websauna/websauna?branch=master
-
-.. |downloads| image:: https://img.shields.io/pypi/dm/websauna.svg
-    :target: https://pypi.python.org/pypi/websauna/
-    :alt: Downloads
 
 .. |latest| image:: https://img.shields.io/pypi/v/websauna.svg
     :target: https://pypi.python.org/pypi/websauna/
@@ -22,13 +18,11 @@ Websauna is a full stack Python web framework for building web services and back
     :target: https://pypi.python.org/pypi/websauna/
     :alt: Supported Python versions
 
-+-----------+-----------+
-| |cov|     ||downloads||
-+-----------+-----------+
-| |ci|      | |license| |
-+-----------+-----------+
-| |versions|| |latest|  |
-+-----------+-----------+
++-----------+-----------+-----------+
+| |versions|| |latest|  | |license| |
++-----------+-----------+-----------+
+| |ci|      | |cov|     |           |
++-----------+-----------+-----------+
 
 .. image:: https://websauna.org/theme/images/logo-768.png
 

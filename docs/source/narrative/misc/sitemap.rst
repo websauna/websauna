@@ -26,7 +26,7 @@ Automatic sitemap generation uses :py:class:`websauna.system.core.interfaces.ICo
 
 Automatic sitemap generation is one of more powerful use cases of traversal based routing.
 
-.. note ::
+.. note::
 
     Automatic sitemap generation doesn't work with parametrized public urls like ``/my_view/{object-id}``. Thus, it is recommended to :ref:`Traversal <traversal>` based routing if you have any container like URLs. If you use parametrized URL dispatching and you want to these routes to be included in the sitemap, see Manual sitemap generation below.
 

@@ -1,4 +1,6 @@
 """HTML manipulation helpers."""
+import typing as t
+
 
 _js_escapes = {
     ord('\\'): '\\u005C',
@@ -18,8 +20,12 @@ _js_escapes = {
 _js_escapes.update((ord('%c' % z), '\\u%04X' % z) for z in range(32))
 
 
-def escape_js(value):
-    """Hex encodes characters for use in JavaScript strings."""
+def escape_js(value: t.AnyStr) -> str:
+    """Hex encodes characters for use in JavaScript strings.
+
+    :param value: String to be escaped.
+    :return: A string safe to be included inside a <script> tag.
+    """
     return str(value).translate(_js_escapes)
 
 

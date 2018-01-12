@@ -1,7 +1,11 @@
+# Standard Library
 import sys
-from setuptools import setup, find_packages
 from codecs import open
 from os import path
+
+from setuptools import find_packages
+from setuptools import setup
+
 
 assert sys.version_info >= (3,4), "Websauna needs Python 3.4 or newer, you have {}".format(sys.version_info)
 
@@ -16,7 +20,7 @@ setup(
     name='websauna',
     namespace_packages=["websauna"],
 
-    version='1.0a5.dev0',
+    version='1.0a6.dev0',
 
     description=long_description.split("\n")[0],
     long_description=long_description,
@@ -48,6 +52,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Framework :: Pyramid',
     ],
 
@@ -74,7 +79,7 @@ setup(
     install_requires=[
 
         # Pyramid dependencies
-        'pyramid<1.9',
+        'pyramid>=1.9',
         'waitress',
         'pyramid_redis_sessions',
         'pyramid-layout',
@@ -93,6 +98,7 @@ setup(
         "alembic",
         "colanderalchemy",
         "pyramid_tm",
+        "pyramid_retry",
         "sqlalchemy-utils",
 
         # User management
@@ -104,13 +110,13 @@ setup(
         'premailer',
 
         # Python 3.4 typing
-        "backports.typing",
+        "typing;python_version<'3.5'",
 
         # Console logging
         "rainbow_logging_handler",
 
         # Misc
-        "scandir",  # os.scandir backport for py3.4
+        "scandir;python_version<'3.5'",  # os.scandir backport for py3.4
         "python-slugify", # ASCII slug generation
     ],
 
@@ -122,18 +128,18 @@ setup(
 
         # Dependencies needed to build and release Websauna
         'dev': [
-            'check-manifest',
-            'pyramid_autodoc',
             'ruamel.yaml',
             'setuptools_git',
-            'sphinx==1.5.6',
+            'pyroma==2.2',  # This is needed until version 2.4 of Pyroma is released
+            'sphinx>=1.6.1',
             'sphinx-autodoc-typehints',
             'sphinx_rtd_theme',
             'sphinxcontrib-zopeext',
-            'zest.releaser'
+            'zest.releaser[recommended]'
         ],
 
         'test': [
+            'cookiecutter',
             'codecov',
             'pytest>=3.0',
             'pytest-runner',
@@ -178,12 +184,13 @@ setup(
             'ws-create-table=websauna.system.devop.scripts.createtable:main',
             'ws-sanity-check=websauna.system.devop.scripts.sanitycheck:main',
             'ws-collect-static=websauna.system.devop.scripts.collectstatic:main',
+            'ws-settings=websauna.system.devop.scripts.settings:main',
         ],
 
         'paste.app_factory': [
             'main=websauna.system:main',
 
-            # Scheduler auomated test suite entry point with some extra configured taskss
+            # Scheduler automated test suite entry point with some extra configured taskss
             'task_test=websauna.tests.demotasks:main',
             'tutorial_test=websauna.tests.tutorial:main',
         ],
@@ -191,6 +198,14 @@ setup(
         'pyramid.scaffold': [
             "websauna_app=websauna.scaffolds:App",
             "websauna_addon=websauna.scaffolds:Addon",
-        ]
+        ],
+
+        'plaster.loader_factory': [
+            'ws=websauna.utils.config.loader:Loader',
+        ],
+
+        'plaster.wsgi_loader_factory': [
+            'ws=websauna.utils.config.loader:Loader',
+        ],
     },
 )

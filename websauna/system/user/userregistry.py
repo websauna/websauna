@@ -1,17 +1,24 @@
 """Default user object generator."""
+# Standard Library
+import typing as t
 from datetime import timedelta
 
-from sqlalchemy import func
-from websauna.system.user import events
-from websauna.system.user.interfaces import IUserRegistry, IUser, IPasswordHasher
-from websauna.system.user.usermixin import UserMixin, GroupMixin
-from websauna.system.user.utils import get_user_class, get_activation_model
-
-from websauna.compat.typing import Optional
-from websauna.compat.typing import List
-from websauna.compat.typing import Tuple
-from websauna.utils.time import now
+# Pyramid
 from zope.interface import implementer
+
+# SQLAlchemy
+from sqlalchemy import func
+
+# Websauna
+from websauna.system.user import events
+from websauna.system.user.interfaces import IPasswordHasher
+from websauna.system.user.interfaces import IUser
+from websauna.system.user.interfaces import IUserRegistry
+from websauna.system.user.usermixin import GroupMixin
+from websauna.system.user.usermixin import UserMixin
+from websauna.system.user.utils import get_activation_model
+from websauna.system.user.utils import get_user_class
+from websauna.utils.time import now
 
 
 @implementer(IUserRegistry)
@@ -69,10 +76,10 @@ class DefaultEmailBasedUserRegistry:
     def can_login(self, user):
         return user.can_login()
 
-    def get_groups(self, user) -> List[GroupMixin]:
+    def get_groups(self, user) -> t.List[GroupMixin]:
         return user.groups
 
-    def create_password_reset_token(self, email) -> Optional[Tuple[object, str, int]]:
+    def create_password_reset_token(self, email) -> t.Optional[t.Tuple[object, str, int]]:
         """Sets password reset token for user.
 
         :return: [User, password reset token, token expiration in seconds]. ``None`` if user is disabled or is not email login based.
@@ -95,7 +102,7 @@ class DefaultEmailBasedUserRegistry:
 
         return user, activation.code, activation_token_expiry_seconds
 
-    def create_email_activation_token(self, user) -> Tuple[str, int]:
+    def create_email_activation_token(self, user) -> t.Tuple[str, int]:
         """Create activation token for the user to be used in the email
 
         :return: Tuple (email activation code, expiration in seconds)
@@ -109,7 +116,7 @@ class DefaultEmailBasedUserRegistry:
         user.activation = activation
         return [activation.code, activation_token_expiry_seconds]
 
-    def get_authenticated_user_by_username(self, username, password) -> Optional[UserMixin]:
+    def get_authenticated_user_by_username(self, username, password) -> t.Optional[UserMixin]:
         """Authenticate incoming user.
 
         :return: User instance of none if password does not match
@@ -119,7 +126,7 @@ class DefaultEmailBasedUserRegistry:
             return user
         return None
 
-    def get_authenticated_user_by_email(self, email, password) -> Optional[UserMixin]:
+    def get_authenticated_user_by_email(self, email, password) -> t.Optional[UserMixin]:
         user = self.get_by_email(email)
         if user and self.verify_password(user, password):
             return user
@@ -201,6 +208,3 @@ class DefaultEmailBasedUserRegistry:
 
         self.dbsession.flush()
         return u
-
-
-

@@ -14,7 +14,7 @@ To run a Websauna application you need a server with
 
 It is possible to run Websauna on a shared hosting, but due to an increased complexity set it up it is not covered here.
 
-.. note ::
+.. note::
 
     It is possible to run Websauna with 512 MB or less RAM, but there are practical deployment problems e.g due to GCC compiler memory usage.
 

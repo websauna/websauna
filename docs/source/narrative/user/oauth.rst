@@ -9,7 +9,7 @@ Introduction
 
 Internally Websauna uses :py:term:`Authomatic` framework to implement :term:`OAuth`.
 
-See Getting started tutorial how to set up Facebook authentication. Same mechanism applies to every OAuth provider like Google, Twitter and Github.
+See Getting started tutorial how to set up Facebook authentication. Same mechanism applies to every OAuth provider like Google, Twitter and GitHub.
 
 Enhanced login experience
 =========================

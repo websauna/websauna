@@ -1,11 +1,13 @@
 """py.test fixtures for spinning up a WSGI server for functional test run."""
-
+# Standard Library
 import logging
-import pytest
-from pyramid.router import Router
-from webtest.http import StopableWSGIServer
+import typing as t
 
-from websauna.compat import typing
+# Pyramid
+from pyramid.router import Router
+
+import pytest
+from webtest.http import StopableWSGIServer
 
 
 logger = logging.getLogger(__name__)
@@ -40,7 +42,7 @@ _customized_web_server_port = 8523
 
 
 @pytest.fixture()
-def customized_web_server(request, app: Router, customized_port: int=None) -> typing.Callable:
+def customized_web_server(request, app: Router, customized_port: int=None) -> t.Callable:
     '''py.test fixture to create a WSGI web server for functional tests with custom INI options set.
 
     This is similar to ``web_server``, but instead directly spawning a server, it returns a factory method which you can use to launch the web server which custom parameters besides those given in test.ini.

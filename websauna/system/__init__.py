@@ -6,40 +6,72 @@
 # This, and the reason that we can use component architecture and replace and disable framework parts in Initializer, are the driving factors of not to do module level imports here.
 #
 
+# Standard Library
+import logging
+import os
 import sys
-
-# Check Python version
-assert sys.version_info >= (3,4), "Websauna needs Python 3.4 or newer"
-
-primary, major, minor, *rest = sys.version_info
-# 3.5.2 min
-if primary == 3 and major == 5 and minor < 2:
-    raise AssertionError("Python 3.5.2 or newer is required to run this, as there is a bug in Python 3.5.1 typing library")
-
-
+import typing as t
 from distutils.version import LooseVersion
+
+# Pyramid
+from pyramid.config import Configurator
+from pyramid.interfaces import IDebugLogger
+from pyramid.interfaces import IRequest
+from pyramid.interfaces import IViewMapperFactory
+from pyramid.path import DottedNameResolver
+from pyramid.settings import asbool
+from pyramid.settings import aslist
+
 import pkg_resources
 
-# Check Pyramid version
-pyramid_ver = LooseVersion(pkg_resources.get_distribution("pyramid").version).version
-if pyramid_ver[0] == 1:
-    assert pyramid_ver[0] >= 1 and pyramid_ver[1] >= 7, "Pyramid version 1.7 or newer required"
-
-import logging
-
-from pyramid.config import Configurator
-from pyramid.interfaces import IDebugLogger, IViewMapperFactory, IRequest
-from pyramid.path import DottedNameResolver
-from pyramid.settings import aslist
-from pyramid.settings import asbool
-
+# Websauna
 from websauna.utils.autoevent import event_source
-from websauna.utils.configincluder import IncludeAwareConfigParser
-from websauna.compat.typing import Optional
+from websauna.utils.config.includer import IncludeAwareConfigParser  # noQA
 
 
 class SanityCheckFailed(Exception):
     """Looks like the application has configuration which would fail to run."""
+
+
+class RequirementsFailed(Exception):
+    """Websauna minimum requirements were not met."""
+
+
+def check_python_pyramid_requirements() -> bool:
+    """Check for Python and Pyramid requirements.
+
+    :return: Boolean indicating if Python and Pyramid requirements are met.
+    """
+    error_msg = ''
+    python_version = sys.version_info
+    pyramid_version = tuple(LooseVersion(pkg_resources.get_distribution('pyramid').version).version)
+    if python_version < (3, 4):
+        error_msg = 'Websauna needs Python 3.4 or newer'
+    elif (3, 5) < python_version < (3, 5, 2):
+        error_msg = 'Python 3.5.2 or newer is required to run this, as there is a bug in Python 3.5.1 typing library'
+    elif pyramid_version < (1, 7):
+        error_msg = 'Pyramid version 1.7 or newer required'
+    if error_msg:
+        raise RequirementsFailed(error_msg)
+    return True
+
+
+def _expandvars(value: t.Any) -> t.Any:
+    processed = value
+    if isinstance(value, dict):
+        processed = expandvars_dict(value)
+    elif isinstance(value, (str, bytes)):
+        processed = os.path.expandvars(value)
+    return processed
+
+
+def expandvars_dict(settings: dict) -> dict:
+    """Expand all environment variables in a settings dictionary.
+
+    ref: http://stackoverflow.com/a/16446566
+    :returns: Dictionary with settings
+    """
+    return {key: _expandvars(value) for key, value in settings.items()}
 
 
 class Initializer:
@@ -64,14 +96,25 @@ class Initializer:
         We deliberate push imports inside methods, so that it is unlikely we'd have any import time side effects caused by some less elegant solutions, like gevent.
     """
 
-    def __init__(self, global_config: dict, settings: Optional[dict]=None):
+    def __init__(self, global_config: dict, settings: t.Optional[dict]=None):
         """
         :param global_config: Dictionary as passed to WSGI entry point.
 
         :param settings: DEPRECATED. Extra settings as passed to WSGI entry point. TODO: How to handle these?
         """
+        import plaster
+
+        # Check if Python and Pyramid versions are the required
+        check_python_pyramid_requirements()
+
         if not settings:
-            settings = IncludeAwareConfigParser.retrofit_settings(global_config)
+            config = global_config['__file__']
+            if not config.startswith('ws://'):
+                config = 'ws://{0}'.format(config)
+
+            loader = plaster.get_loader(config)
+            # Read [app] section
+            settings = loader.get_settings('app:main')
 
         #: This is the refer    ence to the config file which started our process. We need to later pass it to Notebook.
         settings["websauna.global_config"] = global_config
@@ -80,7 +123,8 @@ class Initializer:
         #: Reference to Celery app instance
         self.celery = None
 
-        self.settings = settings
+        self.settings = expandvars_dict(settings)
+
         self.config = self.create_configurator()
 
         self.config.registry.static_asset_policy = self.static_asset_policy = self.create_static_asset_policy()
@@ -93,6 +137,9 @@ class Initializer:
 
         # Exposed Websauna features
         self.config.registry.features = set()
+
+        # Secrets file
+        self.secrets = self.read_secrets()
 
     def create_configurator(self) -> Configurator:
         """Create Pyramid Configurator instance."""
@@ -114,9 +161,9 @@ class Initializer:
         """
 
         # Extract logging configuration from INI
-        from websauna.utils.configincluder import setup_logging
+        # from websauna.utils.configincluder import setup_logging
 
-        setup_logging(self.global_config["__file__"])
+        # setup_logging(self.global_config["__file__"])
 
         # Make sure we can target Pyramid router debug messages in logging configuration
         pyramid_debug_logger = logging.getLogger("pyramid_debug")
@@ -308,6 +355,7 @@ class Initializer:
         from .model.meta import create_transaction_manager_aware_dbsession
         from .model.interfaces import ISQLAlchemySessionFactory
 
+        self.config.include("pyramid_retry")
         self.config.include("pyramid_tm")
         self.config.include(".model.meta")
 
@@ -656,6 +704,9 @@ class Initializer:
 
         _secrets = read_ini_secrets(secrets_file, strict=strict)
         self.config.registry.registerUtility(_secrets, ISecrets)
+        secret_settings = {k.replace('app:main.', ''): v for k, v in _secrets.items() if k.startswith('app:main.')}
+        settings.update(secret_settings)
+        self.config.registry.settings.update(secret_settings)
         return _secrets
 
     def include_addons(self):
@@ -675,8 +726,6 @@ class Initializer:
 
         # Avoid running the initializer twice. This might happen e.g. due to a bad testing set up where the initializer creation is not scoped properly. E.g. Jinja template engine will get very confused.
         assert not self._already_run, "Attempted to run initializer twice. Please avoid double initialization as it will lead to problems."
-
-        self.secrets = self.read_secrets()
 
         self.configure_logging()
 
@@ -768,7 +817,7 @@ class Initializer:
             if not sanitycheck.is_sane_database(Base, dbsession):
                 raise SanityCheckFailed("The database sanity check failed. Check log for details.")
         except sqlalchemy.exc.OperationalError as e:
-            raise SanityCheckFailed("The database {} is not responding. Make sure the database is running on your local computer or correctly configured in settings INI file. For more information see https://websauna.org/docs/tutorials/gettingstarted/tutorial_02.html.".format(db_connection_string)) from e
+            raise SanityCheckFailed("The database {} is not responding.\nMake sure the database is running on your local computer or correctly configured in settings INI file.\nFor more information see https://websauna.org/docs/tutorials/gettingstarted/tutorial_02.html.".format(db_connection_string)) from e
 
         dbsession.close()
 

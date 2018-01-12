@@ -65,7 +65,7 @@ Make sure your application is in a Git repository.
 
 Make sure you have run ``pip freeze`` for the application.
 
-Clone ``websauna.ansible`` project from Github.
+Clone ``websauna.ansible`` project from GitHub.
 
 Prepare virtual environment and install packages as instructed.
 
@@ -88,7 +88,8 @@ Create a playbook file ``playbook-amazon.yml``:
 
       # These need to be set up before reading default.yml - more variables are generated based on these
       vars:
-        - package_name: myapp
+        - package_name: my.app
+        - package_path: my/app
         - server_name mysite.example.com
         - site_id: myapp_staging
         - mandrill: on
@@ -132,7 +133,7 @@ Some notes
 
 * ``www_ip`` is actually *Private IP* as shown in EC2 instance description earlier. This is the IP address HTTP/HTTPS ports will be bound to. (TODO: Not sure why you need to bind HTTP/HTTPS against this IP).
 
-Add Amazon SSH key to our SSH agent. Also include Bitbucket, Github and relevant keys you need for cloning out git repositories::
+Add Amazon SSH key to our SSH agent. Also include Bitbucket, GitHub and relevant keys you need for cloning out git repositories::
 
     ssh-add ~/.ssh/websauna.pem
 

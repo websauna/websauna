@@ -20,7 +20,7 @@ Playing with the model API
 
 Once you are in the shell, explore the model :term:`SQLAlchemy` API:
 
-.. note ::
+.. note::
 
     You can use TAB key for autocompleting variable names in IPython Notebook. Just type few letters and hit tab and notebook will fill it for you.
 

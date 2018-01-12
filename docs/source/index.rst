@@ -1,19 +1,21 @@
-Welcome to Websauna's documentation
-===================================
+Websauna's documentation
+========================
 
 Welcome to Websauna, a full stack Python application framework.
 
-.. note ::
+.. note::
 
     This is a work in progress project and documentation. There is no official release yet.
 
-`Documentation <https://websauna.org/>`_ (`download as offline e-book <https://websauna.org/Websauna.epub>`_).
 
-`Installation <https://websauna.org/tutorials/gettingstarted/index.html>`_.
+`Documentation <https://websauna.org/docs>`_ (`download as offline e-book <https://websauna.org/Websauna.epub>`_).
+
+`Installation <https://websauna.org/docs/tutorials/gettingstarted/index.html>`_.
 
 `Chat <https://websauna.org/docs/narrative/contributing/community.html#chat>`_.
 
-`Github repository <https://github.com/websauna/websauna>`_.
+`GitHub repository <https://github.com/websauna/websauna>`_.
+
 
 Table of contents
 =================
@@ -45,7 +47,7 @@ What it is?
 
 Websauna is a Python package and application framework for developing custom consumer and business web services. It emphasises meeting business requirements with reliable delivery times, responsiveness, consistency in quality, security and high data integrity. A low learning curve, novice friendliness and polished documentation help less seasoned developers to get their first release out quickly.
 
-`Websauna project is open source (MIT) and on Github <http://github.com/websauna/websauna>`_.
+`Websauna project is open source (MIT) and on GitHub <http://github.com/websauna/websauna>`_.
 
 How it is done?
 ===============

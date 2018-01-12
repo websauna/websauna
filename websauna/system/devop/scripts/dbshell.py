@@ -1,35 +1,38 @@
-"""Run pgcli shell on the configured database."""
+"""ws-db-shell script.
+
+Run pgcli shell on the configured database.
+"""
+# Standard Library
 import os
 import sys
+import typing as t
 from shutil import which
 
+# Websauna
 from websauna.system.devop.cmdline import init_websauna
-from websauna.utils.configincluder import monkey_patch_paster_config_parser
+from websauna.system.devop.scripts import feedback
+from websauna.system.devop.scripts import feedback_and_exit
+from websauna.system.devop.scripts import get_config_uri
+from websauna.system.devop.scripts import usage_message
 
 
-def usage(argv):
-    cmd = os.path.basename(argv[0])
-    print('usage: %s <config_uri> [var=value]\n'
-          '(example: "%s development.ini")' % (cmd, cmd))
-    sys.exit(1)
+def main(argv: t.List[str]=sys.argv):
+    """Run pgcli shell on the database specified on the configuration file.
 
-
-def main(argv=sys.argv):
-    monkey_patch_paster_config_parser()
-
+    :param argv: Command line arguments, second one needs to be the uri to a configuration file.
+    """
     if len(argv) < 2:
-        usage(argv)
+        usage_message(argv, additional_params='[var=value]')
 
-    config_uri = argv[1]
-
-    # Print out the connection URL with the password masked out
+    config_uri = get_config_uri(argv)
     request = init_websauna(config_uri)
-    url = request.registry.settings.get("sqlalchemy.url")
+    url = request.registry.settings.get('sqlalchemy.url')
 
     engine = request.dbsession.get_bind()
-    print("Connecting to {}".format(engine))
 
-    if not which("pgcli"):
-        sys.exit("pgcli not installed - please install websauna as pip install websauna[utils] to get this dependency")
+    if not which('pgcli'):
+        message = 'pgcli is not installed\nPlease install Websauna as pip install websauna[utils] to get this dependency'
+        feedback_and_exit(message, display_border=False)
 
-    os.system("pgcli {}".format(url))
+    feedback('Connecting to {engine}'.format(engine=engine), display_border=False)
+    os.system('pgcli {url}'.format(url=url))

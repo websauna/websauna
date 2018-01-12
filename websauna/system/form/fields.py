@@ -1,15 +1,20 @@
+# Standard Library
 import enum
 import json
+import typing as t
 
+# Pyramid
 import colander
+
 import deform
 
-from websauna.compat.typing import Union
-from websauna.compat.typing import Callable
-from websauna.system.model.json import NestedMutationDict, NestedMutationList, json_serializer
+# Websauna
+from websauna.system.model.json import NestedMutationDict
+from websauna.system.model.json import NestedMutationList
+from websauna.system.model.json import json_serializer
 
 
-def defer_widget_values(widget: type, values_callback: Callable, **kwargs) -> deform.widget.Widget:
+def defer_widget_values(widget: type, values_callback: t.Callable, **kwargs) -> deform.widget.Widget:
     """Allow select or checkbox widget values construction deferred during the execution time.
 
     :param widget: Any Deform widget class, see :py:class:`deform.widget.Widget`
@@ -113,7 +118,7 @@ class JSONValue(colander.String):
         else:
             return None
 
-    def serialize(self, node: colander.SchemaNode, data: Union[list, dict]) -> str:
+    def serialize(self, node: colander.SchemaNode, data: t.Union[list, dict]) -> str:
         """Convert Python objects to JSON string."""
         if data:
             assert isinstance(data, (list, dict, NestedMutationDict, NestedMutationList)), "Expected list or dict, got {}".format(data.__class__)

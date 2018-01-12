@@ -149,13 +149,13 @@ This code includes a few things we haven't covered yet in this tutorial:
 
 * We increment the vote count of a choice on a successful submit. We add a success message to the :doc:`flash message stack <../../narrative/misc/messages>` which is a displayed on the results page after redirect.
 
-.. note ::
+.. note::
 
     **Why there is no save()?**
 
     :term:`SQLAlchemy` has a :term:`state management` mechanism. It tracks what objects you have modified or added via ``dbsession.add()``. On a succesfull commit, all of these changes are written to a database and you do not need to explicitly list what changes need to be saved.
 
-.. note ::
+.. note::
 
     **What happens if requests modify data simultaneously?**
 
@@ -164,7 +164,7 @@ This code includes a few things we haven't covered yet in this tutorial:
 
     The default database transaction :term:`isolation level` is serializable: database prevents race conditions to happen. If a database detects a race condition an application level Python exception is raised. Then the application tries to resolve this conflict. Websauna default resolution mechanism is through :term:`transaction retry`.
 
-.. note ::
+.. note::
 
     **A form framework reduces your workload**
 

@@ -70,7 +70,7 @@ If it shows a different version use ``brew switch`` command to upgrade
 .. code-block:: console
 
     brew upgrade python3
-    brew link —overwrite python3
+    brew link python3 --overwrite
 
 Installing dependencies on Ubuntu 14.04
 ---------------------------------------
@@ -79,7 +79,7 @@ The following install commands apply for Ubuntu 14.04 and 14.04 only (for exampl
 
 Install the packages with following command:
 
-.. code-block:: shell
+.. code-block:: console
 
     sudo apt install \
         git \
@@ -97,7 +97,7 @@ Install the packages with following command:
 
 Install Python 3.5
 
-.. code-block:: shell
+.. code-block:: console
 
     sudo add-apt-repository ppa:fkrull/deadsnakes
     sudo apt-get update
@@ -105,13 +105,13 @@ Install Python 3.5
 
 Install Redis
 
-.. code-block:: shell
+.. code-block:: console
 
     sudo apt install redis-server
 
 Install PostgreSQL
 
-.. code-block:: shell
+.. code-block:: console
 
     # http://technobytz.com/how-to-install-postgresql-9-4-in-ubuntu-linux-mint.html
     sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
@@ -119,12 +119,13 @@ Install PostgreSQL
     sudo apt-get update
     sudo apt-get install postgresql-9.4 libpq-dev
 
+
 Installing dependencies on openSUSE 13.2 and Leap 42.1
 ------------------------------------------------------
 
 Install Redis
 
-.. code-block:: shell
+.. code-block:: console
 
     # as root
     zypper install redis
@@ -134,13 +135,13 @@ Install Redis
 
 For 13.2 we need an additional repository for PostgreSQL 9.4. If you have an older PostgreSQL running already, please check /usr/share/doc/packages/postgresql94/README.SUSE for database migration.
 
-.. code-block:: shell
+.. code-block:: console
 
     zypper ar -f http://download.opensuse.org/repositories/server:/database:/postgresql/openSUSE_13.2/server:database:postgresql.repo
 
 Install PostgreSQL 9.4
 
-.. code-block:: shell
+.. code-block:: console
 
     zypper install postgresql94-server postgresql94-devel postgresql94-contrib
     systemctl enable postgresql.service
@@ -170,9 +171,9 @@ Then create a virtual environment where installed Python packages will be locate
 
     pip install "websauna[celery,utils,notebook]"
 
-Alternatively, in the case you want to leave on a bleeding edge, you can install the latest master from Github. This is recommended for experienced Python developers only:
+Alternatively, in the case you want to leave on a bleeding edge, you can install the latest master from GitHub. This is recommended for experienced Python developers only:
 
 .. code-block:: console
 
-    # Install Github development version of Websauna
+    # Install GitHub development version of Websauna
     pip install -e "git+https://github.com/websauna/websauna.git@master#egg=websauna[celery,utils,notebook]"

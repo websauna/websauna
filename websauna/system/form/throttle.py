@@ -1,11 +1,13 @@
 """Deform throttling support."""
-
+# Standard Library
 import logging
+import typing as t
+
+# Pyramid
 import colander as c
 from pyramid import httpexceptions
 
-from websauna.compat.typing import Optional
-from websauna.compat.typing import Callable
+# Websauna
 from websauna.system.core.redis import get_redis
 from websauna.system.http import Request
 
@@ -93,10 +95,10 @@ def _read_throttle_settings(settings, setting):
 
 
 def throttled_view(
-        rolling_window_id: Optional[str]=None,
+        rolling_window_id: t.Optional[str]=None,
         time_window_in_seconds: int=3600,
         limit: int=50,
-        setting: Optional[str]=None):
+        setting: t.Optional[str]=None):
     """Decorate a view to protect denial-of-service attacks using throttling.
 
     If the global throttling limit is exceeded the client gets HTTP 429 error.
@@ -145,7 +147,7 @@ def throttled_view(
     redis_key = rolling_window_id
 
     # http://docs.pylonsproject.org/projects/pyramid_cookbook/en/latest/views/chaining_decorators.html
-    def outer(view_callable: Callable):
+    def outer(view_callable: t.Callable):
 
         name = view_callable.__name__
 
@@ -184,4 +186,3 @@ def clear_throttle(request: Request, key_name: str):
     """
     redis = get_redis(request)
     redis.delete("throttle_{}".format(key_name))
-

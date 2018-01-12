@@ -97,7 +97,7 @@ Example usage:
     def logo_small(asset_desc: AssetDescription, request: Request):
         """Create a downscaled logo version for an asset.
 
-        .. note ::
+        .. note::
 
             .png suffix in URL is required by some proxies (CloudFlare) to make the response caching to follow the normal caching rules.
         """

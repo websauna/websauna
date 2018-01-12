@@ -78,7 +78,7 @@ class DefaultCredentialActivityService:
         messages.add(request, msg="The password reset complete. Please sign in with your new password.", kind='success', msg_id="msg-password-reset-complete")
 
         request.registry.notify(PasswordResetEvent(self.request, user, password))
-        request.registry.notify(UserAuthSensitiveOperation(self.request, user, "password_reset"))
+        request.registry.notify(UserAuthSensitiveOperation(self.request, user, "password_reset"), request)
 
         location = location or get_config_route(request, 'websauna.reset_password_redirect')
         return HTTPFound(location=location)

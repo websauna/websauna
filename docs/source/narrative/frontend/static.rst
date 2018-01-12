@@ -69,7 +69,7 @@ By default cached content is placed in ``perma-asset`` folder next to the files 
 
 To run the command:
 
-.. code-block:: shell
+.. code-block:: console
 
     ws-collect-static conf/production
 

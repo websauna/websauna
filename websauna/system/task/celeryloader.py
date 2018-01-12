@@ -1,27 +1,46 @@
 """Celery process."""
-
+# Standard Library
+import logging
 import os
 import sys
-import logging
+import typing as t
+
+# Pyramid
+import plaster
 
 from celery.loaders.base import BaseLoader
 from celery.signals import setup_logging as _setup_logging_signal
 
+# Websauna
 from websauna.system.devop.cmdline import init_websauna
+from websauna.system.devop.cmdline import setup_logging
+from websauna.system.devop.scripts import feedback_and_exit
+from websauna.system.devop.scripts import get_config_uri
 from websauna.system.http.utils import make_routable_request
 from websauna.system.model.retry import ensure_transactionless
-from websauna.utils.configincluder import IncludeAwareConfigParser
-from websauna.system.devop.cmdline import setup_logging
-
-
-from .celery import parse_celery_config
+from websauna.system.task.celery import parse_celery_config
+from websauna.utils.secrets import read_ini_secrets
 
 
 logger = logging.getLogger(__name__)
 
 
 #: Passed through Celery loader mechanism
-ini_file = None
+ini_file = ''
+
+
+def usage_message(argv: t.List[str]):
+    """Display usage message and exit.
+
+    :param argv: Command line arguments.
+    :raises sys.SystemExit:
+    """
+    cmd = os.path.basename(argv[0])
+    msg = (
+        'usage: {cmd} <config_uri> -- worker\n'
+        '(example: "{cmd} ws://conf/production.ini -- worker")'
+    ).format(cmd=cmd)
+    feedback_and_exit(msg, status_code=1, display_border=False)
 
 
 class WebsaunaLoader(BaseLoader):
@@ -30,28 +49,38 @@ class WebsaunaLoader(BaseLoader):
     Support binding request object to Celery tasks and loading Celery settings through Pyramid INI configuration.
     """
 
-    def read_configuration(self) -> dict:
+    def get_celery_config(self, config_file: str) -> str:
+        """Return celery configuration, from given config_file.
+
+        :param config_file: Websauna configuration file.
+        :return: Celery configuration, as a string.
+        """
+        value = None
+        loader = plaster.get_loader(config_file)
+        settings = loader.get_settings('app:main')
+        secrets_file = settings.get('websauna.secrets_file')
+        if secrets_file:
+            secrets = read_ini_secrets(secrets_file)
+            value = secrets.get('app:main.websauna.celery_config', '')
+        value = value if value else settings.get('websauna.celery_config')
+        if not value:
+            raise RuntimeError('Could not find websauna.celery_config in {ini_file}'.format(ini_file=ini_file))
+        return value
+
+    def read_configuration(self, **kwargs) -> dict:
         """Load Celery config from Pyramid INI file.
 
-        We need to be able to do this without ramping up full Websauna, because that's the order of the evens Celery worker wants. This way we avoid circular dependencies during Celery worker start up.
+        We need to be able to do this without ramping up full Websauna, because that's the order of the events Celery worker wants. This way we avoid circular dependencies during Celery worker start up.
         """
-        config = IncludeAwareConfigParser()
-        config.read(ini_file)
-
-        # TODO: We have ugly app:main hardcode hack here
-        value = config.get("app:main", "websauna.celery_config")
-        if not value:
-            raise RuntimeError("Could not find websauna.celery_config in {}".format(ini_file))
-
+        value = self.get_celery_config(ini_file)
         config = parse_celery_config(value)
         return config
 
     def import_task_module(self, module):
-        raise RuntimeError("imports Celery config directive is not supported. Use config.scan() to pick up tasks.")
+        raise RuntimeError('Import Celery config directive is not supported. Use config.scan() to pick up tasks.')
 
     def register_tasks(self):
         """Inform Celery of all tasks registered through our Venusian-compatible task decorator."""
-
         # @task() decorator pick ups
         tasks = getattr(self.request.registry, "celery_tasks", [])
 
@@ -61,7 +90,6 @@ class WebsaunaLoader(BaseLoader):
 
     def on_worker_init(self):
         """This method is called when a child process starts."""
-
         # TODO Make sanity_check True by default,
         # but make it sure we can disable it in tests,
         # because otherwise tests won't run
@@ -107,7 +135,7 @@ def fix_celery_logging(loglevel, logfile, format, colorize, **kwargs):
     setup_logging(ini_file)
 
 
-def main():
+def main(argv: t.List[str]=sys.argv):
     """Celery process entry point.
 
     Wrap celery command line script with our INI reader.
@@ -121,15 +149,15 @@ def main():
     global ini_file
     global request
 
-    if len(sys.argv) < 2:
-        sys.exit("Example usage: ws-celery myapp/conf/development.ini -- worker")
+    if len(argv) < 2:
+        usage_message(argv)
 
-    ini_file = sys.argv[1]
+    ini_file = get_config_uri(argv)
     if not ini_file.endswith(".ini"):
         sys.exit("The first argument must be a configuration file")
 
-    if len(sys.argv) >= 3:
-        if not sys.argv[2] == "--":
+    if len(argv) >= 3:
+        if not argv[2] == "--":
             raise RuntimeError("The second argument must be -- to signal command line argument passthrough")
         celery_args = sys.argv[3:]
     else:
@@ -141,5 +169,3 @@ def main():
     # Directly jump to Celery 4.0+ entry point
     from celery.bin.celery import main
     main(argv)
-
-

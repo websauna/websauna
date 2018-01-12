@@ -35,23 +35,23 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
     Bootstrap
         Bootstrap is the most popular HTML, CSS, and JS framework for developing responsive, mobile first projects on the web. `More informatin <http://getbootstrap.com/>`__.
 
-    database
-        A database is an organized collection of data. A database management system (DBMS) is a computer software application that interacts with the user, other applications, and the database itself to capture and analyze data. A general-purpose DBMS is designed to allow the definition, creation, querying, update, and administration of databases. Websauna defaults to :term:`PostgreSQL` DBMS.
-
-    development.ini
-      The default configuration file when you run Websauna on your local computer when doing development. For more information see :doc:`configuration <../reference/config>`.
-
     CDN
         A content delivery network or content distribution network (CDN) is a globally distributed network of proxy servers deployed in multiple data centers. The goal of a CDN is to serve content to end-users with high availability and high performance. Many CDNs allow developers to upload their own static asset files to speed up their loading. `More information <https://en.wikipedia.org/wiki/Content_delivery_network>`__.
 
     Celery
         Celery a task queue for Python with focus on real-time processing, while also supporting task scheduling. `More info <http://celery.readthedocs.org/>`__.
 
+    chromedriver
+        WebDriver is an open source tool for automated testing of webapps across many browsers. Used in Websauna to control functional tests with :term:`Splinter` and :term:`Selenium`. `More information <https://sites.google.com/a/chromium.org/chromedriver/>`__.
+
     Colander
         A simple schema-based serialization and deserialization library. Useful for building forms, RESTFul APIs and other interfaces where you need to transform and validate data. `More information <https://pypi.python.org/pypi/colander>`__.
 
     colanderalchemy
         A Python package to generate :term:`Colander` forms from :term:`SQLAlchemy` models. `More information <https://pypi.python.org/pypi/ColanderAlchemy>`__.
+
+    cookiecutter
+        A Python package to create projects and packages from project templates. `More information <https://pypi.python.org/pypi/cookiecutter>`__.
 
     CRUD
         In computer programming, create, read, update and delete, sometimes called SCRUD with an "S" for Search, are the four basic functions of persistent storage. :doc:`Read about CRUD in Websauna <../narrative/crud/crud>`.
@@ -63,11 +63,17 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
     CSS
         Cascading Style Sheets (CSS) is a style sheet language used for describing the presentation of a document written in a markup language. It's most often used to set the visual style of web pages and user interfaces written in HTML and XHTML. `More info <https://en.wikipedia.org/wiki/Cascading_Style_Sheets>`__.
 
-    deform
-        A form framework suggested by Websauna. :doc:`Read Websauna form documentation <../narrative/form/form>`. `See widget samples <http://demo.substanced.net/deformdemo/>`__. `More info <http://deform.readthedocs.org/en/latest/>`__.
+    database
+        A database is an organized collection of data. A database management system (DBMS) is a computer software application that interacts with the user, other applications, and the database itself to capture and analyze data. A general-purpose DBMS is designed to allow the definition, creation, querying, update, and administration of databases. Websauna defaults to :term:`PostgreSQL` DBMS.
 
     development
         Development is the stage of the deployment when the developer is locally working on the code on a local machine. See :ref:`development.ini`.
+
+    development.ini
+      The default configuration file when you run Websauna on your local computer when doing development. For more information see :doc:`configuration <../reference/config>`.
+
+    deform
+        A form framework suggested by Websauna. :doc:`Read Websauna form documentation <../narrative/form/form>`. `See widget samples <http://demo.substanced.net/deformdemo/>`__. `More info <http://deform.readthedocs.org/en/latest/>`__.
 
     duplicity
         Duplicity backs directories by producing encrypted tar-format volumes and uploading them to a remote or local file server. Because duplicity uses librsync, the incremental archives are space efficient and only record the parts of files that have changed since the last backup. Because duplicity uses GnuPG to encrypt and/or sign these archives, they will be safe from spying and/or modification by the server. `More info <http://duplicity.nongnu.org/>`__.
@@ -211,7 +217,7 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
         Sanity check is a Websauna feature which prevents starting up a website in a state where Python code is inconsistent with databases. It checks all databases are up and models are correctly declared in the database. See :ref:`websauna.sanity_check` setting for more info.
 
     scaffold
-        A project skeleton which generates a starting point for your application. Websauna uses `Pyramid scaffolding <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/scaffolding.html>`__ for its ``websauna_app`` and ``websauna_addon`` scaffols.
+        A project skeleton which generates a starting point for your application. Websauna uses :term:`cookiecutter` as the tool to create it, using ``cookiecutter-websauna-app`` and ``cookiecutter-websauna-addon`` templates.
 
     secrets
         The secrets are passwords, API keys and other sensitive data which you want to avoid exposing. They are usually stored separately from the source code tree. Websauna has best practices how to store your secrets. See :ref:`secrets` in configuration documentation.

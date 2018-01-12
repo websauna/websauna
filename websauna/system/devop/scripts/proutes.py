@@ -1,14 +1,20 @@
-"""Config file includer aware wrapper for proutes."""
+"""ws-proutes script.
+
+DEPRECATED: Wrapper around Pyramid proutes script.
+"""
+# Standard Library
 import sys
-from pkg_resources import load_entry_point
+import typing as t
 
-from websauna.utils.configincluder import monkey_patch_paster_config_parser
-from websauna.utils.configincluder import IncludeAwareConfigParser
+# Websauna
+from websauna.system.devop.scripts import proxy_to_pyramid_script
 
-monkey_patch_paster_config_parser()
 
-def main():
-    sys.exit(
-        load_entry_point('pyramid', 'console_scripts', 'proutes')()
-    )
+def main(argv: t.List[str]=sys.argv):
+    """Proxy to Pyramid proutes script.
 
+    This script is deprecated and will be removed in Websauna 1.0.0
+    :param argv: Command line arguments, second one needs to be the uri to a configuration file.
+    :raises sys.SystemExit:
+    """
+    proxy_to_pyramid_script('proutes', argv)

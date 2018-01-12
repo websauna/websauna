@@ -9,7 +9,7 @@ Purpose
 
 This is an Ansible playbook for automatically deploying a single server Websauna website from a git repository for Ubuntu 14.04 Linux. It allows you to do deploy your Websauna application to a fresh server, where you just received SSH credentials, within 30 minutes. Alternatively you can gracefully upgrade any existing running site.
 
-.. note ::
+.. note::
 
     The current version of the playbook is designed for a single server setup. It is, however, easy to extend to cover groups of different servers.
 

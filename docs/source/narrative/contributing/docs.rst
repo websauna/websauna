@@ -7,7 +7,18 @@ Building documentation
 
 Websauna documentation is managed with Sphinx.
 
-To build Sphinx documentation::
+To build the documentation, inside the websauna repository, execute:
 
-    make apidoc clean html
+.. code-block:: console
 
+    cd docs
+    make all
+
+This will generate the complete documentation, including:
+
+    * APIdoc
+    * Reference
+    * Tutorials
+    * Ansible playbook
+
+Both in html and epub formats.

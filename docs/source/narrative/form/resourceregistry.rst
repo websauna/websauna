@@ -11,7 +11,7 @@ Introduction
 
 :term:`Deform` supports a resource registry allowing widgets to signal they want particular :term:`CSS` and :term:`JavaScript` files to be present in page rendering. E.g. a date picker widget tells it needs date picking JavaScript and CSS files to be present in rendered :term:`HTML`. Then these static assets will be placed in the `<head>` section of HTML.
 
-.. note ::
+.. note::
 
     Most widgets work without additional JS or CSS files. Only complex widgets need additional asset support. For more information see :py:attr:`deform.widget.default_resources`.
 

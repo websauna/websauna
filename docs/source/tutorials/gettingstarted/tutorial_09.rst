@@ -138,7 +138,7 @@ Further information
 
 Read :ref:`admin` documentation. Read :ref:`CRUD` documentation.
 
-.. note ::
+.. note::
 
     TODO: Currently, it is not possible to add and edit choices from the question page. This will change in a future version.
 

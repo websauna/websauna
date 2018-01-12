@@ -2,8 +2,22 @@ Changelog for Websauna
 ======================
 
 
-1.0a5 (unreleased)
+1.0a6 (unreleased)
 ------------------
+
+- Closes `Issue #155`_: AttributeError: 'super' has no attribute update_first_login_social_data on first user login.
+
+
+1.0a5 (2017-12-12)
+------------------
+
+- Added support for Pyramid 1.9
+
+- Added support for Python 3.6
+
+- Closes `Issue #29`_: Allow setting redis.sessions.url and websauna.celery_config from secrets file
+
+- Refactor SocialLoginMapper: separate ABC and Interface to their own classes.
 
 - Enable Twitter login
 
@@ -18,6 +32,11 @@ Changelog for Websauna
 - :ref:`ws-shell` `request.application_url` comes from :ref:`websauna.site_url` setting and does not default to localhost
 
 - Write the session cookie and Redis session data only if something was stored in the session. This makes it more scalable to serve anonymous pages, as one does not need to reset the cookie on every crawling request.
+
+- Use `typing <https://pypi.python.org/pypi/typing>`_ instead of `backports.typing <https://pypi.python.org/pypi/backports.typing>`_ for Python 3.4.
+
+- Fixes `Issue #29`_: Replace pcreate with cookiecutter.
+
 
 1.0a4 (2017-01-07)
 ------------------
@@ -38,3 +57,7 @@ Changelog for Websauna
 
 - Life sucks and then you die. But Websauna is out: https://www.youtube.com/watch?v=AOfiziY-htU
 
+
+.. _`Issue #29`: https://github.com/websauna/websauna/issues/29
+.. _`Issue #145`: https://github.com/websauna/websauna/issues/145
+.. _`Issue #155`: https://github.com/websauna/websauna/issues/155

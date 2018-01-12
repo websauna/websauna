@@ -8,29 +8,45 @@ Developing Websauna
 Prerequisites
 -------------
 
-* GCC, make, and similar (``apt-get install build-essential``)
-* Python 3.5 with development headers (``apt-get install python-dev``)
-* virtualenv (``apt-get install python-virtualenv``)
-* pip (``apt-get install python-pip``)
-* git (``apt-get install git``)
-* PhantomJS headless browser (``apt-get install phantomjs``)
-* Redis (``apt-get install redis``)
+In order to develop Websauna, the following requirements need to be installed on your system:
+
+    * GCC, make, and similar
+    * Python 3.5 with development headers
+    * virtualenv
+    * pip
+    * git
+    * Google Chrome
+    * :term:`chromedriver`
+    * PostgreSQL
+    * Redis
+
+Ubuntu
+++++++
+
+.. code-block:: console
+
+    apt-get install build-essential python-dev python-virtualenv python-pip git redis postgresql
 
 
-Install from Github
+Install from GitHub
 -------------------
 
-Create a virtualenv and install the latest master from Github using pip.
+Considering a local work folder name Websauna, clone websauna and websauna.ansible repositories from the GitHub:
 
-.. code-block:: bash
+.. code-block:: console
 
-    ~$ cd <your_work_folder>
-    work$ git clone git@github.com:websauna/websauna.ansible.git
-    work$ git clone git@github.com:websauna/websauna.git
-    work$ cd websauna
-    websauna$ virtualenv -p python3.5 venv
-    websauna$ source venv/bin/activate
-    (venv) websauna$ pip install -e ".[test, dev, celery]"
+    cd Websauna
+    git clone git@github.com:websauna/websauna.ansible.git
+    git clone git@github.com:websauna/websauna.git
+
+Now, create a virtualenv and install websauna into it.
+
+.. code-block:: console
+
+    cd websauna
+    python3.5 -m venv venv
+    source venv/bin/activate
+    pip install -e ".[test, dev, celery, utils, notebook]"
 
 
 Building docs
@@ -38,10 +54,15 @@ Building docs
 
 To generate Sphinx docs locally, run the following:
 
-.. code-block:: bash
+.. code-block:: console
 
-    (venv) websauna$ cd docs
-    (venv) docs$ make world
+    cd docs
+    make all
+
+
+Documentation will be generated inside the build/html folder.
+
+.. note:: To publish the documentation use ``make world`` instead.
 
 
 Running tests
@@ -55,13 +76,9 @@ Unit tests are `PyTest based <http://pytest.org/>`_. They use `Selenium browser 
 First test run
 ++++++++++++++
 
-Prepare wheel archive which will speed up scaffold tests tremendously:
+Create ``setup-test-secrets.bash`` (git ignored) with following content:
 
 .. code-block:: bash
-
-    (venv) websauna$ bash websauna/tests/create_wheelhouse.bash
-
-Create ``setup-test-secrets.bash`` (git ignored) with following content::
 
     RANDOM_VALUE="x"
     FACEBOOK_CONSUMER_KEY="x"
@@ -75,21 +92,27 @@ Create ``setup-test-secrets.bash`` (git ignored) with following content::
     export FACEBOOK_USER
     export FACEBOOK_PASSWORD
 
+
 Enable it in your shell:
 
-.. code-block:: bash
+.. code-block:: console
 
-     (venv) websauna$ source setup-test-secrets.bash
+     source setup-test-secrets.bash
 
 Tests assume that you have Redis running, make sure you do:
 
-.. code-block:: bash
+.. code-block:: console
 
-    (venv) websauna$ redis-server
+    redis-server
 
-Running all tests silently using a headless test browser::
+Running all tests silently using a headless test browser:
 
-    (venv) websauna$ py.test websauna --splinter-webdriver=phantomjs --splinter-make-screenshot-on-failure=false --ini=test.ini
+.. code-block:: console
+
+    py.test --ini=websauna/conf/test.ini --splinter-webdriver=chrome --splinter-headless=true
+
+
+.. note:: Pytest sensible defaults are set on the *setup.cfg* file, on the top level of websauna repository.
 
 
 Tox
@@ -122,6 +145,4 @@ Running functional tests with an alternative browser:
 
 .. code-block:: console
 
-    py.test --splinter-webdriver=firefox websauna/tests/test_frontpage.py --ini=test.ini
-
-
+    py.test --ini=websauna/conf/test.ini --splinter-webdriver=firefox websauna/tests/test_frontpage.py

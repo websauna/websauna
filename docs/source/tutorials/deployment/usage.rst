@@ -16,7 +16,8 @@ Create a new playbook file. This can be directly in ``websauna.ansible`` root fo
 
       # These need to be set up before reading default.yml - more variables are generated based on these
       vars:
-        - package_name: myapp
+        - package_name: my.app
+        - package_path: my/app
         - site_id: myapp
 
         # Websocket is only needed to connect to IPython Notebook running on the server
@@ -141,21 +142,21 @@ For each server the information you need in this point is:
 SSH agent forwarding
 ====================
 
-SSH agent forwarding enables the remote server to use your local SSH credentials. This is required e.g. from Ansible to access private Github repositories from the remote server.
+SSH agent forwarding enables the remote server to use your local SSH credentials. This is required e.g. from Ansible to access private GitHub repositories from the remote server.
 
-You need to `enable SSH agent forwarding <https://opensourcehacker.com/2012/10/24/ssh-key-and-passwordless-login-basics-for-developers/>`_, so that Ansible uses your locally configured SSH key. With this setup, the server never stores any private keys and they are safely on your own computer. Ansible uses SSH agent to make remote connections from the server to e.g. a Github to fetch source code of your application.
+You need to `enable SSH agent forwarding <https://opensourcehacker.com/2012/10/24/ssh-key-and-passwordless-login-basics-for-developers/>`_, so that Ansible uses your locally configured SSH key. With this setup, the server never stores any private keys and they are safely on your own computer. Ansible uses SSH agent to make remote connections from the server to e.g. a GitHub to fetch source code of your application.
 
 You can add any number of keys. The keys
 
 * Should allow you to connect to your server (hosting provider, like Amazon EC2 key)
 
-* Should allow you to check out source code from your repository for the deployment (Github, Bitbucket keys)
+* Should allow you to check out source code from your repository for the deployment (GitHub, Bitbucket keys)
 
 Usually the command to add a key into a SSH agent is along the lines::
 
     ssh-add ~/.ssh/my_ssh_private_key_for_deployment
 
-Likewise, `you need to have set up your public key on your Git repository service like Github <https://help.github.com/articles/generating-ssh-keys/>`_.
+Likewise, `you need to have set up your public key on your Git repository service like GitHub <https://help.github.com/articles/generating-ssh-keys/>`_.
 
 Run playbook
 ============

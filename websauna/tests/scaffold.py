@@ -1,16 +1,19 @@
 """Scaffold test utility functions."""
-import sys
-import subprocess
-import time
-from contextlib import closing, contextmanager
+# Standard Library
 import os
-from shutil import which
+import subprocess
+import sys
+import time
+import typing as t
+from contextlib import closing
+from contextlib import contextmanager
 from tempfile import mkdtemp
 
+# SQLAlchemy
 import psycopg2
-import pytest
 
-from websauna.compat.typing import List
+import pytest
+from cookiecutter.main import cookiecutter
 
 
 PYTHON_INTERPRETER = "python{}.{}".format(sys.version_info.major, sys.version_info.minor)
@@ -23,7 +26,7 @@ def print_subprocess_fail(worker, cmdline):
 
 
 
-def execute_command(cmdline: List, folder: str, timeout=5.0):
+def execute_command(cmdline: t.List, folder: str, timeout=5.0):
     """Run a command in a specific folder."""
     worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=folder)
 
@@ -46,11 +49,8 @@ def execute_venv_command(cmdline, folder, timeout=15.0, wait_and_see=None, asser
     Assume virtualenv is under ``venv`` folder.
 
     :param wait_and_see: Wait this many seconds to see if app starts up.
-
     :param assert_exit: Assume exit code is this
-
     :param cd_folder: cd to this folder before executing the command (relative to folder)
-
     :return: tuple (exit code, stdout, stderr)
     """
 
@@ -110,10 +110,11 @@ def preload_wheelhouse(folder:str):
         print("No preloaded Python package cache found")
 
 
-def create_psq_db(request, dbname):
+def create_psq_db(request, dbname, dsn=''):
     """py.test fixture to createdb and destroy postgresql database on demand."""
-
-    with closing(psycopg2.connect(database='postgres')) as conn:
+    if not dsn:
+        dsn = "dbname=postgres"
+    with closing(psycopg2.connect(dsn)) as conn:
         conn.autocommit = True
         with closing(conn.cursor()) as cursor:
             cursor.execute("SELECT COUNT(*) FROM pg_database WHERE datname='{}'".format(dbname))
@@ -125,7 +126,7 @@ def create_psq_db(request, dbname):
             cursor.execute('CREATE DATABASE ' + dbname)
 
     def teardown():
-        with closing(psycopg2.connect(database='postgres')) as conn:
+        with closing(psycopg2.connect(dsn)) as conn:
             conn.autocommit = True
             with closing(conn.cursor()) as cursor:
 
@@ -179,7 +180,28 @@ def insert_content_after_line(path:str, content:str, marker:str):
 
 
 @pytest.fixture(scope='session')
-def app_scaffold(request) -> str:
+def cookiecutter_config(tmpdir_factory) -> str:
+    """py.test fixture to generate a tmp config file for cookiecutter.
+
+    :return: Path to cookiecutter config file.
+   """
+    user_dir = tmpdir_factory.mktemp('user_dir')
+
+    cookiecutters_dir = user_dir.mkdir('cookiecutters')
+    replay_dir = user_dir.mkdir('cookiecutter_replay')
+    USER_CONFIG = '''cookiecutters_dir: "{cookiecutters_dir}"\nreplay_dir: "{replay_dir}"'''
+    config_text = USER_CONFIG.format(
+        cookiecutters_dir=cookiecutters_dir,
+        replay_dir=replay_dir,
+    )
+    config_file = user_dir.join('config')
+
+    config_file.write_text(config_text, encoding='utf8')
+    return str(config_file)
+
+
+@pytest.fixture(scope='session')
+def app_scaffold(request, cookiecutter_config) -> str:
     """py.test fixture to create app scaffold.
 
     Create application and virtualenv for it. Run setup.py.
@@ -217,12 +239,35 @@ def app_scaffold(request) -> str:
     # Install websauna
     execute_venv_command("cd {} ; pip install -e .[notebook,utils]".format(websauna_folder), folder, timeout=5*60)
 
-    # Create scaffold
-    execute_venv_command("pcreate --ignore-conflicting-name -s websauna_app myapp", folder)
+    # Create Websauna app, using cookiecutter, from template cookiecutter-websauna-app
+    extra_context = {
+        'full_name': 'Websauna Team',
+        'email': 'developers@websauna.org',
+        'company': 'Websauna',
+        'github_username': 'websauna',
+        'project_name': 'Websauna: News portal',
+        'project_short_description': 'Websauna news portal application.',
+        'tags': 'python package websauna pyramid',
+        'repo_name': 'my.app',
+        'namespace': 'my',
+        'package_name': 'app',
+        'release_date': 'today',
+        'year': '2017',
+        'version': '1.0.0a1',
+        'create_virtualenv': 'No'
+    }
+    template = 'https://github.com/websauna/cookiecutter-websauna-app/archive/master.zip'
+    project_dir = cookiecutter(
+        template,
+        no_input=True,
+        extra_context=extra_context,
+        output_dir=folder,
+        config_file=cookiecutter_config
+    )
 
-    # Instal package created by scaffold
-    content_folder = os.path.join(folder, "myapp")
-    execute_venv_command("pip install -e {}".format(content_folder), folder, timeout=5*60)
+    # Install the package created by cookiecutter template
+    content_folder = os.path.join(folder, extra_context["repo_name"])
+    execute_venv_command("pip install -e {0}".format(content_folder), folder, timeout=5*60)
 
     def teardown():
         # Clean any processes who still think they want to stick around. Namely: ws-shell doesn't die
@@ -231,7 +276,6 @@ def app_scaffold(request) -> str:
         subprocess.call("pkill -SIGKILL -f {}".format(folder), shell=True)
 
     request.addfinalizer(teardown)
-
     return folder
 
 

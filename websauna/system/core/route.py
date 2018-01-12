@@ -1,9 +1,13 @@
 """Route related helpers."""
+# Standard Library
+import typing as t
+
+# Pyramid
 import venusian
 from pyramid.config import Configurator
 
+# Websauna
 from websauna.system.http import Request
-from websauna.compat.typing import Optional
 
 from .simpleroute import add_simple_route
 
@@ -13,31 +17,20 @@ class simple_route(object):
 
     Pyramid's URL dispatch has separate concepts for routes and views. This gives additional flexibility in that you can one route map to multiple views, using different predicates (e.g.: predicates depending on Accept header, whether request is XHR or not, etc.). In many applications, this flexibility is not needed and having both routes and views adds a bit of complexity and duplication, and reduces DRYness. This module implements some easy-to-use mechanisms that create a route and a view in one step, resulting in simpler, easier to understand code. This kind of makes Pyramid's routing look a bit more like Flask, albeit without Flask's controversial thread locals.
 
-    Example:
+    .. note:: At the moment ``simple_route`` doesn't support ``viewdefaults``.
 
-    .. code-block:: python
+    Examples:
 
-        from websauna.system.core.route import simple_route
+    .. literalinclude:: ../../../websauna/tests/viewconfig/simple_route_tests_views.py
 
-        @simple_route('/path/to/view', renderer='myapp/example.html')
-        def view_callable(request):
-            return {'message': 'Hello'}
+    Respectively URLs for registered views are:
 
-    You can set route name explicitly:
-
-    .. code-block:: python
-
-        from websauna.system.core.route import simple_route
-
-        @simple_route('/path/to/view/{arg}', route_name="foobar")
-        def view_callable(request):
-            arg = request.matchdict["arg"]
-            return {'message': 'Hello {}'.format(arg}
-
-        url = request.route_url("foobar", dict(arg="123"))
+    .. literalinclude:: ../../../websauna/tests/test_simple_route.py
+        :pyobject: test_registered_routes_docs
+        :dedent: 11
+        :lines: 4-
 
     """
-
     def __init__(self, path, *args, **kwargs):
         """Constructor just here to accept parameters for decorator"""
         self.path = path
@@ -72,7 +65,7 @@ class simple_route(object):
         return wrapped
 
 
-def add_template_only_view(config: Configurator, pattern: str, name: str, template: str, view_args: Optional[dict]=None, route_args: Optional[dict]=None):
+def add_template_only_view(config: Configurator, pattern: str, name: str, template: str, view_args: t.Optional[dict]=None, route_args: t.Optional[dict]=None):
     """Adds a view which do not have a specific view function assgined.
 
     The view will render a template with the default template context.
@@ -83,7 +76,6 @@ def add_template_only_view(config: Configurator, pattern: str, name: str, templa
     :param view_args: kwargs passed to :py:meth:`pyramid.config.Configurator.add_view`
     :param route_args: kwargs passed to :py:meth:`pyramid.config.Configurator.add_view`
     """
-
     def _default_view(request):
         return {}
 

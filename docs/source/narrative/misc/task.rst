@@ -16,7 +16,7 @@ Installation
 
 Make sure you have installed Websauna with ``celery`` extra dependencies to use tasks:
 
-.. code-block:: shell
+.. code-block:: console
 
     pip install websauna[celery]
 
@@ -34,7 +34,7 @@ Running Celery
 
 Celery runs separate long running processes called *workers* to execute the tasks. Furthermore a separate process called *beat* needs to be run to initiate scheduled tasks. Below is an example how to run Celery on your development installation.
 
-.. note :::
+.. note:::
 
     For local development you don't need to run full Celery setup on your computer. Instead you set Celery tasks to eager execution. This means that delayed tasks are run immediately blocking the HTTP response. See **task_always_eager** Celery configuration variable. This is turned on with the default *development.ini*.
 
@@ -44,13 +44,13 @@ To launch a Celery worker:
 
 .. code-block: shell
 
-    ws-celery myapp/conf/development.ini -- worker
+    ws-celery company/application/conf/development.ini -- worker
 
 To launch a Celery beat do:
 
 .. code-block: shell
 
-    ws-celery myapp/conf/development.ini -- beat
+    ws-celery company/application/conf/development.ini -- beat
 
 Below is a ``run-celery.bash`` script to manage Celery for local development:
 
@@ -69,8 +69,8 @@ Below is a ``run-celery.bash`` script to manage Celery for local development:
 
     # celery command implicitly overrides root log level,
     # let's at least state it explicitly here
-    ws-celery myapp/conf/development.ini -- worker --loglevel=debug &
-    ws-celery myapp/conf/development.ini -- beat --loglevel=debug &
+    ws-celery company/application/conf/development.ini -- worker --loglevel=debug &
+    ws-celery company/application/conf/development.ini -- beat --loglevel=debug &
 
     # Wait for CTRL+C
     sleep 99999999
@@ -117,7 +117,7 @@ Delayed tasks run tasks outside HTTP request processing. Delayed tasks take non-
 
 Below is an example which calls third party API (Twilio SMS out) - you don't want to block page render if the third party API fails or is delayed. The API is HTTP based, so calling it adds great amount of milliseconds on the request processing. The task also adds some extra delay and the SMS is not shoot up right away - it can be delayed hour or two after the user completes an order.
 
-.. note ::
+.. note::
 
     All task arguments must be JSON serializable. You cannot pass any SQLAlchemy objects to Celery. Instead use primary keys of database objects.
 
@@ -490,17 +490,23 @@ Inspecting task queue
 
 Sometimes you run to issues of not being sure if the tasks are being executed or not. First check that Celery is running, both scheduler process and worker processes. Then you can check the status of Celery queue.
 
-Start shell or do through IPython Notebook::
+Start shell or do through IPython Notebook:
 
-    ws-shell production.ini
+.. code-block:: console
 
-How many tasks queued in the default celery queue::
+    ws-shell ws://my/app/conf/production.ini
+
+How many tasks queued in the default celery queue:
+
+.. code-block:: python
 
     from celery.task.control import inspect
     i = inspect()
     print(len(list(i.scheduled().values())[0]))
 
-Print out Celery queue and active tasks::
+Print out Celery queue and active tasks:
+
+.. code-block:: python
 
     from celery.task.control import inspect
     i = inspect()
@@ -518,9 +524,11 @@ Dropping task queue
 
 First stop worker.
 
-Then start worker locally attacted to the terminal with --purge and it will drop all the messages::
+Then start worker locally attacthed to the terminal with --purge and it will drop all the messages:
 
-    ws-celery production.ini -- worker --purge
+.. code-block:: console
+
+    ws-celery  ws://my/app/conf/production.ini -- worker --purge
 
 Stop with CTRL+C.
 

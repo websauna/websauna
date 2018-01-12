@@ -1,10 +1,13 @@
 """Sitemap generation helpers."""
-
+# Standard Library
 import abc
+import typing as t
 
+# Pyramid
 from pyramid.config import Configurator
-from pyramid.interfaces import IRouteRequest, ITraverser, IAuthorizationPolicy
-
+from pyramid.interfaces import IAuthorizationPolicy
+from pyramid.interfaces import IRouteRequest
+from pyramid.interfaces import ITraverser
 from pyramid.registry import Introspectable
 from pyramid.router import Router
 from pyramid.scripts.proutes import _get_pattern
@@ -13,13 +16,11 @@ from pyramid.static import static_view
 from pyramid.traversal import ResourceTreeTraverser
 from pyramid.urldispatch import Route
 
+# Websauna
 from websauna.system.core.interfaces import IContainer
 from websauna.system.core.traversal import Resource
 from websauna.system.http import Request
 from websauna.system.http.utils import make_routable_request
-from websauna.compat.typing import Iterable
-from websauna.compat.typing import Optional
-from websauna.compat.typing import Callable
 
 
 class SitemapItem(abc.ABC):
@@ -189,7 +190,7 @@ class ReflectiveSitemapBuilder:
 
         return True
 
-    def is_included(self, view_data: dict, context: Optional[Resource], request: Request):
+    def is_included(self, view_data: dict, context: t.Optional[Resource], request: Request):
         """Check if sitemap conditions allow to include this item."""
 
         callable = view_data.get("callable")
@@ -264,7 +265,7 @@ class ReflectiveSitemapBuilder:
                 if self.is_good_route_item(name, pattern, view_data):
                     self.add_route_item(name, pattern, view_data)
 
-    def enumerate_available_views(self, route: Route, context: Resource) -> Iterable[Introspectable]:
+    def enumerate_available_views(self, route: Route, context: Resource) -> t.Iterable[Introspectable]:
         """Get list of available views for a given resource."""
         introspector = self.request.registry.introspector
         views = introspector.get_category("views")
@@ -403,7 +404,7 @@ def _get_route_data(route, registry):
             yield route.name, pattern, view
 
 
-def include_in_sitemap(include: Optional[bool]=None, condition: Optional[Callable]=None):
+def include_in_sitemap(include: t.Optional[bool]=None, condition: t.Optional[t.Callable]=None):
     """A function decorator to determine if a view should be included in the automatically generated sitemap.
 
     You need to give either ``include`` argument or ``condition``. If this view decorator is not present the view is always included.

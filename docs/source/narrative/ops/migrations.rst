@@ -69,7 +69,7 @@ Run::
 
 This will update Python scripts in ``alembic/versions`` folder.
 
-.. note ::
+.. note::
 
     Always manually inspect generated migration scripts after they have been created with revision --autogenerate. Sometimes the automatic logic fails to correctly detect database changes.
 

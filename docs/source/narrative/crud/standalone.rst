@@ -110,6 +110,7 @@ In ``cruds.py`` we define resources, mappings, queries and permissions that will
     from pyramid.decorator import reify
     from pyramid.security import Allow, Authenticated, Everyone, Deny
 
+    import typing as t
     from sqlalchemy.orm import Query
 
     from websauna.system.core.root import Root
@@ -117,7 +118,6 @@ In ``cruds.py`` we define resources, mappings, queries and permissions that will
     from websauna.system.crud.sqlalchemy import CRUD
     from websauna.system.crud.sqlalchemy import Resource
     from websauna.system.http import Request
-    from websauna.compat.typing import List
 
     from exampleapp.models import TokenContract
     from exampleapp.utils import bin_to_eth_address
@@ -129,7 +129,7 @@ In ``cruds.py`` we define resources, mappings, queries and permissions that will
         # __acl__ can be callable or property.
         # @reify caches the results after the first call
         @reify
-        def __acl__(self) -> List[tuple]:
+        def __acl__(self) -> t.List[tuple]:
             # Give the user principal delete access as the owner
             # The returned list overrides __acl__ from the parent level
             # (ContractCRUD in our case)

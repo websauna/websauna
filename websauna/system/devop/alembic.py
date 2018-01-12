@@ -8,22 +8,26 @@
 
 """
 
+# Standard Library
 import logging
+import typing as t
 
-from sqlalchemy.ext.declarative.clsregistry import _ModuleMarker
+# SQLAlchemy
 from alembic import context
+from sqlalchemy.ext.declarative.clsregistry import _ModuleMarker
 from sqlalchemy.testing.schema import Table
 
+# Websauna
 from websauna.system.devop.cmdline import init_websauna
-from websauna.system.devop.cmdline import setup_logging
+from websauna.system.devop.cmdline import setup_console_logging
 from websauna.system.model.meta import Base
-from websauna.compat.typing import List
+
 
 #: Defined later because of initialization order
 logger = None
 
 
-def get_migration_table_name(allowed_packages: List, current_package_name) -> str:
+def get_migration_table_name(allowed_packages: t.List, current_package_name) -> str:
     """Convert Python package name to migration table name."""
 
     package_name = allowed_packages[0]
@@ -99,7 +103,7 @@ def run_migrations_online(engine, target_metadata, version_table, include_object
             context.run_migrations()
 
 
-def consider_class_for_migration(klass:type, allowed_packages:List) -> bool:
+def consider_class_for_migration(klass:type, allowed_packages: t.List) -> bool:
 
     if allowed_packages[0] == "all":
         return True
@@ -111,7 +115,7 @@ def consider_class_for_migration(klass:type, allowed_packages:List) -> bool:
     return False
 
 
-def consider_module_for_migration(mod:str, allowed_packages:List) -> bool:
+def consider_module_for_migration(mod:str, allowed_packages: t.List) -> bool:
     """
     :param mod: Dotted name to a module
     :param allowed_packages: List of allowed packages
@@ -124,7 +128,7 @@ def consider_module_for_migration(mod:str, allowed_packages:List) -> bool:
     return any(mod.startswith(pkg) for pkg in allowed_packages)
 
 
-def get_sqlalchemy_metadata(allowed_packages: List):
+def get_sqlalchemy_metadata(allowed_packages: t.List):
     """Get the SQLAlchemy MetaData instance which contains declarative tables only from a certain Python packagek.
 
     We get all tables which have been registered against the current Base model. Then we grab Base.metadata and drop out all tables which we think are not part of our migration run.
@@ -190,7 +194,8 @@ def run_alembic(package:str):
     # This was -c passed to ws-alembic command
     config_file = config.config_file_name
 
-    setup_logging(config_file)
+    # Alembic always uses console logging
+    setup_console_logging(logging.INFO)
 
     # Load the WSGI application, etc.
     request = init_websauna(config_file)
@@ -213,7 +218,6 @@ def run_alembic(package:str):
     def include_object(object, name, type_, reflected, compare_to):
         """
         """
-
         # Try to figure out smartly table from different object types
         if type_ in ("index", "column", "foreign_key_constraint", "unique_constraint"):
             table_name = object.table.name
@@ -244,5 +248,3 @@ def run_alembic(package:str):
     # TODO: If a migration file is written, post-edit it and add websauna import
 
     logger.info("All done")
-
-

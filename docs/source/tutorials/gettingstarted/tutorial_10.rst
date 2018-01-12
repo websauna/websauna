@@ -50,7 +50,7 @@ Websauna also supports an alternative routing method called :term:`traversal`. I
 Writing views
 -------------
 
-The ``websauna_app`` scaffold has generated a ``views.py`` for you.
+The ``cookiecutter-websauna-app`` :term:`cookiecutter` template has generated a ``views.py`` for you.
 
 Let's add a couple of views there, now.
 

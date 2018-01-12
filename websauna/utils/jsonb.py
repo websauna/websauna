@@ -1,6 +1,6 @@
 """JSONB data utilities."""
-import inspect
 from decimal import Decimal
+import inspect
 import json
 
 from sqlalchemy.ext.indexable import index_property

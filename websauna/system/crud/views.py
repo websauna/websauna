@@ -1,31 +1,33 @@
 """Default CRUD views."""
+# Standard Library
 import csv
+import typing as t
 from abc import abstractmethod
 from io import StringIO
 
+# Pyramid
+import colander
 from pyramid.httpexceptions import HTTPFound
 from pyramid.renderers import render
 from pyramid.request import Request
 from pyramid.response import Response
 from pyramid.view import view_config
-from slugify import slugify
-from sqlalchemy.orm import Query
-import deform
-import colander
 
-from websauna.compat import typing
-from websauna.compat.typing import Iterable
-from websauna.compat.typing import List
-from websauna.compat.typing import Optional
-from websauna.compat.typing import Any
+# SQLAlchemy
+from sqlalchemy.orm import Query
+
+import deform
+from slugify import slugify
+
+# Websauna
 from websauna.system.core import messages
 from websauna.system.form import interstitial
 from websauna.system.form.fieldmapper import EditMode
 from websauna.system.form.resourceregistry import ResourceRegistry
 
-from . import paginator
-from . import Resource
 from . import CRUD
+from . import Resource
+from . import paginator
 
 
 class ResourceButton:
@@ -45,7 +47,7 @@ class ResourceButton:
     #: The template used to render this button. Also overridable through the constructor.
     template = "crud/resource_button.html"
 
-    def __init__(self, id: Optional[str]=None, name: Optional[str]=None, template: Optional[str]=None, permission: Optional[str]=None, tooltip: Optional[str]=None, feature: Optional[str]=None):
+    def __init__(self, id: t.Optional[str]=None, name: t.Optional[str]=None, template: t.Optional[str]=None, permission: t.Optional[str]=None, tooltip: t.Optional[str]=None, feature: t.Optional[str]=None):
         """
         :param id: Id of the button to be used as HTML id
         :param name:  Human readable label of the button
@@ -67,24 +69,40 @@ class ResourceButton:
         if template:
             self.template = template
 
-    def is_visible(self, context, request):
-        """Determine if we should render this button."""
+    def is_visible(self, context: Resource, request: Request) -> bool:
+        """Determine if we should render this button.
+
+        :param context: Traversal context
+        :param request: Current HTTP Request.
+        :returns: Boolean indicating if button is visible or not.
+        """
+        visible = True
         if self.permission is not None:
             if not request.has_permission(self.permission, context):
-                return False
+                visible = False
 
         if self.feature is not None:
             if self.feature not in request.registry.features:
-                return False
+                visible = False
 
-        return True
+        return visible
 
     def get_link(self, context: Resource, request: Request) -> str:
-        """Generate a link where this button is pointing at."""
+        """Generate a link where this button is pointing at.
+
+        :param context: Traversal context
+        :param request: Current HTTP Request.
+        :returns: Link.
+        """
         return "#"
 
     def render(self, context: Resource, request: Request) -> str:
-        """Return HTML code for this button."""
+        """Return HTML code for this button.
+
+        :param context: Traversal context
+        :param request: Current HTTP Request.
+        :returns: Rendered template.
+        """
         template_context = dict(context=context, button=self)
         return render(self.template, template_context, request=request)
 
@@ -100,7 +118,13 @@ class TraverseLinkButton(ResourceButton):
         super(TraverseLinkButton, self).__init__(**kwargs)
         self.view_name = view_name
 
-    def get_link(self, context, request):
+    def get_link(self, context: Resource, request: Request) -> str:
+        """Generate a link where this button is pointing at.
+
+        :param context: Traversal context
+        :param request: Current HTTP Request.
+        :returns: Link.
+        """
         return request.resource_url(context, self.view_name)
 
 
@@ -115,7 +139,7 @@ class CRUDView:
     #: Instance of ResourceButtons which appear on the top right corner of this view
     resource_buttons = []
 
-    def get_resource_buttons(self) -> typing.List:
+    def get_resource_buttons(self) -> t.List:
         """Get the context-sensitive button options presented on this page.
 
         These are usually links to "Show", "Edit", "Delete" of the formm context, but you are free to add your own buttons here. The buttons are usually placed on the top right corner of the form.
@@ -139,9 +163,10 @@ class Listing(CRUDView):
     resource_buttons = [TraverseLinkButton(id="add", name="Add", view_name="add", permission="add")]
 
     def __init__(self, context: CRUD, request: Request):
-        """
+        """Initialize Listing view.
+
         :param context: Points to ``CRUD`` instance.
-        :param request:
+        :param request: Current HTTP Request.
         """
         self.context = context
         self.request = request
@@ -149,7 +174,7 @@ class Listing(CRUDView):
     def get_crud(self) -> CRUD:
         return self.context
 
-    def get_model(self) -> Any:
+    def get_model(self) -> t.Any:
         return self.context.get_model()
 
     def get_query(self) -> Query:
@@ -422,7 +447,7 @@ class Edit(FormView):
     def get_title(self):
         return "Editing #{}".format(self.context.get_title())
 
-    def get_buttons(self) -> Iterable[deform.form.Button]:
+    def get_buttons(self) -> t.Iterable[deform.form.Button]:
         return (
             deform.form.Button("save"),
             deform.form.Button("cancel"),
@@ -543,6 +568,13 @@ class Add(FormView):
         # Redirect back to view page after edit page has succeeded
         return HTTPFound(self.request.resource_url(resource, "show"))
 
+    def do_cancel(self) -> Response:
+        """Called when user presses the cancel button.
+
+        :return: HTTPResponse
+        """
+        return HTTPFound(self.request.resource_url(self.get_crud(), "listing"))
+
     def build_object(self, form, appstruct: dict) -> object:
         """Builds a new object.
 
@@ -554,7 +586,7 @@ class Add(FormView):
         self.add_object(obj)
         return obj
 
-    def get_buttons(self)-> List[deform.form.Button]:
+    def get_buttons(self)-> t.List[deform.form.Button]:
         buttons = (
             deform.form.Button("add"),
             deform.form.Button("cancel"),
@@ -597,7 +629,7 @@ class Add(FormView):
 
         elif "cancel" in self.request.POST:
             # User pressed cancel
-            return HTTPFound(self.request.resource_url(self.get_crud(), "listing"))
+            return self.do_cancel()
         else:
             # Render initial form view with populated values
             rendered_form = form.render()
@@ -658,7 +690,6 @@ class Delete:
     @view_config(context=Resource, name="delete", renderer="crud/delete.html", permission='delete')
     def delete(self):
         """Delete view endpoint."""
-
         choices = (
             interstitial.Choice("Yes", self.delete_object, id="btn-delete-yes"),
             interstitial.Choice("No", self.cancel_delete, id="btn-delete-no"),

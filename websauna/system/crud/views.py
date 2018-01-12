@@ -205,7 +205,7 @@ class Listing(CRUDView):
         # This is to support breadcrums with titled views
         current_view_name = self.get_title()
 
-        title = self.context.title
+        title = self.get_title()
         count = self.get_count(query)
 
         # Base listing template variables

@@ -2,6 +2,7 @@
 <a
   id="btn-crud-{{ button.id }}"
   class="btn btn-default"
+  rel="nofollow"
   href="{{ button.get_link(context, request) }}"
   {%if button.tooltip %}data-toggle="tooltip" title="{{ button.tooltip }}"{% endif %}
   >

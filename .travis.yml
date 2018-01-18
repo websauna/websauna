@@ -14,10 +14,6 @@ matrix:
     allow_failures:
         - python: nightly
     include:
-        - python: 3.4
-          env:
-          - PYTHON_VERSION=python3.4
-          - TOXENV=py34
         - python: 3.5
           env:
           - PYTHON_VERSION=python3.5

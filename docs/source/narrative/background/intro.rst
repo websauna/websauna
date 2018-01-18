@@ -100,7 +100,7 @@ Websauna suggests the following set of components to build the first version of 
 Backend
 -------
 
-* Python 3.4+
+* Python 3.5+
 
 * Pyramid web framework
 

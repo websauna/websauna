@@ -50,7 +50,6 @@ setup(
         'License :: OSI Approved :: MIT License',
 
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Framework :: Pyramid',
@@ -109,14 +108,10 @@ setup(
         'pyramid-mailer',
         'premailer',
 
-        # Python 3.4 typing
-        "typing;python_version<'3.5'",
-
         # Console logging
         "rainbow_logging_handler",
 
         # Misc
-        "scandir;python_version<'3.5'",  # os.scandir backport for py3.4
         "python-slugify", # ASCII slug generation
     ],
 

@@ -7,6 +7,8 @@ Changelog for Websauna
 
 - Closes `Issue #155`_: AttributeError: 'super' has no attribute update_first_login_social_data on first user login.
 
+- Dropped Python 3.4 support.
+
 
 1.0a5 (2017-12-12)
 ------------------

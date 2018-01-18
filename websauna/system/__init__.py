@@ -45,10 +45,8 @@ def check_python_pyramid_requirements() -> bool:
     error_msg = ''
     python_version = sys.version_info
     pyramid_version = tuple(LooseVersion(pkg_resources.get_distribution('pyramid').version).version)
-    if python_version < (3, 4):
-        error_msg = 'Websauna needs Python 3.4 or newer'
-    elif (3, 5) < python_version < (3, 5, 2):
-        error_msg = 'Python 3.5.2 or newer is required to run this, as there is a bug in Python 3.5.1 typing library'
+    if python_version < (3, 5, 2):
+        error_msg = 'Python 3.5.2 or newer is required to run Websauna.'
     elif pyramid_version < (1, 7):
         error_msg = 'Pyramid version 1.7 or newer required'
     if error_msg:

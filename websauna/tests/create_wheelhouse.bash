@@ -3,7 +3,7 @@
 # Create wheelhouse cache to speed up test_scaffold runs.
 # Builds a wheelhouse folder containing al dependencies.
 #
-# $PYTHON_VERSION is like python3.4 or python3.5
+# $PYTHON_VERSION is like python3.5 or python3.6
 
 set -e
 # set -x

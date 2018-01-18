@@ -22,7 +22,6 @@ def dev_db(request, ini_settings):
     return create_psq_db(request, "app_dev", dsn)
 
 
-@pytest.mark.skipif(sys.version_info < (3,5), reason="For unknown reason this keeps randomly failing on Python 3.4")
 def test_pserve(app_scaffold, dev_db, browser):
     """Create an application and see if ws-pserve starts. """
 
@@ -45,7 +44,6 @@ def test_pserve(app_scaffold, dev_db, browser):
 
 
 @flaky  # On Travis there might be abnormal delays in this test
-@pytest.mark.skipif(sys.version_info < (3,5), reason="For unknown reason this keeps randomly failing on Python 3.4")
 def test_pyramid_debugtoolbar(app_scaffold, dev_db, browser):
     """Pyramid debug toolbar should be effective with the default development ws-pserve."""
 
@@ -122,7 +120,6 @@ def test_dump_db(app_scaffold, dev_db):
     execute_venv_command("cd my.app && ws-dump-db ws://my/app/conf/development.ini", app_scaffold)
 
 
-#@pytest.mark.skipif(sys.version_info < (3,5), reason="For unknown reason this fails on Python 3.4 on TravisCI")
 @flaky  # Browser doesn't come up timely on Travis
 def test_create_user(app_scaffold, dev_db, browser):
     """Test creating user from command line and logging in as this user."""

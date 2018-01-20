@@ -1,18 +1,21 @@
 """Default login service implementation."""
-
+# Pyramid
 from pyramid.httpexceptions import HTTPFound
 from pyramid.response import Response
-from pyramid.security import remember, forget
+from pyramid.security import forget
+from pyramid.security import remember
 from pyramid.settings import asbool
+from zope.interface import implementer
+
+# Websauna
 from websauna.system.core import messages
 from websauna.system.core.route import get_config_route
 from websauna.system.http import Request
+from websauna.system.user.interfaces import ILoginService
+from websauna.system.user.interfaces import IUser
 from websauna.system.user.usermixin import UserMixin
-from websauna.utils.time import now
-from zope.interface import implementer
-
-from websauna.system.user.interfaces import ILoginService, IUser
 from websauna.system.user.utils import get_user_registry
+from websauna.utils.time import now
 
 from . import events
 from .interfaces import AuthenticationFailure
@@ -26,9 +29,19 @@ class DefaultLoginService:
     """
 
     def __init__(self, request: Request):
+        """Initialize LoginService.
+
+        :param request: Pyramid Request.
+        """
         self.request = request
 
-    def update_login_data(self, user):
+    def update_login_data(self, user: IUser):
+        """Update last_login_at and last_login_ip on User object.
+
+        If this is the User first login, trigger FirstLogin event.
+
+        :param user: User object.
+        """
         request = self.request
         if not user.last_login_at:
             e = events.FirstLogin(request, user)
@@ -42,7 +55,6 @@ class DefaultLoginService:
         """Check if the user password matches.
 
         * First try username + password
-
         + Then try with email + password
 
         :param username: username or email
@@ -68,14 +80,21 @@ class DefaultLoginService:
         return user
 
     def greet_user(self, user: IUser):
-        """Allow easy overridingn of a welcome message."""
+        """Allow easy overriding of a welcome message.
+
+        :param user: User object.
+        """
         messages.add(self.request, kind="success", msg="You are now logged in.", msg_id="msg-you-are-logged-in")
 
-
-    def do_post_login_actions(self, user: IUser, headers: dict, location: str=None):
-        """What happens after a succesful login.
+    def do_post_login_actions(self, user: IUser, headers: dict, location: str=None) -> Response:
+        """What happens after a successful login.
 
         Override this to customize e.g. where the user lands.
+
+        :param user: User object.
+        :param headers: Dictionary with headers to be added to the HTTPFound response.
+        :param location: URL to redirect the user to.
+        :return: Redirection to location.
         """
         request = self.request
 
@@ -108,8 +127,10 @@ class DefaultLoginService:
                 login_service = get_login_service(request)
                 response = login_service.authenticate_user(user, "my-login-source")
 
+        :param user: User object.
+        :param login_source: Source of this login.
+        :param location: Location to redirect the user to.
         :raise AuthenticationFailure: If login cannot proceed due to disabled user account, etc.
-
         :return: HTTPResponse what should happen as post-login action
         """
         request = self.request
@@ -131,7 +152,7 @@ class DefaultLoginService:
 
         return self.do_post_login_actions(user, headers, location)
 
-    def authenticate_credentials(self, username: str, password: str, login_source:str, location: str=None) -> Response:
+    def authenticate_credentials(self, username: str, password: str, login_source: str, location: str=None) -> Response:
         """Try logging in the user with username and password.
 
         This is called after the user credentials have been validated, after sign up when direct sign in after sign up is in use or after successful federated authentication.
@@ -140,33 +161,27 @@ class DefaultLoginService:
 
         Fills in user last login time and IP data..
 
-        :param request: Current request
-
-        :param user: Default login service is designed to work with UserMixin compatible user classes
-
+        :param username: Username.
+        :param password: User password.
+        :param login_source: Source of this login attempt.
         :param location: Override the redirect page. If none use ``websauna.login_redirect``. TODO - to be changed.
-
         :raise: AuthenticationError
+        :return: HTTPResponse what should happen as post-login action
         """
-
         # See that our user model matches one we expect from the configuration
-        request = self.request
-        registry = request.registry
-
         user = self.check_credentials(username, password)
-
         return self.authenticate_user(user, login_source, location)
 
-    def logout(self, location=None) -> Response:
+    def logout(self, location: str=None) -> Response:
         """Log out user from the site.
 
         * Terminate session
-
         * Show logged out message
-
         * Redirect the user to post login page
-        """
 
+        :param location: Override the redirect page. If none use ``websauna.login_redirect``. TODO - to be changed.
+        :return: HTTPFound to location.
+        """
         # TODO: Horus might go
         request = self.request
         logout_redirect_view = get_config_route(request, 'websauna.logout_redirect')
@@ -175,5 +190,3 @@ class DefaultLoginService:
         messages.add(request, msg="You are now logged out.", kind="success", msg_id="msg-logged-out")
         headers = forget(request)
         return HTTPFound(location=location, headers=headers)
-
-

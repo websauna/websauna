@@ -3,25 +3,29 @@
 This module defines what fields the default user implementation can have. You can subclass these mixins and then provide your own implementation for concrete models.
 """
 
-from uuid import uuid4
+# Standard Library
 import datetime
+from uuid import uuid4
 
-from sqlalchemy import inspection, Integer
-from sqlalchemy.ext.indexable import index_property
-from sqlalchemy import Column
-from sqlalchemy import String
+# SQLAlchemy
 from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy import inspection
+from sqlalchemy.ext.indexable import index_property
 from sqlalchemy.orm.session import Session
 
-from websauna.system.model.columns import UUID
-from websauna.system.model.columns import JSONB
-from websauna.system.model.columns import JSONB
+# Websauna
 # from sqlalchemy.dialects.postgresql import JSONB
 from websauna.system.model.columns import INET
+from websauna.system.model.columns import JSONB
+from websauna.system.model.columns import UUID
 from websauna.system.model.columns import UTCDateTime
+from websauna.system.model.json import NestedMutationDict
 from websauna.utils.crypt import generate_random_string
 from websauna.utils.time import now
-from websauna.system.model.json import NestedMutationDict
+
 
 #: Initialze user_data JSONB structure with these fields on new User
 DEFAULT_USER_DATA = {
@@ -195,12 +199,11 @@ class SiteCreator:
 
     """
 
-    def init_empty_site(self, dbsession:Session, user:UserMixin):
+    def init_empty_site(self, dbsession: Session, user: UserMixin):
         """When the first user signs up build the admin groups and make the user member of it.
 
         Make the first member of the site to be admin and superuser.
         """
-
         # Try to reflect related group class based on User model
         i = inspection.inspect(user.__class__)
         Group = i.relationships["groups"].mapper.entity
@@ -208,15 +211,12 @@ class SiteCreator:
         # Do we already have any groups... if we do we probably don'¨t want to init again
         if dbsession.query(Group).count() > 0:
             return
-
         g = Group(name=Group.DEFAULT_ADMIN_GROUP_NAME)
         dbsession.add(g)
-
         g.users.append(user)
 
-    def check_empty_site_init(self, dbsession:Session, user:UserMixin):
+    def check_empty_site_init(self, dbsession: Session, user: UserMixin):
         """Call after user creation to see if this user is the first user and should get initial admin rights."""
-
         assert user.id, "Please flush your db"
 
         # Try to reflect related group class based on User model
@@ -245,9 +245,7 @@ class ActivationMixin:
     #: All activation tokens must have expiring time
     expires_at = Column(UTCDateTime, nullable=False)
 
-    code = Column(String(32), nullable=False,
-                         unique=True,
-                         default=lambda: generate_random_string(32))
+    code = Column(String(32), nullable=False, unique=True, default=lambda: generate_random_string(32))
 
     def is_expired(self):
         """The activation best before is past and we should not use it anymore."""
@@ -256,4 +254,5 @@ class ActivationMixin:
 
 class UserGroupMixin:
     """Map users to groups."""
+
     id = Column(Integer, autoincrement=True, primary_key=True)

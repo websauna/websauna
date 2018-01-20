@@ -1,18 +1,26 @@
 """Default implementation of social login handling."""
+# Standard Library
 import logging
 
-from authomatic.adapters import WebObAdapter
-from authomatic.core import LoginResult
+# Pyramid
 from pyramid.httpexceptions import HTTPFound
 from pyramid.request import Request
 from pyramid.response import Response
 from pyramid.settings import aslist
-from websauna.system.core import messages
-from websauna.system.user.social import NotSatisfiedWithData
 from zope.interface import implementer
 
-from websauna.system.user.interfaces import IOAuthLoginService, AuthenticationFailure
-from websauna.system.user.utils import get_login_service, get_social_login_mapper, get_authomatic
+from authomatic.adapters import WebObAdapter
+from authomatic.core import LoginResult
+
+# Websauna
+from websauna.system.core import messages
+from websauna.system.user.interfaces import AuthenticationFailure
+from websauna.system.user.interfaces import IOAuthLoginService
+from websauna.system.user.social import NotSatisfiedWithData
+from websauna.system.user.utils import get_authomatic
+from websauna.system.user.utils import get_login_service
+from websauna.system.user.utils import get_social_login_mapper
+
 
 logger = logging.getLogger(__name__)
 
@@ -53,15 +61,19 @@ class AuthomaticLoginHandler:
     :return: Tuple (HTTP response, Authomatic result)
     """
 
-    def __init__(self, request:Request, provider_name:str):
+    def __init__(self, request: Request, provider_name: str):
+        """Initialize AuthomaticLoginHandler.
 
+        :param request: Pyramid request.
+        :param provider_name: Authomatic provider name.
+        """
         self.request = request
         self.provider_name = provider_name
 
         settings = request.registry.settings
         self.social_logins = aslist(settings.get("websauna.social_logins", ""))
 
-        # Allow only logins which we are configured
+        # Allow only logins which we configured
         assert provider_name in self.social_logins, "Attempt to login non-configured social media {}".format(provider_name)
 
         self.mapper = get_social_login_mapper(request.registry, provider_name)
@@ -107,8 +119,6 @@ class AuthomaticLoginHandler:
     def do_error(self, authomatic_result: LoginResult, e: Exception) -> Response:
         """Handle getting error from OAuth provider."""
         # We got some error result, now let see how it goes
-        request = self.request
-
         if e:
             # Leave a cue for sysadmins everything is not right. Use INFO level as usually this is just the user pressing Cancel on the OAuth pop up screen.
             logger.info(e)
@@ -171,4 +181,3 @@ class AuthomaticLoginHandler:
                 e = ex
 
         return self.do_error(authomatic_result, e)
-

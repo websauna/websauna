@@ -1,20 +1,26 @@
 """Sign up form service."""
+# Standard Library
 import logging
 
-from zope.interface import implementer
-from pyramid.httpexceptions import HTTPNotFound, HTTPFound
+# Pyramid
+from pyramid.httpexceptions import HTTPFound
+from pyramid.httpexceptions import HTTPNotFound
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
 from pyramid.settings import asbool
+from zope.interface import implementer
 
+# Websauna
 from websauna.system.core import messages
 from websauna.system.http import Request
 from websauna.system.mail import send_templated_mail
+from websauna.system.user.events import NewRegistrationEvent
+from websauna.system.user.events import RegistrationActivatedEvent
 from websauna.system.user.events import UserCreated
-from websauna.system.user.interfaces import IUser, IRegistrationService
-from websauna.system.user.utils import get_user_registry, get_login_service
-
-from .events import NewRegistrationEvent, RegistrationActivatedEvent
+from websauna.system.user.interfaces import IRegistrationService
+from websauna.system.user.interfaces import IUser
+from websauna.system.user.utils import get_login_service
+from websauna.system.user.utils import get_user_registry
 
 
 logger = logging.getLogger(__name__)
@@ -28,11 +34,18 @@ class DefaultRegistrationService:
     """
 
     def __init__(self, request: Request):
+        """Initialize registration service.
+
+        :param request: Pyramid Request.
+        """
         self.request = request
 
     def sign_up(self, user_data: dict) -> Response:
-        """Sign up a new user."""
+        """Sign up a new user.
 
+        :param user_data: User data.
+        :return: Either a redirect to a post-signup location or a page informing the user has to activate their account.
+        """
         user_registry = get_user_registry(self.request)
         user = user_registry.sign_up(registration_source="email", user_data=user_data)
 
@@ -50,8 +63,8 @@ class DefaultRegistrationService:
             messages.add(self.request, msg_id="msg-sign-up-complete", msg="Sign up complete. Welcome!", kind="success")
 
         self.request.registry.notify(NewRegistrationEvent(self.request, user, None, user_data))
-
         self.request.dbsession.flush()  # in order to get the id
+
         if autologin:
             login_service = get_login_service(self.request.registry)
             return login_service.authenticate(self.request, user)
@@ -63,14 +76,15 @@ class DefaultRegistrationService:
 
         We don't want to force the users to pick up an usernames, so we just generate an username.
         The user is free to change their username later.
-        """
 
+        :param user: User object.
+        """
         user_registry = get_user_registry(self.request)
         activation_code, expiration_seconds = user_registry.create_email_activation_token(user)
 
         context = {
             'link': self.request.route_url('activate', code=activation_code),
-            'expiration_hours': int(expiration_seconds/3600),
+            'expiration_hours': int(expiration_seconds / 3600),
         }
 
         logger.info("Sending sign up email to %s", user.email)
@@ -78,14 +92,17 @@ class DefaultRegistrationService:
         # TODO: Broken abstraction, we assume user.email is a attribute
         send_templated_mail(self.request, [user.email], "login/email/activate", context)
 
-    def activate_by_email(self, activation_code: str, location=None) -> Response:
+    def activate_by_email(self, activation_code: str, location: str=None) -> Response:
         """Active a user after user after the activation email.
 
-        * User clicks link in the activation email
+            * User clicks link in the activation email
+            * User enters the activation code on the form by hand
 
-        * User enters the activation code on the form by hand
+        :param activation_code: Activation code for user account.
+        :param location: URL to redirct the user to, after activation.
+        :raise: HTTPNotFound is activation_code is invalid.
+        :return: Redirect to location.
         """
-
         request = self.request
         settings = request.registry.settings
         user_registry = get_user_registry(request)

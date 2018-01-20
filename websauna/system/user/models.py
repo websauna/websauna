@@ -4,15 +4,19 @@ Define how User, Group, UserGroup and Activation models are in relationship toge
 
 These models are picked up in :py:meth:`websauna.system.Initializer.configure_user_models`.
 """
-
-import sqlalchemy as sa
-from sqlalchemy.ext.declarative.base import _declarative_constructor
+# Pyramid
 from zope.interface import implementer
 
-from websauna.system.user.interfaces import IGroup, IUser
-from websauna.system.user.usermixin import ActivationMixin, UserGroupMixin
+# SQLAlchemy
+import sqlalchemy as sa
+from sqlalchemy.ext.declarative.base import _declarative_constructor
 
-from . import usermixin
+# Websauna
+from websauna.system.user import usermixin
+from websauna.system.user.interfaces import IGroup
+from websauna.system.user.interfaces import IUser
+from websauna.system.user.usermixin import ActivationMixin
+from websauna.system.user.usermixin import UserGroupMixin
 
 
 @implementer(IUser)
@@ -36,6 +40,7 @@ class User(usermixin.UserMixin):
 
 @implementer(IGroup)
 class Group(usermixin.GroupMixin):
+    """The default group implementation for Websauna."""
 
     __tablename__ = "group"
 
@@ -50,7 +55,8 @@ class Group(usermixin.GroupMixin):
     )
 
     def __str__(self):
-        return "Group #{}: {}".format(self.id, self.name)
+        """Representation of a Group object."""
+        return "Group #{id}: {name}".format(id=self.id, name=self.name)
 
 
 class UserGroup(UserGroupMixin):
@@ -72,7 +78,3 @@ class Activation(ActivationMixin):
 
     # Default constructor
     __init__ = _declarative_constructor
-
-
-
-

@@ -1,10 +1,11 @@
 """Define various interfaces telling how user subsystem objects interact and can be looked up from registry."""
-
+# Pyramid
 import zope
-import authomatic
-from pyramid.interfaces import IRequest, IResponse
-
+from pyramid.interfaces import IRequest
+from pyramid.interfaces import IResponse
 from zope.interface import Interface
+
+import authomatic
 
 
 class IUser(Interface):
@@ -16,7 +17,6 @@ class IUser(Interface):
 
     :py:class:`websauna.system.user.interfaces.ILoginService` must know some user implementation details.
     """
-
 
     #: How we present the user's name to the user itself. Usually. Picks one of 1) full name if set 2) username if set 3) email.
     friendly_name = zope.interface.Attribute("friendly_name")
@@ -39,6 +39,7 @@ class IUserModel(Interface):
 class IGroupModel(Interface):
     """Register utility registration which marks active Group SQLAlchemy model class."""
 
+
 class IActivationModel(Interface):
     """Register utility registration which marks active Activation SQLAlchemy model class."""
 
@@ -50,26 +51,29 @@ class IAuthomatic(Interface):
 class ISocialLoginMapper(Interface):
     """Named marker interface to look up social login mappers."""
 
-    def capture_social_media_user(self, request:IRequest, result:authomatic.core.LoginResult) -> IUserModel:
+    def capture_social_media_user(self, request: IRequest, result: authomatic.core.LoginResult) -> IUserModel:
         """Extract social media information from the Authomatic login result in order to associate the user account."""
 
-    def import_social_media_user(self, user:authomatic.core.User) -> dict:
+    def import_social_media_user(self, user: authomatic.core.User) -> dict:
         """Map incoming social network data to internal data structure.
 
         Sometimes social networks change how the data is presented over API and you might need to do some wiggling to get it a proper shape you wish to have.
 
         The resulting dict must be JSON serializable as it is persisted as is.
 
+        :param user: Authomatic user.
+        :returns: Dict representation of the user.
         """
 
-    def update_first_login_social_data(self, user:object, data:dict):
+    def update_first_login_social_data(self, user: object, data: dict):
         """Set the initial data on the user model.
 
         When the user logs in from a social network for the first time (no prior logins with this email before) we fill in blanks in the user model with incoming data.
 
         Default action is not to set any items.
 
-        :param data: Normalized data
+        :param user: User object.
+        :param data: Normalized data.
         """
 
 
@@ -86,26 +90,24 @@ class ILoginService(Interface):
 
     This service is responsible to
 
-    * Set up logged in session
+        * Set up logged in session
 
-    * Do post login actions like redirects
+        * Do post login actions like redirects
 
     Use :py:func:`websauna.system.user.utils.get_login_service` to get access to configured login service.
     """
 
-    def authentication_user(user: IUser, login_source:str, location: str=None) -> IResponse:
+    def authentication_user(user: IUser, login_source: str, location: str=None) -> IResponse:
         """Make the current session logged in session for this particular user.
 
         A password check is not performed. However it is checked if user is active and such.
 
         :param location: Override the redirect page. If none use ``websauna.login_redirect``. TODO - to be changed.
-
         :param login_source: Application specific string telling where the login come from. E.g. "social_media", "signup", "login_form".
-
         :raise AuthenticationFailure: If the user is disabled
         """
 
-    def authenticate_credentials(username: str, login_source:str, password: str, location: str=None) -> IResponse:
+    def authenticate_credentials(username: str, login_source: str, password: str, location: str=None) -> IResponse:
         """Logs in the user.
 
         This is called after the user credentials have been validated.
@@ -125,7 +127,7 @@ class ILoginService(Interface):
         :raise AuthenticationFailure: If the password does not match or user is disabled
         """
 
-    def logout(location:str =None) -> IResponse:
+    def logout(location: str=None) -> IResponse:
         """Log out user from the site.
 
         * Terminate session
@@ -208,6 +210,7 @@ class IRegisterForm(Interface):
     See :py:meth:`websauna.system.Initializer.configure_user_forms`.
     """
 
+
 class IForgotPasswordForm(Interface):
     """Deform form used for Forgot password form.
 
@@ -220,7 +223,6 @@ class IForgotPasswordSchema(Interface):
 
     See :py:meth:`websauna.system.Initializer.configure_user_forms`.
     """
-
 
 
 class IResetPasswordForm(Interface):
@@ -237,14 +239,13 @@ class IResetPasswordSchema(Interface):
     """
 
 
-
 class IPasswordHasher(Interface):
     """A utility for hashing passwords.
 
     Used by :py:meth:`websauna.system.models.usermixin.UserMixin._set_password`.
     """
 
-    def hash_password(plain_text) -> str:
+    def hash_password(plain_text: str) -> str:
         """Generate a hash presentation for plain text password.
 
         This is to be stored in database.
@@ -252,7 +253,7 @@ class IPasswordHasher(Interface):
         :return: A hasher internal string format. Usually contains number of cycles, hashed password and salt string.
         """
 
-    def verify_password(hashed_password, plain_text) -> bool:
+    def verify_password(hashed_password: str, plain_text: str) -> bool:
         """Verify a password.
 
         Compare if inputed password matches one stored in the dabase.

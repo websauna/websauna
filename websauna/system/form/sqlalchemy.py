@@ -21,7 +21,7 @@ def extract_uuid_to_slug(item):
     return uuid_to_slug(item.uuid)
 
 
-def convert_query_to_tuples(query: Query, first_column: t.Union[str, t.Callable], second_column: t.Union[str, t.Callable], default_choice:str =None) -> t.List[t.Tuple]:
+def convert_query_to_tuples(query: Query, first_column: t.Union[str, t.Callable], second_column: t.Union[str, t.Callable], default_choice:str =None) -> t.List[t.Tuple[str, str]]:
     """Convert SQLAlchemy query results to (id, name) tuples for select and checkbox widgets.
 
     :param first_column: Column name used to populate value in the first tuple

@@ -221,7 +221,7 @@ class GoogleMapper(EmailSocialLoginMapper):
             "email_verified": user.email_verified,
         }
 
-    def update_first_login_social_data(self, user:IUserModel, data:dict):
+    def update_first_login_social_data(self, user: IUserModel, data: dict):
         """Set the initial data on the user model.
 
         :param user: User object.
@@ -231,7 +231,7 @@ class GoogleMapper(EmailSocialLoginMapper):
         if not user.full_name and data.get("full_name"):
             user.full_name = data["full_name"]
 
-    def capture_social_media_user(self, request:Request, result: LoginResult) -> IUserModel:
+    def capture_social_media_user(self, request: Request, result: LoginResult) -> IUserModel:
         """Extract social media information from the Authomatic login result in order to associate the user account.
 
         :param request: Pyramid request.

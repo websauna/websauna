@@ -11,8 +11,6 @@ services:
 
 matrix:
     fast_finish: true
-    allow_failures:
-        - python: nightly
     include:
         - python: 3.5
           env:

@@ -46,7 +46,7 @@ class Entry:
     """Option is one choice in a menu.
 
     It can be a simple link, submenu or a custom rendered template.
-z
+
     Adding conditional entry with a permission check::
 
         admin = Admin.get_admin(self.config.registry)

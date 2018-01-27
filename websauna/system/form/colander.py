@@ -6,33 +6,42 @@
 
 """
 
-import inspect
-import logging
+# Standard Library
 import itertools
+import logging
 
-from colanderalchemy.schema import SQLAlchemySchemaNode, _creation_order
-
+# Pyramid
 import colander
-from colander import (Mapping,
-                      drop,
-                      required,
-                      SchemaNode,
-                      Sequence)
-from sqlalchemy import (Boolean,
-                        Date,
-                        DateTime,
-                        Enum,
-                        Float,
-                        inspect,
-                        Integer,
-                        String,
-                        Numeric,
-                        Time)
-import sqlalchemy
-from sqlalchemy.schema import (FetchedValue, ColumnDefault, Column)
-from sqlalchemy.orm import (ColumnProperty, RelationshipProperty)
+from colander import Mapping
+from colander import SchemaNode
+from colander import Sequence
+from colander import drop
+from colander import required
 
-from websauna.system.form.sqlalchemy import ModelSetResultList, ModelSchemaType
+# SQLAlchemy
+import sqlalchemy
+from sqlalchemy import Boolean
+from sqlalchemy import Date
+from sqlalchemy import DateTime
+from sqlalchemy import Enum
+from sqlalchemy import Float
+from sqlalchemy import Integer
+from sqlalchemy import Numeric
+from sqlalchemy import String
+from sqlalchemy import Time
+from sqlalchemy import inspect
+from sqlalchemy.orm import ColumnProperty
+from sqlalchemy.orm import RelationshipProperty
+from sqlalchemy.schema import Column
+from sqlalchemy.schema import ColumnDefault
+from sqlalchemy.schema import FetchedValue
+
+from colanderalchemy.schema import SQLAlchemySchemaNode
+from colanderalchemy.schema import _creation_order
+
+# Websauna
+from websauna.system.form.sqlalchemy import ModelSchemaType
+from websauna.system.form.sqlalchemy import ModelSetResultList
 from websauna.utils.jsonb import is_index_property
 
 
@@ -115,8 +124,7 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
 
             name_overrides_copy = overrides.get(name, {}).copy()
 
-            if (isinstance(prop, ColumnProperty)
-                    and isinstance(prop.columns[0], Column)):
+            if (isinstance(prop, ColumnProperty) and isinstance(prop.columns[0], Column)):
                 node = self.get_schema_from_column(
                     prop,
                     name_overrides_copy
@@ -160,7 +168,6 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
 
             except AttributeError:
 
-
                 try:
                     # Classic colanderalchemy
                     prop = getattr(self.inspector.relationships, name)
@@ -203,7 +210,7 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
                     #  issues with user defined types and future issues.
                     try:
                         node.serialize(value)
-                    except:
+                    except Exception:
                         dict_[name] = colander.null
                     else:
                         dict_[name] = value
@@ -227,7 +234,6 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
                 prop = mapper.get_property(attr)
 
                 if hasattr(prop, 'mapper'):
-                    cls = prop.mapper.class_
                     value = dict_[attr]
 
                     if prop.uselist:
@@ -250,12 +256,12 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
                             if value:
                                 value = self[attr].objectify(value)
                 else:
-                     value = dict_[attr]
-                     if value is colander.null:
-                         # `colander.null` is never an appropriate
-                         #  value to be placed on an SQLAlchemy object
-                         #  so we translate it into `None`.
-                         value = None
+                    value = dict_[attr]
+                    if value is colander.null:
+                        # `colander.null` is never an appropriate
+                        # value to be placed on an SQLAlchemy object
+                        # so we translate it into `None`.
+                        value = None
                 setattr(context, attr, value)
             elif hasattr(context, attr):
                 # Set any properties on the object which are not SQLAlchemy column based.
@@ -426,8 +432,7 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
         all values for server_default should be ignored for
         Colander default
         """
-        if (isinstance(column.default, ColumnDefault)
-                and column.default.is_scalar):
+        if (isinstance(column.default, ColumnDefault) and column.default.is_scalar):
             kwargs["default"] = column.default.arg
 
         """
@@ -464,8 +469,7 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
             kwargs["missing"] = colander.null
         elif isinstance(column.server_default, FetchedValue):
             kwargs["missing"] = drop  # value generated by SQLA backend
-        elif (hasattr(column.table, "_autoincrement_column")
-              and id(column.table._autoincrement_column) == id(column)):
+        elif (hasattr(column.table, "_autoincrement_column") and id(column.table._autoincrement_column) == id(column)):
             # this column is the autoincrement column, so we can drop
             # it if it's missing and let the database generate it
             kwargs["missing"] = drop

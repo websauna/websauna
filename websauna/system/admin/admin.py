@@ -1,8 +1,12 @@
 """Default admin root implementation."""
 
+# Pyramid
+from pyramid.security import Allow
+from pyramid.security import Deny
+from pyramid.security import Everyone
 from zope.interface import implementer
-from pyramid.security import Allow, Deny, Everyone
 
+# Websauna
 from websauna.system.admin import menu
 from websauna.system.admin.events import AdminConstruction
 from websauna.system.admin.interfaces import IAdmin
@@ -43,7 +47,7 @@ class Admin(Resource):
 
         # Current add_route() view config sets Admin instance as request.root when traversing inside admin.
         # Assume this admin instance lives directly under the root
-        self.__parent__ =  Root(request)
+        self.__parent__ = Root(request)
         self.__name__ = "admin"
 
         self.admin_menu_entry = None
@@ -98,4 +102,3 @@ class Admin(Resource):
         """Traverse to individual model admins by the model name."""
         child = self.children[name]
         return child
-

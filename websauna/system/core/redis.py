@@ -112,7 +112,6 @@ def get_redis(request_or_registry: t.Union[Request, Registry], url: str=None, re
 
     :return: Redis client
     """
-
     # TODO: Resolve calling convention only using one
     if isinstance(request_or_registry, Registry):
         # Unit test calling convention
@@ -126,14 +125,13 @@ def get_redis(request_or_registry: t.Union[Request, Registry], url: str=None, re
     return redis
 
 
-def is_sane_redis(config:Configurator) -> bool:
+def is_sane_redis(config: Configurator) -> bool:
     """Check that we have a working Redis connection for session.
 
     Execute this on startup, so we bail out without starting up with a missing Redis.
 
     :return: True if Redis connection works
     """
-
     try:
         redis = get_redis(config.registry)
         redis.set("websauna_session_test", True)

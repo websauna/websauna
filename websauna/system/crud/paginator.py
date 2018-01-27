@@ -204,9 +204,9 @@ class Batch:
         if num:
             first_url = merge_url_qs(url, batch_size=size, batch_num=0)
         if start >= size:
-            prev_url = merge_url_qs(url, batch_size=size, batch_num=num-1)
+            prev_url = merge_url_qs(url, batch_size=size, batch_num=num - 1)
         if seqlen > end:
-            next_url = merge_url_qs(url, batch_size=size, batch_num=num+1)
+            next_url = merge_url_qs(url, batch_size=size, batch_num=num + 1)
         if size and (num < last):
             last_url = merge_url_qs(url, batch_size=size, batch_num=last)
 
@@ -216,7 +216,7 @@ class Batch:
                 batch_size=toggle_size,
                 batch_num=toggle_num,
                 multicolumn=not multicolumn,
-                )
+            )
 
         self.startitem = start
         self.enditem = end - 1
@@ -254,7 +254,7 @@ class Batch:
     def __nonzero__(self):
         return True
 
-    __bool__ = __nonzero__ # py3
+    __bool__ = __nonzero__  # py3
 
 
 class DefaultPaginator:

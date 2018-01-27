@@ -1,10 +1,14 @@
+# Standard Library
 import os
+
 import pytest
 
+# Websauna
 from websauna.system import Initializer
 from websauna.system.core.route import add_template_only_view
 from websauna.tests.fixtures import get_app
 from websauna.tests.webserver import customized_web_server
+
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
@@ -35,4 +39,3 @@ def test_template_only_view(browser, web_server):
     """See that we can register and render a template only view."""
 
     browser.visit(web_server + "/dummy")
-

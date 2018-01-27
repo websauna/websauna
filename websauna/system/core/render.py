@@ -1,5 +1,5 @@
 """Rendering helpers."""
-from collections import OrderedDict
+# Websauna
 from websauna.utils.orderedset import OrderedSet
 
 
@@ -22,22 +22,19 @@ class OnDemandResourceRenderer:
     """
 
     def __init__(self):
-
         self.resources = {
             "js": OrderedSet(),
             "css": OrderedSet(),
         }
-
         self.js_requires_head = False
 
-    def request_resource(self, kind:str, resource_url:str, js_requires_head=False):
+    def request_resource(self, kind: str, resource_url: str, js_requires_head: bool=False):
         """A widget or something wants to place a CSS or JS file on the page rendering.
 
         :param kind: "js" or "css"
         :param resource_path: Resolved full URL to this resource
         :param js_requires_head: Move all JavaScript to <head> instead of </body> end. I.e. you have <script> tags in the middle of HTML.
         """
-
         self.resources[kind].add(resource_url)
 
         # If one JS wants to go head then everybody goes

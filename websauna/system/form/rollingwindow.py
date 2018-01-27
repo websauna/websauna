@@ -74,7 +74,10 @@ More info
 
 """
 
+# Standard Library
 import time
+
+# Websauna
 from websauna.system.core.redis import get_redis
 
 
@@ -135,6 +138,3 @@ def get(registry, key):
     """
     redis = get_redis(registry)
     return _check(redis, key)
-
-
-

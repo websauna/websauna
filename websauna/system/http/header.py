@@ -1,6 +1,5 @@
 """HTTP header helper utilities."""
 
-import functools
 
 # https://github.com/pypa/warehouse/blob/master/warehouse/cache/http.py
 def add_vary_callback_if_cookie(*varies):
@@ -14,5 +13,3 @@ def add_vary_callback_if_cookie(*varies):
         vary |= set(varies)
         response.vary = vary
     return inner
-
-

@@ -4,8 +4,9 @@ We provide UUID to Base64 encoded string and back coding.
 
 `More information what term slug means <http://stackoverflow.com/questions/427102/what-is-a-slug-in-django>`_.
 """
-import binascii
+# Standard Library
 import base64
+import binascii
 import uuid
 
 

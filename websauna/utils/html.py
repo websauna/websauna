@@ -1,4 +1,5 @@
 """HTML manipulation helpers."""
+# Standard Library
 import typing as t
 
 
@@ -27,5 +28,3 @@ def escape_js(value: t.AnyStr) -> str:
     :return: A string safe to be included inside a <script> tag.
     """
     return str(value).translate(_js_escapes)
-
-

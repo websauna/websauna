@@ -1,15 +1,15 @@
 """Extra logging context."""
-
+# Standard Library
 import logging
 
+# Pyramid
 from pyramid.request import Request
 
+# SQLAlchemy
 import sqlalchemy
 
 
-
 logger = logging.getLogger(__name__)
-
 
 
 def is_good_sqlalchemy_object(obj):
@@ -31,7 +31,6 @@ def get_logging_user_context(request: Request) -> dict:
         user = None
 
     user_context = {}
-
     try:
         if user:
             if is_good_sqlalchemy_object(user):
@@ -57,7 +56,6 @@ def get_logging_user_context(request: Request) -> dict:
         user_context["cloudflare_country"] = request.headers.get("cf-ipcountry")
 
         return user_context
-
     except Exception as e:
         logger.exception(e)
         logger.error("Failed to capture user context %s", request)

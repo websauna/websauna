@@ -2,23 +2,26 @@
 
 For more information read :ref:`static` narrative.
 """
-from abc import ABC, abstractmethod
+# Standard Library
+import hashlib
 import json
 import logging
-from collections import defaultdict
-import shutil
-import hashlib
-
 import os
+import shutil
+import typing as t
+from abc import ABC
+from abc import abstractmethod
+from collections import defaultdict
+from os import scandir
 
-try:
-    from os import scandir
-except ImportError:
-    from scandir import scandir
-
-from pyramid.decorator import reify
+# Pyramid
 from pyramid.config import Configurator
+from pyramid.decorator import reify
 from pyramid.path import AssetResolver
+from pyramid.request import Request
+
+# Websauna
+from websauna.compat.typing import DirEntry
 
 
 logger = logging.getLogger(__name__)
@@ -34,6 +37,10 @@ class StaticAssetPolicy(ABC):
     """A helper class to add static views and apply a configured cache busting policy on them."""
 
     def __init__(self, config: Configurator):
+        """Initialize the StaticAssetPolicy.
+
+        :param config: Pyramid configuration.
+        """
         self.config = config
 
     @abstractmethod
@@ -43,13 +50,21 @@ class StaticAssetPolicy(ABC):
         This does not only include the static resources in the routing, but sets the default cache busting policy for them in the :term:`production` environment.
 
         See :py:meth:`pyramid.config.Configurator.add_static_view` for more details.
+
+        :param name: Name of the asset.
+        :param path: Path to the asset.
         """
 
 
 # Courtesy of http://stackoverflow.com/a/3431838/315168
-def md5(fname):
+def md5(filename: str) -> str:
+    """Generate the md5 hash for a file with given filename.
+
+    :param filename: Name of the file to generate the MD5 hash for.
+    :return: md5 hash of the file.
+    """
     hash = hashlib.md5()
-    with open(fname, "rb") as f:
+    with open(filename, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             hash.update(chunk)
     return hash.hexdigest()
@@ -58,23 +73,39 @@ def md5(fname):
 class CopyAndHashCollector:
     """Toss all static files into perma-asset folder, MD5 hash included in the name."""
 
-    def __init__(self, root: str, settings: dict, target_path=None):
+    def __init__(self, root: str, settings: dict, target_path: str=None):
+        """Initialize CopyAndHashCollector.
+
+        :param root: Root path.
+        :param settings: Configuration.
+        :param target_path: Destination path.
+        """
         self.root = root
-        self.settings= settings
+        self.settings = settings
         self.collected = defaultdict(dict)
 
-    def get_permanent_path(self, root, static_view_name, relative_path, hash):
+    def get_permanent_path(self, root: str, static_view_name: str, relative_path: str, hash: str) -> str:
+        """Return the permanent path for an asset.
 
+        :param root: Root path.
+        :param static_view_name: Name of the asset.
+        :param relative_path: Relative path of the asset.
+        :param hash: Hash of the file.
+        :return: Permanent path to the asset.
+        """
         base_file, ext = os.path.splitext(relative_path)
-        ext = "." + hash + ext
+        ext = '.{hash}{ext}'.format(hash=hash, ext=ext)
         relative_path = base_file + ext
-
         return os.path.join(self.root, MARKER_FOLDER, relative_path)
 
-    def process(self, root, static_view_name, entry, relative_path):
+    def process(self, root: str, static_view_name: str, entry: DirEntry, relative_path: str) -> str:
         """Make a persistent copy of a file.
 
-        :param entry: Scandir entry of a file
+        :param root: Root path.
+        :param static_view_name: Asset name.
+        :param entry: DirEntry for asset.
+        :param relative_path: Relative path of the asset.
+        :return: Permanent path to the asset
         """
         hash = md5(entry.path)
         target = self.get_permanent_path(root, static_view_name, relative_path, hash)
@@ -91,28 +122,33 @@ class CopyAndHashCollector:
 
         # Create a permanent copy
         shutil.copy(entry.path, target)
-        logger.info("Writing %s", target)
-
+        logger.info('Writing %s', target)
         return rel_target
 
-    def collect(self, root, static_view_name, entry, relative_path):
-        """Process one file and add it to our collection."""
+    def collect(self, root: str, static_view_name: str, entry: DirEntry, relative_path: str):
+        """Process one file and add it to our collection.
+
+        :param root: Root path.
+        :param static_view_name: Asset name.
+        :param entry: DirEntry for asset.
+        :param relative_path: Relative path of the asset.
+        """
         target = self.process(root, static_view_name, entry, relative_path)
         by_view = self.collected[static_view_name]
         by_view[relative_path] = target
         self.process(root, static_view_name, entry, relative_path)
-        logger.info("Collected %s:%s as %s", static_view_name, relative_path, target)
+        logger.info('Collected %s:%s as %s', static_view_name, relative_path, target)
 
-    def finish(self):
+    def finish(self) -> dict:
+        """Finish collection and create manifest.json file.
 
-        manifest_path = os.path.join(self.root, MARKER_FOLDER, "manifest.json.tmp")
-
+        :return: Collected files.
+        """
+        manifest_path = os.path.join(self.root, MARKER_FOLDER, 'manifest.json.tmp')
         dirs = os.path.dirname(manifest_path)
         os.makedirs(dirs, exist_ok=True)
-
-        with open(manifest_path, "wt") as f:
+        with open(manifest_path, 'wt') as f:
             json.dump(self.collected, f)
-
         # Atomic replacement
         # Dotted files should not be accessible through normal static file serving
         os.rename(manifest_path, os.path.join(self.root, MARKER_FOLDER, MANIFEST_FILE))
@@ -120,8 +156,13 @@ class CopyAndHashCollector:
 
 
 class DefaultStaticAssetPolicy(StaticAssetPolicy):
+    """Default inplementation of StaticAssetPolicy."""
 
     def __init__(self, config: Configurator):
+        """Initialize DefaultStaticAssetPolicy.
+
+        :param config: Pyramid config.
+        """
         super(DefaultStaticAssetPolicy, self).__init__(config)
         self.settings = config.registry.settings
 
@@ -134,8 +175,10 @@ class DefaultStaticAssetPolicy(StaticAssetPolicy):
         This does not only include the static resources in the routing, but sets the default cache busting policy for them in the :term:`production` environment.
 
         See :py:meth:`pyramid.config.Configurator.add_static_view` and :py:meth:`websauna.system.Initializer.add_cache_buster`
-        """
 
+        :param name: Asset name.
+        :param path: Asset path.
+        """
         # Default value is 0
         cache_max_age = self.settings.get("websauna.cache_max_age_seconds")
         if cache_max_age:
@@ -149,13 +192,20 @@ class DefaultStaticAssetPolicy(StaticAssetPolicy):
 
         self.views[name] = path
 
-    def collect_static(self):
-        """Collect all static files from all static views for the manifest."""
+    def collect_static(self) -> dict:
+        """Collect all static files from all static views for the manifest.
 
-        def recurse(collector, path):
+        :return: Collect assets.
+        """
+        results = defaultdict(dict)
 
+        def recurse(collector: CopyAndHashCollector, path: str):
+            """Recursively collect assets.
+
+            :param collector: CopyAndHashCollector instance
+            :param path: Path to collect assets.
+            """
             for entry in scandir(path):
-
                 if entry.name.startswith("."):
                     # Dot files are usually backups or other no no files
                     continue
@@ -165,7 +215,6 @@ class DefaultStaticAssetPolicy(StaticAssetPolicy):
                     continue
 
                 relative = os.path.relpath(entry.path, collector.root)
-
                 if entry.is_file():
                     collector.collect(path, name, entry, relative)
                 elif entry.is_dir():
@@ -173,7 +222,6 @@ class DefaultStaticAssetPolicy(StaticAssetPolicy):
 
         r = AssetResolver()
         for name, asset_spec in self.views.items():
-
             root = r.resolve(asset_spec).abspath()
             collector = CopyAndHashCollector(root, self.settings)
             recurse(collector, root)
@@ -186,28 +234,43 @@ class DefaultStaticAssetPolicy(StaticAssetPolicy):
 class CollectedStaticCacheBuster:
     """A Pyramid cache buster which uses persistent static item folder from ws-collect-static command to serve static assets."""
 
-    def __init__(self, static_view_name, path, settings: dict):
+    def __init__(self, static_view_name: str, path: str, settings: dict):
+        """Initialize CollectedStaticCacheBuster.
+
+        :param static_view_name: Asset name.
+        :param path: Asset path.
+        :param settings: Configurations.
+        """
         self.settings = settings
         self.static_view_name = static_view_name
         r = AssetResolver()
         self.root = r.resolve(path).abspath()
 
     @reify
-    def manifest(self):
-        """Read manifest file which maps filenames to their MD5 stamped counterparts."""
+    def manifest(self) -> dict:
+        """Read manifest file which maps filenames to their MD5 stamped counterparts.
+
+        :return: Manifest entry for a view.
+        """
         target_f = os.path.join(self.root, MARKER_FOLDER, MANIFEST_FILE)
-        assert os.path.exists(target_f), "websauna.collected_static manifest does not exist: {}. Did you run ws-collect-static command?".format(target_f)
+        assert os.path.exists(target_f), "websauna.collected_static manifest does not exist: {path}. Did you run ws-collect-static command?".format(path=target_f)
         with open(target_f, "rt") as f:
             full_manifest = json.load(f)
 
         # Each view has its own fileset inside cache manifest
-        assert self.static_view_name in full_manifest, "Cache manifest did not contain cache data for view {}, contained {}".format(self.static_view_name, full_manifest.keys())
-
+        assert self.static_view_name in full_manifest, "Cache manifest did not contain cache data for view {view}, contained {keys}".format(
+            view=self.static_view_name,
+            keys=full_manifest.keys()
+        )
         return full_manifest[self.static_view_name]
 
-    def __call__(self, request, subpath, kw):
-        """Map a path to perma-asset path."""
-        subpath = self.manifest.get(subpath, subpath)
-        return (subpath, kw)
+    def __call__(self, request: Request, subpath: str, kw: dict) -> t.Tuple[str, dict]:
+        """Map a path to perma-asset path.
 
-
+        :param request: Pyramid request.
+        :param subpath: Asset path.
+        :param kw: Settings.
+        :return: Tuple with perma-asset path and kw.
+        """
+        perma_subpath = self.manifest.get(subpath, subpath)
+        return perma_subpath, kw

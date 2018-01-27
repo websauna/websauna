@@ -1,6 +1,9 @@
 """Deform's resource_registry mechanism to allow widgets to include CSS and JS on the page."""
+# Pyramid
 from deform import Form
 from deform.widget import ResourceRegistry as _ResourceRegistry
+
+# Websauna
 from websauna.system.form.interfaces import IFormResources
 from websauna.system.http import Request
 
@@ -65,6 +68,3 @@ class ResourceRegistry(_ResourceRegistry):
         css_resources = resources['css']
         css_links = [request.static_url(r) for r in css_resources]
         return css_links
-
-
-

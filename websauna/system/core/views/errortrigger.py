@@ -1,8 +1,13 @@
 """A test URL you can call to cause a production run time error."""
+# Standard Library
 import logging
 
+# Pyramid
 from pyramid.view import view_config
+
+# Websauna
 from websauna.system.core.loggingcapture import get_logging_user_context
+
 
 logger = logging.getLogger(__name__)
 

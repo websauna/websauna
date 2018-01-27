@@ -20,10 +20,9 @@ PYTHON_INTERPRETER = "python{}.{}".format(sys.version_info.major, sys.version_in
 
 
 def print_subprocess_fail(worker, cmdline):
-    print("{} output:".format(cmdline))
+    print("{cmdline} output:".format(cmdline=cmdline))
     print(worker.stdout.read().decode("utf-8"))
     print(worker.stderr.read().decode("utf-8"))
-
 
 
 def execute_command(cmdline: t.List, folder: str, timeout=5.0):
@@ -95,7 +94,7 @@ def execute_venv_command(cmdline, folder, timeout=15.0, wait_and_see=None, asser
     return (worker.returncode, worker.stdout.read().decode("utf-8"), worker.stderr.read().decode("utf-8"))
 
 
-def preload_wheelhouse(folder:str):
+def preload_wheelhouse(folder: str):
     """Speed up tests by loading Python packages from primed cache.
 
     Use ``create_wheelhouse.bash`` to prime the cache.
@@ -103,9 +102,19 @@ def preload_wheelhouse(folder:str):
     :param folder: Temporary virtualenv installation
     """
     cache_folder = os.getcwd()
-
-    if os.path.exists(os.path.join(cache_folder, "wheelhouse", "python{}.{}".format(sys.version_info.major, sys.version_info.minor))):
-        execute_venv_command("pip install {}/wheelhouse/python{}.{}/*".format(cache_folder, sys.version_info.major, sys.version_info.minor), folder, timeout=3*60)
+    wheelhouse_folder = os.path.join(
+        cache_folder,
+        "wheelhouse", "python{major}.{minor}".format(
+            major=sys.version_info.major,
+            minor=sys.version_info.minor
+        )
+    )
+    if os.path.exists(wheelhouse_folder):
+        execute_venv_command(
+            "pip install {wheelhouse_folder}/*".format(wheelhouse_folder=wheelhouse_folder),
+            folder,
+            timeout=3 * 60
+        )
     else:
         print("No preloaded Python package cache found")
 
@@ -141,7 +150,7 @@ def create_psq_db(request, dbname, dsn=''):
 
 
 @contextmanager
-def replace_file(path:str, content:str):
+def replace_file(path: str, content: str):
     """A context manager to temporary swap the content of a file.
 
     :param path: Path to the file
@@ -157,24 +166,18 @@ def replace_file(path:str, content:str):
 
 
 @contextmanager
-def insert_content_after_line(path:str, content:str, marker:str):
+def insert_content_after_line(path: str, content: str, marker: str):
     """Add piece to text to a text file after a line having a marker string on it."""
     backup = open(path, "rt").read()
-
     try:
         # Replaces stdout
         out = open(path, "wt")
         for line in backup.split("\n"):
-
             if marker in line:
                 print(content, file=out)
-
             print(line, file=out)
-
         out.close()
-
         yield None
-
     finally:
         open(path, "wt").write(backup)
 
@@ -186,7 +189,6 @@ def cookiecutter_config(tmpdir_factory) -> str:
     :return: Path to cookiecutter config file.
    """
     user_dir = tmpdir_factory.mktemp('user_dir')
-
     cookiecutters_dir = user_dir.mkdir('cookiecutters')
     replay_dir = user_dir.mkdir('cookiecutter_replay')
     USER_CONFIG = '''cookiecutters_dir: "{cookiecutters_dir}"\nreplay_dir: "{replay_dir}"'''
@@ -221,23 +223,23 @@ def app_scaffold(request, cookiecutter_config) -> str:
     # This broken Python venv stuff drives me crazy... make sure we get  pip
     # pip = os.path.join(folder, "venv", "bin", "pip")
     # if not os.path.exists(pip):
-        # Use internal get-pip script to fix broken venv where ensurepip did no give us our shit, because we can't rely on system pip to get this right either
-     #   print("The current version of venv/ensurepip modules are broken, fixing problem internally")
-     #   get_pip = os.path.join(os.path.dirname(__file__), "get-pip.py")
-     #   assert os.path.exists(get_pip)
-     #   execute_venv_command("python {} --prefix {}/venv --ignore-installed pip".format(get_pip, folder), folder, timeout=5*60)
+    # Use internal get-pip script to fix broken venv where ensurepip did no give us our shit, because we can't rely on system pip to get this right either
+    #   print("The current version of venv/ensurepip modules are broken, fixing problem internally")
+    #   get_pip = os.path.join(os.path.dirname(__file__), "get-pip.py")
+    #   assert os.path.exists(get_pip)
+    #   execute_venv_command("python {} --prefix {}/venv --ignore-installed pip".format(get_pip, folder), folder, timeout=5*60)
 
     # assert os.path.exists(pip), "Pip not installed: {}".format(pip)
 
     # PIP cannot handle pip -install .[test]
     # On some systems, the default PIP is too old and it doesn't seem to allow upgrade through wheelhouse
-    execute_venv_command("pip install -U pip", folder, timeout=5*60)
+    execute_venv_command("pip install -U pip", folder, timeout=5 * 60)
 
     # Install cached PyPi packages
     preload_wheelhouse(folder)
 
     # Install websauna
-    execute_venv_command("cd {} ; pip install -e .[notebook,utils]".format(websauna_folder), folder, timeout=5*60)
+    execute_venv_command("cd {websauna_folder} ; pip install -e .[notebook,utils]".format(websauna_folder=websauna_folder), folder, timeout=5 * 60)
 
     # Create Websauna app, using cookiecutter, from template cookiecutter-websauna-app
     extra_context = {
@@ -257,7 +259,7 @@ def app_scaffold(request, cookiecutter_config) -> str:
         'create_virtualenv': 'No'
     }
     template = 'https://github.com/websauna/cookiecutter-websauna-app/archive/master.zip'
-    project_dir = cookiecutter(
+    cookiecutter(
         template,
         no_input=True,
         extra_context=extra_context,
@@ -267,7 +269,7 @@ def app_scaffold(request, cookiecutter_config) -> str:
 
     # Install the package created by cookiecutter template
     content_folder = os.path.join(folder, extra_context["repo_name"])
-    execute_venv_command("pip install -e {0}".format(content_folder), folder, timeout=5*60)
+    execute_venv_command("pip install -e {0}".format(content_folder), folder, timeout=5 * 60)
 
     def teardown():
         # Clean any processes who still think they want to stick around. Namely: ws-shell doesn't die

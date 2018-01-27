@@ -7,7 +7,7 @@ from setuptools import find_packages
 from setuptools import setup
 
 
-assert sys.version_info >= (3,5,2), "Websauna needs Python 3.5.2 or newer, you have {version}".format(version=sys.version_info)
+assert sys.version_info >= (3, 5, 2), "Websauna needs Python 3.5.2 or newer, you have {version}".format(version=sys.version_info)
 
 here = path.abspath(path.dirname(__file__))
 
@@ -52,7 +52,6 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
         'Framework :: Pyramid',
     ],
 
@@ -113,7 +112,7 @@ setup(
         "rainbow_logging_handler",
 
         # Misc
-        "python-slugify", # ASCII slug generation
+        "python-slugify",  # ASCII slug generation
     ],
 
     # List additional groups of  dependencies here (e.g. development
@@ -137,10 +136,12 @@ setup(
         'test': [
             'cookiecutter',
             'codecov',
+            'flake8'
             'pytest>=3.0',
             'pytest-runner',
             'coverage',
             'flaky',
+            'isort',
             'pytest-cov',
             'pytest-runner',
             'pytest-splinter',

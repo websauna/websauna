@@ -1,10 +1,12 @@
 """Test utils.qualname."""
 import pytest
 
+# Websauna
 from websauna.utils import html
 from websauna.utils import qualname
 from websauna.utils import slug
 from websauna.utils import time
+
 
 test_data = (
     (html.escape_js, 'websauna.utils.html.escape_js'),

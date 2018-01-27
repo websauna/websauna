@@ -1,13 +1,16 @@
 """User friend CSRF error page."""
+# Standard Library
 import logging
 
+# Pyramid
 from pyramid.exceptions import BadCSRFToken
 from pyramid.renderers import render
 from pyramid.response import Response
-
 from pyramid.view import view_config
 
+# Websauna
 from websauna.system.http import Request
+
 
 logger = logging.getLogger(__name__)
 
@@ -32,5 +35,3 @@ def bad_csrf_token(context: BadCSRFToken, request: Request):
     request.tm.abort()
 
     return resp
-
-

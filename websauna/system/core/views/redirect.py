@@ -1,9 +1,13 @@
 """Defining redirects quickly."""
 
-from pyramid.httpexceptions import HTTPFound, HTTPMovedPermanently
-from slugify import slugify
+# Pyramid
 import venusian
+from pyramid.httpexceptions import HTTPFound
+from pyramid.httpexceptions import HTTPMovedPermanently
 
+from slugify import slugify
+
+# Websauna
 from websauna.system.core.simpleroute import add_simple_route
 
 

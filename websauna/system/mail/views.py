@@ -1,6 +1,10 @@
-import premailer
+# Pyramid
 from pyramid.renderers import render
 from pyramid.response import Response
+
+import premailer
+
+# Websauna
 from websauna.system.core.route import simple_route
 
 
@@ -15,4 +19,3 @@ def sample_html_email(request):
     html_body = premailer.transform(html_body)
 
     return Response(html_body)
-

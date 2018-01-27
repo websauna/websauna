@@ -3,19 +3,21 @@
 We have some sqlalchemy_utils aliasing here intenrally. In the future expect those aliases to be dropped in the favor of dropping sqlalchemy_utils dependency.
 """
 
+# Standard Library
 import datetime
 
-from sqlalchemy import types
+# SQLAlchemy
 from sqlalchemy import DateTime
 from sqlalchemy import processors
-from sqlalchemy.dialects.postgresql import JSONB as _JSONB
-from sqlalchemy.dialects.postgresql import INET as _INET
-from sqlalchemy.exc import UnsupportedCompilationError
-from sqlalchemy_utils.types.json import JSONType
-from sqlalchemy_utils.types.ip_address import IPAddressType
-from sqlalchemy_utils.types.uuid import UUIDType
-from sqlalchemy.dialects.sqlite import DATETIME as DATETIME_
+from sqlalchemy import types
 from sqlalchemy.dialects import postgresql
+from sqlalchemy.dialects.postgresql import INET as _INET
+from sqlalchemy.dialects.postgresql import JSONB as _JSONB
+from sqlalchemy.dialects.sqlite import DATETIME as DATETIME_
+from sqlalchemy.exc import UnsupportedCompilationError
+from sqlalchemy_utils.types.ip_address import IPAddressType
+from sqlalchemy_utils.types.json import JSONType
+from sqlalchemy_utils.types.uuid import UUIDType
 
 from .json import json_serializer
 
@@ -101,8 +103,8 @@ class UUID(UUIDType):
 
     #: We force PSQL implementation by default here so that Alembic migration scripts don't do a column with unnecessary length attribute: sa.Column('uuid', websauna.system.model.columns.UUID(length=16), nullable=True),
     impl = postgresql.UUID()
-    
-    def __init__(self, as_uuid=True):
+
+    def __init__(self, as_uuid: bool=True):
         super(UUID, self).__init__(binary=True, native=True)
 
     def load_dialect_impl(self, dialect):

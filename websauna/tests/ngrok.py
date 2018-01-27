@@ -1,12 +1,12 @@
 """Localhost tunneling utilities for running callback tests against external services."""
 
-import os
-import time
-import uuid
+# Standard Library
 import logging
 import subprocess
-from distutils.spawn import find_executable
 import tempfile
+import time
+from distutils.spawn import find_executable
+
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ class NgrokTunnel:
 
     """
 
-    def __init__(self, port:int, auth_token:str, subdomain:str):
+    def __init__(self, port: int, auth_token: str, subdomain: str):
         """Build ngrok HTTP tunnel
 
         Assume ngrok version 2.x. A temporary ngrok configuration file is created where the ngrok token is stored for running the command.
@@ -93,6 +93,3 @@ class NgrokTunnel:
         """
         if self.ngrok and self.ngrok.returncode is None:
             self.ngrok.terminate()
-
-
-

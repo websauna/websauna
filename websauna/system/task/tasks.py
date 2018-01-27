@@ -225,7 +225,6 @@ class RetryableTransactionTask(ScheduleOnCommitTask):
         task = self
 
         try:
-
             # Celery 4.0+
             # Here we call directly run, because celery.app.Task.__call__ messes with thread locals clearing the task context. Thus, the second transaction attempt would file Task.get_request() == None
 
@@ -271,11 +270,10 @@ class TaskProxy:
 
     def bind_celery_task(self, celery_task: Task):
         assert isinstance(celery_task, Task)
-        self.celery_task  = celery_task
+        self.celery_task = celery_task
 
     def __getattr__(self, item):
         """Resolve all method calls to the underlying task."""
-
         if not self.celery_task:
             raise RuntimeError("Celery task creation failed. Did config.scan() do a sweep on {}? TaskProxy tried to look up attribute: {}".format(self.original_func, item))
 

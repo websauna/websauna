@@ -43,7 +43,7 @@ def create_settings_env(registry: Registry):
     # Export database credentials
     url = make_url(settings["sqlalchemy.url"])
 
-    env["MAIN_SQL_HOST"] =  url.host or ""
+    env["MAIN_SQL_HOST"] = url.host or ""
     env["MAIN_SQL_DATABASE"] = url.database or ""
     env["MAIN_SQL_USERNAME"] = url.username or ""
     env["MAIN_SQL_PASSWORD"] = url.password or ""
@@ -54,7 +54,7 @@ def create_settings_env(registry: Registry):
         env[key.upper()] = str(val)
 
     for key, val in secrets.items():
-        key = "secret.{}".format(key)
+        key = "secret.{k}".format(k=key)
         key = key.replace(".", "_")
         env[key.upper()] = str(val)
 

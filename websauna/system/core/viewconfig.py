@@ -72,14 +72,16 @@ The ``@view_overrides`` pattern can be also used with routing based views to ove
 
 The implementation is based on `venusian.lift() <http://venusian.readthedocs.org/en/latest/api.html#venusian.lift>`_ function with the overriding bits added in.
 """
-
+# Standard Library
 import sys
+from inspect import getmro
+from inspect import isclass
 
-from inspect import getmembers, getmro, isclass
-
+# Pyramid
+from venusian import ATTACH_ATTR
+from venusian import LIFTONLY_ATTR
 from venusian import Categories
 from venusian.advice import getFrameInfo
-from venusian import ATTACH_ATTR, LIFTONLY_ATTR
 
 
 def _create_child_view_config_from_parent_cb(cb, module_name, liftid, cscope, overrides):
@@ -92,7 +94,6 @@ def _create_child_view_config_from_parent_cb(cb, module_name, liftid, cscope, ov
 
     # Arguments look like:
     # (<function view_config.__call__.<locals>.callback at 0x101d7d268>, 'websauna.system.core.viewconfig.tests.testmodule', 'render None', 'class')
-
 
     # Check if we are view_config or previously nested @view_overrides
     if not (cb.__qualname__.startswith("view_config") or cb.__qualname__.startswith("_create_child_view_config_from_parent_cb")):
@@ -155,7 +156,7 @@ class view_overrides(object):
 
                 for cname, category in attached_categories.items():
                     if cls is not wrapped:
-                        if self.categories and not cname in self.categories:
+                        if self.categories and cname not in self.categories:
                             continue
                     callbacks = newcategories.get(cname, [])
                     newcallbacks = []
@@ -176,10 +177,9 @@ class view_overrides(object):
                     newcategories[cname] = newcategory
                 if attached_categories.lifted:
                     break
-        if newcategories: # if it has any keys
+        if newcategories:  # if it has any keys
             setattr(wrapped, ATTACH_ATTR, newcategories)
 
         if not found:
             raise RuntimeError('"view_overrides" could not find any @view_config decorators on the parent classes of %r' % wrapped)
-
         return wrapped

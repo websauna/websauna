@@ -1,4 +1,5 @@
 """Cross-site request forgery test views."""
+# Pyramid
 from pyramid.response import Response
 from pyramid.view import view_config
 
@@ -25,5 +26,3 @@ def csrf_exempt_sample(request):
 def csrf_exempt_sample_context(context, request):
     assert request.method == "POST"
     return Response("OK")
-
-

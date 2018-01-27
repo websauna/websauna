@@ -1,17 +1,19 @@
 """Test form autogeneration and CRUD."""
+# Standard Library
 import time
 
-import os
-import pytest
-import websauna
+# Pyramid
 import transaction
 
-from flaky import flaky
+import pytest
 from splinter.driver import DriverAPI
 
+# Websauna
+import websauna
 from websauna.tests.utils import create_logged_in_user
 from websauna.tests.webserver import customized_web_server
-from websauna.utils.slug import uuid_to_slug, slug_to_uuid
+from websauna.utils.slug import slug_to_uuid
+from websauna.utils.slug import uuid_to_slug
 
 
 @pytest.fixture(scope="module")
@@ -210,7 +212,7 @@ def test_edit_choice_remove_question(browser: DriverAPI, registry, web_server, d
 
     with transaction.manager:
         c = dbsession.query(Choice).get(1)
-        assert c.question == None
+        assert c.question is None
 
 
 def test_question_shows_choices(browser: DriverAPI, registry, web_server, dbsession):
@@ -279,4 +281,3 @@ def test_question_delete(browser: DriverAPI, registry, web_server, dbsession):
     with transaction.manager:
         assert dbsession.query(Question).count() == 0
         assert dbsession.query(Choice).count() == 0
-

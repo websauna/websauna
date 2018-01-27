@@ -2,10 +2,11 @@
 
 TODO: This module is on the list of those who will get burial by fire.
 """
-
-from markupsafe import Markup
+# Pyramid
 from pyramid_layout.interfaces import IPanel
 from zope.interface import providedBy
+
+from markupsafe import Markup
 
 
 # Jinja 2 adoption of render_panel
@@ -24,11 +25,10 @@ def render_panel(context, request, name='', *args, **kw):
     context, request and any additional parameters passed into the
     `render_panel` call.  In case a panel isn't found, `None` is returned.
     """
-
-    if not "controls" in kw:
+    if "controls" not in kw:
         kw["controls"] = True
 
     adapters = request.registry.adapters
     panel = adapters.lookup((providedBy(context),), IPanel, name=name)
-    assert panel, "Could not find panel {}".format(name)
+    assert panel, "Could not find panel {name}".format(name=name)
     return Markup(panel(context, request, *args, **kw))

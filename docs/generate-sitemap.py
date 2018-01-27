@@ -1,11 +1,14 @@
 """Create sitemap for HTML files."""
+# Standard Library
 import os
-import jinja2
-from datetime import date
 import stat
+from datetime import date
+
+# Pyramid
+import jinja2
 
 
-TEMPLATE="""
+TEMPLATE = """
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 {% for file in files %}
@@ -43,5 +46,3 @@ for root, dirs, files in os.walk(".", topdown=False, followlinks=True):
 template = env.from_string(TEMPLATE)
 doc = template.render(files=sitemap_files, site="https://websauna.org")
 print(doc)
-
-

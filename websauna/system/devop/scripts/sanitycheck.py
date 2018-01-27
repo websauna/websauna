@@ -20,7 +20,7 @@ SUCCESS_MSG = """Sanity check passed"""
 NOT_FOUND_MSG = """
 Sanity check failed
 
-Reason: 
+Reason:
 Config {config_uri} was not found.
 """
 

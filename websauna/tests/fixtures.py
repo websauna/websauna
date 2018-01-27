@@ -26,13 +26,13 @@ from sqlalchemy.orm.session import Session
 import pytest
 
 # Websauna
-from websauna.system.devop.cmdline import setup_logging
+from websauna.system.devop.cmdline import setup_logging  # noQA
 from websauna.system.http.utils import make_routable_request
 from websauna.system.model.meta import create_dbsession
-from websauna.tests.utils import make_dummy_request
+from websauna.tests.utils import make_dummy_request  # noQA
 #: Make sure py.test picks this up
-from websauna.tests.webserver import customized_web_server  # noqa
-from websauna.tests.webserver import web_server  # noqa
+from websauna.tests.webserver import customized_web_server  # noQA
+from websauna.tests.webserver import web_server  # noQA
 from websauna.utils.qualname import get_qual_name
 
 
@@ -221,7 +221,6 @@ def create_test_dbsession(request, registry: Registry, transaction_manager=trans
     request.addfinalizer(teardown)
 
     return dbsession
-
 
 
 @pytest.fixture()

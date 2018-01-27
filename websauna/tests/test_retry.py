@@ -1,22 +1,31 @@
 """Test SQL transaction conflict resolution."""
+# Standard Library
 import threading
 import time
 
-import pytest
-from sqlalchemy import Column
-from sqlalchemy import Numeric
-from sqlalchemy import Integer
+# Pyramid
 import transaction
 
-from websauna.system.model.meta import create_dbsession, Base
-from websauna.system.model.retry import retryable, CannotRetryAnymore, is_retryable
+# SQLAlchemy
+from sqlalchemy import Column
+from sqlalchemy import Integer
+from sqlalchemy import Numeric
+
+import pytest
+
+# Websauna
+from websauna.system.model.meta import Base
+from websauna.system.model.meta import create_dbsession
+from websauna.system.model.retry import CannotRetryAnymore
+from websauna.system.model.retry import is_retryable
+from websauna.system.model.retry import retryable
+
 
 _test_model = None
 
+
 def get_test_model():
-
     global _test_model
-
     if _test_model:
         return _test_model
 
@@ -241,5 +250,3 @@ def test_give_up(test_instance, dbsession_factory, dbsession):
     with transaction.manager:
         w = dbsession.query(TestModel).get(1)
         assert w.balance == 12
-
-

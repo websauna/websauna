@@ -1,13 +1,16 @@
+# Pyramid
+import transaction
+
 import pytest
 import requests
 from flaky import flaky
-
-import transaction
 from splinter.driver import DriverAPI
-from websauna.system.user.models import User
-from websauna.system.user.utils import get_site_creator
 
-from websauna.tests.utils import create_logged_in_user, create_user, logout
+# Websauna
+from websauna.system.user.models import User
+from websauna.tests.utils import create_logged_in_user
+from websauna.tests.utils import create_user
+from websauna.tests.utils import logout
 from websauna.utils.slug import uuid_to_slug
 
 
@@ -208,7 +211,7 @@ def test_set_email(browser, victim_browser, web_server, init, dbsession):
     assert b2.is_element_present_by_css("#msg-you-are-logged-in")
 
 
-def test_set_enabled(browser:DriverAPI, victim_browser, web_server, init, dbsession):
+def test_set_enabled(browser: DriverAPI, victim_browser, web_server, init, dbsession):
     """Setting enabled resets user session. User can log after the account has been re-enabled."""
     b = browser
     b2 = victim_browser
@@ -328,9 +331,3 @@ def test_csv_export_users(dbsession, registry, browser, web_server):
     assert resp.status_code == 200
     assert resp.headers["Content-Type"] == "text/csv; charset=utf-8"
     assert unicode_bomb in resp.text
-
-
-
-
-
-

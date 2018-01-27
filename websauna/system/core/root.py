@@ -1,7 +1,12 @@
-from pyramid.security import Authenticated, Allow, Everyone
+# Pyramid
+from pyramid.security import Allow
+from pyramid.security import Authenticated
+from pyramid.security import Everyone
+from zope.interface import implementer
+
+# Websauna
 from websauna.system.core.interfaces import IRoot
 from websauna.system.core.traversal import Resource
-from zope.interface import implementer
 
 
 @implementer(IRoot)

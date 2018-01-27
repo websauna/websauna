@@ -1,3 +1,4 @@
+# Pyramid
 from zope.interface import Interface
 
 
@@ -7,5 +8,3 @@ class IAdmin(Interface):
 
 class IModelAdmin(Interface):
     """Marker interface for scanned model admins."""
-
-

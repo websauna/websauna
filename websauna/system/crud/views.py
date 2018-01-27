@@ -7,6 +7,7 @@ from io import StringIO
 
 # Pyramid
 import colander
+import deform
 from pyramid.httpexceptions import HTTPFound
 from pyramid.renderers import render
 from pyramid.request import Request
@@ -16,7 +17,6 @@ from pyramid.view import view_config
 # SQLAlchemy
 from sqlalchemy.orm import Query
 
-import deform
 from slugify import slugify
 
 # Websauna
@@ -283,14 +283,14 @@ class CSVListing(Listing):
 
         response = Response()
         response.headers["Content-Type"] = "text/csv; charset={}".format(encoding)
-        response.headers["Content-Disposition"] = \
-        "attachment;filename={}.{}.csv".format(file_title, encoding)
+        response.headers["Content-Disposition"] = "attachment;filename={filename}.{encoding}.csv".format(
+            filename=file_title,
+            encoding=encoding
+        )
 
         buf = StringIO()
         writer = csv.writer(buf)
-        buffered_rows = self.buffered_rows
         view = self
-        request = self.request
 
         def generate_csv_data():
 
@@ -333,7 +333,7 @@ class FormView(CRUDView):
     #: This is an instance of :py:class:`websauna.system.crud.formgenerator.FormGenerator`. For SQLAlchemy models it is :py:class:`websauna.system.crud.formgenerator.SQLAlchemyFormGenerator`. Form generator describers how a CRUD model is turned to a Deform form. It is called by :py:meth:`create_form`. For example use cases see e.g. :py:class:`websauna.system.user.adminviews.UserAdd`.
     form_generator = None
 
-    def __init__(self, context:Resource, request:Request):
+    def __init__(self, context: Resource, request: Request):
         """
         :param context: Instance of ``traverse.Resource()`` or its subclasses
         :param request: HTTP request
@@ -410,7 +410,6 @@ class Show(FormView):
     @view_config(context=Resource, name="show", renderer="crud/show.html", permission='view')
     def show(self):
         """View for showing an individual object."""
-
         obj = self.get_object()
         form_context = self.get_form_context()
         base_template = self.base_template
@@ -423,10 +422,8 @@ class Show(FormView):
 
         crud = self.get_crud()
 
-        title = current_view_name = self.get_title()
-
+        title = self.get_title()
         self.pull_in_widget_resources(form)
-
         return dict(form=rendered_form, context=self.context, obj=obj, title=title, crud=crud, base_template=base_template, resource_buttons=resource_buttons)
 
 
@@ -605,7 +602,7 @@ class Add(FormView):
 
         crud = self.get_crud()
 
-        title = current_view_name = self.get_title()
+        title = self.get_title()
 
         if "add" in self.request.POST:
 

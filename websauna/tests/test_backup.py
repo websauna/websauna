@@ -1,21 +1,24 @@
+# Standard Library
 import io
-import os
 import logging
+import os
+from tempfile import NamedTemporaryFile
+
+# Pyramid
+import transaction
+from pyramid import testing
+from pyramid.threadlocal import get_current_registry
+
+# Websauna
+from websauna.system import get_init
+from websauna.system.core.utils import get_secrets
+from websauna.system.devop.backup import backup_site
+
 
 # celery.utils.log module contains a big F"#€"#€)(!"(#! surprise which screws up all your logging, implicit calls to ensure_process_aware_logger()
 
 Logger = logging.getLoggerClass()
 Logger._process_aware = True
-
-import transaction
-from pyramid.threadlocal import get_current_registry
-from websauna.system import get_init
-from websauna.system.core.utils import get_secrets
-from websauna.system.devop.backup import backup_site
-from pyramid import testing
-
-from tempfile import NamedTemporaryFile
-
 
 
 def test_backup(dbsession, ini_settings):
@@ -53,9 +56,3 @@ def test_backup(dbsession, ini_settings):
             assert contents.strip() == "foo"
         finally:
             testing.tearDown()
-
-
-
-
-
-

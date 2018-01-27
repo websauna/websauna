@@ -2,11 +2,14 @@
 
 Mostly for high level integration.
 """
+# Standard Library
 import json
 
+# Pyramid
 import deform
 from colander import null
-from deform.widget import _normalize_choices
+
+# Websauna
 from websauna.utils.slug import uuid_to_slug
 
 
@@ -19,7 +22,7 @@ class FriendlyUUIDWidget(deform.widget.TextInputWidget):
     readonly_template = 'readonly/uuid'
 
     def get_template_values(self, field, cstruct, kw):
-        values = {'cstruct':str(cstruct), 'field':field, 'slug':uuid_to_slug(cstruct) if cstruct else ''}
+        values = {'cstruct': str(cstruct), 'field': field, 'slug': uuid_to_slug(cstruct) if cstruct else ''}
         values.update(kw)
         values.pop('template', None)
         return values

@@ -1,7 +1,9 @@
 """Test utils.html."""
 import pytest
 
+# Websauna
 from websauna.utils import html
+
 
 test_data = (
     ('{"foo": "bar"}', r'{\u0022foo\u0022: \u0022bar\u0022}'),

@@ -1,11 +1,16 @@
 """The dreaded 500 page."""
-from pyramid.renderers import render
-from pyramid.response import Response
-import transaction
+# Standard Library
 import logging
 
+# Pyramid
+from pyramid.renderers import render
+from pyramid.response import Response
 from pyramid.settings import asbool
 from pyramid.view import view_config
+
+# Websauna
+from websauna.system.core.events import InternalServerError
+
 
 try:
     from pyramid_tm.reify import can_access_transaction_in_excview
@@ -13,9 +18,6 @@ try:
     HAS_NEW_PYRAMID_TM = True
 except ImportError:
     HAS_NEW_PYRAMID_TM = False
-
-
-from ..events import InternalServerError
 
 
 logger = logging.getLogger(__name__)
@@ -60,5 +62,3 @@ def internal_server_error(context, request):
     request.tm.abort()
 
     return resp
-
-

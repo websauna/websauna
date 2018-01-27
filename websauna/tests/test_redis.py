@@ -1,12 +1,14 @@
 """Test accessing Redis."""
-import pytest
-
+# Pyramid
 from pyramid import testing
 from pyramid.httpexceptions import HTTPOk
+
+import pytest
 from webtest import TestApp
 
-from websauna.system.core.redis import get_redis
+# Websauna
 from websauna.system.core.redis import create_redis
+from websauna.system.core.redis import get_redis
 
 
 def redis_test(request):

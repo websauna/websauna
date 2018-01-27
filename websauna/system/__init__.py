@@ -17,7 +17,6 @@ from distutils.version import LooseVersion
 from pyramid.config import Configurator
 from pyramid.interfaces import IDebugLogger
 from pyramid.interfaces import IRequest
-from pyramid.interfaces import IViewMapperFactory
 from pyramid.path import DottedNameResolver
 from pyramid.settings import asbool
 from pyramid.settings import aslist
@@ -208,7 +207,7 @@ class Initializer:
 
     @event_source
     def configure_templates(self):
-        from websauna.system.core import templatecontext
+        from websauna.system.core import templatecontext  # noQA
         from websauna.system.core.render import get_on_demand_resource_renderer
 
         # Jinja 2 templates as .html files
@@ -236,9 +235,6 @@ class Initializer:
 
         For more information see Pyramid auth documentation.
         """
-
-
-        import pyramid.tweens
         from websauna.system.auth.principals import resolve_principals
         from websauna.system.auth.authentication import get_request_user
         from pyramid.authorization import ACLAuthorizationPolicy
@@ -248,8 +244,6 @@ class Initializer:
         authz_policy = ACLAuthorizationPolicy()
         self.config.set_authentication_policy(authn_policy)
         self.config.set_authorization_policy(authz_policy)
-
-        #self.config.add_tween("websauna.system.auth.tweens.SessionInvalidationTweenFactory", over=pyramid.tweens.MAIN)
 
         # We need to carefully be above TM view, but below exc view so that internal server error page doesn't trigger session authentication that accesses the database
         self.config.add_tween("websauna.system.auth.tweens.SessionInvalidationTweenFactory", under="pyramid_tm.tm_tween_factory")
@@ -463,14 +457,12 @@ class Initializer:
 
         Register templates and views for admin interface.
         """
-
-        from websauna.system.admin import views
         from websauna.system.admin import subscribers
+        from websauna.system.admin import views
         from websauna.system.admin.admin import Admin
         from websauna.system.admin.interfaces import IAdmin
-        from websauna.system.admin.interfaces import IAdmin
-        from websauna.system.admin.utils import get_admin
         from websauna.system.admin.modeladmin import configure_model_admin
+        from websauna.system.admin.utils import get_admin
 
         # Register default Admin provider
         config = self.config
@@ -506,7 +498,6 @@ class Initializer:
 
         * CSRf view mapper
         """
-
         from websauna.system.form.resources import DefaultFormResources
         from websauna.system.form.interfaces import IFormResources
         from websauna.system.form.deform import configure_zpt_renderer
@@ -524,7 +515,6 @@ class Initializer:
     @event_source
     def configure_crud(self):
         """CRUD templates and views."""
-
         # Add our template to search path
         self.config.add_jinja2_search_path('websauna.system.crud:templates', name='.html')
         self.config.add_jinja2_search_path('websauna.system.crud:templates', name='.txt')
@@ -548,15 +538,16 @@ class Initializer:
 
         This initialization step connects chosen user model to SQLAlchemy model Base. Also set up :py:class:`websauna.system.user.usermixin.SiteCreator` logic - what happens when the first user logs in.
         """
-
         from websauna.system.model.meta import Base
-
+        from websauna.system.model.utils import attach_model_to_base
         from websauna.system.user import models
-        from websauna.system.user.interfaces import IGroupModel, IUserModel, ISiteCreator
+        from websauna.system.user.interfaces import IActivationModel
+        from websauna.system.user.interfaces import IGroupModel
+        from websauna.system.user.interfaces import ISiteCreator
+        from websauna.system.user.interfaces import IUserModel
+        from websauna.system.user.interfaces import IUserRegistry
         from websauna.system.user.usermixin import SiteCreator
         from websauna.system.user.userregistry import DefaultEmailBasedUserRegistry
-        from websauna.system.user.interfaces import IActivationModel, IUserRegistry
-        from websauna.system.model.utils import attach_model_to_base
 
         attach_model_to_base(models.User, Base)
         attach_model_to_base(models.Group, Base)
@@ -585,12 +576,13 @@ class Initializer:
 
         * User events
         """
-        from websauna.system.user import views
         from websauna.system.user import subscribers
-        from websauna.system.user.loginservice import DefaultLoginService
+        from websauna.system.user import views
         from websauna.system.user.credentialactivityservice import DefaultCredentialActivityService
-
-        from websauna.system.user.interfaces import ILoginService, IOAuthLoginService, IUserRegistry, ICredentialActivityService, IActivationModel, IRegistrationService
+        from websauna.system.user.interfaces import ICredentialActivityService
+        from websauna.system.user.interfaces import ILoginService
+        from websauna.system.user.interfaces import IRegistrationService
+        from websauna.system.user.loginservice import DefaultLoginService
         from websauna.system.user.registrationservice import DefaultRegistrationService
 
         # Set up login service
@@ -662,21 +654,19 @@ class Initializer:
         self.config.scan(websauna.system.notebook.views)
         self.config.scan(websauna.system.notebook.adminviews)
         self.config.scan(websauna.system.notebook.subscribers)
-
         self.config.registry.features.add("notebook")
 
     @event_source
     def configure_tasks(self):
         """Scan all Python modules with asynchoronous and periodic tasks to be imported."""
-
         try:
-            import celery
+            import celery  # noQA
         except ImportError as e:
             # Celery not installed as optional dependency
             return
 
         # Importing the task is enough to add it to Celerybeat working list
-        from websauna.system.devop import tasks  # noqa
+        from websauna.system.devop import tasks  # noQA
         self.config.scan(tasks)
 
     @event_source
@@ -781,7 +771,6 @@ class Initializer:
         self.configure_instrumented_models()
         self.configure_model_admins()
         self.configure_database()
-
 
         # Tests can pass us some extra initialization work on ad hoc
         extra_init = self.global_config.get("extra_init")

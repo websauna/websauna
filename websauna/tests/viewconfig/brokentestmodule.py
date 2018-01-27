@@ -1,4 +1,5 @@
 """A broken module where we try to override view class which does not defined views."""
+# Websauna
 from websauna.system.core.viewconfig import view_overrides
 
 
@@ -22,7 +23,6 @@ class ParentView:
 @view_overrides(context=ChildResource)
 class ChildView(ParentView):
     pass
-
 
 
 class Root:

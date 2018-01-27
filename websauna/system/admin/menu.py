@@ -46,7 +46,7 @@ class Entry:
     """Option is one choice in a menu.
 
     It can be a simple link, submenu or a custom rendered template.
-
+z
     Adding conditional entry with a permission check::
 
         admin = Admin.get_admin(self.config.registry)
@@ -58,7 +58,7 @@ class Entry:
 
     caret = "fa fa-caret-down"
 
-    def __init__(self, id:str, label:str, icon:str=None, caret:str=None, css_class:str=None, template:str=None, submenu:Menu=None, condition:t.Callable=None, link:t.Callable=None, extra:dict=None):
+    def __init__(self, id: str, label: str, icon: str=None, caret: str=None, css_class: str=None, template: str=None, submenu: Menu=None, condition: t.Callable=None, link: t.Callable=None, extra: dict=None):
         """
         :param id: Machine id and CSS id for this menu entry
         :param label: Human-readable label of the menu item
@@ -101,7 +101,7 @@ class Entry:
 
         return True
 
-    def get_link(self, request:Request) -> str:
+    def get_link(self, request: Request) -> str:
         """Get the link target where this menu entry jumps to."""
 
         if self.link:
@@ -109,7 +109,7 @@ class Entry:
 
         raise NotImplementedError()
 
-    def render(self, request:Request):
+    def render(self, request: Request):
         """Render this item to HTML.
 
         :return: Rendered HTML as a string
@@ -118,11 +118,10 @@ class Entry:
         return render(self.template, context, request=request)
 
 
-
 class RouteEntry(Entry):
     """Menu entry which has a Pyramid route as a link. """
 
-    def __init__(self, id: str, label :str, route_name: str, **kwargs):
+    def __init__(self, id: str, label: str, route_name: str, **kwargs):
         """
         :param route_name: Link target name for ``request.route_url()``
         """
@@ -160,7 +159,6 @@ class TraverseEntry(Entry):
 
     def get_link(self, request):
         return request.resource_url(self.resource, self.name)
-
 
 
 class NavbarEntry(Entry):

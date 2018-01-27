@@ -5,7 +5,6 @@ import typing as t
 
 # Pyramid
 import colander
-
 import deform
 
 # Websauna

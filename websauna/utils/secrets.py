@@ -1,8 +1,8 @@
 """INI-file based secrets reading."""
-import os
-import io
-
+# Standard Library
 import configparser
+import io
+import os
 from urllib.parse import urlparse
 
 import pkg_resources

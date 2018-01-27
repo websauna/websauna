@@ -14,7 +14,7 @@ def parse_celery_config(celery_config_python: str) -> dict:
     # http://docs.celeryproject.org/en/master/userguide/periodic-tasks.html#beat-entries
     from datetime import timedelta  # noqa
     from celery.schedules import crontab  # noqa
-    
+
     _globals = globals().copy()
     _locals = locals().copy()
     code = textwrap.dedent(celery_config_python)

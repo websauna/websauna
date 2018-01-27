@@ -1,13 +1,14 @@
 """Test tasks for the scheduler."""
+# Standard Library
 import logging
 
+# Websauna
 from websauna.system import DemoInitializer
-from websauna.system.task.tasks import ScheduleOnCommitTask, WebsaunaTask
-from websauna.system.task.tasks import RetryableTransactionTask
-from websauna.system.task.tasks import task
 from websauna.system.core.redis import get_redis
-
-
+from websauna.system.task.tasks import RetryableTransactionTask
+from websauna.system.task.tasks import ScheduleOnCommitTask
+from websauna.system.task.tasks import WebsaunaTask
+from websauna.system.task.tasks import task
 from websauna.system.user.models import User
 
 

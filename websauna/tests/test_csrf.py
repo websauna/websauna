@@ -5,11 +5,12 @@
     These tests are leftovers from < Pyramid 1.7 when Pyramid did not have flexible CSRF protection and Websauna provided its own mechanism.
 
 """
-import pytest
-
+# Pyramid
 from pyramid import testing
 from pyramid.exceptions import BadCSRFToken
 from pyramid.testing import DummySession
+
+import pytest
 from webtest import TestApp
 
 from . import csrfsamples
@@ -78,5 +79,3 @@ def test_csrf_exempt(csrf_app: TestApp, session: DummySession):
 
     resp = csrf_app.post("/csrf_exempt_sample_context")
     assert resp.status_code == 200
-
-

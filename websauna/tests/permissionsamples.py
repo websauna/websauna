@@ -1,7 +1,9 @@
 """Permission test views."""
 
+# Pyramid
 from pyramid.response import Response
 
+# Websauna
 from websauna.system.core.route import simple_route
 
 

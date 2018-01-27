@@ -1,14 +1,21 @@
+# Standard Library
 import time
 
-import pytest
+# Pyramid
 import transaction
-from flaky import flaky
 from pyramid.interfaces import IAuthorizationPolicy
 from pyramid.security import Everyone
-from websauna.system.admin.utils import get_admin
 
+import pytest
+from flaky import flaky
+
+# Websauna
+from websauna.system.admin.utils import get_admin
 from websauna.system.user.utils import get_site_creator
-from websauna.tests.utils import create_user, EMAIL, PASSWORD, create_logged_in_user
+from websauna.tests.utils import EMAIL
+from websauna.tests.utils import PASSWORD
+from websauna.tests.utils import create_logged_in_user
+from websauna.tests.utils import create_user
 
 
 def test_admin_permissions(test_request):
@@ -108,7 +115,3 @@ def test_context_sensitive_shell(web_server, browser, dbsession, init):
 
     # Back to home screen
     assert b.is_element_visible_by_css("#nav-logout")
-
-
-
-

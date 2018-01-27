@@ -7,9 +7,10 @@ use of ``view_config`` are also applicable to ``simple_route``.
 .. _`viewconfig documentation`: https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/viewconfig.html#adding-view-configuration-using-the-view-config-decorator
 
 """
+# Pyramid
+from pyramid import testing
 
 import pytest
-from pyramid import testing
 from webtest import TestApp
 
 
@@ -74,10 +75,10 @@ def test_class_method_by_attr(testapp):
 def test_registered_routes_docs(config):
     config.get_routes_mapper()
     request = testing.DummyRequest()
-    assert request.route_url('view_callable')           == 'http://example.com/path/to/view'
-    assert request.route_url('foobar', arg='123')       == 'http://example.com/path/to/view/123'
-    assert request.route_url('edit')                    == 'http://example.com/edit'
-    assert request.route_url('change')                  == 'http://example.com/change'
-    assert request.route_url('ClassAsAView')            == 'http://example.com/class-as-a-view'
-    assert request.route_url('MyViewClass.amethod')     == 'http://example.com/amethod'
+    assert request.route_url('view_callable') == 'http://example.com/path/to/view'
+    assert request.route_url('foobar', arg='123') == 'http://example.com/path/to/view/123'
+    assert request.route_url('edit') == 'http://example.com/edit'
+    assert request.route_url('change') == 'http://example.com/change'
+    assert request.route_url('ClassAsAView') == 'http://example.com/class-as-a-view'
+    assert request.route_url('MyViewClass.amethod') == 'http://example.com/amethod'
     assert request.route_url('MyViewClassAttr.amethod') == 'http://example.com/class-attr'

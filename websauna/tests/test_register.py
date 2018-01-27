@@ -1,9 +1,14 @@
+# Standard Library
 from datetime import timedelta
 
+# Pyramid
 import transaction
-from websauna.system.user.models import Activation, User
-from websauna.utils.slug import uuid_to_slug
+
+# Websauna
+from websauna.system.user.models import Activation
+from websauna.system.user.models import User
 from websauna.utils.time import now
+
 
 EMAIL = "example@example.com"
 PASSWORD = "ToholamppiMadCowz585"
@@ -68,9 +73,8 @@ def test_register_email_activation_expired(web_server, browser, dbsession):
 
     with transaction.manager:
         a = dbsession.query(Activation).get(1)
-        u = dbsession.query(User).get(1)
+        u = dbsession.query(User).get(1)  # noQA
         a.expires_at = now() - timedelta(days=365)
-        user_uuid = u.uuid
         activation_code = a.code
 
     activation_link = "{}/activate/{}".format(web_server, activation_code)

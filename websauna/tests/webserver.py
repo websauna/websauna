@@ -37,7 +37,6 @@ def web_server(request, app: Router) -> str:
     return "http://{}:{}".format(host, port)
 
 
-
 _customized_web_server_port = 8523
 
 
@@ -141,19 +140,14 @@ def customized_web_server(request, app: Router, customized_port: int=None) -> t.
     :return: A factory callable you can use to spawn a web server. Pass test.ini overrides as dict to this function.
     '''
 
-    def customized_web_server_inner(overrides:dict =None) -> str:
-
+    def customized_web_server_inner(overrides: dict =None) -> str:
         global _customized_web_server_port
-
         old_settings = app.registry.settings.copy()
-
         if overrides:
             app.registry.settings.update(overrides)
-
         port = customized_port or _customized_web_server_port
         host_base = "http://localhost:{}".format(port)
         logger.debug("Opening a test web server at %s", host_base)
-
         server = StopableWSGIServer.create(app, host="localhost", port=port)
         server.wait()
 

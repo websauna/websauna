@@ -1,6 +1,7 @@
 """Test ignore session function."""
 import pytest
 
+# Websauna
 from websauna.system.core import session
 
 

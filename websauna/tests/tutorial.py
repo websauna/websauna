@@ -1,18 +1,23 @@
 """Tutorial models and admins for CRUD testing."""
 
-import sys
+# Standard Library
 import datetime
 from uuid import uuid4
 
-from sqlalchemy import Column, String, Integer, ForeignKey
+# SQLAlchemy
+from sqlalchemy import Column
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy import String
 from sqlalchemy.orm import relationship
 
-from websauna.system import DemoInitializer
-from websauna.system.model.meta import Base
-from websauna.system.model.columns import UTCDateTime, UUID
-from websauna.utils.time import now
-from websauna.system.admin.modeladmin import model_admin
+# Websauna
 from websauna.system.admin.modeladmin import ModelAdmin
+from websauna.system.admin.modeladmin import model_admin
+from websauna.system.model.columns import UUID
+from websauna.system.model.columns import UTCDateTime
+from websauna.system.model.meta import Base
+from websauna.utils.time import now
 
 
 class Question(Base):

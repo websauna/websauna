@@ -172,8 +172,7 @@ def bind_events(source: object, target: object):
 
     :param target: Provider of advisor methods
     """
-
-    cls = target.__class__
+    cls = target.__class__  # noQA
 
     # Store bound advisors on the object using a private attribute
     mappings = getattr(source, "_advisor_mappings", None)

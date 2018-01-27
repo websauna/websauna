@@ -1,8 +1,12 @@
 """Deform lib resource management."""
 
+# Pyramid
 import deform.widget
-from websauna.system.form.interfaces import IFormResources
 from zope.interface import implementer
+
+# Websauna
+from websauna.system.form.interfaces import IFormResources
+
 
 default_resources = deform.widget.default_resources
 

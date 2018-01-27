@@ -7,7 +7,8 @@ import typing as t
 
 # Pyramid
 import plaster
-from pyramid import router, scripting
+from pyramid import router
+from pyramid import scripting
 
 from rainbow_logging_handler import RainbowLoggingHandler
 
@@ -29,7 +30,7 @@ def prepare_config_uri(config_uri: str) -> str:
     return config_uri
 
 
-def get_wsgi_app(config_uri: str,  defaults: dict) -> router.Router:
+def get_wsgi_app(config_uri: str, defaults: dict) -> router.Router:
     """Return a Websauna WSGI application given a configuration uri.
 
     :param config_uri: Configuration uri, i.e.: websauna/conf/development.ini.

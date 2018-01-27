@@ -1,23 +1,27 @@
 """Database default base models and session setup."""
 
 
+# Pyramid
 import transaction
+import zope.sqlalchemy
+from pyramid.registry import Registry
 
+# SQLAlchemy
 from sqlalchemy import engine_from_config
+from sqlalchemy import event
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import Session
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.schema import MetaData
-from sqlalchemy import event
 
-from pyramid.registry import Registry
-import zope.sqlalchemy
-
+# Websauna
 from websauna.system.http import Request
 from websauna.system.model.interfaces import ISQLAlchemySessionFactory
 
-from .json import json_serializer
 from .json import init_for_json
+from .json import json_serializer
+
 
 # Recommended naming convention used by Alembic, as various different database
 # providers will autogenerate vastly different names making migrations more
@@ -110,9 +114,7 @@ def _get_sqlite_engine(settings, prefix):
 
 def get_engine(settings: dict, prefix='sqlalchemy.') -> Engine:
     """Reads config and create a database engine out of it."""
-
     url = settings.get("sqlalchemy.url")
-
     if not url:
         raise RuntimeError("sqlalchemy.url missing in the settings")
 
@@ -121,7 +123,7 @@ def get_engine(settings: dict, prefix='sqlalchemy.') -> Engine:
     elif "postgres" in url:
         return _get_psql_engin(settings, prefix)
     else:
-        raise RuntimeError("Unknown SQLAlchemy connection URL: {}",format(url))
+        raise RuntimeError("Unknown SQLAlchemy connection URL: {url}".format(url=url))
 
 
 def create_session_maker(engine):
@@ -174,6 +176,3 @@ def create_session(transaction_manager, db_session_maker: sessionmaker) -> Sessi
     zope.sqlalchemy.register(dbsession, transaction_manager=transaction_manager)
     dbsession.transaction_manager = transaction_manager
     return dbsession
-
-
-

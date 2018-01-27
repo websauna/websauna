@@ -1,5 +1,8 @@
 """Test utils.slug."""
+# Standard Library
 import uuid
+
+# Websauna
 from websauna.utils.slug import slug_to_uuid
 from websauna.utils.slug import uuid_to_slug
 

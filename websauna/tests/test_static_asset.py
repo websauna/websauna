@@ -1,10 +1,13 @@
+# Standard Library
+import os
 import shutil
 
-import os
-import pytest
-from flaky import flaky
+# Pyramid
 from pyramid.config import Configurator
 
+import pytest
+
+# Websauna
 from websauna.system.devop.cmdline import init_websauna
 from websauna.system.http.static import DefaultStaticAssetPolicy
 from websauna.tests.scaffold import execute_command
@@ -51,7 +54,7 @@ def test_collect_recurse():
     assert len(collected) > 0
 
     # Check one resource from the collectin to see we succeeded
-    assert collected["deform-static"]["pickadate/translations/ja_JP.js"].startswith( 'perma-asset/pickadate/translations/ja_JP.')
+    assert collected["deform-static"]["pickadate/translations/ja_JP.js"].startswith('perma-asset/pickadate/translations/ja_JP.')
 
 
 def test_map_static_asset(browser, caching_web_server):
@@ -74,5 +77,4 @@ def test_map_static_asset(browser, caching_web_server):
     b.visit(bootstrap_css)
 
     # Identify correct CSS load by having some known text inside CSS payload
-    assert "Bootstrap" in  b.html
-
+    assert "Bootstrap" in b.html

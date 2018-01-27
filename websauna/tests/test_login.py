@@ -1,15 +1,19 @@
-from datetime import timedelta
+# Standard Library
 import ipaddress
+from datetime import timedelta
 
+# Pyramid
 import deform
 import transaction
 from deform import Button
+
 from webtest import TestApp
 
+# Websauna
 import websauna
-from websauna.tests.utils import create_user
 from websauna.tests.utils import EMAIL
 from websauna.tests.utils import PASSWORD
+from websauna.tests.utils import create_user
 from websauna.utils.time import now
 
 
@@ -223,7 +227,7 @@ def test_forget_password_expired_token(web_server, browser, dbsession, init):
     b.find_by_name("submit").click()
 
     assert b.is_element_present_by_css("#msg-check-email")
-    
+
     with transaction.manager:
         user = get_user(dbsession)
         activation = user.activation
@@ -254,7 +258,7 @@ def test_customize_login(paster_config):
             super(Initializer, self).configure_user_forms()
 
             # Override the default login form with custom one
-            unregister_success= self.config.registry.unregisterUtility(provided=interfaces.ILoginForm)
+            unregister_success = self.config.registry.unregisterUtility(provided=interfaces.ILoginForm)
             assert unregister_success, "No default form register"
             self.config.registry.registerUtility(CustomLoginForm, interfaces.ILoginForm)
 
@@ -265,5 +269,3 @@ def test_customize_login(paster_config):
     resp = app.get("/login")
 
     assert "Login by fingerprint" in resp.text
-
-

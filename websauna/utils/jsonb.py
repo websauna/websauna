@@ -1,8 +1,10 @@
 """JSONB data utilities."""
-from decimal import Decimal
+# Standard Library
 import inspect
 import json
+from decimal import Decimal
 
+# SQLAlchemy
 from sqlalchemy.ext.indexable import index_property
 
 

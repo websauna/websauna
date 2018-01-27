@@ -1,15 +1,21 @@
 """Authentication tweens."""
+# Standard Library
 import logging
 
-import sqlalchemy
+# Pyramid
 from pyramid.httpexceptions import HTTPFound
 from pyramid.registry import Registry
 
+# SQLAlchemy
+from sqlalchemy import orm
+
+# Websauna
 from websauna.system.core import messages
 from websauna.system.http import Request
 
+
 try:
-    from pyramid_tm import reify
+    from pyramid_tm import reify  # noQA
     good_reify = True
 except ImportError:
     good_reify = False
@@ -24,13 +30,12 @@ class SessionInvalidationTweenFactory:
     This tween checks if the current session is logged in user and there has been authentication sensitive changes to this user. In this case all user sessions should be logged out.
     """
 
-    def __init__(self, handler, registry:Registry):
+    def __init__(self, handler, registry: Registry):
         self.handler = handler
         self.registry = registry
 
     def __call__(self, request: Request):
         user = request.user
-
         if user:
             try:
                 session_authenticated_at = request.session.get("authenticated_at")
@@ -43,8 +48,7 @@ class SessionInvalidationTweenFactory:
                         messages.add(request, kind="error", msg="Your have been logged out due to authentication changes.", msg_id="msg-session-invalidated")
                         logger.info("User log out forced due to security sensitive settings change, user %s, session id %s", user, request.session.session_id)
                         return HTTPFound(request.application_url)
-            except sqlalchemy.orm.exc.DetachedInstanceError:
-
+            except orm.exc.DetachedInstanceError:
                 if good_reify:
                     # pyramid_tm 2.0
                     raise

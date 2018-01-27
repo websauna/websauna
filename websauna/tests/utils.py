@@ -5,14 +5,10 @@ import time
 import typing as t
 
 # Pyramid
-#: The default test login name
 import transaction
 from pyramid.interfaces import IRequest
-from pyramid.interfaces import IRequestFactory
 from pyramid.registry import Registry
-from pyramid.request import Request
 from pyramid.session import signed_deserialize
-#: Unit testing default email
 from zope.interface import implementer
 
 # SQLAlchemy
@@ -84,9 +80,8 @@ def create_user(dbsession: Session, registry: Registry, email: str=EMAIL, passwo
     return user
 
 
-def create_logged_in_user(dbsession:Session, registry:Registry, web_server:str, browser:DriverAPI, admin:bool=False, email:str=EMAIL, password:str=PASSWORD):
+def create_logged_in_user(dbsession: Session, registry: Registry, web_server: str, browser: DriverAPI, admin: bool=False, email: str=EMAIL, password: str=PASSWORD):
     """For a web browser test session, creates a new user and log it in inside the test browser."""
-
     # Catch some common argument misordering issues
     assert isinstance(registry, Registry)
     assert isinstance(web_server, str)
@@ -107,7 +102,7 @@ def create_logged_in_user(dbsession:Session, registry:Registry, web_server:str, 
     assert b.is_element_present_by_css("#nav-logout")
 
 
-def wait_until(callback:t.Callable, expected:object, deadline=1.0, poll_period=0.05):
+def wait_until(callback: t.Callable, expected: object, deadline=1.0, poll_period=0.05):
     """A helper function to wait until a variable value is set (in another thread).
 
     This is useful for communicating between Selenium test driver and test runner main thread.
@@ -127,18 +122,14 @@ def wait_until(callback:t.Callable, expected:object, deadline=1.0, poll_period=0
     raise AssertionError("Callback {} did not return in expected value {} within {} seconds".format(callback, expected, deadline))
 
 
-def login(web_server:str, browser:DriverAPI, email=EMAIL, password=PASSWORD):
-    """Login user to the website through the test browser.
-
-    """
+def login(web_server: str, browser: DriverAPI, email=EMAIL, password=PASSWORD):
+    """Login user to the website through the test browser."""
     b = browser
     b.visit(web_server)
     assert b.is_element_visible_by_css("#nav-sign-in"), "Could not see login button"
     b.find_by_css("#nav-sign-in").click()
     b.fill("username", email)
-
     b.fill("password", password)
-
     b.find_by_name("login_email").click()
     assert b.is_element_visible_by_css("#nav-logout")
 
@@ -207,7 +198,7 @@ def get_session_from_webdriver(driver: WebDriver, registry: Registry) -> RedisSe
     return session
 
 
-def logout(web_server:str, browser:DriverAPI):
+def logout(web_server: str, browser: DriverAPI):
     """Log out the current user from the test browser."""
     browser.find_by_css("#nav-logout").click()
     assert browser.is_element_present_by_css("#msg-logged-out")

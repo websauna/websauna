@@ -1,12 +1,14 @@
 """Default HTTP 404 Not Found handling."""
 
-import imghdr
+# Standard Library
 import logging
-import transaction
 
+# Pyramid
+import transaction
 from pyramid.renderers import render
-from pyramid.view import notfound_view_config
 from pyramid.response import Response
+from pyramid.view import notfound_view_config
+
 
 logger = logging.getLogger(__name__)
 
@@ -28,8 +30,8 @@ def notfound(request):
     # Make sure 404 page does not have any status information, as it is often overlooked special case for caching and we don't want to cache user information
     try:
         request.user = None
-    except:
-        # pyramid_tm 2.0 - this fails
+    except Exception as exc:
+        logger.debug("pyramid_tm 2.0 - this fails: {exc}".format(exc=exc))
         pass
 
     # The template rendering opens a new transaction which is not rolled back by Pyramid transaction machinery, because we are in a very special view. This tranaction will cause the tests to hang as the open transaction blocks Base.drop_all() in PostgreSQL. Here we have careful instructions to roll back any pending transaction by hand.

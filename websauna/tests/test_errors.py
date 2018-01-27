@@ -1,5 +1,6 @@
 import requests
 
+
 SPOOF_CSRF_JS = """
 (function() {
 console.log('Preparing CSRF spoofing');
@@ -7,6 +8,7 @@ $("input[name='csrf_token']").val("xxx");
 console.log("Finished geospoofing");
 })();
 """
+
 
 def test_internal_server_error(customized_web_server, browser):
     """When things go KABOOM show a friendly error page."""
@@ -57,6 +59,3 @@ def test_csrf_fail(web_server, browser):
 
     # Only present on our custom page
     assert b.is_element_present_by_css("#heading-bad-csrf-token")
-
-
-

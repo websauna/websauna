@@ -1,12 +1,16 @@
 """Duplicity based backuping."""
-import os
+# Standard Library
 import logging
+import os
+import stat
 import subprocess
 
-from pyramid.threadlocal import get_current_registry
+# Pyramid
 from pyramid.path import AssetResolver
+from pyramid.threadlocal import get_current_registry
+
+# Websauna
 from websauna.system.devop.exportenv import create_settings_env
-import stat
 
 
 __here__ = os.path.dirname(__file__)
@@ -48,10 +52,8 @@ def backup_site():
     env = create_settings_env(registry)
 
     try:
-        subprocess.check_output([backup_script,], timeout=backup_timeout, stderr=subprocess.STDOUT, env=env)
+        subprocess.check_output([backup_script, ], timeout=backup_timeout, stderr=subprocess.STDOUT, env=env)
     except subprocess.CalledProcessError as e:
         # Capture error to Sentry
         logger.error(e.output)
         raise
-
-

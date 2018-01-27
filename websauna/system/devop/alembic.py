@@ -103,7 +103,7 @@ def run_migrations_online(engine, target_metadata, version_table, include_object
             context.run_migrations()
 
 
-def consider_class_for_migration(klass:type, allowed_packages: t.List) -> bool:
+def consider_class_for_migration(klass: type, allowed_packages: t.List) -> bool:
 
     if allowed_packages[0] == "all":
         return True
@@ -115,7 +115,7 @@ def consider_class_for_migration(klass:type, allowed_packages: t.List) -> bool:
     return False
 
 
-def consider_module_for_migration(mod:str, allowed_packages: t.List) -> bool:
+def consider_module_for_migration(mod: str, allowed_packages: t.List) -> bool:
     """
     :param mod: Dotted name to a module
     :param allowed_packages: List of allowed packages
@@ -150,7 +150,7 @@ def get_sqlalchemy_metadata(allowed_packages: t.List):
     # Remove metadata table registrations which did not below to the package
     metadata = Base.metadata
     for table in list(metadata.tables.values()):
-        if not table in allowed_tables:
+        if table not in allowed_tables:
             metadata.remove(table)
 
     return metadata
@@ -175,7 +175,7 @@ def parse_allowed_packages(current_package):
     return packages
 
 
-def run_alembic(package:str):
+def run_alembic(package: str):
     """Alembic env.py script entry point for Websauna application.
 
     Initialize the application, load models and pass control to Alembic migration handler.

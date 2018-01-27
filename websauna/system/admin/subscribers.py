@@ -1,4 +1,7 @@
+# Pyramid
 from pyramid.events import subscriber
+
+# Websauna
 from websauna.system.admin import menu
 from websauna.system.admin.events import AdminConstruction
 from websauna.system.admin.modeladmin import ModelAdminRoot
@@ -21,4 +24,3 @@ def contribute_model_admin(event):
     for id, model_admin in model_admin_root.items():
         entry = menu.TraverseEntry("admin-menu-data-{}".format(id), label=model_admin.title, resource=model_admin, name="listing")
         data_menu.add_entry(entry)
-

@@ -15,17 +15,20 @@
 * We have separate variable files for required, optional an default variables
 
 """
-import sys
-
+# Standard Library
 import os
-
-import jinja2
-import ruamel.yaml
+import sys
 from collections import OrderedDict
+
+# Pyramid
+import jinja2
+
+import ruamel.yaml
 from ruamel.yaml.comments import CommentedSeq
 from ruamel.yaml.tokens import CommentToken
 
-TEMPLATE="""
+
+TEMPLATE = """
 ==================
 Playbook variables
 ==================
@@ -104,6 +107,7 @@ This is a reference of available Ansible Playbook variables for ``websauna.ansib
 {% endfor %}
 """
 
+
 @jinja2.contextfilter
 def outindent(jinja_ctx, context: str, **kw):
     """Jinja filter to add 4 spaces to the beginning of each line."""
@@ -121,6 +125,7 @@ def outindent(jinja_ctx, context: str, **kw):
     lines = context.split("\n")
     new_lines = ["    " + line for line in lines]
     return "\n".join(new_lines)
+
 
 env = jinja2.Environment()
 env.filters["outindent"] = outindent
@@ -176,7 +181,6 @@ def flatten_comment(seq):
     return raw_comment
 
 
-
 def find_yaml_commented_vars(playbook_file: str):
     """Extract variables and their descriptions from a Playbook file.
 
@@ -204,7 +208,7 @@ def find_yaml_commented_vars(playbook_file: str):
 
             vars[key] = {"comment": comment, "value": value}
 
-    if not "config_description" in vars:
+    if 'config_description' not in vars:
         print("Playbook doesn't provide config_description ", playbook_file, file=sys.stderr)
 
     config_description = vars.pop("config_description", None)

@@ -164,7 +164,7 @@ def main(argv: t.List[str]=sys.argv):
         celery_args = []
 
     # https://github.com/celery/celery/issues/3405
-    os.environ["CELERY_LOADER"]  = "websauna.system.task.celeryloader.WebsaunaLoader"
+    os.environ["CELERY_LOADER"] = "websauna.system.task.celeryloader.WebsaunaLoader"
     argv = ["celery"] + celery_args
     # Directly jump to Celery 4.0+ entry point
     from celery.bin.celery import main

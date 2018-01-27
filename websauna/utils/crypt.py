@@ -1,6 +1,7 @@
 """Cryptographic utilities."""
-import string
+# Standard Library
 import random
+import string
 
 
 _default = string.ascii_lowercase + string.ascii_uppercase + string.digits

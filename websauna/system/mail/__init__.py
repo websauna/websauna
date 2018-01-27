@@ -123,7 +123,7 @@ def send_templated_mail(request: Request, recipients: t.List, template: str, con
         sender = request.registry.settings["mail.default_sender"]
 
         # Add enveloped From:
-        sender_name =  request.registry.settings.get("mail.default_sender_name")
+        sender_name = request.registry.settings.get("mail.default_sender_name")
         if sender_name:
             sender = formataddr((str(Header(sender_name, 'utf-8')), sender))
 

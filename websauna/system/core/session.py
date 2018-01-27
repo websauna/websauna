@@ -32,9 +32,9 @@ NO_SESSION_FILE_EXTENSIONS = [".js", ".css", ".ico", ".png", ".gif", ".jpg"]
 
 
 def ignore_session(url: str) -> bool:
-    """Should we ignore session for this request? 
+    """Should we ignore session for this request?
 
-    Static assets requests do not need a session, exception made to requests to /notebook, because those requests are proxies to another daemon. 
+    Static assets requests do not need a session, exception made to requests to /notebook, because those requests are proxies to another daemon.
     :param url: Request url.
     :return: Flag indicating if session should be ignored.
     """
@@ -61,7 +61,7 @@ class WebsaunaSession(RedisSession):
         new_session,
         serialize=cPickle.dumps,
         deserialize=cPickle.loads,
-        ):
+    ):
         super().__init__(redis, session_id, new, new_session, serialize, deserialize)
         self.initial_data = initial_data
 
@@ -117,7 +117,7 @@ def _cookie_callback(
     set_cookie,
     delete_cookie,
     cookieless_headers,
-    ):
+):
     """
     Response callback to set the appropriate Set-Cookie header.
     `session` is via functools.partial
@@ -136,8 +136,7 @@ def _cookie_callback(
         return
 
     # Do not session cookie if we have not written anything to session yet
-    has_content = len(session.keys()) > 0
-
+    # has_content = len(session.keys()) > 0
     # if session.new and has_content:
     if session.new:  # TODO: Wait until Pyramid 1.9 fixes land Websauna and then we can address this properly
 
@@ -188,7 +187,7 @@ def WebsaunaSessionFactory(
     id_generator=_generate_session_id,
     cookieless_headers=('expires', 'cache-control'),
     klass=WebsaunaSession,
-    ):
+):
     """
     Overrides the RedisSessionFactory with Websauna specifi functionality.
 
@@ -299,7 +298,7 @@ def WebsaunaSessionFactory(
             encoding=encoding,
             encoding_errors=encoding_errors,
             unix_socket_path=unix_socket_path,
-            )
+        )
 
         # an explicit client callable gets priority over the default
         redis = client_callable(request, **redis_options) \
@@ -311,7 +310,7 @@ def WebsaunaSessionFactory(
             request=request,
             cookie_name=cookie_name,
             secret=secret,
-            )
+        )
 
         new_session = functools.partial(
             new_session_id,
@@ -319,7 +318,7 @@ def WebsaunaSessionFactory(
             timeout=timeout,
             serialize=serialize,
             generator=id_generator,
-            )
+        )
 
         if session_id_from_cookie and redis.exists(session_id_from_cookie):
             session_id = session_id_from_cookie
@@ -336,7 +335,7 @@ def WebsaunaSessionFactory(
             new_session=new_session,
             serialize=serialize,
             deserialize=deserialize,
-            )
+        )
 
         set_cookie = functools.partial(
             _set_cookie,
@@ -348,13 +347,13 @@ def WebsaunaSessionFactory(
             cookie_secure=cookie_secure,
             cookie_httponly=cookie_httponly,
             secret=secret,
-            )
+        )
         delete_cookie = functools.partial(
             _delete_cookie,
             cookie_name=cookie_name,
             cookie_path=cookie_path,
             cookie_domain=cookie_domain,
-            )
+        )
         cookie_callback = functools.partial(
             _cookie_callback,
             session,
@@ -363,7 +362,7 @@ def WebsaunaSessionFactory(
             set_cookie=set_cookie,
             delete_cookie=delete_cookie,
             cookieless_headers=cookieless_headers,
-            )
+        )
         request.add_response_callback(cookie_callback)
 
         return session

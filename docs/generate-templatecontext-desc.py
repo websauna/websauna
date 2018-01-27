@@ -1,18 +1,19 @@
 """Generate template reference."""
 
-import os
-
+# Pyramid
 import jinja2
 
+# Websauna
 import websauna.system
-import websauna.utils
-import websauna.tests
-import websauna.system.user
-import websauna.system.crud
 import websauna.system.admin
+import websauna.system.crud
+import websauna.system.user
+import websauna.tests
+import websauna.utils
 from websauna.system.devop.cmdline import init_websauna
 
-TEMPLATE="""
+
+TEMPLATE = """
 .. _template-filters:
 
 ======================================
@@ -110,7 +111,8 @@ env = jinja2.Environment()
 
 
 def fullname(o):
-  return o.__module__ + "." + o.__name__
+    return o.__module__ + "." + o.__name__
+
 
 def strip_indent(doc):
     lines = doc.split("\n")

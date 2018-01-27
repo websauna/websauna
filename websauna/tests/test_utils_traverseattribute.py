@@ -1,4 +1,5 @@
 """Test utils.traverseattribute."""
+# Websauna
 from websauna.utils import traverseattribute
 
 

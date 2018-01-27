@@ -1,6 +1,6 @@
 """ws-shell script.
 
-IPython shell prompt to Websauna. 
+IPython shell prompt to Websauna.
 """
 # Standard Library
 import datetime
@@ -25,7 +25,6 @@ try:
     from IPython import embed
 except ImportError as e:
     raise ImportError("You need to install IPython to use this shell") from e
-
 
 
 def main(argv: t.List[str]=sys.argv):
@@ -68,6 +67,7 @@ def main(argv: t.List[str]=sys.argv):
     feedback('', False)
 
     embed(user_ns=imported_objects)
+
 
 if __name__ == "__main__":
     main()

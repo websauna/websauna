@@ -1,8 +1,12 @@
 """Test utils.crypt."""
-import pytest
+# Standard Library
 import string
 
+import pytest
+
+# Websauna
 from websauna.utils import crypt
+
 
 test_data = (
     (32, None, crypt._default),

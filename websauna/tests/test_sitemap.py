@@ -1,12 +1,15 @@
+# Pyramid
+import pyramid.testing
+from pyramid.testing import DummyRequest
+
 import pytest
 
-from pyramid.testing import DummyRequest
-import pyramid.testing
-
+# Websauna
 import websauna.system
 from websauna.system.core import sitemap
-from websauna.system.core.sitemap import ReflectiveSitemapBuilder, RouteItem, TraverseItem
-from websauna.system.http import Request
+from websauna.system.core.sitemap import ReflectiveSitemapBuilder
+from websauna.system.core.sitemap import RouteItem
+from websauna.system.core.sitemap import TraverseItem
 from websauna.system.http.utils import make_routable_request
 
 
@@ -83,14 +86,11 @@ def test_generator_items():
         items = [FooItem(1), FooItem(2), FooItem(3)]
         yield from items
 
-    with pyramid.testing.testConfig() as config:
-
+    with pyramid.testing.testConfig():
         request = DummyRequest()
         s = sitemap.Sitemap()
         s.add_generator(generator)
-
         data = s.render(None, request)
-
         items = list(data["urlset"])
         assert len(items) == 3
         assert items[0].location(request) == "/1"
@@ -102,7 +102,7 @@ def test_reflect_routes(builder):
     """See we can reflect simple routes back to the sitemap."""
 
     builder.build_routes()
-    routes = [i.route_name for i  in builder.sitemap.items if isinstance(i, RouteItem)]
+    routes = [i.route_name for i in builder.sitemap.items if isinstance(i, RouteItem)]
 
     assert "parameter_free_route" in routes
     assert "permissioned_route" not in routes
@@ -150,6 +150,3 @@ def test_conditions(builder):
 
     assert any("/container/bar/conditional" in u for u in urls)
     assert not any("/container/bar/skipped_conditional" in u for u in urls)
-
-
-

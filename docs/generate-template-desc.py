@@ -1,17 +1,21 @@
 """Generate template reference."""
 
+# Standard Library
 import os
 
+# Pyramid
 import jinja2
 
+# Websauna
 import websauna.system
-import websauna.utils
-import websauna.tests
-import websauna.system.user
-import websauna.system.crud
 import websauna.system.admin
+import websauna.system.crud
+import websauna.system.user
+import websauna.tests
+import websauna.utils
 
-TEMPLATE="""
+
+TEMPLATE = """
 
 .. _templates:
 
@@ -145,6 +149,7 @@ User
 template = jinja2.Template(TEMPLATE)
 env = jinja2.Environment()
 
+
 def find_package_templates(pkg):
     path = pkg.__file__
     templates = os.path.join(os.path.dirname(path), "templates")
@@ -172,10 +177,13 @@ def find_package_templates(pkg):
 
                 yield rel_path, description, literal_include_path, heading
 
-modules = {}
-modules["core"] = list(find_package_templates(websauna.system.core))
-modules["admin"] = list(find_package_templates(websauna.system.admin))
-modules["crud"] = list(find_package_templates(websauna.system.crud))
-modules["user"] = list(find_package_templates(websauna.system.user))
+
+modules = {
+    'core': list(find_package_templates(websauna.system.core)),
+    'admin': list(find_package_templates(websauna.system.admin)),
+    'crud': list(find_package_templates(websauna.system.crud)),
+    'user': list(find_package_templates(websauna.system.user))
+}
+
 
 print(template.render(dict(modules=modules)))

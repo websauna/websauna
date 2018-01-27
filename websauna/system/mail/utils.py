@@ -1,5 +1,7 @@
+# Pyramid
 from pyramid.registry import Registry
 from pyramid.util import DottedNameResolver
+
 from pyramid_mailer import IMailer
 
 
@@ -38,5 +40,3 @@ def create_mailer(registry: Registry) -> IMailer:
         mailer = mailer_cls()
 
     return mailer
-
-

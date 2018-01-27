@@ -1,12 +1,19 @@
 """Tests for checking database sanity checks functions correctly."""
-
-from websauna.system.model.sanitycheck import is_sane_database
-from sqlalchemy import engine_from_config, Column, Integer, String
+# SQLAlchemy
 import sqlalchemy
-from sqlalchemy.ext.declarative import declarative_base, declared_attr
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy import Column
 from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy import engine_from_config
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import relationship
+from sqlalchemy.orm import sessionmaker
+
+# Websauna
+from websauna.system.model.sanitycheck import is_sane_database
 
 
 def setup_module(self):
@@ -38,7 +45,6 @@ def gen_relation_models():
     class RelationTestModel(Base):
         __tablename__ = "sanity_check_test_2"
         id = Column(Integer, primary_key=True)
-
 
     class RelationTestModel2(Base):
         __tablename__ = "sanity_check_test_3"
@@ -74,8 +80,7 @@ def test_sanity_pass(ini_settings, dbsession):
 
     engine = engine_from_config(ini_settings, 'sqlalchemy.')
     conn = engine.connect()
-    trans = conn.begin()
-
+    conn.begin()
     Base, SaneTestModel = gen_test_model()
     Session = sessionmaker(bind=engine)
     session = Session()
@@ -97,7 +102,7 @@ def test_sanity_table_missing(ini_settings, dbsession):
 
     engine = engine_from_config(ini_settings, 'sqlalchemy.')
     conn = engine.connect()
-    trans = conn.begin()
+    conn.begin()
 
     Base, SaneTestModel = gen_test_model()
     Session = sessionmaker(bind=engine)
@@ -116,7 +121,7 @@ def test_sanity_column_missing(ini_settings, dbsession):
 
     engine = engine_from_config(ini_settings, 'sqlalchemy.')
     conn = engine.connect()
-    trans = conn.begin()
+    conn.begin()
 
     Session = sessionmaker(bind=engine)
     session = Session()
@@ -143,12 +148,12 @@ def test_sanity_pass_relationship(ini_settings, dbsession):
 
     engine = engine_from_config(ini_settings, 'sqlalchemy.')
     conn = engine.connect()
-    trans = conn.begin()
+    conn.begin()
 
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    Base, RelationTestModel, RelationTestModel2  = gen_relation_models()
+    Base, RelationTestModel, RelationTestModel2 = gen_relation_models()
     try:
         Base.metadata.drop_all(engine, tables=[RelationTestModel.__table__, RelationTestModel2.__table__])
     except sqlalchemy.exc.NoSuchTableError:
@@ -167,7 +172,7 @@ def test_sanity_pass_declarative(ini_settings, dbsession):
 
     engine = engine_from_config(ini_settings, 'sqlalchemy.')
     conn = engine.connect()
-    trans = conn.begin()
+    conn.begin()
 
     Session = sessionmaker(bind=engine)
     session = Session()

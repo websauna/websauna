@@ -1,5 +1,7 @@
+# Standard Library
 import logging
 
+# SQLAlchemy
 import sqlalchemy
 from sqlalchemy import inspect
 from sqlalchemy.ext.declarative.clsregistry import _ModuleMarker
@@ -77,7 +79,7 @@ def is_sane_database(Base, session: Session):
                     errors = True
                     break
 
-                if not column.key in columns:
+                if column.key not in columns:
                     # It is safe to stringify engine where as password should be blanked out by stars
                     logger.error("Model %s declares column %s which does not exist in database %s", klass, column.key, engine)
                     errors = True

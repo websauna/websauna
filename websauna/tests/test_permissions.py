@@ -1,13 +1,19 @@
 """Test view permission as functional tests."""
-import pytest
+# Pyramid
 import transaction
 
-from webtest import TestApp
-
-import websauna
+# SQLAlchemy
 from sqlalchemy.orm import Session
-from websauna.tests.utils import create_user, PASSWORD, EMAIL, login
+
+import pytest
+from webtest import TestApp   # noQA
+
+# Websauna
+import websauna
+from websauna.tests.utils import create_user
+from websauna.tests.utils import login
 from websauna.tests.webserver import customized_web_server
+
 from . import permissionsamples
 
 

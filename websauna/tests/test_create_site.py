@@ -1,7 +1,9 @@
+# Pyramid
 import transaction
 
-from websauna.system.user.models import User
+# Websauna
 from websauna.system.user.models import Group
+from websauna.system.user.models import User
 from websauna.system.user.utils import get_site_creator
 
 
@@ -21,4 +23,3 @@ def test_virgin_init_admin(init, dbsession):
         u = dbsession.query(User).get(1)
         assert dbsession.query(Group).count() == 1
         assert u.is_admin()
-

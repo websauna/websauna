@@ -6,7 +6,6 @@ import typing as t
 
 # Pyramid
 import colander
-
 import deform  # noQA
 
 #: Backwards compatibility
@@ -23,7 +22,7 @@ def validate_json(node, value, **kwargs):
         raise colander.Invalid(node, "Not valid JSON")
 
 
-def enum_values(source: enum.Enum, default:t.Optional[t.Tuple]=("", "Please choose"), name_transform=str.title) -> t.Iterable[t.Tuple]:
+def enum_values(source: enum.Enum, default: t.Optional[t.Tuple]=("", "Please choose"), name_transform=str.title) -> t.Iterable[t.Tuple]:
     """Turn Python Enum to key-value pairs lists to be used with selection widgets."""
 
     def inner():
@@ -97,7 +96,7 @@ def dictify(schema: colander.Schema, obj: object, excludes=()) -> dict:
                 #  issues with user defined types and future issues.
                 try:
                     node.serialize(value)
-                except:
+                except Exception:
                     dict_[name] = colander.null
                 else:
                     dict_[name] = value

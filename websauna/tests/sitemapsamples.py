@@ -116,7 +116,6 @@ def post_only_route(request: Request):
     return Response()
 
 
-
 @simple_route("/included_route", route_name="included_route")
 @include_in_sitemap(True)
 def included_route(request: Request):
@@ -135,7 +134,7 @@ def condition(context, request):
 
 @simple_route("/conditional_route", route_name="conditional_route")
 @include_in_sitemap(condition=condition)
-def skipped_route(request: Request):
+def another_skipped_route(request: Request):
     return Response()
 
 

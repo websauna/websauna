@@ -1,6 +1,8 @@
-from pyramid.authentication import SessionAuthenticationPolicy as _SessionAuthenticationPolicy
+# Pyramid
+from pyramid.authentication import \
+    SessionAuthenticationPolicy as _SessionAuthenticationPolicy
 
-from websauna.system.http.header import add_vary_callback_if_cookie
+# Websauna
 from websauna.utils.time import now
 
 

@@ -1,13 +1,15 @@
 """Sample application demostrating SQL free functionality."""
 
+# Websauna
 import websauna.system
+
 
 class RedisUser:
     pass
 
+
 class RedisUserRegistry:
     pass
-
 
 
 class Initializer(websauna.system.Initializer):

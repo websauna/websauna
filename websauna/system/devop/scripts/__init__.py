@@ -1,10 +1,11 @@
 """Command line scripts."""
 # Standard Library
-from pkg_resources import load_entry_point
-from textwrap import dedent
-import typing as t
 import os
 import sys
+import typing as t
+from textwrap import dedent
+
+from pkg_resources import load_entry_point
 
 # Websauna
 from websauna.system import SanityCheckFailed

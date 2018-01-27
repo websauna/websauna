@@ -1,3 +1,4 @@
+# Pyramid
 import colander
 import deform
 
@@ -35,7 +36,7 @@ class CSRFSchema(colander.Schema):
         colander.String(),
         widget=deform.widget.HiddenWidget(),
         default=deferred_csrf_value,
-        )
+    )
 
     csrf_token.dictify_by_default = False
 

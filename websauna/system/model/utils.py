@@ -1,9 +1,10 @@
-import os
-from uuid import UUID
+# Standard Library
 import inspect
+import os
 from types import ModuleType
+from uuid import UUID
 
-import sqlalchemy.sql
+# SQLAlchemy
 from sqlalchemy.ext.declarative import instrument_declarative
 
 
@@ -25,9 +26,7 @@ def secure_uuid():
     return UUID(bytes=os.urandom(16), version=4)
 
 
-
-
-def attach_model_to_base(ModelClass:type, Base:type, ignore_reattach:bool=True):
+def attach_model_to_base(ModelClass: type, Base: type, ignore_reattach: bool=True):
     """Dynamically add a model to chosen SQLAlchemy Base class.
 
     More flexibility is gained by not inheriting from SQLAlchemy declarative base and instead plugging in models during the configuration time more.
@@ -75,7 +74,7 @@ def attach_model_to_base(ModelClass:type, Base:type, ignore_reattach:bool=True):
     """
 
     if ignore_reattach:
-         if '_decl_class_registry' in ModelClass.__dict__:
+        if '_decl_class_registry' in ModelClass.__dict__:
             assert ModelClass._decl_class_registry == Base._decl_class_registry, "Tried to attach to a different Base"
             return
 
@@ -83,7 +82,7 @@ def attach_model_to_base(ModelClass:type, Base:type, ignore_reattach:bool=True):
 
     # TODO: We now hardcode this event listener here.
     # from sqlalchemy.orm.instrumentation import _instrumentation_factory
-    #_instrumentation_factory.dispatch.class_instrument(ModelClass)
+    # _instrumentation_factory.dispatch.class_instrument(ModelClass)
 
     # The correct approach is through class_instrument() event firing,
     # but could not figure out yet how to make it happen with all bits flying around
@@ -91,7 +90,7 @@ def attach_model_to_base(ModelClass:type, Base:type, ignore_reattach:bool=True):
     init_for_json(ModelClass)
 
 
-def attach_models_to_base_from_module(mod:ModuleType, Base:type):
+def attach_models_to_base_from_module(mod: ModuleType, Base: type):
     """Attach all models in a Python module to SQLAlchemy base class.
 
     The attachable models must declare ``__tablename__`` property and must not have existing ``Base`` class in their inheritance.
@@ -109,6 +108,3 @@ def attach_models_to_base_from_module(mod:ModuleType, Base:type):
             if hasattr(value, "__tablename__"):
                 # This declares table but is not attached to any base yet
                 attach_model_to_base(value, Base)
-
-
-

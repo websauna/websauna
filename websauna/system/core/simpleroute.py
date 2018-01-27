@@ -3,6 +3,7 @@
 This code is adoption of tomb_routes https://github.com/TombProject/tomb_routes created by John Anderson.
 """
 
+# Pyramid
 from pyramid.interfaces import IViewMapperFactory
 from pyramid.path import DottedNameResolver
 
@@ -34,7 +35,6 @@ def add_simple_route(
 
     target = DottedNameResolver().maybe_resolve(target)
     mapper = config.get_routes_mapper()
-
 
     route_name = kwargs.pop("route_name", None)
     route_name = route_name or target.__name__

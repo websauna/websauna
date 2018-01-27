@@ -1,11 +1,13 @@
 """See that beat runs scheduled tasks correctly."""
 
+# Standard Library
+import os
 import subprocess
 import time
-import os
 
 from flaky import flaky
 
+# Websauna
 from websauna.system.core.redis import get_redis
 
 

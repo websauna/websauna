@@ -1,13 +1,17 @@
 """Default template variables."""
+# Standard Library
 import datetime
 import logging
 
+# Pyramid
 from pyramid.events import BeforeRender
-
-
 # TODO: We expose this as a global for documentation. Migrate to non-global map in the future.
-from pyramid.path import AssetResolver, DottedNameResolver
+from pyramid.path import AssetResolver  # noQA
+from pyramid.path import DottedNameResolver
+
+# Websauna
 from websauna.utils.time import now
+
 
 logger = logging.getLogger(__name__)
 

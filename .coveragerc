@@ -15,7 +15,8 @@ exclude_lines =
 ignore_errors = True
 omit =
     setup.py
-    websauna/utils/orderedset.py
-    websauna/tests/*
+    websauna/compat/*
     websauna/system/http/*
+    websauna/tests/*
+    websauna/utils/orderedset.py
 

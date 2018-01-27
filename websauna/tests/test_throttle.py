@@ -1,14 +1,15 @@
 """Test view throttlign facilities."""
-import pytest
-from pyramid import testing
+# Pyramid
+from pyramid.httpexceptions import HTTPOk
 
-import websauna
-from pyramid.httpexceptions import HTTPOk, HTTPTooManyRequests
-from pyramid.registry import Registry
-from pyramid.view import view_config
-from websauna.system.core.redis import get_redis
-from websauna.system.form.throttle import throttled_view, clear_throttle
+import pytest
 from webtest import TestApp
+
+# Websauna
+import websauna
+from websauna.system.core.redis import get_redis  # noQA
+from websauna.system.form.throttle import clear_throttle
+from websauna.system.form.throttle import throttled_view
 
 
 def throttle_sample(request):

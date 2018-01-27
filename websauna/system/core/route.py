@@ -47,8 +47,8 @@ class simple_route(object):
             config = scanner.config
 
             # Default to not appending slash
-            if not "append_slash" in kwargs:
-                append_slash = False
+            if "append_slash" not in kwargs:
+                kwargs['append_slash'] = False
 
             # pylint: disable=W0142
             add_simple_route(config, self.path, wrapped, *args, **kwargs)
@@ -81,7 +81,6 @@ def add_template_only_view(config: Configurator, pattern: str, name: str, templa
 
     config.add_route(name, pattern)
     config.add_view(view=_default_view, route_name=name, renderer=template)
-
 
 
 def get_config_route(request: Request, config_key: str) -> str:

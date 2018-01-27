@@ -89,7 +89,7 @@ class ModelAdminRoot(Resource):
             yield id, self[id]
 
 
-def model_admin(traverse_id:str) -> type:
+def model_admin(traverse_id: str) -> type:
     """Class decorator to mark the class to become part of model admins.
 
     ``Configure.scan()`` must be run on this module for the implementation to be picked up.

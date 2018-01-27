@@ -6,16 +6,20 @@ To run::
 
 
 """
+# Standard Library
 import os
 
+# Pyramid
 import transaction
+
 import pytest
 from flaky import flaky
-from websauna.system.devop.cmdline import init_websauna
-from websauna.tests.utils import create_user
 
-from websauna.tests.webserver import customized_web_server
+# Websauna
+from websauna.system.devop.cmdline import init_websauna
 from websauna.system.user.models import User
+from websauna.tests.utils import create_user
+from websauna.tests.webserver import customized_web_server
 
 
 HERE = os.path.dirname(__file__)

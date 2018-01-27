@@ -1,18 +1,20 @@
 """Admin interface main views. """
+# Pyramid
 from pyramid.httpexceptions import HTTPFound
-
 from pyramid.view import view_config
 from pyramid_layout.panel import panel_config
-from websauna.system.admin.modeladmin import ModelAdmin, ModelAdminRoot
-from websauna.system.admin.utils import get_admin
-from websauna.system.crud import views as crud_views
-from websauna.system.crud import listing
-from websauna.system.crud.sqlalchemy import sqlalchemy_deleter
-from websauna.system.crud.views import TraverseLinkButton
-from websauna.system.crud.formgenerator import SQLAlchemyFormGenerator
 
+# Websauna
+from websauna.system.admin.modeladmin import ModelAdmin
+from websauna.system.admin.modeladmin import ModelAdminRoot
+from websauna.system.admin.utils import get_admin
 from websauna.system.core.panel import render_panel
 from websauna.system.core.viewconfig import view_overrides
+from websauna.system.crud import views as crud_views
+from websauna.system.crud import listing
+from websauna.system.crud.formgenerator import SQLAlchemyFormGenerator
+from websauna.system.crud.sqlalchemy import sqlalchemy_deleter
+from websauna.system.crud.views import TraverseLinkButton
 
 
 @view_config(route_name='admin_home', renderer='admin/admin.html', permission='view')
@@ -52,7 +54,7 @@ class Listing(crud_views.Listing):
     base_template = "admin/base.html"
 
     table = listing.Table(
-        columns = [
+        columns=[
             listing.Column(id="id", name="Id",),
             listing.StringPresentationColumn(id="value", name="Value"),
             listing.ControlsColumn()
@@ -120,7 +122,6 @@ class Delete(crud_views.Delete):
     deleter = sqlalchemy_deleter
 
 
-
 @view_config(context=ModelAdmin, name="", route_name="admin", permission='view')
 def model_admin_default_view(context, request):
     """Redirect to listing if model admin URL is being accessed without a view name."""
@@ -137,4 +138,3 @@ def model_resource_default_view(context, request):
 def view__model_admin_root(context, request):
     """Model admin root does not have a view per se so we redirect to admin root."""
     return HTTPFound(request.resource_url(context.__parent__))
-

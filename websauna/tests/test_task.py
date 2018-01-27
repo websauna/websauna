@@ -1,15 +1,18 @@
 """Celery async task tests."""
-
+# Standard Library
+import os
 import subprocess
 import time
-import os
-import pytest
+
+# Pyramid
 import transaction
+
+import pytest
 from flaky import flaky
 
+# Websauna
 from websauna.system.devop.cmdline import init_websauna
 from websauna.system.task.celery import get_celery
-from websauna.system.user.utils import get_user_class
 from websauna.system.user.models import User
 
 from . import demotasks
@@ -92,6 +95,7 @@ def test_transaction_aware_task_success(celery_worker, task_app_request, dbsessi
     with transaction.manager:
         u = dbsession.query(User).get(1)
         assert u.username == "set by celery"
+
 
 @flaky
 def test_transaction_manager_abort(celery_worker, task_app_request, dbsession, demo_user):

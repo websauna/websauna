@@ -24,7 +24,6 @@ class StdoutMailer:
     send_immediately_sendmail = _send
 
 
-
 class NullMailer:
     """Ignore all otugoing mail and only increase send count.
 
@@ -66,7 +65,6 @@ class ThreadFriendlyDummyMailer(DummyMailer):
         ThreadFriendlyDummyMailer.queue = []
 
     def _send(self, message, fail_silently=False):
-        """Save message to a file for debugging
-        """
+        """Save message to a file for debugging"""
         self.output.append(message)
         self.send_count += 1

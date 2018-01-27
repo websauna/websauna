@@ -1,6 +1,10 @@
-from pyramid.view import view_config
-from websauna.system.core.viewconfig import view_overrides
+# Pyramid
 from pyramid.httpexceptions import HTTPOk
+from pyramid.view import view_config
+
+# Websauna
+from websauna.system.core.viewconfig import view_overrides
+
 
 class ParentResource:
     id = "parent"
@@ -33,11 +37,9 @@ class ParentView:
         return HTTPOk("Editing: {}".format(self.context.id))
 
 
-
 @view_overrides(context=ChildResource)
 class ChildView(ParentView):
     pass
-
 
 
 @view_overrides(context=GrandChildResource)
@@ -56,8 +58,6 @@ class ChildViewWithOtherViewConfigs(ParentView):
     @view_config(name="show", context=ChildResource2)
     def traversing_test(self):
         return HTTPOk("Showing: {}".format(self.context.id))
-
-
 
 
 class Root:
@@ -87,7 +87,6 @@ class ParentRouteView:
     @view_config(route_name="parent_hello", renderer="parent.html")
     def traversing_test(self):
         return {"class": self.__class__.__name__}
-
 
 
 @view_overrides(route_name="child_hello", renderer="child.html")

@@ -10,6 +10,7 @@ from abc import abstractmethod
 
 # Pyramid
 import colander
+import deform
 
 # SQLAlchemy
 from sqlalchemy import Column
@@ -22,8 +23,6 @@ from sqlalchemy.ext.declarative.clsregistry import _class_resolver
 from sqlalchemy.orm import Mapper
 from sqlalchemy.orm import RelationshipProperty
 from sqlalchemy.sql.type_api import TypeEngine
-
-import deform
 
 # Websauna
 from websauna.system.crud import Resource
@@ -57,7 +56,7 @@ class ColumnToFieldMapper(ABC):
     """A helper class to map a SQLAlchemy model to Colander/Deform form."""
 
     @abstractmethod
-    def map(self, mode:EditMode, request:Request, context:Resource, model:type, includes: t.List) -> colander.SchemaNode:
+    def map(self, mode: EditMode, request: Request, context: Resource, model: type, includes: t.List) -> colander.SchemaNode:
         """Map a model to a Colander form schema.
 
         :param mode: IS this add, edit or show form. For example, some relationship fields do not make sense on add form.

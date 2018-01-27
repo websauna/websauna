@@ -4,17 +4,18 @@ Based on the original Kotti CMS implementation:
 
 * https://github.com/Kotti/Kotti/blob/5a33384e7b11994371c415b489edbec88ecbf044/kotti/sqla.py#L79
 """
-
+# Standard Library
 import json
 
+# SQLAlchemy
 from sqlalchemy import event
-from sqlalchemy.dialects.postgresql.json import JSONB
-from sqlalchemy.dialects.postgresql.json import JSON
-from sqlalchemy_utils.types.json import JSONType
-from sqlalchemy.ext.mutable import Mutable
-from sqlalchemy.sql.schema import Column
 from sqlalchemy import types
-from sqlalchemy.orm import mapper, object_mapper, Mapper
+from sqlalchemy.dialects.postgresql.json import JSON
+from sqlalchemy.dialects.postgresql.json import JSONB
+from sqlalchemy.ext.mutable import Mutable
+from sqlalchemy.orm import mapper
+from sqlalchemy.sql.schema import Column
+from sqlalchemy_utils.types.json import JSONType
 
 
 def _default(obj):
@@ -229,7 +230,6 @@ class NestedMutationList(NestedMixin, MutationList):
     pass
 
 
-
 MUTATION_WRAPPERS = {
     dict: NestedMutationDict,
     list: NestedMutationList,
@@ -267,7 +267,6 @@ def is_json_like_column(c: Column) -> bool:
     return isinstance(c.type, (JSONType, JSON, JSONB))
 
 
-
 def _get_column_default(target: object, column: Column):
     if column.default is not None:
         if callable(column.default.arg):
@@ -296,7 +295,7 @@ def setup_default_value_handling(cls):
     def init(target, args, kwargs):
         for c in target.__table__.columns:
             if is_json_like_column(c):
-                default =_get_column_default(target, c)
+                default = _get_column_default(target, c)
                 default = wrap_as_nested(c.name, default, target)
                 setattr(target, c.name, default)
 
@@ -310,4 +309,3 @@ def init_for_json(cls):
     has_json_columns = any([is_json_like_column(c) for c in cls.__table__.columns])
     if has_json_columns:
         setup_default_value_handling(cls)
-

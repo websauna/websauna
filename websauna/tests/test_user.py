@@ -1,6 +1,9 @@
+# Pyramid
 import transaction
 
+# Websauna
 from websauna.system.user.models import User
+
 
 def test_user_subsystem(init, dbsession):
     """Load the default user models and see we create correponding tables right."""

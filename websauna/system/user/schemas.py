@@ -22,7 +22,7 @@ from websauna.utils.slug import uuid_to_slug
 PASSWORD_MIN_LENGTH = 6
 
 
-def defer_group_class(node: c.SchemaNode, kw: dict) -> IGroupModel:
+def defer_group_class(node: c.SchemaNode, kw: dict) -> t.Type[IGroupModel]:
     """Colander helper deferred to assign the current group model.
 
     :param node: Colander SchemaNode
@@ -98,7 +98,7 @@ class GroupSet(UUIDModelSet):
 
     label_column = "name"
 
-    def get_model(self, node: c.SchemaNode) -> IGroupModel:
+    def get_model(self, node: c.SchemaNode) -> t.Type[IGroupModel]:
         """Return Group class.
 
         :param node: Colander SchemaNode.

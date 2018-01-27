@@ -21,14 +21,13 @@ def extract_uuid_to_slug(item):
     return uuid_to_slug(item.uuid)
 
 
-def convert_query_to_tuples(query: Query, first_column: t.Union[str, t.Callable], second_column: t.Union[str, t.Callable], default_choice:str =None) -> t.List[t.Tuple[str, str]]:
+def convert_query_to_tuples(query: Query, first_column: t.Union[str, t.Callable], second_column: t.Union[str, t.Callable], default_choice: t.Optional[str] =None) -> t.List[t.Tuple[str, str]]:
     """Convert SQLAlchemy query results to (id, name) tuples for select and checkbox widgets.
 
     :param first_column: Column name used to populate value in the first tuple
     :param second_column: Column name used to populate value in the second tuple
     :oaram default_choice: If given use this as "Select here" or when the value is None
     """
-
     if type(first_column) == str:
         first_column_getter = lambda item: getattr(item, first_column)
     else:
@@ -58,7 +57,6 @@ def get_uuid_vocabulary_for_model(dbsession: Session, model: type, first_column=
 
 class ModelSetResultList(list):
     """Mark that the result is through SQLAlchemy query."""
-
 
 
 class ModelSchemaType:
@@ -92,7 +90,7 @@ class ModelSchemaType:
         value = getattr(item, self.label_column)
         return (id, value)
 
-    def get_match_column(self, node: colander.SchemaNode, model:type) -> Column:
+    def get_match_column(self, node: colander.SchemaNode, model: type) -> Column:
         """Get the column we are filtering out."""
         assert self.match_column, "match_column undefined"
         return getattr(model, self.match_column)

@@ -118,7 +118,6 @@ def filter_datetime(jinja_ctx, context, **kw):
     return text
 
 
-
 @contextfilter
 def arrow_format(jinja_ctx, context, *args, **kw):
     """Format datetime using Arrow formatter string.
@@ -151,9 +150,7 @@ def friendly_time(jinja_ctx, context, **kw):
 
     * Takes optional keyword argument timezone which is a timezone name as a string. Assume the source datetime is in this timezone.
     """
-
     now = context
-
     if not now:
         return ""
 
@@ -163,13 +160,10 @@ def friendly_time(jinja_ctx, context, **kw):
     else:
         tz = datetime.timezone.utc
 
-    # Meke relative time between two timestamps
-
+    # Make relative time between two timestamps
     now = now.astimezone(tz)
-
     arrow = Arrow.fromdatetime(now)
     other = Arrow.fromdatetime(datetime.datetime.utcnow())
-
     return arrow.humanize(other)
 
 
@@ -253,7 +247,6 @@ def timestruct(jinja_ctx, context, **kw):
 
     * format
     """
-
     if not context:
         return ""
 
@@ -295,7 +288,7 @@ def from_timestamp(jinja_ctx, context, **kw):
     return ct
 
 
-def include_filter(config:Configurator, name:str, func: t.Callable, renderers=(".html", ".txt",)):
+def include_filter(config: Configurator, name: str, func: t.Callable, renderers=(".html", ".txt",)):
     """Register a new Jinja 2 template filter function.
 
     Example::

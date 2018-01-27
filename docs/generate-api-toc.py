@@ -1,15 +1,19 @@
 """Create nice API table of contents."""
 
+# Standard Library
+import pkgutil
 import sys
 
+# Pyramid
 import jinja2
-import pkgutil
 
+# Websauna
 import websauna.system
-import websauna.utils
 import websauna.tests
+import websauna.utils
 
-TEMPLATE="""
+
+TEMPLATE = """
 .. raw:: html
 
     <style>
@@ -99,10 +103,11 @@ Testing
 
 template = jinja2.Template(TEMPLATE)
 
+
 # http://stackoverflow.com/a/15723105/315168
 def get_submodules(mod):
     modules = []
-    for loader, module_name, is_pkg in  pkgutil.iter_modules(mod.__path__):
+    for loader, module_name, is_pkg in pkgutil.iter_modules(mod.__path__):
 
         if module_name.startswith("test_"):
             continue
@@ -116,16 +121,17 @@ def get_submodules(mod):
     for mod in modules:
         try:
             intro = mod.__doc__.split("\n")[0]
-        except:
-            sys.exit("Module missing a docstring: {}".format(mod))
+        except Exception as exc:
+            sys.exit("Module missing a docstring: {mod}".format(mod=mod))
         results.append((mod.__name__, intro))
     return results
 
-modules = {}
 
-modules["core"] = get_submodules(websauna.system)
-modules["utils"] = get_submodules(websauna.utils)
-modules["testing"] = get_submodules(websauna.tests)
+modules = {
+    'core': get_submodules(websauna.system),
+    'utils': get_submodules(websauna.utils),
+    'testing': get_submodules(websauna.tests)
+}
 
 
 print(template.render(dict(modules=modules)))

@@ -1,7 +1,8 @@
+# Pyramid
+from pyramid.config import Configurator
+
 import pytest
 from webtest import TestApp
-
-from pyramid.config import Configurator
 
 
 def setup_wsgi():
@@ -57,14 +58,11 @@ def test_grand_grand_child_view():
     assert resp.text == '200 OK\n\n\n\n\nEditing: grand_grand_child\n\n'
 
 
-
 def test_invalid_override():
     """Trying to override non-view class causes an error.."""
-    configurator = Configurator()
-
+    Configurator()
     with pytest.raises(RuntimeError):
         from websauna.tests.viewconfig import brokentestmodule  # noqa
-
 
 
 def test_rendered_override():

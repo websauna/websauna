@@ -10,17 +10,13 @@ from websauna.system.core.interfaces import IRoot
 from websauna.system.core.traversal import Resource
 
 
-def get_human_readable_resource_name(resource:Resource) -> str:
+def get_human_readable_resource_name(resource: Resource) -> str:
     """Extract human-readable name of the resource for breadcrumbs."""
-
     # TODO: Add adapter implementation here
-
     if hasattr(resource, "get_title"):
         return resource.get_title()
-
     if hasattr(resource, "title"):
         return resource.title
-
     return resource.__name__
 
 
@@ -38,12 +34,9 @@ def get_breadcrumbs(context: Resource, request: Request, root_iface: type=None, 
 
     :return: List of {url, name, resource} dictionaries
     """
-
     elems = []
-
     if not root_iface:
         root_iface = IRoot
-
     assert issubclass(root_iface, Interface), "Traversing root must be declared by an interface, got {}".format(root_iface)
 
     # Looks like it is not possible to dig out the matched view from Pyramid request,
@@ -53,7 +46,6 @@ def get_breadcrumbs(context: Resource, request: Request, root_iface: type=None, 
         elems.append(dict(url=current_view_url, name=current_view_name))
 
     while context and not root_iface.providedBy(context):
-
         if not hasattr(context, "get_title"):
             raise RuntimeError("Breadcrumbs part missing get_title(): {}".format(context))
 

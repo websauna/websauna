@@ -1,5 +1,6 @@
 """Describe different form edit modes."""
 
+# Standard Library
 from enum import Enum
 
 
@@ -14,4 +15,3 @@ class EditMode(Enum):
 
     #: Generated form for editing an existing object
     edit = 2
-

@@ -1,7 +1,7 @@
+# Websauna
 from websauna.system.admin.interfaces import IAdmin
 from websauna.system.admin.modeladmin import ModelAdmin
 from websauna.system.core.traversal import Resource
-from websauna.system.model.meta import Base
 
 
 def get_admin(request) -> IAdmin:
@@ -17,7 +17,7 @@ def get_admin_for_model(admin: IAdmin, model: type) -> Resource:
 
     model_manager = admin["models"]
 
-    if not model.id in model_manager:
+    if model.id not in model_manager:
         raise KeyError("No admin defined for model: {}".format(model))
     return model_manager[model.id]
 
@@ -42,10 +42,7 @@ def get_admin_resource_for_sqlalchemy_object(admin: IAdmin, instance: object) ->
 
 
 def get_model_admin_for_sqlalchemy_object(admin: IAdmin, instance: object) -> ModelAdmin:
-    """Return ModelAdmin resource for a SQLAlchemy object instance.
-
-    """
-
+    """Return ModelAdmin resource for a SQLAlchemy object instance."""
     model_manager = admin["models"]
 
     registry = admin.request.registry
@@ -67,9 +64,7 @@ def get_admin_url_for_sqlalchemy_object(admin: IAdmin, instance: object, view_na
         link = get_admin_url_for_sqlalchemy_object(request.admin, choice, view_name="edit")
 
     :param admin: Admin root object
-
     :param instance: SQLAlchemy object
     """
     model_admin = get_model_admin_for_sqlalchemy_object(admin, instance)
     return model_admin.get_object_url(instance, view_name=view_name)
-

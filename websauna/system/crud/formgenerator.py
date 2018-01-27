@@ -8,7 +8,6 @@ from abc import abstractmethod
 
 # Pyramid
 import colander
-
 import deform
 
 # Websauna

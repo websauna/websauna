@@ -1,9 +1,11 @@
 """Jinja template filters used in admin UI."""
 
+# Pyramid
+from jinja2 import contextfilter
 from pyramid.renderers import render
 from pyramid.threadlocal import get_current_request
 
-from jinja2 import contextfilter
+# Websauna
 from websauna.system.admin.interfaces import IAdmin
 from websauna.system.core.breadcrumbs import get_breadcrumbs
 

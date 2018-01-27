@@ -1,7 +1,7 @@
 """An abstract CRUD implementation based on traversal. The default support for SQLAlchemy and Deform."""
 # Standard Library
-from abc import abstractmethod
 import typing as t
+from abc import abstractmethod
 
 # Pyramid
 from pyramid.interfaces import IRequest
@@ -38,7 +38,7 @@ class Resource(_Resource):
 
     def get_path(self):
         """Extract the traverse path name from the database object."""
-        assert hasattr(self, "__parent__"),  "get_path() can be called only for objects whose lineage is set by make_lineage()"
+        assert hasattr(self, "__parent__"), "get_path() can be called only for objects whose lineage is set by make_lineage()"
 
         crud = self.__parent__
         path = crud.mapper.get_path_from_object(self.obj)

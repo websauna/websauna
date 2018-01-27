@@ -97,7 +97,7 @@ class CRUD(_CRUD):
         column_instance = getattr(model, column_name, None)
         assert column_instance, "Model {} does not define column/attribute {} used for CRUD resource traversing".format(self.model, column_name)
 
-        obj = self.get_query().filter(column_instance==id).first()
+        obj = self.get_query().filter(column_instance == id).first()
         if not obj:
             raise KeyError("Object id {} was not found for CRUD {} using model {}".format(id, self, model))
 

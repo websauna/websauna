@@ -17,7 +17,7 @@ from . import rollingwindow
 logger = logging.getLogger(__name__)
 
 
-def create_throttle_validator(name:str, max_actions_in_time_window:int, time_window_in_seconds:int=3600):
+def create_throttle_validator(name: str, max_actions_in_time_window: int, time_window_in_seconds: int=3600):
     """Creates a Colander form validator which prevents form submissions exceed certain rate.
 
     The benefit of using validator instead of :func:`throttle_view` decorator is that we can give a nice
@@ -143,18 +143,15 @@ def throttled_view(
 
     :raise: :py:class:`pyramid.httpexceptions.HTTPTooManyRequests` if the endpoint gets hammered too much
     """
-
-    redis_key = rolling_window_id
-
     # http://docs.pylonsproject.org/projects/pyramid_cookbook/en/latest/views/chaining_decorators.html
     def outer(view_callable: t.Callable):
 
         name = view_callable.__name__
 
         if not rolling_window_id:
-            key_name = "throttle_{}".format(name)
+            key_name = "throttle_{key}".format(key=name)
         else:
-            key_name = "throttle_{}".format(rolling_window_id)
+            key_name = "throttle_{key}".format(key=rolling_window_id)
 
         def inner(context, request):
 

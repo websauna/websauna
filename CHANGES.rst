@@ -7,7 +7,11 @@ Changelog for Websauna
 
 - Closes `Issue #155`_: AttributeError: 'super' has no attribute update_first_login_social_data on first user login.
 
-- Added support for Python 3.7
+- Closes `Issue #157`_: Changing User's Username / Email in Admin Crashes.
+
+- Added code style validations.
+
+- Correctly allow overriding title for listing views.
 
 - Dropped Python 3.4 support.
 
@@ -65,3 +69,4 @@ Changelog for Websauna
 .. _`Issue #29`: https://github.com/websauna/websauna/issues/29
 .. _`Issue #145`: https://github.com/websauna/websauna/issues/145
 .. _`Issue #155`: https://github.com/websauna/websauna/issues/155
+.. _`Issue #157`: https://github.com/websauna/websauna/issues/157

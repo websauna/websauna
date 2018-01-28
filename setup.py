@@ -19,70 +19,37 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 setup(
     name='websauna',
     namespace_packages=["websauna"],
-
     version='1.0a6.dev0',
-
     description=long_description.split("\n")[0],
     long_description=long_description,
-
-    # The project's main homepage.
-    url='https://github.com/websauna/websauna',
-
-    # Author details
+    url='https://websauna.org',
     author='Mikko Ohtamaa',
     author_email='mikko@opensourcehacker.com',
-
-    # Choose your license
     license='MIT',
-
-    # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
-        # How mature is this project? Common values are
-        #   3 - Alpha
-        #   4 - Beta
-        #   5 - Production/Stable
         'Development Status :: 3 - Alpha',
-
-        # Indicate who your project is intended for
+        'Framework :: Pyramid',
         'Intended Audience :: Developers',
-
-        # Pick your license as you wish (should match "license" above)
         'License :: OSI Approved :: MIT License',
-
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
-        'Framework :: Pyramid',
+        'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
+        'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
+        'Topic :: Internet :: WWW/HTTP :: WSGI',
+        'Topic :: Internet :: WWW/HTTP',
+        'Topic :: Software Development :: Libraries :: Application Frameworks',
     ],
-
-    # What does your project relate to?
-    keywords='sqlalchemy postgresql pyramid pytest',
-
-    # You can just specify the packages manually here if your project is
-    # simple. Or you can use find_packages().
+    keywords='sqlalchemy postgresql pyramid pytest websauna',
     packages=find_packages(exclude=['docs']),
     include_package_data=True,
-
-    # Disabled for now - breaks workflow
-    # https://github.com/pyfidelity/setuptools-git-version/issues/4
-    # automatic version generation for development releases:
-    # setup_requires=[
-    #    'setuptools-git >= 0',
-    #    'setuptools-git-version',
-    # ],
-
-    # List run-time dependencies here.  These will be installed by pip when
-    # your project is installed. For an analysis of "install_requires" vs pip's
-    # requirements files see:
-    # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-
         # Pyramid dependencies
         'pyramid>=1.9',
         'waitress',
         'pyramid_redis_sessions',
         'pyramid-layout',
-        "deform>=2.0a2",
+        "deform>=2.0.4",
         "pyramid_debugtoolbar",
         "pyramid_jinja2",
 
@@ -91,14 +58,14 @@ setup(
         "pytz",
 
         # SQLAlchemy and database support
-        "psycopg2",
-        "sqlalchemy",
-        "zope.sqlalchemy",
         "alembic",
         "colanderalchemy",
-        "pyramid_tm",
+        "psycopg2",
         "pyramid_retry",
+        "pyramid_tm",
+        "sqlalchemy",
         "sqlalchemy-utils",
+        "zope.sqlalchemy",
 
         # User management
         "argon2_cffi",
@@ -115,12 +82,7 @@ setup(
         "python-slugify",  # ASCII slug generation
     ],
 
-    # List additional groups of  dependencies here (e.g. development
-    # dependencies). You can install these using the following syntax,
-    # for example:
-    # $ pip install -e ".[dev,test, utils]"
     extras_require={
-
         # Dependencies needed to build and release Websauna
         'dev': [
             'ruamel.yaml',
@@ -132,7 +94,6 @@ setup(
             'sphinxcontrib-zopeext',
             'zest.releaser[recommended]'
         ],
-
         'test': [
             'cookiecutter',
             'codecov',
@@ -148,19 +109,16 @@ setup(
             'pytest-timeout',
             'webtest',
         ],
-
         "notebook": [
             "ipython[notebook]<5.2",
             "pyramid_notebook>=0.2.1",
             # Needed by python_notebook etc. who call pyramid.paster module
             "PasteDeploy",
         ],
-
         # Command line utilities and like that are needed to make development / production environment friendly
         'utils': ['pgcli'],
-
         # Using celery based async tasks
-        'celery': ['celery[redis]>=4.0.0rc6']
+        'celery': ['celery[redis]>=4.1.0']
     },
 
     # To provide executable scripts, use entry points in preference to the
@@ -186,15 +144,9 @@ setup(
 
         'paste.app_factory': [
             'main=websauna.system:main',
-
             # Scheduler automated test suite entry point with some extra configured taskss
             'task_test=websauna.tests.demotasks:main',
             'tutorial_test=websauna.tests.tutorial:main',
-        ],
-
-        'pyramid.scaffold': [
-            "websauna_app=websauna.scaffolds:App",
-            "websauna_addon=websauna.scaffolds:Addon",
         ],
 
         'plaster.loader_factory': [

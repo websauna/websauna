@@ -2,6 +2,12 @@ Changelog for Websauna
 ======================
 
 
+1.0a7 (unreleased)
+------------------
+
+- Nothing changed yet.
+
+
 1.0a6 (2018-01-29)
 ------------------
 

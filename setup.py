@@ -104,13 +104,14 @@ setup(
         'premailer',
 
         # Python 3.4 typing
-        "backports.typing",
+        "typing;python_version<'3.5'",
+
 
         # Console logging
         "rainbow_logging_handler",
 
         # Misc
-        "scandir",  # os.scandir backport for py3.4
+        "scandir;python_version<'3.5'",  # os.scandir backport for py3.4
         "python-slugify", # ASCII slug generation
     ],
 

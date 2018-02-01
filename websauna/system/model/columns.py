@@ -25,10 +25,10 @@ class UTCDateTime(DateTime):
     def __init__(self, *args, **kwargs):
         # If there is an explicit timezone we accept UTC only
         if "timezone" in kwargs:
-            assert kwargs["timezone"] == datetime.timezone.utc
+            assert kwargs["timezone"] in (datetime.timezone.utc, True)
 
         kwargs = kwargs.copy()
-        kwargs["timezone"] = datetime.timezone.utc
+        kwargs["timezone"] = True
         super(UTCDateTime, self).__init__(**kwargs)
 
     def _dialect_info(self, dialect):

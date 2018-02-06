@@ -100,7 +100,7 @@ setup(
         'test': [
             'cookiecutter',
             'codecov',
-            'flake8'
+            'flake8',
             'pytest>=3.0',
             'pytest-runner',
             'coverage',

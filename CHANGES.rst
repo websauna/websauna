@@ -5,7 +5,7 @@ Changelog for Websauna
 1.0a7 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Closes `Issue #162`_: Enforce timezone to be 'True' on UTCDateTime.
 
 
 1.0a6 (2018-01-29)
@@ -76,3 +76,4 @@ Changelog for Websauna
 .. _`Issue #145`: https://github.com/websauna/websauna/issues/145
 .. _`Issue #155`: https://github.com/websauna/websauna/issues/155
 .. _`Issue #157`: https://github.com/websauna/websauna/issues/157
+.. _`Issue #162`: https://github.com/websauna/websauna/issues/162

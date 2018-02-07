@@ -3,17 +3,16 @@
 import datetime
 
 # SQLAlchemy
-import sqlalchemy
 from sqlalchemy import Column
 from sqlalchemy.ext.declarative import declarative_base
 
 # Websauna
-
 from websauna.system.model.columns import UTCDateTime
 
 # pytest
 
 import pytest
+
 
 def test_UTCDateTime_restricts_timezone_to_utc():
 
@@ -35,4 +34,3 @@ def test_UTCDateTime_restricts_timezone_to_utc():
             __tablename__ = "utc_datetime_test2"
 
             date = Column(UTCDateTime(timezone=object), primary_key=True)
-

@@ -1,24 +1,20 @@
 """Database default base models and session setup."""
-from typing import Callable
 
 import transaction
-
+import zope.sqlalchemy
+from pyramid.registry import Registry
 from sqlalchemy import engine_from_config
+from sqlalchemy import event
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import Session
 from sqlalchemy.schema import MetaData
-from sqlalchemy import event
-
-from pyramid.registry import Registry
-import zope.sqlalchemy
 from transaction import TransactionManager
-
 from websauna.system.http import Request
 from websauna.system.model.interfaces import ISQLAlchemySessionFactory
 
-from .json import json_serializer
 from .json import init_for_json
+from .json import json_serializer
 
 # Recommended naming convention used by Alembic, as various different database
 # providers will autogenerate vastly different names making migrations more
@@ -125,6 +121,34 @@ def get_engine(settings: dict, prefix='sqlalchemy.') -> Engine:
         raise RuntimeError("Unknown SQLAlchemy connection URL: {}",format(url))
 
 
+def _create_session(transaction_manager: TransactionManager, engine: Engine) -> Session:
+    """Create a new database session with Zope transaction manager attached.
+
+    The attached transaction manager takes care of committing the transaction at the end of the request.
+    """
+    dbsession = Session(bind=engine)
+    transaction_manager.retry_attempt_count = 3  # TODO: Hardcoded for now
+    zope.sqlalchemy.register(dbsession, transaction_manager=transaction_manager)
+    dbsession.transaction_manager = transaction_manager
+    return dbsession
+
+
+def get_default_engine(registry: Registry) -> Engine:
+    """
+    Creates or gets the default database engine using the settings in registry.
+
+    The engine is a singleton and a reference will be stored in the application registry.
+    :param registry: the registry
+    :return: the created engine
+    """
+    try:
+        engine = registry['websauna.db.default_engine']
+    except AttributeError:
+        engine = registry['websauna.db.default_engine'] = get_engine(registry.settings)
+
+    return engine
+
+
 _DEFAULT = object()
 
 
@@ -144,10 +168,7 @@ def create_dbsession(registry: Registry, manager: TransactionManager=None, *, is
     # Make sure *engine* is created only once per process as it must be global
     # in order to connection pooling to work properly.
     # http://docs.sqlalchemy.org/en/latest/core/pooling.html#connection-pool-configuration
-    try:
-        engine = registry.db_engine
-    except AttributeError:
-        engine = registry.db_engine = get_engine(registry.settings)
+    engine = get_default_engine(registry)
 
     if not manager:
         manager = transaction.manager
@@ -156,16 +177,4 @@ def create_dbsession(registry: Registry, manager: TransactionManager=None, *, is
         engine = engine.execution_options(isolation_level=isolation_level)
 
     dbsession = _create_session(manager, engine)
-    return dbsession
-
-
-def _create_session(transaction_manager: TransactionManager, engine: Engine) -> Session:
-    """Create a new database session with Zope transaction manager attached.
-
-    The attached transaction manager takes care of committing the transaction at the end of the request.
-    """
-    dbsession = Session(bind=engine)
-    transaction_manager.retry_attempt_count = 3  # TODO: Hardcoded for now
-    zope.sqlalchemy.register(dbsession, transaction_manager=transaction_manager)
-    dbsession.transaction_manager = transaction_manager
     return dbsession

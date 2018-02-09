@@ -143,7 +143,7 @@ def get_default_engine(registry: Registry) -> Engine:
     """
     try:
         engine = registry['websauna.db.default_engine']
-    except AttributeError:
+    except KeyError:
         engine = registry['websauna.db.default_engine'] = get_engine(registry.settings)
 
     return engine

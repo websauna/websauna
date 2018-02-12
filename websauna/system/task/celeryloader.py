@@ -39,7 +39,7 @@ class WebsaunaLoader(BaseLoader):
         config.read(ini_file)
 
         # TODO: We have ugly app:main hardcode hack here
-        settings = config.items('app:main')
+        settings = dict(config.items('app:main'))
         value = settings.get('websauna.celery_config')
         if not value:
             raise RuntimeError("Could not find websauna.celery_config in {}".format(ini_file))

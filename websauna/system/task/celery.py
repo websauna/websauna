@@ -7,13 +7,11 @@ from celery import Celery
 from pyramid.registry import Registry
 
 
-def parse_celery_config(celery_config_python: str, *, registry: Registry) -> dict:
+def parse_celery_config(celery_config_python: str, *, settings) -> dict:
     # Expose timedelta object for config to be used in beat schedule
     # http://docs.celeryproject.org/en/master/userguide/periodic-tasks.html#beat-entries
     from datetime import timedelta  # noqa
     from celery.schedules import crontab
-
-    settings = registry.settings
 
     _globals = globals().copy()
     _locals = locals().copy()
@@ -48,7 +46,7 @@ def get_celery_config(registry: Registry) -> dict:
     if not celery_config_python:
         raise RuntimeError("Using Celery with Websauna requires you to have celery_config_python configuration variable")
 
-    return parse_celery_config(celery_config_python, registry=registry)
+    return parse_celery_config(celery_config_python, settings=registry.settings)
 
 
 def get_celery(registry: Registry):

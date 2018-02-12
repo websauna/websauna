@@ -39,11 +39,12 @@ class WebsaunaLoader(BaseLoader):
         config.read(ini_file)
 
         # TODO: We have ugly app:main hardcode hack here
-        value = config.get("app:main", "websauna.celery_config")
+        settings = config.items('app:main')
+        value = settings.get('websauna.celery_config')
         if not value:
             raise RuntimeError("Could not find websauna.celery_config in {}".format(ini_file))
 
-        config = parse_celery_config(value)
+        config = parse_celery_config(value, settings=settings)
         return config
 
     def import_task_module(self, module):

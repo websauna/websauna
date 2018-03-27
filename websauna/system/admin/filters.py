@@ -27,4 +27,4 @@ def admin_breadcrumbs(jinja_ctx, context, **kw):
     if len(crumbs) == 1:
         return ""
 
-    return render("templates/admin/breadcrumbs.html", dict(context=context, breadcrumbs=crumbs), request=request)
+    return render("admin/breadcrumbs.html", dict(context=context, breadcrumbs=crumbs), request=request)

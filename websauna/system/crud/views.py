@@ -4,6 +4,7 @@ import csv
 import typing as t
 from abc import abstractmethod
 from io import StringIO
+import re
 
 # Pyramid
 import colander
@@ -13,8 +14,10 @@ from pyramid.renderers import render
 from pyramid.request import Request
 from pyramid.response import Response
 from pyramid.view import view_config
+import transaction
 
 # SQLAlchemy
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Query
 
 from slugify import slugify
@@ -24,6 +27,8 @@ from websauna.system.core import messages
 from websauna.system.form import interstitial
 from websauna.system.form.fieldmapper import EditMode
 from websauna.system.form.resourceregistry import ResourceRegistry
+from websauna.system.user.models import User
+
 
 from . import CRUD
 from . import Resource
@@ -387,6 +392,51 @@ class FormView(CRUDView):
 
         resource_registry.pull_in_resources(self.request, form)
 
+    def _cleanup_integrity_error(self, form: deform.Form, model: type,
+                                 obj_id: t.Any, user_id: t.Any,
+                                 error: IntegrityError) -> (t.Any, User):
+        """After form data conflicts with data already on the DB,
+        inspect the sqlalchemy error, pinpoint the responsible field,
+        and prepare the deform.field to raise a meaninful validation error
+        on that point.
+
+        Resuming clean request execution requires refetching all
+        objects that will be further needed from the DB.
+        """
+        # Things went as bad as they could.
+        # Let's rolback some steps and simulate a validation
+        # error in the problematic field, before reshowing the form.
+
+        # Find out field that errored from SQLAlchemy error msg.
+        integrity_error_msg = error._message().split("DETAIL: ")[-1].strip()
+        key = re.findall(r"\((.*?)\)", integrity_error_msg)[0]
+        for schema in form.children:
+            if schema.name == key:
+                schema_node = schema.schema
+                break
+        else:
+            # field not found
+            schema_node = form.schema
+
+        def validator(*args, **kw):
+            # TODO: How to actually get an actual translated message?
+            # Maybe force user to feed value from his app?
+            raise colander.Invalid(schema_node, msg='Value already exists.')
+        schema_node.validator = validator
+
+        transaction.abort()
+
+        # Objects are dettached - need to re-fetch a fresh copy
+        # from the DB or things will get ugly.
+
+        if obj_id is not None:
+            obj = self.request.dbsession.query(model).filter_by(id=obj_id).first()
+        else:
+            obj = None
+        user = self.request.dbsession.query(User).filter_by(id=user_id).first()
+
+        return obj, user
+
 
 class Show(FormView):
     """Show one instance of a model."""
@@ -501,9 +551,27 @@ class Edit(FormView):
             controls = self.request.POST.items()
 
             try:
+                controls = list(controls)
                 appstruct = form.validate(controls)
-                self.save_changes(form, appstruct, obj)
-                return self.do_success()
+
+                # import colander
+                obj_id = obj.id
+                user_id = self.request.user.id
+                try:
+                    self.save_changes(form, appstruct, obj)
+                except IntegrityError as error:
+
+                    obj, user = self._cleanup_integrity_error(form, type(obj), obj_id, user_id, error)
+
+                    self.context.obj = obj
+                    self.request.user = user
+
+                    # Force raising a deform.ValidatinFailure, triggering
+                    # data fill in at the apropriate structures
+                    form.validate(controls)
+
+                else:
+                    return self.do_success()
 
             except deform.ValidationFailure as e:
                 # Whoops, bad things happened, render form with validation errors
@@ -609,14 +677,25 @@ class Add(FormView):
             controls = self.request.POST.items()
 
             try:
+                controls = list(controls)
                 appstruct = form.validate(controls)
 
                 # Cannot update id, as it is read-only
                 if 'id' in appstruct:
                     del appstruct["id"]
 
-                obj = self.build_object(form, appstruct)
-                resource = crud.wrap_to_resource(obj)
+                user_id = self.request.user.id
+                try:
+                    obj = self.build_object(form, appstruct)
+                    resource = crud.wrap_to_resource(obj)
+                except IntegrityError as error:
+                    obj, user = self._cleanup_integrity_error(form, self.get_model(), None, user_id, error)
+
+                    self.request.user = user
+
+                    # Force raising a deform.ValidatinFailure, triggering
+                    # data fill in at the apropriate structures
+                    form.validate(controls)
 
                 return self.do_success(resource)
 

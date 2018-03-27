@@ -166,8 +166,9 @@ class DefaultSQLAlchemyFieldMapper(ColumnToFieldMapper):
         # NOTE: TODO: We need to preserve ids because of nesting mechanism and groupedit widget wants it id
         if column.primary_key:
             # TODO: Looks like column.autoincrement is set True by default, so we cannot use it here
-            if mode in (EditMode.edit, EditMode.add):
-                return TypeOverridesHandling.drop, {}
+            # if mode in (EditMode.edit, EditMode.add):
+                # return TypeOverridesHandling.drop, {}
+            return TypeOverridesHandling.drop, {}
 
         if column.foreign_keys:
 
@@ -215,6 +216,8 @@ class DefaultSQLAlchemyFieldMapper(ColumnToFieldMapper):
         """
 
         def _map_column(node, name, column, column_type):
+            # if name == 'email':
+                # import pdb; pdb.set_trace()
             return self.map_column(mode, request, node, model, name, column, column_type)
 
         def _map_relationship(node: colander.SchemaNode, name: str, prop: RelationshipProperty, mapper: Mapper):

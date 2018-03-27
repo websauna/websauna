@@ -301,7 +301,14 @@ class ReflectiveSitemapBuilder:
 
         # chop off last part /container/*traverse'
         start_path = "/".join(route.pattern.split("/")[0:-2]) + "/"
-        sample_request = make_routable_request(path=start_path, registry=self.request.registry)
+
+        # create a new request to traverse based on detected route pattern
+        # dbsession must be passed here to prevent creating new dbsession
+        sample_request = make_routable_request(
+            dbsession=self.request.dbsession,
+            registry=self.request.registry,
+            path=start_path
+        )
 
         root = route.factory(sample_request)
 

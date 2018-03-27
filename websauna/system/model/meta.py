@@ -1,6 +1,4 @@
 """Database default base models and session setup."""
-
-
 # Pyramid
 import transaction
 import zope.sqlalchemy
@@ -41,7 +39,7 @@ metadata = MetaData(naming_convention=NAMING_CONVENTION)
 Base = declarative_base(metadata=metadata)
 
 
-@event.listens_for(Base, "class_instrument", propagate=True)
+@event.listens_for(Base, 'class_instrument', propagate=True)
 def _on_model_registered(cls):
     """Intercept SQLAlchemy model creation (instrumentation).
 
@@ -94,42 +92,58 @@ def create_transaction_manager_aware_dbsession(request: Request) -> Session:
     return dbsession
 
 
-def _get_psql_engin(settings, prefix):
+def _get_psql_engine(settings: dict, prefix: str) -> Engine:
     """Create PostgreSQL engine.
 
     The database engine defaults to SERIALIZABLE isolation level.
-    :param settings:
-    :param prefix:
-    :return:
+    :param settings: Application settings
+    :param prefix: Configuration prefixes
+    :return: SQLAlchemy Engine
     """
     # http://stackoverflow.com/questions/14783505/encoding-error-with-sqlalchemy-and-postgresql
-    engine = engine_from_config(settings, 'sqlalchemy.', connect_args={"options": "-c timezone=utc"}, client_encoding='utf8', isolation_level='SERIALIZABLE', json_serializer=json_serializer)
+    engine = engine_from_config(settings, prefix, connect_args={"options": "-c timezone=utc"}, client_encoding='utf8', isolation_level='SERIALIZABLE', json_serializer=json_serializer)
     return engine
 
 
-def _get_sqlite_engine(settings, prefix):
-    engine = engine_from_config(settings, 'sqlalchemy.', isolation_level='SERIALIZABLE')
+def _get_sqlite_engine(settings: dict, prefix: str) -> Engine:
+    """Create SQLite engine.
+
+    The database engine defaults to SERIALIZABLE isolation level.
+    :param settings: Application settings
+    :param prefix: Configuration prefixes
+    :return: SQLAlchemy Engine
+    """
+    engine = engine_from_config(settings, prefix, isolation_level='SERIALIZABLE')
     return engine
 
 
-def get_engine(settings: dict, prefix='sqlalchemy.') -> Engine:
-    """Reads config and create a database engine out of it."""
-    url = settings.get("sqlalchemy.url")
+def get_engine(settings: dict, prefix: str='sqlalchemy.') -> Engine:
+    """Reads config and create a database engine out of it.
+
+    :param settings: Application settings
+    :param prefix: Configuration prefixes
+    :return: SQLAlchemy Engine
+    """
+    url = settings.get('sqlalchemy.url')
     if not url:
-        raise RuntimeError("sqlalchemy.url missing in the settings")
+        raise RuntimeError('sqlalchemy.url missing in the settings')
 
-    if "sqlite" in url:
-        return _get_sqlite_engine(settings, prefix)
-    elif "postgres" in url:
-        return _get_psql_engin(settings, prefix)
+    if 'sqlite' in url:
+        engine = _get_sqlite_engine(settings, prefix)
+    elif 'postgres' in url:
+        engine = _get_psql_engine(settings, prefix)
     else:
-        raise RuntimeError("Unknown SQLAlchemy connection URL: {url}".format(url=url))
+        raise RuntimeError('Unknown SQLAlchemy connection URL: {url}'.format(url=url))
+    return engine
 
 
-def create_session_maker(engine):
+def create_session_maker(engine: Engine) -> sessionmaker:
     """Create database session maker.
 
     Must be called only once per process.
+
+    :param engine: SQLAlchemy Engine
+    :return: SQLAlchemy sessionmaker
     """
     dbmaker = sessionmaker()
     dbmaker.configure(bind=engine)
@@ -141,6 +155,7 @@ def create_dbsession(registry: Registry, manager=None) -> Session:
 
     This is called outside request life cycle when initializing and checking the state of the databases.
 
+    :param registry: Application registry.
     :param manager: Transaction manager to bound the session. The default is thread local ``transaction.manager``.
     """
 

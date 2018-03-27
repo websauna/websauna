@@ -66,8 +66,8 @@ class DefaultRegistrationService:
         self.request.dbsession.flush()  # in order to get the id
 
         if autologin:
-            login_service = get_login_service(self.request.registry)
-            return login_service.authenticate(self.request, user)
+            login_service = get_login_service(self.request)
+            return login_service.authenticate_user(user, login_source="email")
         else:  # not autologin: user must log in just after registering.
             return render_to_response('login/waiting_for_activation.html', {"user": user}, request=self.request)
 
@@ -115,8 +115,8 @@ class DefaultRegistrationService:
             raise HTTPNotFound("Activation code not found")
 
         if login_after_activation:
-            login_service = get_login_service(self.request.registry)
-            return login_service.authenticate(self.request, user)
+            login_service = get_login_service(self.request)
+            return login_service.authenticate_user(user, login_source="email")
         else:
             self.request.registry.notify(RegistrationActivatedEvent(self.request, user, None))
             return HTTPFound(location=location or after_activate_url)

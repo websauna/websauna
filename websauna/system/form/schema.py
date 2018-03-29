@@ -30,7 +30,7 @@ def enum_values(source: enum.Enum, default: t.Optional[t.Tuple]=("", "Please cho
             yield default
 
         for name, member in source.__members__.items():
-            yield (name, name_transform(name))
+            yield (member.value, name_transform(name))
 
     return list(inner())
 

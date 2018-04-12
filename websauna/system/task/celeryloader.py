@@ -49,31 +49,38 @@ class WebsaunaLoader(BaseLoader):
     Support binding request object to Celery tasks and loading Celery settings through Pyramid INI configuration.
     """
 
-    def get_celery_config(self, config_file: str) -> str:
-        """Return celery configuration, from given config_file.
+    def get_celery_config(self, settings) -> str:
+        """Return celery configuration from Websauna (optionally secret-) settings.
 
-        :param config_file: Websauna configuration file.
+        :param settings: Websauna settings (from app:main section).
         :return: Celery configuration, as a string.
         """
         value = None
-        loader = plaster.get_loader(config_file)
-        settings = loader.get_settings('app:main')
         secrets_file = settings.get('websauna.secrets_file')
         if secrets_file:
             secrets = read_ini_secrets(secrets_file)
             value = secrets.get('app:main.websauna.celery_config', '')
-        value = value if value else settings.get('websauna.celery_config')
+        value = value or settings.get('websauna.celery_config')
         if not value:
-            raise RuntimeError('Could not find websauna.celery_config in {ini_file}'.format(ini_file=ini_file))
+            raise RuntimeError('No Celery configuration found in settings')
         return value
 
     def read_configuration(self, **kwargs) -> dict:
-        """Load Celery config from Pyramid INI file.
+        """BaseLoader API override to load Celery config from Pyramid INI file.
 
-        We need to be able to do this without ramping up full Websauna, because that's the order of the events Celery worker wants. This way we avoid circular dependencies during Celery worker start up.
+        We need to be able to do this without ramping up full Websauna,
+        because that's the order of the events Celery worker wants.
+        This way we avoid circular dependencies during Celery worker start up.
         """
-        value = self.get_celery_config(ini_file)
-        config = parse_celery_config(value)
+        loader = plaster.get_loader(ini_file)  # global
+        settings = loader.get_settings('app:main')
+
+        try:
+            value = self.get_celery_config(settings)
+        except RuntimeError as exc:
+            raise RuntimeError('Bad or missing Celery configuration in "%s": %s' % (ini_file, exc))
+
+        config = parse_celery_config(value, settings=settings)
         return config
 
     def import_task_module(self, module):

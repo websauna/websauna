@@ -1,6 +1,8 @@
 """Database default base models and session setup."""
+
 # Pyramid
 import transaction
+from transaction import TransactionManager
 import zope.sqlalchemy
 from pyramid.registry import Registry
 
@@ -10,7 +12,6 @@ from sqlalchemy import event
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.schema import MetaData
 
 # Websauna
@@ -19,7 +20,6 @@ from websauna.system.model.interfaces import ISQLAlchemySessionFactory
 
 from .json import init_for_json
 from .json import json_serializer
-
 
 # Recommended naming convention used by Alembic, as various different database
 # providers will autogenerate vastly different names making migrations more
@@ -31,7 +31,6 @@ NAMING_CONVENTION = {
     "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
     "pk": "pk_%(table_name)s"
 }
-
 
 metadata = MetaData(naming_convention=NAMING_CONVENTION)
 
@@ -137,57 +136,59 @@ def get_engine(settings: dict, prefix: str='sqlalchemy.') -> Engine:
     return engine
 
 
-def create_session_maker(engine: Engine) -> sessionmaker:
-    """Create database session maker.
-
-    Must be called only once per process.
-
-    :param engine: SQLAlchemy Engine
-    :return: SQLAlchemy sessionmaker
+def get_default_engine(registry: Registry) -> Engine:
     """
-    dbmaker = sessionmaker()
-    dbmaker.configure(bind=engine)
-    return dbmaker
+    Creates or gets the default database engine using the settings in registry.
 
-
-def create_dbsession(registry: Registry, manager=None) -> Session:
-    """Creates a new database using the configured session poooling.
-
-    This is called outside request life cycle when initializing and checking the state of the databases.
-
-    :param registry: Application registry.
-    :param manager: Transaction manager to bound the session. The default is thread local ``transaction.manager``.
+    The engine is a singleton and a reference will be stored in the application registry.
+    :param registry: the registry
+    :return: the created engine
     """
+    try:
+        engine = registry['websauna.db.default_engine']
+    except KeyError:
+        engine = registry['websauna.db.default_engine'] = get_engine(registry.settings)
 
-    assert isinstance(registry, Registry), "The first arg must be registry (Method signature changed)"
-
-    # Make sure dbmaker is created only once per process as it must be
-    # per-process for the connection pooling to work.
-    # Cache the resulting object on Pyramid registry.
-    db_session_maker = getattr(registry, "db_session_maker", None)
-
-    if not db_session_maker:
-        engine = get_engine(registry.settings)
-        db_session_maker = registry.db_session_maker = create_session_maker(engine)
-
-    if not manager:
-        manager = transaction.manager
-
-    dbsession = create_session(manager, db_session_maker)
-
-    # Register zope.sqlalchemy extensino
-    # register(dbsession, manager)
-
-    return dbsession
+    return engine
 
 
-def create_session(transaction_manager, db_session_maker: sessionmaker) -> Session:
+def _create_session(transaction_manager: TransactionManager, engine: Engine) -> Session:
     """Create a new database session with Zope transaction manager attached.
 
     The attached transaction manager takes care of committing the transaction at the end of the request.
     """
-    dbsession = db_session_maker()
+    dbsession = Session(bind=engine)
     transaction_manager.retry_attempt_count = 3  # TODO: Hardcoded for now
     zope.sqlalchemy.register(dbsession, transaction_manager=transaction_manager)
     dbsession.transaction_manager = transaction_manager
+    return dbsession
+
+
+_DEFAULT = object()
+
+def create_dbsession(registry: Registry, manager: TransactionManager=None, *, isolation_level=_DEFAULT) -> Session:
+    """Creates a new database using the configured session pooling.
+
+    This is called outside request life cycle when initializing and checking the state of the databases.
+
+    :param registry: the application registry
+    :param manager: Transaction manager to bound the session. The default is thread local ``transaction.manager``.
+    :param isolation_level: To set a custom isolation level for this session
+    """
+
+    if not isinstance(registry, Registry):
+        raise TypeError("The first arg must be registry (Method signature changed)")
+
+    # Make sure *engine* is created only once per process as it must be global
+    # in order to connection pooling to work properly.
+    # http://docs.sqlalchemy.org/en/latest/core/pooling.html#connection-pool-configuration
+    engine = get_default_engine(registry)
+
+    if not manager:
+        manager = transaction.manager
+
+    if isolation_level != _DEFAULT:
+        engine = engine.execution_options(isolation_level=isolation_level)
+
+    dbsession = _create_session(manager, engine)
     return dbsession

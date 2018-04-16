@@ -169,6 +169,7 @@ def _create_session(transaction_manager: TransactionManager, engine: Engine) -> 
 
 _DEFAULT = object()
 
+
 def create_dbsession(registry: Registry, manager: TransactionManager=None, *, isolation_level=_DEFAULT) -> Session:
     """Creates a new database using the configured session pooling.
 

@@ -5,7 +5,19 @@ Changelog for Websauna
 1.0a8 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Closes `Issue #165`_: Fix path to breadcrumbs template.
+
+- Closes `Issue #167`_: Fix 'autologin' and 'require_activation' settings.
+
+- Closes `Issue #169`_: Reflective sitemap reuses dbsession.
+
+- Closes `Issue #170`_: Enums now support distinct names/values.
+
+- Do not ignore the *prefix* setting in get_engine.
+
+- Allow using settings in celery configs.
+
+- Support setting transaction isolation level.
 
 
 1.0a7 (2018-02-07)
@@ -83,3 +95,7 @@ Changelog for Websauna
 .. _`Issue #155`: https://github.com/websauna/websauna/issues/155
 .. _`Issue #157`: https://github.com/websauna/websauna/issues/157
 .. _`Issue #162`: https://github.com/websauna/websauna/issues/162
+.. _`Issue #165`: https://github.com/websauna/websauna/issues/165
+.. _`Issue #167`: https://github.com/websauna/websauna/issues/167
+.. _`Issue #169`: https://github.com/websauna/websauna/issues/169
+.. _`Issue #170`: https://github.com/websauna/websauna/issues/170

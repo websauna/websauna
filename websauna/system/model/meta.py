@@ -1,4 +1,6 @@
 """Database default base models and session setup."""
+# Standard Library
+import warnings
 
 # Pyramid
 import transaction
@@ -128,6 +130,7 @@ def get_engine(settings: dict, prefix: str='sqlalchemy.') -> Engine:
         raise RuntimeError('sqlalchemy.url missing in the settings')
 
     if 'sqlite' in url:
+        warnings.warn('Usage of sqlite is deprecated. From version 1.0b1 it will not be supported.', DeprecationWarning)
         engine = _get_sqlite_engine(settings, prefix)
     elif 'postgres' in url:
         engine = _get_psql_engine(settings, prefix)

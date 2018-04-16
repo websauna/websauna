@@ -16,7 +16,7 @@ By default, :term:`PostgreSQL` database software is recommended, though Websauna
 PostgreSQL vs. SQLite
 =====================
 
-Websauna supports both PostgreSQL and SQLite databases. Here is short summary what you should use.
+Websauna currently supports PostgreSQL and SQLite databases, but highly recommend usage of PostgreSQL as SQLite support will be removed in a future version.
 
 SQLite
 ------

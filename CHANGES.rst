@@ -19,6 +19,8 @@ Changelog for Websauna
 
 - Support setting transaction isolation level.
 
+- Sqlite support is being deprecated, will be removed in 1.0b1.
+
 
 1.0a7 (2018-02-07)
 ------------------

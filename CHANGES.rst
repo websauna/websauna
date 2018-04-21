@@ -2,7 +2,7 @@ Changelog for Websauna
 ======================
 
 
-1.0a8 (unreleased)
+1.0a8 (2018-04-21)
 ------------------
 
 - Closes `Issue #165`_: Fix path to breadcrumbs template.

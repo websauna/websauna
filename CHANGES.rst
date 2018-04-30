@@ -5,7 +5,7 @@ Changelog for Websauna
 1.0a9 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Pin Celery to version 4.1.0.
 
 
 1.0a8 (2018-04-21)

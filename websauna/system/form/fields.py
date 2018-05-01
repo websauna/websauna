@@ -25,7 +25,7 @@ def defer_widget_values(widget: type, values_callback: t.Callable, **kwargs) -> 
 
     @colander.deferred
     def _inner(node, kw):
-        widget = _widget(values=values_callback(node, kw))
+        widget = _widget(values=values_callback(node, kw), **kwargs)
         return widget
 
     return _inner

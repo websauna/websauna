@@ -1,17 +1,16 @@
-"""Tests for checking database sanity checks functions correctly."""
+"""Tests UTC datetime."""
 
+# Standard Library
 import datetime
 
 # SQLAlchemy
 from sqlalchemy import Column
 from sqlalchemy.ext.declarative import declarative_base
 
+import pytest
+
 # Websauna
 from websauna.system.model.columns import UTCDateTime
-
-# pytest
-
-import pytest
 
 
 def test_UTCDateTime_restricts_timezone_to_utc():

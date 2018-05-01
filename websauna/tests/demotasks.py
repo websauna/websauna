@@ -34,7 +34,6 @@ def modify_username(self, user_id):
     """A demo task we use to detect that Celery tasks write database changes correctly."""
     request = self.request.request
     dbsession = request.dbsession
-
     u = dbsession.query(User).get(user_id)
     u.username = "set by celery"
 

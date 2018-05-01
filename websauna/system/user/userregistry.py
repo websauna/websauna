@@ -122,6 +122,14 @@ class DefaultEmailBasedUserRegistry:
         """
         return user.can_login()
 
+    def can_reset_password(self, user: IUser) -> bool:
+        """Verify if user is allowed to reset their password.
+
+        :param user: User object.
+        :return: Boolean
+        """
+        return user.enabled
+
     def get_groups(self, user: IUser) -> t.List[GroupMixin]:
         """Groups for a user.
 
@@ -139,7 +147,7 @@ class DefaultEmailBasedUserRegistry:
         user = self.get_by_email(email)
         assert user, "Got password reset request for non-existing email".format(email)
 
-        if not self.can_login(user):
+        if not self.can_reset_password(user):
             return None
 
         activation_token_expiry_seconds = int(self.registry.settings.get("websauna.activation_token_expiry_seconds", 24 * 3600))

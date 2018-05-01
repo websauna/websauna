@@ -4,9 +4,9 @@ import warnings
 
 # Pyramid
 import transaction
-from transaction import TransactionManager
 import zope.sqlalchemy
 from pyramid.registry import Registry
+from transaction import TransactionManager
 
 # SQLAlchemy
 from sqlalchemy import engine_from_config
@@ -22,6 +22,7 @@ from websauna.system.model.interfaces import ISQLAlchemySessionFactory
 
 from .json import init_for_json
 from .json import json_serializer
+
 
 # Recommended naming convention used by Alembic, as various different database
 # providers will autogenerate vastly different names making migrations more

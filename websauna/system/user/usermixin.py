@@ -108,22 +108,24 @@ class UserMixin:
         Picks one of 1) full name if set 2) username if set 3) email.
         """
         full_name = self.full_name
+        username = self.username
+        friendly_name = self.email
         if full_name:
-            return full_name
+            # Return full_name if available
+            friendly_name = full_name
+        elif username and not username.startswith('user-'):
+            # Get the username if it looks like non-automatic form
+            friendly_name = username
 
-        # Get the username if it looks like non-automatic form
-        if self.username:
-            if self.username.startswith("user-"):
-                return self.email
-            else:
-                return self.username
-
-        return self.email
+        return friendly_name
 
     def generate_username(self) -> str:
-        """The default username we give for the user."""
+        """The default username we give for the user.
+
+        In the format user-{id}.
+        """
         assert self.id
-        return "user-{}".format(self.id)
+        return 'user-{id}'.format(id=self.id)
 
     def is_activated(self) -> bool:
         """Has the user completed the email activation."""
@@ -131,11 +133,9 @@ class UserMixin:
 
     def can_login(self) -> bool:
         """Is this user allowed to login."""
-        # TODO: is_active defined in Horus
-        return self.enabled and self.is_activated
+        return self.enabled and self.is_activated()
 
     def is_in_group(self, name) -> bool:
-
         # TODO: groups - defined in Horus
         for g in self.groups:
             if g.name == name:
@@ -157,14 +157,14 @@ class UserMixin:
         return self.friendly_name
 
     def __repr__(self):
-        return "#{}: {}".format(self.id, self.friendly_name)
+        return "#{id}: {friendly_name}".format(id=self.id, friendly_name=self.friendly_name)
 
 
 class GroupMixin:
     """Basic fields for Websauna default group model."""
 
     #: Assign the first user initially to this group
-    DEFAULT_ADMIN_GROUP_NAME = "admin"
+    DEFAULT_ADMIN_GROUP_NAME = 'admin'
 
     #: Running counter id of the group
     id = Column(Integer, autoincrement=True, primary_key=True)

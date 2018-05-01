@@ -204,7 +204,6 @@ def forgot_password(request: Request) -> dict:
 
     form = request.registry.getUtility(IForgotPasswordForm)
     form = form(schema)
-
     if request.method == 'POST':
         # From here on, we know it's a POST. Let's validate the form
         controls = request.POST.items()

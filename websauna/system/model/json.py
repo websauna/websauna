@@ -6,6 +6,7 @@ Based on the original Kotti CMS implementation:
 """
 
 import json
+import copy
 
 from sqlalchemy import event
 from sqlalchemy.dialects.postgresql.json import JSONB
@@ -250,7 +251,10 @@ def wrap_as_nested(key: str, data: object, parent: object) -> object:
 
             # We do data.copy() here to ensure we don't run into "Mutable defaults" Python issue
             # __parent__ = None means we dont' have parent dict or list
-            data = wrapper(data.copy(), __parent__=None)  # TODO: do a deep copy?
+            # This used to say: todo: do a deep copy?
+            # It turns out the deep copy was required. Now it should perhaps say
+            # TODO: is this deep copy safe?
+            data = wrapper(copy.deepcopy(data), __parent__=None)
 
             # SQLAlchemy model instance is directly parent of this NestedMutate
             data._parents[parent] = key

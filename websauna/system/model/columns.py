@@ -8,7 +8,6 @@ import datetime
 
 # SQLAlchemy
 from sqlalchemy import DateTime
-from sqlalchemy import processors
 from sqlalchemy import types
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.dialects.postgresql import INET as _INET
@@ -117,7 +116,6 @@ class UUID(UUIDType):
             # Fallback to either a BINARY or a CHAR.
             kind = types.BINARY(16)
             return dialect.type_descriptor(kind)
-
 
 
 # Don't expose sqlalchemy_utils internals as they may go away

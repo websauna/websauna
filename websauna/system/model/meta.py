@@ -1,7 +1,4 @@
 """Database default base models and session setup."""
-# Standard Library
-import warnings
-
 # Pyramid
 import transaction
 import zope.sqlalchemy

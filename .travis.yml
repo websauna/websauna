@@ -32,8 +32,6 @@ matrix:
           env:
           - PYTHON_VERSION=python3.6
           - TOXENV=style
-    allow_failures:
-        - python: 3.7-dev
 
 
 # http://stackoverflow.com/a/19460794/315168

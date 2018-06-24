@@ -7,13 +7,13 @@ import deform
 import transaction
 from deform import Button
 
-from webtest import TestApp
+from webtest import TestApp as App
 
 # Websauna
 import websauna
-from websauna.tests.utils import EMAIL
-from websauna.tests.utils import PASSWORD
-from websauna.tests.utils import create_user
+from websauna.tests.test_utils import EMAIL
+from websauna.tests.test_utils import PASSWORD
+from websauna.tests.test_utils import create_user
 from websauna.utils.time import now
 
 
@@ -265,7 +265,7 @@ def test_customize_login(paster_config):
     global_config, app_settings = paster_config
     init = Initializer(global_config, app_settings)
     init.run()
-    app = TestApp(init.make_wsgi_app())
+    app = App(init.make_wsgi_app())
     resp = app.get("/login")
 
     assert "Login by fingerprint" in resp.text

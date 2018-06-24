@@ -11,7 +11,7 @@ use of ``view_config`` are also applicable to ``simple_route``.
 from pyramid import testing
 
 import pytest
-from webtest import TestApp
+from webtest import TestApp as App
 
 
 @pytest.fixture(scope='module')
@@ -23,7 +23,7 @@ def config():
 
 @pytest.fixture(scope='module')
 def testapp(config):
-    yield TestApp(config.make_wsgi_app())
+    yield App(config.make_wsgi_app())
 
 
 def test_registered_routes(config):

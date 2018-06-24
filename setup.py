@@ -148,8 +148,8 @@ setup(
         'paste.app_factory': [
             'main=websauna.system:main',
             # Scheduler automated test suite entry point with some extra configured taskss
-            'task_test=websauna.tests.demotasks:main',
-            'tutorial_test=websauna.tests.tutorial:main',
+            'task_test=websauna.tests.task.demotasks:main',
+            'tutorial_test=websauna.tests.crud.tutorial:main',
         ],
 
         'plaster.loader_factory': [

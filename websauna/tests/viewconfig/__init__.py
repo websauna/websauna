@@ -1,0 +1,1 @@
+"""Websauna tests viewconfig."""

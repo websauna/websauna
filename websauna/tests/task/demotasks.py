@@ -66,7 +66,7 @@ class SchedulerInitializer(DemoInitializer):
     """Entry point for tests stressting task functionality."""
 
     def configure_tasks(self):
-        self.config.scan("websauna.tests.demotasks")
+        self.config.scan("websauna.tests.task.demotasks")
 
 
 def main(global_config, **settings):

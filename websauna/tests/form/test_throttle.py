@@ -3,7 +3,7 @@
 from pyramid.httpexceptions import HTTPOk
 
 import pytest
-from webtest import TestApp
+from webtest import TestApp as App
 
 # Websauna
 import websauna
@@ -33,12 +33,12 @@ def throttle_app(request, paster_config):
     global_config, app_settings = paster_config
     init = Initializer(global_config, app_settings)
     init.run()
-    app = TestApp(init.make_wsgi_app())
+    app = App(init.make_wsgi_app())
     app.init = init
     return app
 
 
-def test_throttle(throttle_app: TestApp, test_request):
+def test_throttle(throttle_app: App, test_request):
     """Throttling should give us 429."""
 
     app = throttle_app

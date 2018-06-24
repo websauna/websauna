@@ -4,7 +4,7 @@ from pyramid import testing
 from pyramid.httpexceptions import HTTPOk
 
 import pytest
-from webtest import TestApp
+from webtest import TestApp as App
 
 # Websauna
 from websauna.system.core.redis import create_redis
@@ -42,11 +42,11 @@ def app(request):
 
     config.registry.redis = create_redis(config.registry)
 
-    app = TestApp(config.make_wsgi_app())
+    app = App(config.make_wsgi_app())
     return app
 
 
-def test_access_redis(app: TestApp):
+def test_access_redis(app: App):
     """Simple check we can corrcetly access Redis with text encodings."""
 
     resp = app.get("/redis_test")

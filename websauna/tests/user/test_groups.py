@@ -5,7 +5,7 @@ from flaky import flaky
 
 # Websauna
 from websauna.system.user.models import User
-from websauna.tests.utils import create_logged_in_user
+from websauna.tests.test_utils import create_logged_in_user
 from websauna.utils.slug import uuid_to_slug
 
 

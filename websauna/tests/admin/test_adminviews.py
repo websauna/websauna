@@ -3,8 +3,8 @@ import transaction
 
 # Websauna
 from websauna.system.user.models import User
-from websauna.tests.utils import create_logged_in_user
-from websauna.tests.utils import create_user
+from websauna.tests.test_utils import create_logged_in_user
+from websauna.tests.test_utils import create_user
 
 
 def test_pagination(web_server, browser, dbsession, init):

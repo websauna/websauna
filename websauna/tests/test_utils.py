@@ -40,7 +40,7 @@ def create_user(dbsession: Session, registry: Registry, email: str=EMAIL, passwo
     .. code-block:: python
 
         import transaction
-        from websauna.tests.utils import create_user
+        from websauna.tests.test_utils import create_user
 
 
         def test_some_stuff(dbsession, registry):

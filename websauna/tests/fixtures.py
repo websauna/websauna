@@ -29,7 +29,7 @@ import pytest
 from websauna.system.devop.cmdline import setup_logging  # noQA
 from websauna.system.http.utils import make_routable_request
 from websauna.system.model.meta import create_dbsession
-from websauna.tests.utils import make_dummy_request  # noQA
+from websauna.tests.test_utils import make_dummy_request  # noQA
 #: Make sure py.test picks this up
 from websauna.tests.webserver import customized_web_server  # noQA
 from websauna.tests.webserver import web_server  # noQA
@@ -170,7 +170,7 @@ def registry(request, app) -> Registry:
     .. code-block:: python
 
         import transaction
-        from websauna.tests.utils import create_user
+        from websauna.tests.test_utils import create_user
 
 
         def test_some_stuff(dbsession, registry):

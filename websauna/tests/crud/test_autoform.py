@@ -10,7 +10,7 @@ from splinter.driver import DriverAPI
 
 # Websauna
 import websauna
-from websauna.tests.utils import create_logged_in_user
+from websauna.tests.test_utils import create_logged_in_user
 from websauna.tests.webserver import customized_web_server
 from websauna.utils.slug import slug_to_uuid
 from websauna.utils.slug import uuid_to_slug
@@ -24,7 +24,7 @@ def tutorial_app(request, paster_config):
 
         def run(self):
             super(Initializer, self).run()
-            from websauna.tests import tutorial
+            from websauna.tests.crud import tutorial
             self.config.scan(tutorial)
 
     global_config, app_settings = paster_config

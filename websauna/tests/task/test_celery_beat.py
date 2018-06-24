@@ -1,7 +1,6 @@
 """See that beat runs scheduled tasks correctly."""
 
 # Standard Library
-import os
 import subprocess
 import time
 
@@ -47,7 +46,7 @@ def run_worker_and_beat(ini_file):
 def test_celery_beat(init):
     """Scheduled tasks run properly on the celery worker + celery beat process."""
 
-    ini_file = os.path.join(os.path.dirname(__file__), "task-test.ini")
+    ini_file = 'websauna/tests/task/task-test.ini'
     worker, beat = run_worker_and_beat(ini_file)
 
     try:

@@ -11,7 +11,7 @@ from pyramid.exceptions import BadCSRFToken
 from pyramid.testing import DummySession
 
 import pytest
-from webtest import TestApp
+from webtest import TestApp as App
 
 from . import csrfsamples
 
@@ -46,7 +46,7 @@ def csrf_app(request):
     def teardown():
         testing.tearDown()
 
-    app = TestApp(config.make_wsgi_app())
+    app = App(config.make_wsgi_app())
     # Expose session data for tests to read
     app.session = session
     return app
@@ -57,21 +57,21 @@ def session(request, csrf_app):
     return csrf_app.session
 
 
-def test_csrf_by_default(csrf_app: TestApp, session: DummySession):
+def test_csrf_by_default(csrf_app: App, session: DummySession):
     """CSRF goes throgh if we have a proper token."""
 
     resp = csrf_app.post("/csrf_sample", {"csrf_token": session.get_csrf_token()})
     assert resp.status_code == 200
 
 
-def test_csrf_by_default_fail(csrf_app: TestApp, session: DummySession):
+def test_csrf_by_default_fail(csrf_app: App, session: DummySession):
     """CSRF error is raised by default if we try to POST to a view and we don't have token."""
 
     with pytest.raises(BadCSRFToken):
         csrf_app.post("/csrf_sample")
 
 
-def test_csrf_exempt(csrf_app: TestApp, session: DummySession):
+def test_csrf_exempt(csrf_app: App, session: DummySession):
     """Decorated views don't have automatic CSRF check."""
 
     resp = csrf_app.post("/csrf_exempt_sample")

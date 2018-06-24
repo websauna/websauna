@@ -12,10 +12,10 @@ from flaky import flaky
 # Websauna
 from websauna.system.admin.utils import get_admin
 from websauna.system.user.utils import get_site_creator
-from websauna.tests.utils import EMAIL
-from websauna.tests.utils import PASSWORD
-from websauna.tests.utils import create_logged_in_user
-from websauna.tests.utils import create_user
+from websauna.tests.test_utils import EMAIL
+from websauna.tests.test_utils import PASSWORD
+from websauna.tests.test_utils import create_logged_in_user
+from websauna.tests.test_utils import create_user
 
 
 def test_admin_permissions(test_request):

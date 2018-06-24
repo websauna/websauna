@@ -18,7 +18,7 @@ from flaky import flaky
 # Websauna
 from websauna.system.devop.cmdline import init_websauna
 from websauna.system.user.models import User
-from websauna.tests.utils import create_user
+from websauna.tests.test_utils import create_user
 from websauna.tests.webserver import customized_web_server
 
 

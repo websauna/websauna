@@ -2,7 +2,7 @@
 from pyramid.config import Configurator
 
 import pytest
-from webtest import TestApp
+from webtest import TestApp as App
 
 
 def setup_wsgi():
@@ -10,7 +10,7 @@ def setup_wsgi():
 
     configurator.include("pyramid_jinja2")
     configurator.add_jinja2_renderer('.html')
-    configurator.add_jinja2_search_path('websauna.tests:templates/viewconfig', name='.html')
+    configurator.add_jinja2_search_path('websauna.tests.core:templates/viewconfig', name='.html')
 
     configurator.add_route("parent_hello", "/parent_hello")
     configurator.add_route("child_hello", "/child_hello")
@@ -19,7 +19,7 @@ def setup_wsgi():
     configurator.set_root_factory(testmodule.Root)
     configurator.scan(testmodule)
 
-    wsgi = TestApp(configurator.make_wsgi_app())
+    wsgi = App(configurator.make_wsgi_app())
     return wsgi
 
 

@@ -5,7 +5,7 @@ import transaction
 # Websauna
 from websauna.system.model.json import NestedMutationDict
 from websauna.system.user.models import User
-from websauna.tests.utils import create_user
+from websauna.tests.test_utils import create_user
 
 
 def test_pending_jsonb_dict_new_key(dbsession, registry):

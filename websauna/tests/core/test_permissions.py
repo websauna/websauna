@@ -6,12 +6,11 @@ import transaction
 from sqlalchemy.orm import Session
 
 import pytest
-from webtest import TestApp   # noQA
 
 # Websauna
 import websauna
-from websauna.tests.utils import create_user
-from websauna.tests.utils import login
+from websauna.tests.test_utils import create_user
+from websauna.tests.test_utils import login
 from websauna.tests.webserver import customized_web_server
 
 from . import permissionsamples

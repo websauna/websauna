@@ -14,13 +14,12 @@ from flaky import flaky
 from websauna.system.devop.cmdline import init_websauna
 from websauna.system.task.celery import get_celery
 from websauna.system.user.models import User
-
-from . import demotasks
+from websauna.tests.task import demotasks
 
 
 @pytest.fixture(scope='module')
 def task_ini_file():
-    return os.path.join(os.path.dirname(__file__), "task-test.ini")
+    return os.path.join(os.path.dirname(__file__), 'task-test.ini')
 
 
 @pytest.fixture(scope='module')

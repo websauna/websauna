@@ -5,6 +5,7 @@ Based on the original Kotti CMS implementation:
 * https://github.com/Kotti/Kotti/blob/5a33384e7b11994371c415b489edbec88ecbf044/kotti/sqla.py#L79
 """
 # Standard Library
+import copy
 import json
 
 # SQLAlchemy
@@ -250,9 +251,10 @@ def wrap_as_nested(key: str, data: object, parent: object) -> object:
     for typ, wrapper in MUTATION_WRAPPERS.items():
         if isinstance(data, typ):
 
-            # We do data.copy() here to ensure we don't run into "Mutable defaults" Python issue
+            # We do a deepcopy on data here to ensure we don't run into "Mutable defaults" Python issue
             # __parent__ = None means we dont' have parent dict or list
-            data = wrapper(data.copy(), __parent__=None)  # TODO: do a deep copy?
+            # TODO: Validate if deep copy is safe
+            data = wrapper(copy.deepcopy(data), __parent__=None)
 
             # SQLAlchemy model instance is directly parent of this NestedMutate
             data._parents[parent] = key

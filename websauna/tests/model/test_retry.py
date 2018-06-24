@@ -134,10 +134,6 @@ def test_instance(dbsession):
 @pytest.fixture
 def dbsession_factory(test_request):
 
-    if test_request.dbsession.bind.dialect.name == "sqlite":
-        # These tests work only for PSQL
-        pytest.skip('These can be run only on PostgreSQL')
-
     def factory():
         dbsession = create_dbsession(test_request.registry, manager=None)
         # Retry each transaction max 1 times

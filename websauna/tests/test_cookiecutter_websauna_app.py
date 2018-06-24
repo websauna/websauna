@@ -21,8 +21,6 @@ pytestmark = pytest.mark.skip(reason="Tests failing due to problem in automated 
 def dev_db(request, ini_settings):
     """Create PostgreSQL database myapcdp_dev and return its connection information."""
     dsn = ini_settings["sqlalchemy.url"]
-    if dsn.startswith("sqlite://"):
-        pytest.skip("These tests are run only for PostgreSQL database")
     return create_psq_db(request, "app_dev", dsn)
 
 

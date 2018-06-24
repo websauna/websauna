@@ -133,12 +133,7 @@ def test_sanity_column_missing(ini_settings, dbsession):
     Base.metadata.create_all(engine, tables=[SaneTestModel.__table__])
 
     # Delete one of the columns
-    if engine.dialect.name == "sqlite":
-        # SQLite doesn't support alter table
-        # TODO: Add some sort of py.test marker
-        return
-    else:
-        engine.execute("ALTER TABLE sanity_check_test DROP COLUMN id")
+    engine.execute("ALTER TABLE sanity_check_test DROP COLUMN id")
 
     assert is_sane_database(Base, session) is False
 

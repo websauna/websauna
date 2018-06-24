@@ -107,18 +107,6 @@ def _get_psql_engine(settings: dict, prefix: str) -> Engine:
     return engine
 
 
-def _get_sqlite_engine(settings: dict, prefix: str) -> Engine:
-    """Create SQLite engine.
-
-    The database engine defaults to SERIALIZABLE isolation level.
-    :param settings: Application settings
-    :param prefix: Configuration prefixes
-    :return: SQLAlchemy Engine
-    """
-    engine = engine_from_config(settings, prefix, isolation_level='SERIALIZABLE')
-    return engine
-
-
 def get_engine(settings: dict, prefix: str='sqlalchemy.') -> Engine:
     """Reads config and create a database engine out of it.
 
@@ -130,10 +118,7 @@ def get_engine(settings: dict, prefix: str='sqlalchemy.') -> Engine:
     if not url:
         raise RuntimeError('sqlalchemy.url missing in the settings')
 
-    if 'sqlite' in url:
-        warnings.warn('Usage of sqlite is deprecated. From version 1.0b1 it will not be supported.', DeprecationWarning)
-        engine = _get_sqlite_engine(settings, prefix)
-    elif 'postgres' in url:
+    if 'postgres' in url:
         engine = _get_psql_engine(settings, prefix)
     else:
         raise RuntimeError('Unknown SQLAlchemy connection URL: {url}'.format(url=url))

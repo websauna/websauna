@@ -13,7 +13,6 @@ from sqlalchemy import types
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.dialects.postgresql import INET as _INET
 from sqlalchemy.dialects.postgresql import JSONB as _JSONB
-from sqlalchemy.dialects.sqlite import DATETIME as DATETIME_
 from sqlalchemy.exc import UnsupportedCompilationError
 from sqlalchemy_utils.types.ip_address import IPAddressType
 from sqlalchemy_utils.types.json import JSONType
@@ -42,11 +41,7 @@ class UTCDateTime(DateTime):
         super(UTCDateTime, self).__init__(**kwargs)
 
     def _dialect_info(self, dialect):
-        if dialect.name == "sqlite":
-            # Becase SQLite does not support datetimes, we need to explicitly tell here to use our super duper DATETIME() hack subclass that hacks in timezone
-            return {"impl": SQLITEDATETIME()}
-        else:
-            return super(UTCDateTime, self)._dialect_info(dialect)
+        return super(UTCDateTime, self)._dialect_info(dialect)
 
 
 class JSONB(JSONType):
@@ -123,23 +118,6 @@ class UUID(UUIDType):
             kind = types.BINARY(16)
             return dialect.type_descriptor(kind)
 
-
-class SQLITEDATETIME(DATETIME_):
-    """Timezone aware datetime support for SQLite.
-
-    This is implementation used for UTCDateTime.
-    """
-
-    @staticmethod
-    def process(value):
-        dt = processors.str_to_datetime(value)
-        if dt:
-            # Returns naive datetime, force it to UTC
-            return dt.replace(tzinfo=datetime.timezone.utc)
-        return dt
-
-    def result_processor(self, dialect, coltype):
-        return SQLITEDATETIME.process
 
 
 # Don't expose sqlalchemy_utils internals as they may go away

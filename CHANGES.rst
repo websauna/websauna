@@ -9,6 +9,8 @@ Changelog for Websauna
 
 - Adds support to Python 3.7.0.
 
+- Remove support to Sqlite.
+
 - Reorganize tests.
 
 

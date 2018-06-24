@@ -6,6 +6,8 @@ Changelog for Websauna
 -------------------
 
 - Closes `Issue #179`_: Support for Celery 4.2.0.
+- Adds support to Python 3.7.0.
+- Reorganize tests.
 
 
 1.0a9 (2018-04-30)

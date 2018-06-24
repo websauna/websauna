@@ -227,7 +227,8 @@ class RetryableTransactionTask(ScheduleOnCommitTask):
 
             @retryable(tm=request.tm)
             def handler(request: Request):
-                if task.__self__ is not None:
+                # __self__ attribute was removed on Celery 4.2.0 but we keep this check for backwards compatibility
+                if getattr(task, '__self__', None) is not None:
                     return task.run(task.__self__, *args, **kwargs)
                 return task.run(*args, **kwargs)
 

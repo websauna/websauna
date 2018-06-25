@@ -11,13 +11,9 @@ from sqlalchemy import DateTime
 from sqlalchemy import types
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.dialects.postgresql import INET as _INET
-from sqlalchemy.dialects.postgresql import JSONB as _JSONB
 from sqlalchemy.exc import UnsupportedCompilationError
 from sqlalchemy_utils.types.ip_address import IPAddressType
-from sqlalchemy_utils.types.json import JSONType
 from sqlalchemy_utils.types.uuid import UUIDType
-
-from .json import json_serializer
 
 
 class UTCDateTime(DateTime):
@@ -41,28 +37,6 @@ class UTCDateTime(DateTime):
 
     def _dialect_info(self, dialect):
         return super(UTCDateTime, self)._dialect_info(dialect)
-
-
-class JSONB(JSONType):
-    """Generic JSONB type.
-
-    Falls back to the native PostgreSQL JSONB type.
-    """
-
-    def load_dialect_impl(self, dialect):
-        if dialect.name == 'postgresql':
-            # Use the native JSON type.
-            return dialect.type_descriptor(_JSONB())
-        else:
-            return dialect.type_descriptor(self.impl)
-
-    def process_bind_param(self, value, dialect):
-        if dialect.name == 'postgresql':
-            return value
-        if value is not None:
-            # Correctly process NestedMutationDict
-            value = json_serializer(value)
-        return value
 
 
 class INET(IPAddressType):
@@ -120,8 +94,7 @@ class UUID(UUIDType):
 
 # Don't expose sqlalchemy_utils internals as they may go away
 __all__ = [
-    "UTCDateTime",
-    "UUID",
-    "JSONB",
-    "INET",
+    'UTCDateTime',
+    'UUID',
+    'INET',
 ]

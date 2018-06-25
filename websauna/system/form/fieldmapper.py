@@ -188,11 +188,6 @@ class DefaultSQLAlchemyFieldMapper(ColumnToFieldMapper):
             return colander.String(), dict(widget=deform.widget.TextAreaWidget())
         elif isinstance(column_type, JSONB):
             return JSONValue(), dict(widget=JSONWidget())
-        elif isinstance(column_type, (JSONB, columns.JSONB)):
-            # Can't edit JSON
-            if mode in (EditMode.add, EditMode.edit):
-                return TypeOverridesHandling.drop, {}
-            return colander.String(), {}
         elif isinstance(column_type, LargeBinary):
             # Can't edit binary
             return TypeOverridesHandling.drop, {}

@@ -11,6 +11,8 @@ Changelog for Websauna
 
 - Remove support to Sqlite.
 
+- Closes `Issue #171`_: Replace Websauna JSONB usage with sqlalchemy.dialects.postgresql.JSONB.
+
 - Reorganize tests.
 
 
@@ -119,4 +121,5 @@ Changelog for Websauna
 .. _`Issue #167`: https://github.com/websauna/websauna/issues/167
 .. _`Issue #169`: https://github.com/websauna/websauna/issues/169
 .. _`Issue #170`: https://github.com/websauna/websauna/issues/170
+.. _`Issue #171`: https://github.com/websauna/websauna/issues/171
 .. _`Issue #179`: https://github.com/websauna/websauna/issues/179

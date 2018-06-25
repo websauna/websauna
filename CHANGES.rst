@@ -13,6 +13,8 @@ Changelog for Websauna
 
 - Closes `Issue #171`_: Replace Websauna JSONB usage with sqlalchemy.dialects.postgresql.JSONB.
 
+- Replace psycopg2 dependency with  psycopg2-binary.
+
 - Reorganize tests.
 
 

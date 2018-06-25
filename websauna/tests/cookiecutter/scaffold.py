@@ -16,58 +16,59 @@ import pytest
 from cookiecutter.main import cookiecutter
 
 
-PYTHON_INTERPRETER = "python{}.{}".format(sys.version_info.major, sys.version_info.minor)
+PYTHON_INTERPRETER = 'python{major}.{minor}'.format(
+    major=sys.version_info.major,
+    minor=sys.version_info.minor
+)
 
 
 def print_subprocess_fail(worker, cmdline):
-    print("{cmdline} output:".format(cmdline=cmdline))
-    print(worker.stdout.read().decode("utf-8"))
-    print(worker.stderr.read().decode("utf-8"))
+    print('{cmdline} output:'.format(cmdline=cmdline))
+    for output in (worker.stdout, worker.stderr):
+        print(output.read().decode('utf-8'))
 
 
 def execute_command(cmdline: t.List, folder: str, timeout=5.0):
     """Run a command in a specific folder."""
     worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=folder)
-
     try:
         worker.wait(timeout)
     except subprocess.TimeoutExpired as e:
         print_subprocess_fail(worker, cmdline)
-        raise AssertionError("execute_command did not properly exit") from e
+        raise AssertionError('execute_command did not properly exit') from e
 
     if worker.returncode != 0:
         print_subprocess_fail(worker, cmdline)
-        raise AssertionError("scaffold command did not properly exit: {}".format(" ".join(cmdline)))
+        raise AssertionError('scaffold command did not properly exit: {cmdline}'.format(cmdline=' '.join(cmdline)))
 
     return worker.returncode
 
 
-def execute_venv_command(cmdline, folder, timeout=15.0, wait_and_see=None, assert_exit=0, cd_folder=None):
+def execute_venv_command(cmdline, cwd, timeout=15.0, wait_and_see=None, assert_exit=0, cd_folder=None):
     """Run a command in a specific folder using virtualenv created there.
 
     Assume virtualenv is under ``venv`` folder.
 
+    :param cwd: Base folder.
+    :param timeout: Command timeout.
     :param wait_and_see: Wait this many seconds to see if app starts up.
     :param assert_exit: Assume exit code is this
     :param cd_folder: cd to this folder before executing the command (relative to folder)
     :return: tuple (exit code, stdout, stderr)
     """
-
-    assert os.path.exists(os.path.join(folder, "venv", "bin", "activate"))
+    activate_venv = os.path.join(cwd, 'venv', 'bin', 'activate')
+    assert os.path.exists(activate_venv), ' '.join(os.listdir(os.path.join(cwd, 'venv', 'bin')))
 
     if type(cmdline) == list:
-        cmdline = " ".join(cmdline)
+        cmdline = ' '.join(cmdline)
 
+    cd_cmd = cwd
     if cd_folder is not None:
-        cd_cmd = "cd {} && ".format(cd_folder)
-    else:
-        cd_cmd = ""
+        cd_cmd = '{cwd}/{cd_folder}'.format(cwd=cwd, cd_folder=cd_folder)
 
-    cmdline = ". {}/venv/bin/activate ; {} {}".format(folder, cd_cmd, cmdline)
+    cmdline = ". {activate_venv}; {cmdline}".format(activate_venv=activate_venv, cmdline=cmdline)
 
-    # print("Executing {} in {}".format(cmdline, folder))
-
-    worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=folder, shell=True)
+    worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cd_cmd, shell=True)
 
     if wait_and_see is not None:
         time.sleep(wait_and_see)
@@ -76,7 +77,7 @@ def execute_venv_command(cmdline, folder, timeout=15.0, wait_and_see=None, asser
         if worker.returncode is not None:
             # Return code is set if the worker dies within the timeout
             print_subprocess_fail(worker, cmdline)
-            raise AssertionError("could not start server like app: {}".format(cmdline))
+            raise AssertionError('could not start server like app: {cmdline}'.format(cmdline=cmdline))
 
         worker.kill()
         return 0
@@ -89,9 +90,16 @@ def execute_venv_command(cmdline, folder, timeout=15.0, wait_and_see=None, asser
 
     if worker.returncode != assert_exit:
         print_subprocess_fail(worker, cmdline)
-        raise AssertionError("venv command did not properly exit: {} in {}. Got exit code {}, assumed {}".format(cmdline, folder, worker.returncode, assert_exit))
+        raise AssertionError(
+            'venv command did not properly exit: {cmdline} in {cwd}. Got exit code {returncode}, assumed {assert_exit}'.format(
+                cmdline=cmdline,
+                cwd=cwd,
+                returncode=worker.returncode,
+                assert_exit=assert_exit
+            )
+        )
 
-    return (worker.returncode, worker.stdout.read().decode("utf-8"), worker.stderr.read().decode("utf-8"))
+    return (worker.returncode, worker.stdout.read().decode('utf-8'), worker.stderr.read().decode('utf-8'))
 
 
 def preload_wheelhouse(folder: str):
@@ -104,7 +112,7 @@ def preload_wheelhouse(folder: str):
     cache_folder = os.getcwd()
     wheelhouse_folder = os.path.join(
         cache_folder,
-        "wheelhouse", "python{major}.{minor}".format(
+        'wheelhouse', 'python{major}.{minor}'.format(
             major=sys.version_info.major,
             minor=sys.version_info.minor
         )
@@ -116,17 +124,17 @@ def preload_wheelhouse(folder: str):
             timeout=3 * 60
         )
     else:
-        print("No preloaded Python package cache found")
+        print('No preloaded Python package cache found')
 
 
 def create_psq_db(request, dbname, dsn=''):
     """py.test fixture to createdb and destroy postgresql database on demand."""
     if not dsn:
-        dsn = "dbname=postgres"
+        dsn = 'dbname=postgres'
     with closing(psycopg2.connect(dsn)) as conn:
         conn.autocommit = True
         with closing(conn.cursor()) as cursor:
-            cursor.execute("SELECT COUNT(*) FROM pg_database WHERE datname='{}'".format(dbname))
+            cursor.execute("SELECT COUNT(*) FROM pg_database WHERE datname='{dbname}'".format(dbname=dbname))
 
             if cursor.fetchone()[0] == 1:
                 # Prior interrupted test run
@@ -140,9 +148,9 @@ def create_psq_db(request, dbname, dsn=''):
             with closing(conn.cursor()) as cursor:
 
                 # http://blog.gahooa.com/2010/11/03/how-to-force-drop-a-postgresql-database-by-killing-off-connection-processes/
-                cursor.execute("SELECT pg_terminate_backend(pid) from pg_stat_activity where datname='{}';".format(dbname))
+                cursor.execute("SELECT pg_terminate_backend(pid) from pg_stat_activity where datname='{dbname}'".format(dbname=dbname))
                 conn.commit()
-                cursor.execute("SELECT COUNT(*) FROM pg_database WHERE datname='{}'".format(dbname))
+                cursor.execute("SELECT COUNT(*) FROM pg_database WHERE datname='{dbname}'".format(dbname=dbname))
                 if cursor.fetchone()[0] == 1:
                     cursor.execute('DROP DATABASE ' + dbname)
 
@@ -156,13 +164,13 @@ def replace_file(path: str, content: str):
     :param path: Path to the file
     :param content: New content as a text
     """
-    backup = open(path, "rt").read()
-    open(path, "wt").write(content)
+    backup = open(path, 'rt').read()
+    open(path, 'wt').write(content)
 
     try:
         yield None
     finally:
-        open(path, "wt").write(backup)
+        open(path, 'wt').write(backup)
 
 
 @contextmanager
@@ -171,7 +179,7 @@ def insert_content_after_line(path: str, content: str, marker: str):
     backup = open(path, "rt").read()
     try:
         # Replaces stdout
-        out = open(path, "wt")
+        out = open(path, 'wt')
         for line in backup.split("\n"):
             if marker in line:
                 print(content, file=out)
@@ -179,7 +187,7 @@ def insert_content_after_line(path: str, content: str, marker: str):
         out.close()
         yield None
     finally:
-        open(path, "wt").write(backup)
+        open(path, 'wt').write(backup)
 
 
 @pytest.fixture(scope='session')
@@ -211,35 +219,20 @@ def app_scaffold(request, cookiecutter_config) -> str:
     :return: Path to a temporary folder. In this folder there is `venv` folder and `myapp` folder.
    """
 
-    folder = mkdtemp(prefix="websauna_test_")
+    folder = mkdtemp(prefix='websauna_test_')
 
     websauna_folder = os.getcwd()
-    execute_command([PYTHON_INTERPRETER, "-m", "venv", "venv"], folder, timeout=30)
+    execute_command([PYTHON_INTERPRETER, '-m', 'venv', 'venv'], folder, timeout=30)
 
-    # Don't try to push to get a working pip because IT "#€!"#€"#€ DOESNT'T JUST WORK
-    # Instead work around any issues caused by missing pip in tests themselves
-    #
-    # venv fails to install pip under .tox virtualenv due to some obscure bug
-    # This broken Python venv stuff drives me crazy... make sure we get  pip
-    # pip = os.path.join(folder, "venv", "bin", "pip")
-    # if not os.path.exists(pip):
-    # Use internal get-pip script to fix broken venv where ensurepip did no give us our shit, because we can't rely on system pip to get this right either
-    #   print("The current version of venv/ensurepip modules are broken, fixing problem internally")
-    #   get_pip = os.path.join(os.path.dirname(__file__), "get-pip.py")
-    #   assert os.path.exists(get_pip)
-    #   execute_venv_command("python {} --prefix {}/venv --ignore-installed pip".format(get_pip, folder), folder, timeout=5*60)
-
-    # assert os.path.exists(pip), "Pip not installed: {}".format(pip)
-
-    # PIP cannot handle pip -install .[test]
-    # On some systems, the default PIP is too old and it doesn't seem to allow upgrade through wheelhouse
-    execute_venv_command("pip install -U pip", folder, timeout=5 * 60)
+    # Make sure we have a recent pip version
+    execute_venv_command('pip install -U pip', folder, timeout=5 * 60)
 
     # Install cached PyPi packages
     preload_wheelhouse(folder)
 
     # Install websauna
-    execute_venv_command("cd {websauna_folder} ; pip install -e .[notebook,utils]".format(websauna_folder=websauna_folder), folder, timeout=5 * 60)
+    cmdline = 'pip install -e {folder}[notebook,utils]'.format(folder=websauna_folder)
+    execute_venv_command(cmdline, folder, timeout=5 * 60)
 
     # Create Websauna app, using cookiecutter, from template cookiecutter-websauna-app
     extra_context = {
@@ -268,26 +261,26 @@ def app_scaffold(request, cookiecutter_config) -> str:
     )
 
     # Install the package created by cookiecutter template
-    content_folder = os.path.join(folder, extra_context["repo_name"])
-    execute_venv_command("pip install -e {0}".format(content_folder), folder, timeout=5 * 60)
+    content_folder = os.path.join(folder, extra_context['repo_name'])
+    execute_venv_command('pip install -e {0}'.format(content_folder), folder, timeout=5 * 60)
 
     def teardown():
         # Clean any processes who still think they want to stick around. Namely: ws-shell doesn't die
 
         # This kills all processes referring to the temporary folder
-        subprocess.call("pkill -SIGKILL -f {}".format(folder), shell=True)
+        subprocess.call('pkill -SIGKILL -f {cwd}'.format(cwd=folder), shell=True)
 
     request.addfinalizer(teardown)
     return folder
 
 
-def start_ws_pserve(cmdline: str, cwd: str, wait_and_see: float=5.0):
+def start_ws_pserve(config: str, cwd: str, wait_and_see: float=5.0, cd_folder=''):
     """Simulate starting ws-pserve command from the command line inside the virtualenv.
 
-    :param cmdline: Command line to run ws-pserve
-    :param cwd: Set current workind directory
+    :param config: Configuration.
+    :param cwd: Set current working directory
     :param wait_and_see: Seconds to see if the server comes up
-    :return:
+    :param cd_folder: cd to this folder before executing the command (relative to folder)
     """
 
     # Clean up all prior processes
@@ -299,16 +292,21 @@ def start_ws_pserve(cmdline: str, cwd: str, wait_and_see: float=5.0):
         try:
             for conns in proc.connections(kind='inet'):
                 if conns.laddr[1] == 6543:
-                    print("Killing a proc blocking the port", proc)
+                    print('Killing a proc blocking the port', proc)
                     proc.send_signal(signal.SIGKILL)
                     time.sleep(0.5)
                     continue
         except (psutil.AccessDenied, psutil.NoSuchProcess):
             pass
 
-    # Run ws-pserve inside the virtualenc
-    cmdline = ". {}/venv/bin/activate && ".format(cwd) + cmdline
-
+    # Run pserve inside the virtualenv
+    activate_venv = os.path.join(cwd, 'venv', 'bin', 'activate')
+    cmdline = '. {activate_venv}; cd {cd_folder} && pserve {config}'.format(
+        activate_venv=activate_venv,
+        cd_folder=cd_folder,
+        config=config,
+    )
+    print(cmdline)
     worker = subprocess.Popen(cmdline, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd)
 
     time.sleep(wait_and_see)
@@ -317,6 +315,6 @@ def start_ws_pserve(cmdline: str, cwd: str, wait_and_see: float=5.0):
     if worker.returncode is not None:
         # Return code is set if the worker dies within the timeout
         print_subprocess_fail(worker, cmdline)
-        raise AssertionError("Could not ws-pserve: {}".format(cmdline))
+        raise AssertionError('Could not pserve: {cmdline}'.format(cmdline=cmdline))
 
     return worker

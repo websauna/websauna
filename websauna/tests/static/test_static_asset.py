@@ -10,7 +10,7 @@ import pytest
 # Websauna
 from websauna.system.devop.cmdline import init_websauna
 from websauna.system.http.static import DefaultStaticAssetPolicy
-from websauna.tests.scaffold import execute_command
+from websauna.tests.cookiecutter.scaffold import execute_command
 from websauna.tests.webserver import customized_web_server
 
 

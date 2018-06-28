@@ -29,13 +29,13 @@ Here is an example how to declare a basic column containg JSONB data and how to 
     import sqlalchemy as sa
     import sqlalchemy.orm as orm
     from sqlalchemy.orm import Session
-    from websauna.system.model.columns import UTCDateTime
+    from sqlalchemy.dialects.postgresql import JSONB
 
+    from websauna.system.model.columns import UTCDateTime
     from websauna.system.model.meta import Base
     from websauna.system.user.models import User
     from websauna.utils.time import now
     from websauna.system.model.json import NestedMutationDict
-    from websauna.system.model.columns import JSONB
 
 
     class Verification(Base):
@@ -97,12 +97,12 @@ Example.
 
     import sqlalchemy as sa
     import sqlalchemy.orm as orm
+    from sqlalchemy.dialects.postgresql import JSONB
 
     from websauna.system.model.meta import Base
     from websauna.system.user.models import User
     from websauna.utils.time import now
     from websauna.system.model.json import NestedMutationDict
-    from websauna.system.model.columns import JSONB
 
 
     #: Initialze user_data JSONB structure with these fields on new User

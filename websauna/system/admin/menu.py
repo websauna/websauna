@@ -78,6 +78,7 @@ class Entry:
         self.submenu = submenu
         self.css_class = css_class
         self.condition = condition
+        self.link = link
 
         if caret:
             self.caret = caret

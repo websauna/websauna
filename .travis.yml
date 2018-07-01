@@ -71,10 +71,6 @@ script:
   - tox -- --ini=websauna/conf/travis.ini --splinter-webdriver=chrome --splinter-headless=true --debug
 
 after_success:
-  # Update coverage information in codecov.io.
-  # This will simply fail under py34.
-  - .tox/py35/bin/codecov
-  # Dump package list so we have a log of last known good version set
-  # This will simply fail under py34.
-  - .tox/py35/bin/pip freeze
+  - .tox/$TOXENV/bin/codecov
+  - .tox/$TOXENV/bin/pip freeze
 

@@ -89,28 +89,28 @@ setup(
     extras_require={
         # Dependencies needed to build and release Websauna
         'dev': [
+            'pyroma==2.3.1',
             'ruamel.yaml',
             'setuptools_git',
-            'pyroma==2.3.1',
-            'sphinx>=1.6.1',
             'sphinx-autodoc-typehints',
+            'sphinx>=1.6.1',
             'sphinx_rtd_theme',
             'sphinxcontrib-zopeext',
-            'zest.releaser[recommended]'
+            'zest.releaser[recommended]',
         ],
         'test': [
-            'cookiecutter',
             'codecov',
-            'flake8',
-            'pytest>=3.0',
-            'pytest-runner',
+            'cookiecutter',
             'coverage',
+            'flake8',
             'flaky',
             'isort',
             'pytest-cov',
             'pytest-runner',
+            'pytest-runner',
             'pytest-splinter',
             'pytest-timeout',
+            'pytest>=3.0',
             'webtest',
         ],
         "notebook": [

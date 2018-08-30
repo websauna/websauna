@@ -20,15 +20,24 @@ matrix:
           env:
           - PYTHON_VERSION=python3.6
           - TOXENV=py36
-        - python: 3.7-dev
+        - python: 3.7
           env:
           - PYTHON_VERSION=python3.7
           - TOXENV=py37
+          dist: xenial
+          sudo: true
+        - python: 3.8-dev
+          env:
+          - PYTHON_VERSION=python3.8
+          - TOXENV=py38
+          dist: xenial
+          sudo: true
         - python: 3.6
           env:
           - PYTHON_VERSION=python3.6
           - TOXENV=style
-
+    allow_failures:
+        - env: TOXENV=py38
 
 # http://stackoverflow.com/a/19460794/315168
 cache:

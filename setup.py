@@ -105,6 +105,7 @@ setup(
             'flake8',
             'flaky',
             'isort',
+            'splinter==0.8.0',
             'pytest-cov',
             'pytest-runner',
             'pytest-runner',

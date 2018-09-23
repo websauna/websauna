@@ -2,7 +2,7 @@ Changelog for Websauna
 ======================
 
 
-1.0a10 (unreleased)
+1.0a10 (2018-09-23)
 -------------------
 
 - Closes `Issue #179`_: Support for Celery 4.2.0.

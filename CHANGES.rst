@@ -7,6 +7,8 @@ Changelog for Websauna
 
 - Closes `Issue #179`_: Support for Celery 4.2.0.
 
+- Closes `Issue #193`_: Using celery.group raises AttributeError: 'WebsaunaLoader' object has no attribute 'request'.
+
 - Adds support to Python 3.7.0.
 
 - Remove support to Sqlite.
@@ -123,3 +125,4 @@ Changelog for Websauna
 .. _`Issue #170`: https://github.com/websauna/websauna/issues/170
 .. _`Issue #171`: https://github.com/websauna/websauna/issues/171
 .. _`Issue #179`: https://github.com/websauna/websauna/issues/179
+.. _`Issue #193`: https://github.com/websauna/websauna/issues/193

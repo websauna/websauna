@@ -95,8 +95,8 @@ class WebsaunaLoader(BaseLoader):
             decorator_args = [func] + list(args)
             self.app.task(*decorator_args, **kwargs)
 
-    def on_worker_init(self):
-        """This method is called when a child process starts."""
+    def _set_request(self):
+        """Set a request for WebsaunaLoader."""
         # TODO Make sanity_check True by default,
         # but make it sure we can disable it in tests,
         # because otherwise tests won't run
@@ -109,6 +109,9 @@ class WebsaunaLoader(BaseLoader):
         #: task executor knows about Request object
         self.app.cmdline_request = self.request
 
+    def on_worker_init(self):
+        """This method is called when a child process starts."""
+        self._set_request()
         self.register_tasks()
 
     def on_task_init(self, task_id, task):
@@ -129,6 +132,10 @@ class WebsaunaLoader(BaseLoader):
         # We must not have on-going transaction when worker spawns a task
         # - otherwise it means init code has left transaction open
         ensure_transactionless("Thread local TX was ongoing when Celery fired up a new task {}: {}".format(task_id, task))
+
+        # When using celery groups, the request is not available, we set it here.
+        if not hasattr(self, 'request'):
+            self._set_request()
 
         # Each tasks gets a new request with its own transaction manager and dbsession
         request = make_routable_request(dbsession=None, registry=self.request.registry)

@@ -19,7 +19,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 setup(
     name='websauna',
     namespace_packages=["websauna"],
-    version='1.0a10',
+    version='1.0a11.dev0',
     description=long_description.split("\n")[0],
     long_description=long_description,
     url='https://websauna.org',

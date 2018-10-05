@@ -90,13 +90,15 @@ setup(
         # Dependencies needed to build and release Websauna
         'dev': [
             'pyroma==2.3.1',
-            'ruamel.yaml',
             'setuptools_git',
+            'zest.releaser[recommended]',
+        ],
+        'docs': [
+            'ruamel.yaml',
             'sphinx-autodoc-typehints',
             'sphinx>=1.6.1',
             'sphinx_rtd_theme',
             'sphinxcontrib-zopeext',
-            'zest.releaser[recommended]',
         ],
         'test': [
             'codecov',
@@ -115,12 +117,12 @@ setup(
         ],
         "notebook": [
             "ipython[notebook]<5.2",
-            "pyramid_notebook>=0.2.1",
+            "pyramid_notebook==0.2.1",
             # Needed by python_notebook etc. who call pyramid.paster module
             "PasteDeploy",
         ],
         # Command line utilities and like that are needed to make development / production environment friendly
-        'utils': ['pgcli'],
+        'utils': ['pgcli<2'],
         # Using celery based async tasks
         'celery': ['celery[redis]>=4.2.0,<5.0.0']
     },

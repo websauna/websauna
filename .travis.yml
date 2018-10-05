@@ -9,6 +9,8 @@ services:
   - postgresql
   - redis-server
 
+env: # Without this, allow_failures will not work
+
 matrix:
     fast_finish: true
     include:

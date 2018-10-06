@@ -40,7 +40,9 @@ matrix:
           - TOXENV=style
     allow_failures:
       - python: 3.8-dev
-        env: TOXENV=py38
+        env:
+        - PYTHON_VERSION=python3.8
+        - TOXENV=py38
 
 # http://stackoverflow.com/a/19460794/315168
 cache:

@@ -53,6 +53,9 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
     cookiecutter
         A Python package to create projects and packages from project templates. `More information <https://pypi.python.org/pypi/cookiecutter>`__.
 
+    cookiecutter-websauna-addon
+         Cookiecutter template to create a Websauna addon  `More information <https://github.com/websauna/cookiecutter-websauna-addon>`__.
+
     CRUD
         In computer programming, create, read, update and delete, sometimes called SCRUD with an "S" for Search, are the four basic functions of persistent storage. :doc:`Read about CRUD in Websauna <../narrative/crud/crud>`.
         `More info <https://en.wikipedia.org/wiki/Create,_read,_update_and_delete>`__.
@@ -155,9 +158,6 @@ Many glossary descrpitions are taken from `Wikipedia <https://en.wikipedia.org/>
 
     Paste
       A Python framework for building web applications on the top of `WSGI protocol <https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface>`__. See `Paste documentation <https://pypi.python.org/pypi/Paste>`__ .
-
-    pcreate
-      A command line command for creating new packages based on :term:`Pyramid` framework. `More info <http://docs.pylonsproject.org/projects/pyramid/en/1.3-branch/narr/project.html>`__.
 
     persistent
         Something written on a disk e.g. it doesn't disappear when power goes down or the computer is restarted.

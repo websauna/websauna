@@ -122,7 +122,7 @@ setup(
             "PasteDeploy",
         ],
         # Command line utilities and like that are needed to make development / production environment friendly
-        'utils': ['pgcli<2'],
+        'utils': ['pgcli<2'],  # pgcli 2.0.0 is not compatible with ipython 5.1.0, because they have conflicting version restrictions on prompt-toolkit
         # Using celery based async tasks
         'celery': ['celery[redis]>=4.2.0,<5.0.0']
     },

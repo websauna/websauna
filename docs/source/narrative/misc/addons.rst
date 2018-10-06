@@ -24,7 +24,7 @@ Addons vs. applications
 Creating addon
 --------------
 
-* Use ``pcreate`` command with ``websauna_addon`` scaffold.
+* Use :term:`cookiecutter-websauna-addon` command with ``websauna_addon`` scaffold.
 
 * Install addon to your virtualenv after creation: ``pip install -e .["test"]``
 

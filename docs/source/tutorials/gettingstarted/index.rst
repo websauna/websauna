@@ -24,7 +24,6 @@ Welcome to Websauna tutorial. This tutorial shows you how to get started with We
     tutorial_10
     tutorial_11
     tutorial_12
-    tutorial_13
 
 
 Credits

@@ -5,7 +5,7 @@ Changelog for Websauna
 1.0a11 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Support pyramid_notebook 0.3.0.
 
 
 1.0a10 (2018-09-23)

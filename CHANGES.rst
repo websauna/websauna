@@ -7,6 +7,10 @@ Changelog for Websauna
 
 - Support pyramid_notebook 0.3.0.
 
+- Support pgcli 2.0.0.
+
+- Reorganize package extras, adding a docs session.
+
 
 1.0a10 (2018-09-23)
 -------------------

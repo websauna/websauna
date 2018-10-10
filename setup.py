@@ -89,7 +89,6 @@ setup(
     extras_require={
         # Dependencies needed to build and release Websauna
         'dev': [
-            'pyroma==2.3.1',
             'setuptools_git',
             'zest.releaser[recommended]',
         ],
@@ -107,7 +106,6 @@ setup(
             'flake8',
             'flaky',
             'isort',
-            'splinter',
             'pytest-cov',
             'pytest-runner',
             'pytest-splinter',

@@ -7,6 +7,11 @@ Changelog for Websauna
 
 - Support pyramid_notebook 0.3.0.
 
+- Support pgcli 2.0.0.
+
+- Reorganize package extras, adding a docs session.
+
+- Closes `Issue #195`_: Documentation epub does not open on iBooks.
 
 1.0a10 (2018-09-23)
 -------------------
@@ -132,3 +137,4 @@ Changelog for Websauna
 .. _`Issue #171`: https://github.com/websauna/websauna/issues/171
 .. _`Issue #179`: https://github.com/websauna/websauna/issues/179
 .. _`Issue #193`: https://github.com/websauna/websauna/issues/193
+.. _`Issue #195`: https://github.com/websauna/websauna/issues/195

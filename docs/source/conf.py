@@ -17,6 +17,8 @@
 import os
 
 import pkg_resources
+from datetime import datetime
+
 import sphinx_rtd_theme
 
 
@@ -31,6 +33,7 @@ _version = _release.split('.')
 major_version = _version[0]
 minor_version = _version[1]
 
+this_year = datetime.now().year
 
 # -- General configuration ------------------------------------------------
 
@@ -47,7 +50,7 @@ extensions = [
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates', os.path.dirname(sphinx_rtd_theme.__file__)]
+# templates_path = ['_templates', os.path.dirname(sphinx_rtd_theme.__file__)]
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
@@ -62,7 +65,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Websauna'
-copyright = '2015-2017, Mikko Ohtamaa'
+copyright = '2015-{0}, Mikko Ohtamaa'.format(this_year)
 author = 'Mikko Ohtamaa'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -149,7 +152,7 @@ html_context = {
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-html_title = "Websauna"
+html_title = "Websauna Documentation"
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 # html_short_title = None
@@ -331,3 +334,37 @@ intersphinx_mapping = {
     'zcomponent': ('http://zopecomponent.readthedocs.io/en/latest', None),
     "celery": ("http://docs.celeryproject.org/en/master/", None),
 }
+
+# -- Options for Epub output ---------------------------------------------------
+epub_theme = 'epub'
+
+epub_theme_options = {
+    'relbar1': False,
+    'footer': False,
+}
+
+# Bibliographic Dublin Core info.
+epub_title = 'Websauna Documentation, Version {0}'.format(release)
+epub_author = author
+epub_publisher = author
+epub_copyright = '2015-{0}'.format(this_year)
+
+# The language of the text. It defaults to the language option
+# or en if the language is not set.
+epub_language = 'en'
+
+# The scheme of the identifier. Typical schemes are ISBN or URL.
+epub_scheme = 'ISBN'
+
+# The unique identifier of the text. This can be a ISBN number
+# or the project homepage.
+epub_identifier = 'https://websauna.org'
+
+# A unique identification for the text.
+epub_uid = epub_title
+
+# A list of files that should not be packed into the epub file.
+epub_exclude_files = []
+
+# The depth of the table of contents in toc.ncx.
+epub_tocdepth = 2

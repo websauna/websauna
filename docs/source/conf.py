@@ -328,11 +328,11 @@ intersphinx_mapping = {
     'tutorials': ('https://docs.pylonsproject.org/projects/pyramid-tutorials/en/latest/', None),
     'venusian': ('https://docs.pylonsproject.org/projects/venusian/en/latest', None),
     'webob': ('https://docs.pylonsproject.org/projects/webob/en/latest', None),
-    'webtest': ('http://webtest.pythonpaste.org/en/latest', None),
-    'who': ('http://repozewho.readthedocs.io/en/latest', None),
+    'webtest': ('https://docs.pylonsproject.org/projects/webtest/en/latest/', None),
+    'who': ('https://repozewho.readthedocs.io/en/latest/', None),
     'zcml': ('https://docs.pylonsproject.org/projects/pyramid-zcml/en/latest', None),
-    'zcomponent': ('http://zopecomponent.readthedocs.io/en/latest', None),
-    "celery": ("http://docs.celeryproject.org/en/master/", None),
+    'zcomponent': ('https://zopecomponent.readthedocs.io/en/latest/', None),
+    "celery": ("http://docs.celeryproject.org/en/latest/", None),
 }
 
 # -- Options for Epub output ---------------------------------------------------

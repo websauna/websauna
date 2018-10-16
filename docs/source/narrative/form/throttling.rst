@@ -39,7 +39,7 @@ Example::
 
             if rollingwindow.check(request.registry, "invite_friends", window=3600, limit=limit):
                 # Alert devops through Sentry
-                logger.warn("Newsletter subscription overflow")
+                logger.warning("Newsletter subscription overflow")
                 return HTTPTooManyRequests("Too many subscriptions to the newsletter. Please wait 10 minutes and try again.")
 
             if "subscribe" in request.POST:
@@ -68,7 +68,7 @@ Example::
             if rollingwindow.check(request.registry, "invite_friends", window=3600, limit=limit):
 
                 # Alert devops through Sentry
-                logger.warn("Excessive invite traffic")
+                logger.warning("Excessive invite traffic")
 
                 # Tell users slow down
                 raise c.Invalid(node, 'Too many outgoing invites at the moment. Please try again later.')

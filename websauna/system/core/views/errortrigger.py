@@ -18,7 +18,7 @@ def error_trigger(request):
     """
     logger.debug("Logging debug message on debug level")
     logger.info("Logging debug message on info level")
-    logger.warn("Logging debug message on warning level")
+    logger.warning("Logging debug message on warning level")
     user_context = get_logging_user_context(request)
     logger.error("Logging debug message on error level", exc_info=True, extra={"user": user_context})
     logger.fatal("Logging debug message on fatal level")

@@ -51,7 +51,7 @@ Below is a recipe for generating dynamic image rescales from URL sources. Images
         # Sanity check and potentially prevent some abuse
         if source_content_type:
             if source_content_type not in ("image/jpeg", "image/png"):
-                logger.warn("Unsupported image rescale content type: %s", source_content_type)
+                logger.warning("Unsupported image rescale content type: %s", source_content_type)
                 return HTTPNotImplemented()
 
         # Allow override cache for testing on when giving URL like:
@@ -59,7 +59,7 @@ Below is a recipe for generating dynamic image rescales from URL sources. Images
         # This is to fix potential single caes error
         redraw = "redraw" in request.params
         if redraw:
-            logger.warn("Forced redraw of image scale")
+            logger.warning("Forced redraw of image scale")
 
         redis = get_redis(request)
         full_cache_key = "image_resize_{}_{}_{}_{}".format(cache_key, width, height, format)

@@ -152,7 +152,7 @@ def send_templated_mail(request: Request, recipients: t.List, template: str, con
         immediate = asbool(request.registry.settings.get("mail.immediate", False))
 
     if not tm:
-        logger.warn("Warning: Implicit immediate email, because no transaction manager: %s", subject)
+        logger.warning("Warning: Implicit immediate email, because no transaction manager: %s", subject)
         immediate = True
 
     if immediate:

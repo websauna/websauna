@@ -18,7 +18,7 @@ Example how to do a Colander validator which checks that the form has not been s
             if rollingwindow.check(request.registry, "invite_friends", window=3600, limit=limit):
 
                 # Alert devops through Sentry
-                logger.warn("Excessive invite traffic")
+                logger.warning("Excessive invite traffic")
 
                 # Tell users slow down
                 raise c.Invalid(node, 'Too many outgoing invites at the moment. Please try again later.')

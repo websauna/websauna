@@ -222,7 +222,7 @@ def debug(request, registry, settings):
     """
 
     def _dummy():
-        logger.warn("{{ debug() }} invoked, but websauna.template_debugger not set")
+        logger.warning("{{ debug() }} invoked, but websauna.template_debugger not set")
         return ""
 
     template_debugger = settings.get("websauna.template_debugger")

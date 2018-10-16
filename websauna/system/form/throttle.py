@@ -65,7 +65,7 @@ def create_throttle_validator(name: str, max_actions_in_time_window: int, time_w
             if rollingwindow.check(request.registry, "throttle_" + name, window=time_window_in_seconds, limit=limit):
 
                 # Alert devops through Sentry
-                logger.warn("Excessive form submissions on %s", name)
+                logger.warning("Excessive form submissions on %s", name)
 
                 # Tell users slow down
                 raise c.Invalid(node, 'Too many form submissions at the moment. Please try again later.')

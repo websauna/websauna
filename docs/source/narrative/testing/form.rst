@@ -65,7 +65,7 @@ Example form handler view:
 
             if rollingwindow.check(request.registry, "invite_friends", window=3600, limit=limit):
                 # Alert devops through Sentry
-                logger.warn("Newsletter subscription overflow")
+                logger.warning("Newsletter subscription overflow")
                 return HTTPTooManyRequests("Too many subscriptions to the newsletter. Please wait 10 minutes and try again.")
 
             if "subscribe" in request.POST:

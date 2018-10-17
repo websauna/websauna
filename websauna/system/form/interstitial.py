@@ -3,8 +3,8 @@
 import typing as t
 
 # Pyramid
+from pyramid.csrf import check_csrf_token
 from pyramid.httpexceptions import HTTPBadRequest
-from pyramid.session import check_csrf_token
 
 # Websauna
 from websauna.system.http import Request

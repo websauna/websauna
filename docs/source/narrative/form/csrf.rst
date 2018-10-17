@@ -55,7 +55,7 @@ If you want to process HTTP POST submissions without the automatic check you can
 
 Check the token in your view handling form submission::
 
-    from pyramid.session import check_csrf_token
+    from pyramid.csrf import check_csrf_token
     from websauna.system.core.route import simple_route
     from websauna.system.core import messages
 

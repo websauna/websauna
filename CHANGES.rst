@@ -7,6 +7,8 @@ Changelog for Websauna
 
 - Replace deprecated logger.warn with logger.warning.
 
+- Replace deprecated pyramid.session.check_csrf_token with pyramid.csrf.check_csrf_token.
+
 
 1.0a11 (2018-10-10)
 -------------------

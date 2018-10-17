@@ -99,8 +99,8 @@ create a version which also allows process the votes. Edit the following to ``my
 .. code-block:: python
 
     # ...
+    from pyramid.csrf import check_csrf_token
     from pyramid.httpexceptions import HTTPNotFound, HTTPFound
-    from pyramid.session import check_csrf_token
     from websauna.utils.slug import slug_to_uuid
     from websauna.utils.slug import uuid_to_slug
     from websauna.system.core import messages

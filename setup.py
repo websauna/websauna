@@ -50,6 +50,7 @@ setup(
     install_requires=[
         # Pyramid dependencies
         'pyramid>=1.9',
+        'transaction>=2.4.0',
         'waitress',
         'pyramid_redis_sessions',
         'pyramid-layout',

@@ -9,6 +9,10 @@ Changelog for Websauna
 
 - Replace deprecated pyramid.session.check_csrf_token with pyramid.csrf.check_csrf_token.
 
+- Upgrades transaction to version 2.4.0.
+
+- Closes `Issue #206`_: New implementation of ThreadTransactionManager breaks websauna.
+
 
 1.0a11 (2018-10-10)
 -------------------
@@ -147,3 +151,4 @@ Changelog for Websauna
 .. _`Issue #179`: https://github.com/websauna/websauna/issues/179
 .. _`Issue #193`: https://github.com/websauna/websauna/issues/193
 .. _`Issue #195`: https://github.com/websauna/websauna/issues/195
+.. _`Issue #206`: https://github.com/websauna/websauna/issues/206

@@ -8,6 +8,7 @@ from functools import wraps
 
 # Pyramid
 import transaction
+from transaction import ThreadTransactionManager
 from transaction import TransactionManager
 
 
@@ -30,11 +31,15 @@ class TooDeepInTransactions(Exception):
     """@retryable function messed up with the transaction management"""
 
 
-def ensure_transactionless(msg=None, transaction_manager=transaction.manager):
+def ensure_transactionless(msg=None, transaction_manager: t.Union[TransactionManager, ThreadTransactionManager] = transaction.manager):
     """Make sure the current thread doesn't already have db transaction in process.
 
-    :param transaction_manager: TransactionManager to check. Defaults to thread local transaction manager.
+    :param transaction_manager: TransactionManager to check. Defaults to thread local transaction manager (ThreadTransactionManager).
     """
+    if isinstance(transaction_manager, ThreadTransactionManager):
+        # Since transaction 2.4.0, ThreadTransactionManager does not inherit from TransactionManager
+        # but creates a new TransactionManager on initialization
+        transaction_manager = transaction_manager.manager
 
     txn = transaction_manager._txn
 

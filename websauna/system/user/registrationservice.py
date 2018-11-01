@@ -92,7 +92,7 @@ class DefaultRegistrationService:
         # TODO: Broken abstraction, we assume user.email is a attribute
         send_templated_mail(self.request, [user.email], "login/email/activate", context)
 
-    def activate_by_email(self, activation_code: str, location: str=None) -> Response:
+    def activate_by_email(self, activation_code: str, location: str = None) -> Response:
         """Active a user after user after the activation email.
 
             * User clicks link in the activation email

@@ -411,7 +411,7 @@ def _get_route_data(route, registry):
             yield route.name, pattern, view
 
 
-def include_in_sitemap(include: t.Optional[bool]=None, condition: t.Optional[t.Callable]=None):
+def include_in_sitemap(include: t.Optional[bool] = None, condition: t.Optional[t.Callable] = None):
     """A function decorator to determine if a view should be included in the automatically generated sitemap.
 
     You need to give either ``include`` argument or ``condition``. If this view decorator is not present the view is always included.

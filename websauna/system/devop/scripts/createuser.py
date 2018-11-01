@@ -38,9 +38,9 @@ def create(
         request,
         username: str,
         email: str,
-        password: t.Optional[str]=None,
-        source: str='command_line',
-        admin: bool=False
+        password: t.Optional[str] = None,
+        source: str = 'command_line',
+        admin: bool = False
 ) -> IUserModel:
     """Create a new site user from command line.
 
@@ -77,7 +77,7 @@ def create(
     return u
 
 
-def main(argv: t.List[str]=sys.argv):
+def main(argv: t.List[str] = sys.argv):
     """Create a new site user from command line.
 
     :param argv: Command line arguments, second one needs to be the uri to a configuration file.

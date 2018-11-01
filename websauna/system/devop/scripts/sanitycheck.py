@@ -25,7 +25,7 @@ Config {config_uri} was not found.
 """
 
 
-def main(argv: t.List[str]=sys.argv):
+def main(argv: t.List[str] = sys.argv):
     """Execute a sanity check on the configuration.
 
     :param argv: Command line arguments, second one needs to be the uri to a configuration file.
@@ -40,7 +40,7 @@ def main(argv: t.List[str]=sys.argv):
         init_websauna(config_uri, sanity_check=True)
     except SanityCheckFailed as exc:
         feedback_and_exit(FAIL_MSG.format(exception=str(exc)), 10)
-    except FileNotFoundError as exc:
+    except FileNotFoundError:
         feedback_and_exit(NOT_FOUND_MSG.format(config_uri=config_uri), 10)
 
     feedback_and_exit(SUCCESS_MSG, 0)

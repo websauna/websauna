@@ -61,7 +61,7 @@ def setup_logging(config_uri, disable_existing_loggers=False):
     loader.setup_logging(disable_existing_loggers=disable_existing_loggers)
 
 
-def setup_console_logging(log_level: t.Optional[str]=None):
+def setup_console_logging(log_level: t.Optional[str] = None):
     """Setup console logging.
 
     Aimed to give easy sane defaults for logging in command line applications.
@@ -90,7 +90,7 @@ def setup_console_logging(log_level: t.Optional[str]=None):
     logger.setLevel(logging.ERROR)
 
 
-def init_websauna(config_uri: str, sanity_check: bool=False, console_app: bool=False, extra_options: dict=None) -> Request:
+def init_websauna(config_uri: str, sanity_check: bool = False, console_app: bool = False, extra_options: dict = None) -> Request:
     """Initialize Websauna WSGI application for a command line oriented script.
 
     Example:

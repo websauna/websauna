@@ -97,7 +97,7 @@ class ILoginService(Interface):
     Use :py:func:`websauna.system.user.utils.get_login_service` to get access to configured login service.
     """
 
-    def authentication_user(user: IUser, login_source: str, location: str=None) -> IResponse:
+    def authentication_user(user: IUser, login_source: str, location: str = None) -> IResponse:
         """Make the current session logged in session for this particular user.
 
         A password check is not performed. However it is checked if user is active and such.
@@ -107,7 +107,7 @@ class ILoginService(Interface):
         :raise AuthenticationFailure: If the user is disabled
         """
 
-    def authenticate_credentials(username: str, login_source: str, password: str, location: str=None) -> IResponse:
+    def authenticate_credentials(username: str, login_source: str, password: str, location: str = None) -> IResponse:
         """Logs in the user.
 
         This is called after the user credentials have been validated.
@@ -127,7 +127,7 @@ class ILoginService(Interface):
         :raise AuthenticationFailure: If the password does not match or user is disabled
         """
 
-    def logout(location: str=None) -> IResponse:
+    def logout(location: str = None) -> IResponse:
         """Log out user from the site.
 
         * Terminate session

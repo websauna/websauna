@@ -25,13 +25,15 @@ class Column:
     def __init__(
             self,
             id: str,
-            name: t.Optional[str]=None,
+            name: t.Optional[str] = None,
             renderer=None,
-            header_template: t.Optional[str]=None,
-            body_template: t.Optional[str]=None,
-            getter: t.Optional[t.Callable]=None,
-            format: t.Optional[str]=None,
-            navigate_view_name=None, navigate_url_getter=None):
+            header_template: t.Optional[str] = None,
+            body_template: t.Optional[str] = None,
+            getter: t.Optional[t.Callable] = None,
+            format: t.Optional[str] = None,
+            navigate_view_name=None,
+            navigate_url_getter=None
+    ):
         """Initialize Column.
 
         :param id: Column id. Must match field id on the model
@@ -87,7 +89,7 @@ class Column:
         """
         return resource
 
-    def get_navigate_url(self, resource: Resource, request: Request, view_name: t.Optional[str]=None):
+    def get_navigate_url(self, resource: Resource, request: Request, view_name: t.Optional[str] = None):
         """Get the link where clicking this item should take the user.
 
         By default, navigate to "show" view of the resource.
@@ -144,10 +146,10 @@ class ControlsColumn(Column):
 
     def __init__(
             self,
-            id: str='controls',
-            name: t.Optional[str]='Actions',
-            header_template: t.Optional[str]='crud/column_header_controls.html',
-            body_template: t.Optional[str]='crud/column_body_controls.html'
+            id: str = 'controls',
+            name: t.Optional[str] = 'Actions',
+            header_template: t.Optional[str] = 'crud/column_header_controls.html',
+            body_template: t.Optional[str] = 'crud/column_body_controls.html'
     ):
         """Initialize ControlsColumn.
 
@@ -166,10 +168,10 @@ class FriendlyTimeColumn(Column):
             self,
             id: str,
             name: str,
-            navigate_view_name: t.Optional[str]=None,
-            timezone: t.Optional[str]=None,
-            header_template: t.Optional[str]=None,
-            body_template: t.Optional[str]='crud/column_body_friendly_time.html'
+            navigate_view_name: t.Optional[str] = None,
+            timezone: t.Optional[str] = None,
+            header_template: t.Optional[str] = None,
+            body_template: t.Optional[str] = 'crud/column_body_friendly_time.html'
     ):
         """Initialize FriendlyTimeColumn.
 
@@ -189,7 +191,7 @@ class FriendlyTimeColumn(Column):
 class Table:
     """Describe table columns to a CRUD listing view."""
 
-    def __init__(self, columns: t.Optional[t.List[Column]]=None):
+    def __init__(self, columns: t.Optional[t.List[Column]] = None):
         """Initialize Table.
 
         :param columns: List of columns to be used to render the list view.

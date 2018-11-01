@@ -264,7 +264,7 @@ class DefaultPaginator:
 
     default_size = 20
 
-    def __init__(self, template: t.Optional[str]=None, default_size: t.Optional[int]=None):
+    def __init__(self, template: t.Optional[str] = None, default_size: t.Optional[int] = None):
         """Initialize DefaultPaginator.
 
         :param template: Path to paginator template.

@@ -64,7 +64,7 @@ class FlashMessage(object):
         return not(self == other)
 
 
-def add(request: Request, msg: str, kind: str="info", msg_id: str=None, extra: dict=None, html=False, allow_duplicates=False):
+def add(request: Request, msg: str, kind: str = "info", msg_id: str = None, extra: dict = None, html=False, allow_duplicates=False):
     """Add a message which is shown to the user on the next page load.
 
     This is so called Flash message. The message is stored in the session. On the next page load, the HTML templates and framework must read all pending messages from the session store and display them to the user. Usually this is a notification rendered at the top of the page.

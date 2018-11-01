@@ -78,7 +78,7 @@ def is_retryable(txn, error):
             return True
 
 
-def retryable(tm: t.Optional[TransactionManager]=None, get_tm: t.Optional[t.Callable]=None):
+def retryable(tm: t.Optional[TransactionManager] = None, get_tm: t.Optional[t.Callable] = None):
     """Function decorator for§ SQL Serialized transaction conflict resolution through retries.
 
     You need to give either ``tm`` or ``get_tm`` argument.
@@ -146,7 +146,7 @@ def retryable(tm: t.Optional[TransactionManager]=None, get_tm: t.Optional[t.Call
 
     :param tm: Transaction manager used to control the TX execution
 
-    :param get_tm: Factory function that is called with ``\*args`` and ``\**kwargs`` to get the transaction manager
+    :param get_tm: Factory function that is called with ``args`` and ``kwargs`` to get the transaction manager
     """
 
     def _transaction_retry_wrapper(func):

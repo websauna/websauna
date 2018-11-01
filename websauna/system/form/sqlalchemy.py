@@ -21,7 +21,7 @@ def extract_uuid_to_slug(item):
     return uuid_to_slug(item.uuid)
 
 
-def convert_query_to_tuples(query: Query, first_column: t.Union[str, t.Callable], second_column: t.Union[str, t.Callable], default_choice: t.Optional[str] =None) -> t.List[t.Tuple[str, str]]:
+def convert_query_to_tuples(query: Query, first_column: t.Union[str, t.Callable], second_column: t.Union[str, t.Callable], default_choice: t.Optional[str] = None) -> t.List[t.Tuple[str, str]]:
     """Convert SQLAlchemy query results to (id, name) tuples for select and checkbox widgets.
 
     :param first_column: Column name used to populate value in the first tuple
@@ -74,7 +74,7 @@ class ModelSchemaType:
     #: Name of the column which provides label or such for items in sequence. If not present item __str__ is used.
     label_column = None
 
-    def __init__(self, model: type=None):
+    def __init__(self, model: type = None):
         if model:
             self.model = model
 
@@ -234,7 +234,7 @@ class UUIDModelSet(ModelSet):
 
     match_column = "uuid"
 
-    def __init__(self, model: type=None, match_column: str=None):
+    def __init__(self, model: type = None, match_column: str = None):
         if model:
             self.model = model
 

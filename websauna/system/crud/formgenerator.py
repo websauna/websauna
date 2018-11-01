@@ -53,7 +53,7 @@ class FormGenerator:
 
     """
 
-    def __init__(self, schema_customizer: t.Callable=None, schema_binder: t.Callable=None):
+    def __init__(self, schema_customizer: t.Callable = None, schema_binder: t.Callable = None):
         """Initialize Form Generator."""
         self.schema_customizer = schema_customizer
         self.schema_binder = schema_binder
@@ -116,7 +116,7 @@ class SQLAlchemyFormGenerator(FormGenerator):
     For example use case see :py:class:`websauna.system.user.adminviews.UserAdd`.
     """
 
-    def __init__(self, includes=None, field_mapper=DefaultSQLAlchemyFieldMapper(), customize_schema: t.Callable=None, schema_binder: t.Callable=None):
+    def __init__(self, includes=None, field_mapper=DefaultSQLAlchemyFieldMapper(), customize_schema: t.Callable = None, schema_binder: t.Callable = None):
         """Initialize SQLAlchemyFormGenerator."""
         self.includes = includes
         self.field_mapper = field_mapper

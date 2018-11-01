@@ -27,7 +27,7 @@ Instead, please use the following command;
 """
 
 
-def feedback(message: str, display_border: bool=True):
+def feedback(message: str, display_border: bool = True):
     """Display a feedback message on the console then exit.
 
     :param message: Message to be displayed to the user.
@@ -40,7 +40,7 @@ def feedback(message: str, display_border: bool=True):
     print(message)
 
 
-def feedback_and_exit(message: str, status_code: t.Optional[int]=None, display_border: bool=True):
+def feedback_and_exit(message: str, status_code: t.Optional[int] = None, display_border: bool = True):
     """Display a feedback message on the console then exit.
 
     :param message: Message to be displayed to the user.
@@ -61,7 +61,7 @@ def get_config_uri(argv: t.List[str]) -> str:
     return prepare_config_uri(config_uri)
 
 
-def usage_message(argv: t.List[str], additional_params: str='', additional_line: t.Optional[str]=None):
+def usage_message(argv: t.List[str], additional_params: str = '', additional_line: t.Optional[str] = None):
     """Display usage message and exit.
 
     :param argv: Command line arguments.

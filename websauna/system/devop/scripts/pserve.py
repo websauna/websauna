@@ -17,7 +17,7 @@ except ImportError:
     pass
 
 
-def main(argv: t.List[str]=sys.argv):
+def main(argv: t.List[str] = sys.argv):
     """Proxy to Pyramid pserve script.
 
     This script is deprecated and will be removed in Websauna 1.0.0

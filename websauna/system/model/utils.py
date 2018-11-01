@@ -26,7 +26,7 @@ def secure_uuid():
     return UUID(bytes=os.urandom(16), version=4)
 
 
-def attach_model_to_base(ModelClass: type, Base: type, ignore_reattach: bool=True):
+def attach_model_to_base(ModelClass: type, Base: type, ignore_reattach: bool = True):
     """Dynamically add a model to chosen SQLAlchemy Base class.
 
     More flexibility is gained by not inheriting from SQLAlchemy declarative base and instead plugging in models during the configuration time more.

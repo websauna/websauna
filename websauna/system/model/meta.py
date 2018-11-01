@@ -104,7 +104,7 @@ def _get_psql_engine(settings: dict, prefix: str) -> Engine:
     return engine
 
 
-def get_engine(settings: dict, prefix: str='sqlalchemy.') -> Engine:
+def get_engine(settings: dict, prefix: str = 'sqlalchemy.') -> Engine:
     """Reads config and create a database engine out of it.
 
     :param settings: Application settings
@@ -153,7 +153,7 @@ def _create_session(transaction_manager: TransactionManager, engine: Engine) -> 
 _DEFAULT = object()
 
 
-def create_dbsession(registry: Registry, manager: TransactionManager=None, *, isolation_level=_DEFAULT) -> Session:
+def create_dbsession(registry: Registry, manager: TransactionManager = None, *, isolation_level=_DEFAULT) -> Session:
     """Creates a new database using the configured session pooling.
 
     This is called outside request life cycle when initializing and checking the state of the databases.

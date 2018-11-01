@@ -65,7 +65,7 @@ class simple_route(object):
         return wrapped
 
 
-def add_template_only_view(config: Configurator, pattern: str, name: str, template: str, view_args: t.Optional[dict]=None, route_args: t.Optional[dict]=None):
+def add_template_only_view(config: Configurator, pattern: str, name: str, template: str, view_args: t.Optional[dict] = None, route_args: t.Optional[dict] = None):
     """Adds a view which do not have a specific view function assgined.
 
     The view will render a template with the default template context.

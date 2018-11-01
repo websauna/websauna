@@ -17,7 +17,7 @@ from . import rollingwindow
 logger = logging.getLogger(__name__)
 
 
-def create_throttle_validator(name: str, max_actions_in_time_window: int, time_window_in_seconds: int=3600):
+def create_throttle_validator(name: str, max_actions_in_time_window: int, time_window_in_seconds: int = 3600):
     """Creates a Colander form validator which prevents form submissions exceed certain rate.
 
     The benefit of using validator instead of :func:`throttle_view` decorator is that we can give a nice
@@ -95,10 +95,10 @@ def _read_throttle_settings(settings, setting):
 
 
 def throttled_view(
-        rolling_window_id: t.Optional[str]=None,
-        time_window_in_seconds: int=3600,
-        limit: int=50,
-        setting: t.Optional[str]=None):
+        rolling_window_id: t.Optional[str] = None,
+        time_window_in_seconds: int = 3600,
+        limit: int = 50,
+        setting: t.Optional[str] = None):
     """Decorate a view to protect denial-of-service attacks using throttling.
 
     If the global throttling limit is exceeded the client gets HTTP 429 error.

@@ -36,7 +36,7 @@ class CRUD(_CRUD):
     A traversing endpoint which maps listing, add, edit and delete views for an SQLAlchemy model.
     """
 
-    def __init__(self, request: IRequest, model: t.Optional[type]=None):
+    def __init__(self, request: IRequest, model: t.Optional[type] = None):
         """Create a CRUD root resource for a given model.
 
         :param request: Current HTTP Request.

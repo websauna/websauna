@@ -16,7 +16,7 @@ from websauna.system.devop.scripts import usage_message
 from websauna.system.model.meta import Base
 
 
-def main(argv: t.List[str]=sys.argv):
+def main(argv: t.List[str] = sys.argv):
     """Print out sql statements needed to construct currently configured models.
 
     :param argv: Command line arguments, second one needs to be the uri to a configuration file.

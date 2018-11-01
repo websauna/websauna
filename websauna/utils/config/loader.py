@@ -36,7 +36,7 @@ class Loader(plaster_pastedeploy.Loader):
         uri.scheme = 'file'
         super().__init__(uri)
 
-    def _get_loader(self, defaults: t.Optional[dict]=None) -> ConfigLoader:
+    def _get_loader(self, defaults: t.Optional[dict] = None) -> ConfigLoader:
         """Return a ConfigLoader instance.
 
         :param defaults: Dict with default values.
@@ -47,7 +47,7 @@ class Loader(plaster_pastedeploy.Loader):
         loader.update_defaults(defaults)
         return loader
 
-    def _get_parser(self, defaults: t.Optional[dict]=None) -> IncludeAwareConfigParser:
+    def _get_parser(self, defaults: t.Optional[dict] = None) -> IncludeAwareConfigParser:
         """Return an instance of IncludeAwareConfigParser.
 
         :param defaults: Dict with default values.
@@ -55,7 +55,7 @@ class Loader(plaster_pastedeploy.Loader):
         """
         return self._get_loader(defaults).parser
 
-    def setup_logging(self, defaults: t.Optional[dict]=None, disable_existing_loggers=False):
+    def setup_logging(self, defaults: t.Optional[dict] = None, disable_existing_loggers=False):
         """Set up logging via :func:`logging.config.fileConfig`.
 
         Defaults are specified for the special ``__file__`` and ``here``

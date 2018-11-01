@@ -22,7 +22,7 @@ def validate_json(node, value, **kwargs):
         raise colander.Invalid(node, "Not valid JSON")
 
 
-def enum_values(source: enum.Enum, default: t.Optional[t.Tuple]=("", "Please choose"), name_transform=str.title) -> t.Iterable[t.Tuple]:
+def enum_values(source: enum.Enum, default: t.Optional[t.Tuple] = ("", "Please choose"), name_transform=str.title) -> t.Iterable[t.Tuple]:
     """Turn Python Enum to key-value pairs lists to be used with selection widgets."""
 
     def inner():

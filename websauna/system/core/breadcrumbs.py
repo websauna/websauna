@@ -20,7 +20,7 @@ def get_human_readable_resource_name(resource: Resource) -> str:
     return resource.__name__
 
 
-def get_breadcrumbs(context: Resource, request: Request, root_iface: type=None, current_view_name=None, current_view_url=None) -> t.List:
+def get_breadcrumbs(context: Resource, request: Request, root_iface: type = None, current_view_name=None, current_view_url=None) -> t.List:
     """Create breadcrumbs path data how to get to this resource from the root.
 
     Traverse context :class:`Resource` up to the root resource in the reverse order. Fill in data for rendering

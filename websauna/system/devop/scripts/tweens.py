@@ -10,7 +10,7 @@ import typing as t
 from websauna.system.devop.scripts import proxy_to_pyramid_script
 
 
-def main(argv: t.List[str]=sys.argv):
+def main(argv: t.List[str] = sys.argv):
     """Proxy to Pyramid ptweens script.
 
     This script is deprecated and will be removed in Websauna 1.0.0

@@ -86,7 +86,7 @@ class DefaultLoginService:
         """
         messages.add(self.request, kind="success", msg="You are now logged in.", msg_id="msg-you-are-logged-in")
 
-    def do_post_login_actions(self, user: IUser, headers: dict, location: str=None) -> Response:
+    def do_post_login_actions(self, user: IUser, headers: dict, location: str = None) -> Response:
         """What happens after a successful login.
 
         Override this to customize e.g. where the user lands.
@@ -110,7 +110,7 @@ class DefaultLoginService:
 
         return HTTPFound(location=location, headers=headers)
 
-    def authenticate_user(self, user: IUser, login_source: str, location: str=None) -> Response:
+    def authenticate_user(self, user: IUser, login_source: str, location: str = None) -> Response:
         """Make the current session logged in session for this particular user.
 
         How to authenticate user using the login service (assuming you have done password match or related yourself):
@@ -152,7 +152,7 @@ class DefaultLoginService:
 
         return self.do_post_login_actions(user, headers, location)
 
-    def authenticate_credentials(self, username: str, password: str, login_source: str, location: str=None) -> Response:
+    def authenticate_credentials(self, username: str, password: str, login_source: str, location: str = None) -> Response:
         """Try logging in the user with username and password.
 
         This is called after the user credentials have been validated, after sign up when direct sign in after sign up is in use or after successful federated authentication.
@@ -172,7 +172,7 @@ class DefaultLoginService:
         user = self.check_credentials(username, password)
         return self.authenticate_user(user, login_source, location)
 
-    def logout(self, location: str=None) -> Response:
+    def logout(self, location: str = None) -> Response:
         """Log out user from the site.
 
         * Terminate session

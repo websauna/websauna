@@ -79,7 +79,7 @@ class UUID(UUIDType):
     #: We force PSQL implementation by default here so that Alembic migration scripts don't do a column with unnecessary length attribute: sa.Column('uuid', websauna.system.model.columns.UUID(length=16), nullable=True),
     impl = postgresql.UUID()
 
-    def __init__(self, as_uuid: bool=True):
+    def __init__(self, as_uuid: bool = True):
         super(UUID, self).__init__(binary=True, native=True)
 
     def load_dialect_impl(self, dialect):

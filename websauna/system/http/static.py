@@ -73,7 +73,7 @@ def md5(filename: str) -> str:
 class CopyAndHashCollector:
     """Toss all static files into perma-asset folder, MD5 hash included in the name."""
 
-    def __init__(self, root: str, settings: dict, target_path: str=None):
+    def __init__(self, root: str, settings: dict, target_path: str = None):
         """Initialize CopyAndHashCollector.
 
         :param root: Root path.

@@ -135,7 +135,7 @@ class CRUD(_Resource):
         """
         raise NotImplementedError('Please use concrete subclass like websauna.syste.crud.sqlalchemy')
 
-    def get_object_url(self, obj: object, view_name: t.Optional[str]=None) -> str:
+    def get_object_url(self, obj: object, view_name: t.Optional[str] = None) -> str:
         """Get URL for view for an object inside this CRUD.
 
         :param obj: Raw object, e.g. SQLAlchemy instance, which can be wrapped with ``wrap_to_resource``.

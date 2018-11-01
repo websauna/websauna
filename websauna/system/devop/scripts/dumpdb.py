@@ -22,7 +22,7 @@ DUMP_SCRIPT = os.path.join(os.path.dirname(__file__), 'psql-dump.bash')
 logger = logging.getLogger(__name__)
 
 
-def main(argv: t.List[str]=sys.argv):
+def main(argv: t.List[str] = sys.argv):
     """Wrapper for pgsql-dump.bash script.
 
     :param argv: Command line arguments, second one needs to be the uri to a configuration file.

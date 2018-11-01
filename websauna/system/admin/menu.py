@@ -58,7 +58,7 @@ class Entry:
 
     caret = "fa fa-caret-down"
 
-    def __init__(self, id: str, label: str, icon: str=None, caret: str=None, css_class: str=None, template: str=None, submenu: Menu=None, condition: t.Callable=None, link: t.Callable=None, extra: dict=None):
+    def __init__(self, id: str, label: str, icon: str = None, caret: str = None, css_class: str = None, template: str = None, submenu: Menu = None, condition: t.Callable = None, link: t.Callable = None, extra: dict = None):
         """
         :param id: Machine id and CSS id for this menu entry
         :param label: Human-readable label of the menu item

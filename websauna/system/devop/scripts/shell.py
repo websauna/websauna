@@ -27,7 +27,7 @@ except ImportError as e:
     raise ImportError("You need to install IPython to use this shell") from e
 
 
-def main(argv: t.List[str]=sys.argv):
+def main(argv: t.List[str] = sys.argv):
     """Execute the IPython shell prompt with Websauna configuration already initialised.
 
     :param argv: Command line arguments, second one needs to be the uri to a configuration file.

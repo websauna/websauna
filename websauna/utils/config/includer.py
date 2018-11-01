@@ -125,7 +125,7 @@ class IncludeAwareConfigParser(loadwsgi.NicerConfigParser):
                 self.read_include(include, fpname)
 
     @classmethod
-    def retrofit_settings(cls, global_config: dict, section: str='app:main') -> dict:
+    def retrofit_settings(cls, global_config: dict, section: str = 'app:main') -> dict:
         """Update settings dictionary given to WSGI application constructor by Paster to have included settings.
 
         :param global_config: global_config dict as given by Paster

@@ -82,7 +82,7 @@ def log_redis_statistics(redis: StrictRedis):
     logger.debug("Redis connection statistics - process: %s, thread: %s, created: %d, max: %d, in-use: %d, available: %d", process_name, thread_name, created, max_connections, available, in_use)
 
 
-def get_redis(request_or_registry: t.Union[Request, Registry], url: str=None, redis_client=StrictRedis, **redis_options) -> StrictRedis:
+def get_redis(request_or_registry: t.Union[Request, Registry], url: str = None, redis_client=StrictRedis, **redis_options) -> StrictRedis:
     """Get a connection to Redis.
 
     Example:
@@ -136,7 +136,7 @@ def is_sane_redis(config: Configurator) -> bool:
         redis = get_redis(config.registry)
         redis.set("websauna_session_test", True)
         return True
-    except ConnectionError as e:
+    except ConnectionError:
         return False
 
 

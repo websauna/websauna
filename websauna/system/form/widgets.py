@@ -66,7 +66,7 @@ class JSONWidget(deform.widget.TextAreaWidget):
             try:
                 cstruct = json.loads(cstruct)
                 return json.dumps(cstruct, sort_keys=True, indent=4)
-            except Exception as e:
+            except Exception:
                 pass
 
         return cstruct

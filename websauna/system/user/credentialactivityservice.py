@@ -25,7 +25,7 @@ class DefaultCredentialActivityService:
     def __init__(self, request: Request):
         self.request = request
 
-    def create_forgot_password_request(self, email: str, location: str=None) -> Response:
+    def create_forgot_password_request(self, email: str, location: str = None) -> Response:
         """Create a new email activation token for a user and produce the following screen.
 
         * Sets user password reset token
@@ -69,7 +69,7 @@ class DefaultCredentialActivityService:
         user = user_registry.get_user_by_password_reset_token(activation_code)
         return user
 
-    def reset_password(self, activation_code: str, password: str, location: str=None) -> Response:
+    def reset_password(self, activation_code: str, password: str, location: str = None) -> Response:
         """Perform actual password reset operations.
 
         User has following password reset link (GET) or enters the code on a form.

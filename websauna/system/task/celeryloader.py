@@ -149,7 +149,7 @@ def fix_celery_logging(loglevel, logfile, format, colorize, **kwargs):
     setup_logging(ini_file)
 
 
-def main(argv: t.List[str]=sys.argv):
+def main(argv: t.List[str] = sys.argv):
     """Celery process entry point.
 
     Wrap celery command line script with our INI reader.

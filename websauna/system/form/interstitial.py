@@ -13,7 +13,7 @@ from websauna.system.http import Request
 class Choice:
     """Present one interstitial choice button given to a user."""
 
-    def __init__(self, label: str, callback: t.Callable, id: str=None, css_class=None, icon_class=None):
+    def __init__(self, label: str, callback: t.Callable, id: str = None, css_class=None, icon_class=None):
         """
         :param label: Human readable label
         :param callback: Function called when this choice is made. Takes Must return

@@ -51,7 +51,7 @@ class ResourceButton:
     #: The template used to render this button. Also overridable through the constructor.
     template = "crud/resource_button.html"
 
-    def __init__(self, id: t.Optional[str]=None, name: t.Optional[str]=None, template: t.Optional[str]=None, permission: t.Optional[str]=None, tooltip: t.Optional[str]=None, feature: t.Optional[str]=None):
+    def __init__(self, id: t.Optional[str] = None, name: t.Optional[str] = None, template: t.Optional[str] = None, permission: t.Optional[str] = None, tooltip: t.Optional[str] = None, feature: t.Optional[str] = None):
         """
         :param id: Id of the button to be used as HTML id
         :param name:  Human readable label of the button

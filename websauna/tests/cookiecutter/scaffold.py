@@ -274,7 +274,7 @@ def app_scaffold(request, cookiecutter_config) -> str:
     return folder
 
 
-def start_ws_pserve(config: str, cwd: str, wait_and_see: float=5.0, cd_folder=''):
+def start_ws_pserve(config: str, cwd: str, wait_and_see: float = 5.0, cd_folder=''):
     """Simulate starting ws-pserve command from the command line inside the virtualenv.
 
     :param config: Configuration.

@@ -16,7 +16,7 @@ from websauna.system.devop.scripts import get_config_uri
 from websauna.system.devop.scripts import usage_message
 
 
-def main(argv: t.List[str]=sys.argv):
+def main(argv: t.List[str] = sys.argv):
     """Run pgcli shell on the database specified on the configuration file.
 
     :param argv: Command line arguments, second one needs to be the uri to a configuration file.

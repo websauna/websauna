@@ -93,7 +93,7 @@ class Initializer:
         We deliberate push imports inside methods, so that it is unlikely we'd have any import time side effects caused by some less elegant solutions, like gevent.
     """
 
-    def __init__(self, global_config: dict, settings: t.Optional[dict]=None):
+    def __init__(self, global_config: dict, settings: t.Optional[dict] = None):
         """
         :param global_config: Dictionary as passed to WSGI entry point.
 
@@ -661,7 +661,7 @@ class Initializer:
         """Scan all Python modules with asynchoronous and periodic tasks to be imported."""
         try:
             import celery  # noQA
-        except ImportError as e:
+        except ImportError:
             # Celery not installed as optional dependency
             return
 

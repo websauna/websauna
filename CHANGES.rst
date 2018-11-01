@@ -13,6 +13,7 @@ Changelog for Websauna
 
 - Closes `Issue #206`_: New implementation of ThreadTransactionManager breaks websauna.
 
+- Upgrades Pyramid to version 1.10.
 
 1.0a11 (2018-10-10)
 -------------------

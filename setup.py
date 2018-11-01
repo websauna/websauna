@@ -49,7 +49,7 @@ setup(
     python_requires='>=3.5.2',
     install_requires=[
         # Pyramid dependencies
-        'pyramid>=1.9',
+        'pyramid>=1.10',
         'transaction>=2.4.0',
         'waitress',
         'pyramid_redis_sessions',

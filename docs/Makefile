@@ -212,12 +212,12 @@ apidoc:
 publish:
 	aws s3 sync build/html s3://websauna.org/docs
 
-publish-epub: epub
+publish-epub:
 	aws s3 cp build/epub/Websauna.epub s3://websauna.org
 
 sitemap: html
 	python generate-sitemap.py > build/html/sitemap.xml
 
-all: apidoc-clean clean templatedoc filterdoc playbookdoc apidoc html sitemap
+all: apidoc-clean clean templatedoc filterdoc playbookdoc apidoc html sitemap epub
 
 world: all publish publish-epub

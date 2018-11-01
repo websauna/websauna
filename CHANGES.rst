@@ -2,7 +2,7 @@ Changelog for Websauna
 ======================
 
 
-1.0a12 (unreleased)
+1.0a12 (2018-11-01)
 -------------------
 
 - Replace deprecated logger.warn with logger.warning.

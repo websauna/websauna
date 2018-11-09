@@ -351,14 +351,14 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
             type_overrides_kwargs = {}
 
         if imperative_type is not None:
-            if hasattr(imperative_type, '__call__'):
+            if callable(imperative_type):
                 type_ = imperative_type()
             else:
                 type_ = imperative_type
             log.debug('Column %s: type overridden imperatively: %s.', name, type_)
 
         elif declarative_type is not None:
-            if hasattr(declarative_type, '__call__'):
+            if callable(declarative_type):
                 type_ = declarative_type()
             else:
                 type_ = declarative_type
@@ -366,7 +366,7 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
                       name, type_)
 
         elif typedecorator_type is not None:
-            if hasattr(typedecorator_type, '__call__'):
+            if callable(typedecorator_type):
                 type_ = typedecorator_type()
             else:
                 type_ = typedecorator_type
@@ -374,7 +374,7 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
                       name, type_)
 
         elif type_overrides_type is not None:
-            if hasattr(type_overrides_type, '__call__'):
+            if callable(type_overrides_type):
                 type_ = type_overrides_type()
             else:
                 type_ = type_overrides_type

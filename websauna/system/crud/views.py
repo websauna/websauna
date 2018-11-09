@@ -302,23 +302,9 @@ class CSVListing(Listing):
             writer.writerow([c.id for c in columns])
 
             # Write each listing item
-            for idx, model_instance in enumerate(query):
-
-                # Extract column values for this row
+            for model_instance in query:
                 values = [c.get_value(view, model_instance) for c in columns]
-
                 writer.writerow(values)
-                # if idx % buffered_rows == 0:
-                #    yield buf.getvalue().encode(encoding)
-                #    buf.truncate(0)  # But in Python 3, truncate() does not move
-                #    buf.seek(0)  # the file pointer, so we seek(0) explicitly.
-
-            # yield buf.getvalue().encode(encoding)
-
-            # Abort the transaction, otherwise it might not be closed by underlying machinery
-            # (at least tests hang)
-            # TODO: Confirm this behavior with pyramid_tm 2.0 when it's out
-            # request.tm.abort()
 
         # TODO: This use to be response.app_iter, but apparently it doesn't place nicely with pyramid_tm
         generate_csv_data()

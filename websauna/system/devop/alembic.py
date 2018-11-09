@@ -137,7 +137,7 @@ def get_sqlalchemy_metadata(allowed_packages: t.List):
     allowed_tables = []
 
     # Include all SQLAlchemy models in the local namespace
-    for name, klass in Base._decl_class_registry.items():
+    for _name, klass in Base._decl_class_registry.items():
 
         if isinstance(klass, _ModuleMarker):
             continue

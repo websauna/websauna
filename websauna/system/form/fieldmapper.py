@@ -108,7 +108,7 @@ class DefaultSQLAlchemyFieldMapper(ColumnToFieldMapper):
             remote_model = rel.argument
 
         # Get first column of the set
-        for column in rel.local_columns:
+        for column in rel.local_columns:  # noQA
             break
 
         # For now, we automatically deal with this only if the model provides uuid

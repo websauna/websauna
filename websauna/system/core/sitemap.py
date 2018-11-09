@@ -339,7 +339,7 @@ class ReflectiveSitemapBuilder:
 
         # Recurse to children
         if IContainer.providedBy(context):
-            for name, child in context.items():
+            for _name, child in context.items():
                 self.recurse_traversable(router, route, child)
 
     def build_traverse_trees(self):

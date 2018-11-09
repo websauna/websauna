@@ -85,8 +85,8 @@ class ModelAdminRoot(Resource):
         return model_admin_resource
 
     def items(self) -> t.List[t.Tuple[str, ModelAdmin]]:
-        for id, model_cls in self.get_model_admins():
-            yield id, self[id]
+        for id_, _model_cls in self.get_model_admins():
+            yield id_, self[id_]
 
 
 def model_admin(traverse_id: str) -> type:

@@ -166,7 +166,7 @@ class view_overrides(object):
                         toappend = (cb, module_name, liftid, cscope)
 
                         if cscope == 'class':
-                            for ncb, _, nliftid, nscope in callbacks:
+                            for _ncb, _, nliftid, nscope in callbacks:
                                 if (nscope == 'class' and liftid == nliftid):
                                     append = False
                         if append:

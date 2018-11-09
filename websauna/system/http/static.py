@@ -221,7 +221,7 @@ class DefaultStaticAssetPolicy(StaticAssetPolicy):
                     recurse(collector, entry.path)
 
         r = AssetResolver()
-        for name, asset_spec in self.views.items():
+        for _name, asset_spec in self.views.items():
             root = r.resolve(asset_spec).abspath()
             collector = CopyAndHashCollector(root, self.settings)
             recurse(collector, root)

@@ -216,7 +216,7 @@ class DefaultStaticAssetPolicy(StaticAssetPolicy):
 
                 relative = os.path.relpath(entry.path, collector.root)
                 if entry.is_file():
-                    collector.collect(path, name, entry, relative)
+                    collector.collect(path, entry.name, entry, relative)
                 elif entry.is_dir():
                     recurse(collector, entry.path)
 

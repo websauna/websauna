@@ -108,12 +108,12 @@ def filter_datetime(jinja_ctx, context, **kw):
     else:
         tz = arrow.tzinfo
 
-    format = kw.get("format", "YYYY-MM-DD HH:mm")
+    format_ = kw.get("format", "YYYY-MM-DD HH:mm")
 
-    text = arrow.format(format, locale=locale)
+    text = arrow.format(format_, locale=locale)
 
     if kw.get("show_timezone"):
-        text = text + " ({})".format(tz)
+        text = text + " ({0})".format(tz)
 
     return text
 

@@ -122,8 +122,8 @@ class CRUD(_Resource):
         :return: :py:class:`websauna.core.traverse.Resource`
         """
         # First try if we get an view for the current instance with the name
-        id = self.mapper.get_id_from_path(path)
-        obj = self.fetch_object(id)
+        id_ = self.mapper.get_id_from_path(path)
+        obj = self.fetch_object(id_)
         return self.wrap_to_resource(obj)
 
     @abstractmethod

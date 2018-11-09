@@ -63,11 +63,11 @@ def md5(filename: str) -> str:
     :param filename: Name of the file to generate the MD5 hash for.
     :return: md5 hash of the file.
     """
-    hash = hashlib.md5()
+    file_hash = hashlib.md5()
     with open(filename, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
-            hash.update(chunk)
-    return hash.hexdigest()
+            file_hash.update(chunk)
+    return file_hash.hexdigest()
 
 
 class CopyAndHashCollector:
@@ -84,17 +84,20 @@ class CopyAndHashCollector:
         self.settings = settings
         self.collected = defaultdict(dict)
 
-    def get_permanent_path(self, root: str, static_view_name: str, relative_path: str, hash: str) -> str:
+    def get_permanent_path(self, root: str, static_view_name: str, relative_path: str, path_hash: str = '', **kwargs) -> str:
         """Return the permanent path for an asset.
 
         :param root: Root path.
         :param static_view_name: Name of the asset.
         :param relative_path: Relative path of the asset.
-        :param hash: Hash of the file.
+        :param hash_: Hash of the file.
         :return: Permanent path to the asset.
         """
+        # Deal with calls passing hash keyword argument
+        path_hash = path_hash if path_hash else kwargs.get('hash')
+
         base_file, ext = os.path.splitext(relative_path)
-        ext = '.{hash}{ext}'.format(hash=hash, ext=ext)
+        ext = '.{hash}{ext}'.format(hash=path_hash, ext=ext)
         relative_path = base_file + ext
         return os.path.join(self.root, MARKER_FOLDER, relative_path)
 
@@ -107,8 +110,8 @@ class CopyAndHashCollector:
         :param relative_path: Relative path of the asset.
         :return: Permanent path to the asset
         """
-        hash = md5(entry.path)
-        target = self.get_permanent_path(root, static_view_name, relative_path, hash)
+        path_hash = md5(entry.path)
+        target = self.get_permanent_path(root, static_view_name, relative_path, path_hash)
         rel_target = os.path.relpath(target, self.root)
 
         if os.path.exists(target):
@@ -117,8 +120,8 @@ class CopyAndHashCollector:
                 # Same size, not a corrupted copy
                 return rel_target
 
-        dir = os.path.dirname(target)
-        os.makedirs(dir, exist_ok=True)
+        dir_path = os.path.dirname(target)
+        os.makedirs(dir_path, exist_ok=True)
 
         # Create a permanent copy
         shutil.copy(entry.path, target)

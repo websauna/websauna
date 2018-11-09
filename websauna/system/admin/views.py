@@ -29,7 +29,7 @@ def admin(request):
 
     # TODO: Have renderer adapters for panels, so that they can override views
     admin_panels = sorted(model_admin_root.items(), key=lambda pair: pair[1].title)
-    rendered_panels = [render_panel(ma, request, name="admin_panel") for id, ma in admin_panels]
+    rendered_panels = [render_panel(ma, request, name="admin_panel") for _id, ma in admin_panels]
 
     return dict(panels=rendered_panels)
 

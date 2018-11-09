@@ -86,9 +86,9 @@ class ModelSchemaType:
         return self.model
 
     def convert_to_id(self, item):
-        id = getattr(item, self.match_column)
+        id_ = getattr(item, self.match_column)
         value = getattr(item, self.label_column)
-        return (id, value)
+        return (id_, value)
 
     def get_match_column(self, node: colander.SchemaNode, model: type) -> Column:
         """Get the column we are filtering out."""

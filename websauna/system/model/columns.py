@@ -61,11 +61,11 @@ class INET(IPAddressType):
         :return: Representation of this type.
         """
         try:
-            repr = str(self.compile())
+            repr_ = str(self.compile())
         except UnsupportedCompilationError:
             dialect = self.impl._default_dialect()
-            repr = str(self.compile(dialect=dialect))
-        return repr
+            repr_ = str(self.compile(dialect=dialect))
+        return repr_
 
 
 class UUID(UUIDType):

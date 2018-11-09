@@ -193,13 +193,13 @@ class ReflectiveSitemapBuilder:
     def is_included(self, view_data: dict, context: t.Optional[Resource], request: Request):
         """Check if sitemap conditions allow to include this item."""
 
-        callable = view_data.get("callable")
-        if callable is None:
+        callable_ = view_data.get("callable")
+        if callable_ is None:
             # This is route like admin_home without callable, only traversing nesting
             return True
 
         # TODO: Not sure if we need to peek through callable decorator stack
-        sitemap_data = getattr(callable, "_sitemap_data", None)
+        sitemap_data = getattr(callable_, "_sitemap_data", None)
         if sitemap_data is None:
             return True
 

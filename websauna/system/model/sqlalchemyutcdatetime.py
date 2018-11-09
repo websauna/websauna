@@ -19,6 +19,13 @@ class UTCDateTimeTypeDecorator(types.TypeDecorator):
 
     def process_result_value(self, value, engine):
         if value is not None:
-            return datetime.datetime(value.year, value.month, value.day,
-                            value.hour, value.minute, value.second,
-                            value.microsecond, tzinfo=datetime.timezone.utc)
+            return datetime.datetime(
+                value.year,
+                value.month,
+                value.day,
+                value.hour,
+                value.minute,
+                value.second,
+                value.microsecond,
+                tzinfo=datetime.timezone.utc
+            )

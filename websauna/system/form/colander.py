@@ -608,14 +608,16 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
                 # xToOne relationships.
                 return SchemaNode(Mapping(), *children, **kwargs)
 
-        node = PropertyAwareSQLAlchemySchemaNode(class_,
-                                    name=name,
-                                    includes=includes,
-                                    excludes=excludes,
-                                    overrides=rel_overrides,
-                                    missing=missing,
-                                    type_overrides=self.type_overrides,
-                                    relationship_overrides=self.relationship_overrides)
+        node = PropertyAwareSQLAlchemySchemaNode(
+            class_,
+            name=name,
+            includes=includes,
+            excludes=excludes,
+            overrides=rel_overrides,
+            missing=missing,
+            type_overrides=self.type_overrides,
+            relationship_overrides=self.relationship_overrides
+        )
 
         if prop.uselist:
             node = SchemaNode(Sequence(), node, **kwargs)
@@ -625,17 +627,19 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
         return node
 
     def clone(self):
-        cloned = self.__class__(self.class_,
-                                self.dbsession,
-                                self.includes,
-                                self.excludes,
-                                self.overrides,
-                                self.unknown,
-                                self.nested,
-                                self.type_overrides,
-                                self.relationship_overrides,
-                                self.automatic_relationships,
-                                **self.kwargs)
+        cloned = self.__class__(
+            self.class_,
+            self.dbsession,
+            self.includes,
+            self.excludes,
+            self.overrides,
+            self.unknown,
+            self.nested,
+            self.type_overrides,
+            self.relationship_overrides,
+            self.automatic_relationships,
+            **self.kwargs
+        )
         cloned.__dict__.update(self.__dict__)
         cloned.children = [node.clone() for node in self.children]
         return cloned

@@ -10,8 +10,8 @@ from websauna.system.admin.modeladmin import ModelAdminRoot
 from websauna.system.admin.utils import get_admin
 from websauna.system.core.panel import render_panel
 from websauna.system.core.viewconfig import view_overrides
-from websauna.system.crud import views as crud_views
 from websauna.system.crud import listing
+from websauna.system.crud import views as crud_views
 from websauna.system.crud.formgenerator import SQLAlchemyFormGenerator
 from websauna.system.crud.sqlalchemy import sqlalchemy_deleter
 from websauna.system.crud.views import TraverseLinkButton

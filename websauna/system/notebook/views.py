@@ -6,9 +6,9 @@ from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
 
 from pyramid_notebook import startup
+from pyramid_notebook.views import launch_notebook
 from pyramid_notebook.views import notebook_proxy as _notebook_proxy
 from pyramid_notebook.views import shutdown_notebook as _shutdown_notebook
-from pyramid_notebook.views import launch_notebook
 
 # Websauna
 from websauna.system.model.meta import Base

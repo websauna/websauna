@@ -16,9 +16,9 @@ import deform
 from sqlalchemy import Column
 from sqlalchemy import LargeBinary
 from sqlalchemy import Text
-from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
 from sqlalchemy.dialects.postgresql import INET
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
 from sqlalchemy.ext.declarative.clsregistry import _class_resolver
 from sqlalchemy.orm import Mapper
 from sqlalchemy.orm import RelationshipProperty

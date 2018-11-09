@@ -13,8 +13,8 @@ import pkg_resources
 from paste.deploy import loadwsgi
 
 # Websauna
-from websauna.utils.config import exceptions as exc
 from websauna.utils.config import _resource_manager
+from websauna.utils.config import exceptions as exc
 
 
 _VALID_SCHEMAS_ = (

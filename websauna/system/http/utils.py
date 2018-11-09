@@ -13,7 +13,8 @@ from sqlalchemy.orm import Session
 
 # Websauna
 from websauna.system.model.meta import create_dbsession
-from websauna.system.model.meta import create_transaction_manager_aware_dbsession  # noQA
+from websauna.system.model.meta import \
+    create_transaction_manager_aware_dbsession  # noQA
 
 
 def make_routable_request(dbsession: t.Optional[Session] = None, registry: t.Optional[Registry] = None, path='/') -> IRequest:

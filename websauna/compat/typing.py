@@ -1,6 +1,7 @@
 """Typing support for Websauna."""
-# flake8: noqa
+
 # Standard Library
+# flake8: noqa
 from posix import stat_result as stat_result
 from typing import *  # pragma: no cover
 

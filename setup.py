@@ -85,6 +85,9 @@ setup(
 
         # Misc
         "python-slugify",  # ASCII slug generation
+
+        # Redis
+        "redis==2.10.6",
     ],
 
     extras_require={
@@ -111,7 +114,7 @@ setup(
             'pytest-runner',
             'pytest-splinter',
             'pytest-timeout',
-            'pytest>=3.0',
+            'pytest<4.0',
             'webtest',
         ],
         "notebook": [

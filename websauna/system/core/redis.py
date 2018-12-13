@@ -134,7 +134,7 @@ def is_sane_redis(config: Configurator) -> bool:
     """
     try:
         redis = get_redis(config.registry)
-        redis.set("websauna_session_test", True)
+        redis.set("websauna_session_test", "success")
         return True
     except ConnectionError:
         return False

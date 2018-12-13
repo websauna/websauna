@@ -5,7 +5,7 @@ Changelog for Websauna
 1.0a13 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Closes `Issue #212`_: Pin to Redis version 2.10.6.
 
 
 1.0a12 (2018-11-01)
@@ -160,3 +160,4 @@ Changelog for Websauna
 .. _`Issue #193`: https://github.com/websauna/websauna/issues/193
 .. _`Issue #195`: https://github.com/websauna/websauna/issues/195
 .. _`Issue #206`: https://github.com/websauna/websauna/issues/206
+.. _`Issue #212`: https://github.com/websauna/websauna/issues/212

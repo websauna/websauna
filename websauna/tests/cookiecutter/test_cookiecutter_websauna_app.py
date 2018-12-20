@@ -123,7 +123,7 @@ def test_migration(app_scaffold, dev_db):  # noQA
             'upgrade head'
         )
         for param in params:
-            execute_app_command('ws-alembic -x packages=all -c my/app/conf/development.ini {param}'.format(param=param), app_scaffold)
+            execute_app_command('ws-alembic -x packages=all -c my/app/conf/travis.ini {param}'.format(param=param), app_scaffold)
 
         # Assert we got migration script for mymodel
         files = os.listdir(os.path.join(app_scaffold, 'my.app', 'alembic', 'versions'))

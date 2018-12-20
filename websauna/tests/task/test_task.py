@@ -19,7 +19,10 @@ from websauna.tests.task import demotasks
 
 @pytest.fixture(scope='module')
 def task_ini_file():
-    return os.path.join(os.path.dirname(__file__), 'task-test.ini')
+    ini_file = "task-test.ini"
+    if os.environ.get("TRAVIS"):
+        ini_file = "task-travis.ini"
+    return os.path.join(os.path.dirname(__file__), ini_file)
 
 
 @pytest.fixture(scope='module')

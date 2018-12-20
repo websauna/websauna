@@ -1,15 +1,17 @@
 language: python
-dist: trusty
+dist: xenial
 
 addons:
-  postgresql: "9.4"
   chrome: stable
 
 services:
-  - postgresql
-  - redis-server
+  - docker
 
 env: # Without this, allow_failures will not work
+  global:
+    # These env variables are passed to scaffold tests that test the tests themselves
+    - SPLINTER_WEBDRIVER=chrome
+    - TRAVIS=true
 
 matrix:
     fast_finish: true
@@ -47,44 +49,26 @@ matrix:
 # http://stackoverflow.com/a/19460794/315168
 cache:
   directories:
-    # /home/travis/.cache/pip/wheels is the normal pip cache folder
     - $HOME/.cache/pip
-    #- .tox
 
 install:
-  - travis_retry pip install tox
-
-# http://stackoverflow.com/questions/39279651/connection-refused-when-running-selenium-tests-in-marionette
-#  - npm install -g geckodriver
+  - pip install -U pip
+  - travis_retry pip install tox coverage-enable-subprocess
 
 # https://docs.travis-ci.com/user/gui-and-headless-browsers/
 before_script:
-  - psql -c 'create database websauna_test;' -U postgres
-  - pip install -U pip
-
-# Install chromedriver - https://sites.google.com/a/chromium.org/chromedriver/
-# This is not provided by Travis, but is needed by Selenium
-  - wget -N http://chromedriver.storage.googleapis.com/2.36/chromedriver_linux64.zip
-  - unzip chromedriver_linux64.zip
-  - chmod +x chromedriver
-  - sudo mv chromedriver /usr/bin
-
-# Make chrome available as "chrome"
-  - sudo ln -s /usr/bin/google-chrome-stable /usr/bin/chrome
-
-  - echo "Using chrome version $(chrome --version) from $(which chrome)"
-  - echo "Using chromedriver version $(chromedriver --version) from $(which chromedriver)"
+  - .travis/setup_chrome.sh
 
 script:
   # https://pypi.python.org/pypi/coverage_enable_subprocess
-  - pip install coverage-enable-subprocess
   - export COVERAGE_PROCESS_START=$PWD/.coveragerc
-  # This env variable is passed to scaffold tests that test the tests themselves
-  - export SPLINTER_WEBDRIVER=chrome
-  - export TRAVIS=true
+  # Start up docker containers
+  - docker-compose -f .travis/docker-compose.yml up -d
   - tox -- --ini=websauna/conf/travis.ini --splinter-webdriver=chrome --splinter-headless=true --debug
 
 after_success:
   - .tox/$TOXENV/bin/codecov
   - .tox/$TOXENV/bin/pip freeze
 
+after_script:
+  - docker-compose -f .travis/docker-compose.yml down

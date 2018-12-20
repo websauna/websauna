@@ -11,8 +11,11 @@ from sqlalchemy import DateTime
 from sqlalchemy import types
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.dialects.postgresql import INET as _INET
+from sqlalchemy.dialects.postgresql import JSON as _JSON
+from sqlalchemy.dialects.postgresql import JSONB as _JSONB
 from sqlalchemy.exc import UnsupportedCompilationError
 from sqlalchemy_utils.types.ip_address import IPAddressType
+from sqlalchemy_utils.types.json import JSONType
 from sqlalchemy_utils.types.uuid import UUIDType
 
 
@@ -92,9 +95,33 @@ class UUID(UUIDType):
             return dialect.type_descriptor(kind)
 
 
+class JSON(JSONType):
+    """Generic JSON type."""
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == 'postgresql':
+            # Use the native JSON type.
+            return dialect.type_descriptor(_JSON())
+        else:
+            return super().load_dialect_impl(dialect)
+
+
+class JSONB(JSONType):
+    """Generic JSONB type."""
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == 'postgresql':
+            # Use the native JSONB type.
+            return dialect.type_descriptor(_JSONB())
+        else:
+            return super().load_dialect_impl(dialect)
+
+
 # Don't expose sqlalchemy_utils internals as they may go away
 __all__ = [
     'UTCDateTime',
     'UUID',
     'INET',
+    'JSON',
+    'JSONB',
 ]

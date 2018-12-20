@@ -13,12 +13,12 @@ from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import inspection
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.indexable import index_property
 from sqlalchemy.orm.session import Session
 
 # Websauna
 from websauna.system.model.columns import INET
+from websauna.system.model.columns import JSONB
 from websauna.system.model.columns import UUID
 from websauna.system.model.columns import UTCDateTime
 from websauna.system.model.json import NestedMutationDict

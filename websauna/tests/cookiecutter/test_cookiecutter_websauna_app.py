@@ -14,7 +14,7 @@ from websauna.tests.cookiecutter.scaffold import replace_file
 from websauna.tests.cookiecutter.scaffold import start_ws_pserve
 
 
-CONFIG = 'ws://my/app/conf/development.ini'
+CONFIG = 'ws://my/app/conf/travis.ini'
 
 
 def execute_app_command(cmdline, folder, timeout=15.0, wait_and_see=None, assert_exit=0):

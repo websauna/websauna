@@ -46,12 +46,14 @@ test_data = (('xxx', 1), ('yyy', 0))
 @pytest.mark.parametrize('query_param,expected_lines', test_data)
 def test_query_jsonb_data(dbsession, registry, query_param, expected_lines):
     """Query JSONB field by one of its keys."""
+    from sqlalchemy import cast, JSON, String, type_coerce
+
     with transaction.manager:
         u = create_user(dbsession, registry)
         assert isinstance(u.user_data, NestedMutationDict)
         u.user_data['phone_number'] = 'xxx'
 
     users = dbsession.query(User).filter(
-        User.user_data['phone_number'].astext == query_param
+        cast(User.user_data['phone_number'], String) == type_coerce(query_param, JSON)
     ).all()
     assert len(users) == expected_lines

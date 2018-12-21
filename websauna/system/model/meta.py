@@ -118,8 +118,8 @@ def get_engine(settings: dict, prefix: str = 'sqlalchemy.') -> Engine:
     if 'postgres' in url:
         engine = _get_psql_engine(settings, prefix)
     else:
-        # Use a default config for other databases
-        engine = engine_from_config(settings, prefix)
+        # Use a default config for other databases, with a custom json_serializer
+        engine = engine_from_config(settings, prefix, json_serializer=json_serializer)
     return engine
 
 

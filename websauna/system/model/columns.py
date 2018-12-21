@@ -11,7 +11,6 @@ from sqlalchemy import DateTime
 from sqlalchemy import types
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.dialects.postgresql import INET as _INET
-from sqlalchemy.dialects.postgresql import JSONB as _JSONB
 from sqlalchemy.exc import UnsupportedCompilationError
 from sqlalchemy_utils.types.ip_address import IPAddressType
 from sqlalchemy_utils.types.uuid import UUIDType
@@ -97,15 +96,8 @@ class JSON(types.JSON):
     """Generic JSON type."""
 
 
-class JSONB(types.JSON):
+class JSONB(JSON):
     """Generic JSONB type."""
-
-    def load_dialect_impl(self, dialect):
-        if dialect.name == 'postgresql':
-            # Use the native JSONB type.
-            return dialect.type_descriptor(_JSONB())
-        else:
-            return super().load_dialect_impl(dialect)
 
 
 # Don't expose sqlalchemy_utils internals as they may go away

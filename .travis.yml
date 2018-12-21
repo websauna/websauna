@@ -35,7 +35,7 @@ matrix:
           env:
           - PYTHON_VERSION=python3.7
           - TOXENV=mysql
-          - DATABASE_URL=mysql+pymysql://mysql:mysql@localhost:3306/websauna_test
+          - DATABASE_URL=mysql+pymysql://websauna:websauna@localhost:3306/websauna_test
           dist: xenial
           sudo: true
         - python: 3.8-dev

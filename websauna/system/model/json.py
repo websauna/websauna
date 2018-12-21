@@ -11,12 +11,12 @@ import json
 # SQLAlchemy
 from sqlalchemy import event
 from sqlalchemy import types
-from sqlalchemy.dialects.postgresql.json import JSON
-from sqlalchemy.dialects.postgresql.json import JSONB
 from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.orm import mapper
 from sqlalchemy.sql.schema import Column
-from sqlalchemy_utils.types.json import JSONType
+
+from websauna.system.model.columns import JSON
+from websauna.system.model.columns import JSONB
 
 
 def _default(obj):
@@ -265,8 +265,8 @@ def wrap_as_nested(key: str, data: object, parent: object) -> object:
 
 
 def is_json_like_column(c: Column) -> bool:
-    """Check if the colum."""
-    return isinstance(c.type, (JSONType, JSON, JSONB))
+    """Check if the column."""
+    return isinstance(c.type, (types.JSON, JSON, JSONB))
 
 
 def _get_column_default(target: object, column: Column):

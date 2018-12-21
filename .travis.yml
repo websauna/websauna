@@ -57,7 +57,7 @@ matrix:
         env:
         - PYTHON_VERSION=python3.7
         - TOXENV=mysql
-        - DATABASE_URL=mysql+pymysql://mysql:mysql@localhost:3306/websauna_test
+        - DATABASE_URL=mysql+pymysql://websauna:websauna@localhost:3306/websauna_test
 
 # http://stackoverflow.com/a/19460794/315168
 cache:

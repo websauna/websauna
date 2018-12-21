@@ -3,20 +3,29 @@ services:
   postgres_db:
     image: postgres:9.6
     environment:
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=websauna_test
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: websauna_test
     ports:
       - "5432:5432"
+
   mysql_db:
     image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - db_data:/var/lib/mysql:rw,delegated
     environment:
-      - MYSQL_PASSWORD=mysql
-      - MYSQL_USER=mysql
-      - MYSQL_DATABASE=websauna_test
+      MYSQL_ROOT_PASSWORD: websauna
+      MYSQL_DATABASE: websauna_test
+      MYSQL_PASSWORD: websauna
+      MYSQL_USER: websauna
     ports:
       - "3306:3306"
+
   redis:
     image: redis
     ports:
       - "6379:6379"
+
+volumes:
+    db_data: {}

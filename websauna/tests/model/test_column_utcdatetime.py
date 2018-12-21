@@ -23,11 +23,11 @@ def test_user_created_at_is_UTCDateTime():
 
 def test_UTCDateTime_set_utc_timezone(dbsession):
     # Create a datetime naive instance
-    naive_now = datetime.datetime.now()
+    naive_last_login = datetime.datetime(2018, 12, 21, 20, 16, 0)
 
     with transaction.manager:
         u = User(email='amazinguser@example.com')
-        u.last_login_at = naive_now
+        u.last_login_at = naive_last_login
         dbsession.add(u)
         dbsession.flush()
 
@@ -36,15 +36,17 @@ def test_UTCDateTime_set_utc_timezone(dbsession):
 
 
 def test_UTCDateTime_keep_timezone_info(dbsession):
-    utc_now = datetime.datetime.utcnow()
+    last_login = datetime.datetime(2018, 12, 21, 20, 16, 0, tzinfo=datetime.timezone.utc)
 
     with transaction.manager:
         u = User(email='amazinguser@example.com')
-        u.last_login_at = utc_now
+        u.last_login_at = last_login
         dbsession.add(u)
         dbsession.flush()
 
     user = dbsession.query(User).get(1)
+
+    assert user.last_login_at == last_login
     assert user.last_login_at.tzinfo == datetime.timezone.utc
 
 

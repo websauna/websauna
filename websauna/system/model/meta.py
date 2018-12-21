@@ -118,7 +118,8 @@ def get_engine(settings: dict, prefix: str = 'sqlalchemy.') -> Engine:
     if 'postgres' in url:
         engine = _get_psql_engine(settings, prefix)
     else:
-        raise RuntimeError('Unknown SQLAlchemy connection URL: {url}'.format(url=url))
+        # Use a default config for other databases
+        engine = engine_from_config(settings, prefix)
     return engine
 
 

@@ -42,6 +42,7 @@ from colanderalchemy.schema import _creation_order
 # Websauna
 from websauna.system.form.sqlalchemy import ModelSchemaType
 from websauna.system.form.sqlalchemy import ModelSetResultList
+from websauna.system.model import columns
 from websauna.utils.jsonb import is_index_property
 
 
@@ -387,7 +388,7 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
         elif isinstance(column_type, Date):
             type_ = colander.Date()
 
-        elif isinstance(column_type, DateTime):
+        elif isinstance(column_type, (DateTime, columns.UTCDateTime)):
             type_ = colander.DateTime(default_tzinfo=None)
 
         elif isinstance(column_type, Enum):

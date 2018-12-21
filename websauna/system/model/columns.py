@@ -20,17 +20,19 @@ class UTCDateTime(types.TypeDecorator):
 
     impl = types.DateTime(timezone=True)
 
-    def process_bind_param(self, value, dialect):
+    def process_bind_param(self, value, **kwargs):
+        """Process input value and store it as utc timezone."""
         if value is not None:
             if not isinstance(value, datetime.datetime):
-                raise TypeError('expected datetime.datetime, not ' + repr(value))
+                raise TypeError('expected datetime.datetime, not {type_}'.format(type_=repr(value)))
             elif value.tzinfo is None:
-                raise ValueError('naive datetime is disallowed')
+                value = value.replace(tzinfo=datetime.timezone.utc)
             return value.astimezone(datetime.timezone.utc)
 
-    def process_result_value(self, value, dialect):
-        if value is not None and value.tzinfo is None:
-            value = value.replace(tzinfo=datetime.timezone.utc)
+    def process_result_value(self, value, **kwargs):
+        """Process database stored value and return a datetime with utc timezone."""
+        if value is not None:
+            value = value.replace(tzinfo=datetime.timezone.utc) if value.tzinfo is None else value
         return value
 
 

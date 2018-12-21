@@ -120,6 +120,9 @@ setup(
         "notebook": [
             "pyramid_notebook>=0.3.0",
         ],
+        "mysql": [
+            "PyMySQL>=0.9.3",
+        ],
         # Command line utilities and like that are needed to make development / production environment friendly
         'utils': ['pgcli>=2'],
         # Using celery based async tasks

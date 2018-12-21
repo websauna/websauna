@@ -9,9 +9,6 @@ from contextlib import closing
 from contextlib import contextmanager
 from tempfile import mkdtemp
 
-# SQLAlchemy
-import psycopg2
-
 import pytest
 from cookiecutter.main import cookiecutter
 
@@ -129,6 +126,8 @@ def preload_wheelhouse(folder: str):
 
 def create_psq_db(request, dbname, dsn=''):
     """py.test fixture to createdb and destroy postgresql database on demand."""
+    import psycopg2
+
     if not dsn:
         dsn = 'dbname=postgres'
     with closing(psycopg2.connect(dsn)) as conn:
@@ -151,6 +150,38 @@ def create_psq_db(request, dbname, dsn=''):
                 cursor.execute("SELECT pg_terminate_backend(pid) from pg_stat_activity where datname='{dbname}'".format(dbname=dbname))
                 conn.commit()
                 cursor.execute("SELECT COUNT(*) FROM pg_database WHERE datname='{dbname}'".format(dbname=dbname))
+                if cursor.fetchone()[0] == 1:
+                    cursor.execute('DROP DATABASE ' + dbname)
+
+    request.addfinalizer(teardown)
+
+
+def create_mysql_db(request, dbname, dsn=''):
+    """py.test fixture to createdb and destroy postgresql database on demand."""
+    import pymysql
+
+    if not dsn:
+        dsn = 'dbname=mysql'
+    with closing(pymysql.connect(dsn)) as conn:
+        conn.autocommit = True
+        with closing(conn.cursor()) as cursor:
+            cursor.execute("SHOW DATABASES LIKE {dbname}'".format(dbname=dbname))
+
+            if cursor.fetchone()[0] == 1:
+                # Prior interrupted test run
+                cursor.execute('DROP DATABASE ' + dbname)
+
+            cursor.execute('CREATE DATABASE ' + dbname)
+
+    def teardown():
+        with closing(pymysql.connect(dsn)) as conn:
+            conn.autocommit = True
+            with closing(conn.cursor()) as cursor:
+
+                # http://blog.gahooa.com/2010/11/03/how-to-force-drop-a-postgresql-database-by-killing-off-connection-processes/
+                cursor.execute("SELECT pg_terminate_backend(pid) from pg_stat_activity where datname='{dbname}'".format(dbname=dbname))
+                conn.commit()
+                cursor.execute("SHOW DATABASES LIKE {dbname}'".format(dbname=dbname))
                 if cursor.fetchone()[0] == 1:
                     cursor.execute('DROP DATABASE ' + dbname)
 

@@ -7,7 +7,6 @@ We have some sqlalchemy_utils aliasing here intenrally. In the future expect tho
 import datetime
 
 # SQLAlchemy
-from sqlalchemy import DateTime
 from sqlalchemy import types
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.dialects.postgresql import INET as _INET
@@ -16,27 +15,23 @@ from sqlalchemy_utils.types.ip_address import IPAddressType
 from sqlalchemy_utils.types.uuid import UUIDType
 
 
-class UTCDateTime(DateTime):
+class UTCDateTime(types.TypeDecorator):
     """An SQLAlchemy DateTime column that explicitly uses timezone aware dates and only accepts UTC."""
 
-    def __init__(self, *args, **kwargs):
-        # If there is an explicit timezone we accept UTC only
-        if "timezone" in kwargs:
-            if kwargs["timezone"] not in (datetime.timezone.utc, True):
-                raise ValueError(
-                    "Only 'datetime.timezone.utc' or True accepted"
-                    " as timezone for '{}'".format(self.__class__.__name__)
-                )
+    impl = types.DateTime(timezone=True)
 
-        kwargs = kwargs.copy()
-        # Using an explict 'True' ensures no false positives
-        # on alembic migrations due to failed equality test.
-        # (issue #162)
-        kwargs["timezone"] = True
-        super(UTCDateTime, self).__init__(**kwargs)
+    def process_bind_param(self, value, dialect):
+        if value is not None:
+            if not isinstance(value, datetime.datetime):
+                raise TypeError('expected datetime.datetime, not ' + repr(value))
+            elif value.tzinfo is None:
+                raise ValueError('naive datetime is disallowed')
+            return value.astimezone(datetime.timezone.utc)
 
-    def _dialect_info(self, dialect):
-        return super(UTCDateTime, self)._dialect_info(dialect)
+    def process_result_value(self, value, dialect):
+        if value is not None and value.tzinfo is None:
+            value = value.replace(tzinfo=datetime.timezone.utc)
+        return value
 
 
 class INET(IPAddressType):

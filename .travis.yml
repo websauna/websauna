@@ -12,6 +12,7 @@ env: # Without this, allow_failures will not work
     # These env variables are passed to scaffold tests that test the tests themselves
     - SPLINTER_WEBDRIVER=chrome
     - TRAVIS=true
+    - DATABASE_URL=postgres://postgres:postgres@localhost:5432/websauna_test
 
 matrix:
     fast_finish: true

@@ -26,6 +26,7 @@ from sqlalchemy.orm.session import Session
 import pytest
 
 # Websauna
+from websauna.system import expandvars_dict  # noQA
 from websauna.system.devop.cmdline import setup_logging  # noQA
 from websauna.system.http.utils import make_routable_request
 from websauna.system.model.meta import create_dbsession
@@ -70,7 +71,7 @@ def ini_settings(request, test_config_path) -> dict:
     loader = plaster.get_loader(test_config_path)
     # Read [app] section
     settings = loader.get_settings('app:main')
-
+    settings = expandvars_dict(settings)
     # To pass the config filename itself forward
     settings["_ini_file"] = test_config_path
 

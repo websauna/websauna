@@ -103,6 +103,7 @@ def _get_psql_engine(settings: dict, prefix: str) -> Engine:
     engine = engine_from_config(settings, prefix, connect_args={"options": "-c timezone=utc"}, client_encoding='utf8', isolation_level='SERIALIZABLE', json_serializer=json_serializer)
     return engine
 
+
 def _get_mysql_engine(settings: dict, prefix: str) -> Engine:
     """Create MySQL engine.
 
@@ -113,6 +114,7 @@ def _get_mysql_engine(settings: dict, prefix: str) -> Engine:
     """
     engine = engine_from_config(settings, prefix, connect_args={"binary_prefix": True}, isolation_level='SERIALIZABLE', json_serializer=json_serializer)
     return engine
+
 
 def get_engine(settings: dict, prefix: str = 'sqlalchemy.') -> Engine:
     """Reads config and create a database engine out of it.

@@ -37,11 +37,13 @@ def test_register_email(web_server, browser, dbsession):
 
     assert b.is_element_present_by_css("#waiting-for-activation")
 
-    # Now peek the Activation link from the database
-    user = get_user(dbsession)
-    assert user.activation.code
+    with transaction.manager:
+        # Now peek the Activation link from the database
+        user = get_user(dbsession)
+        activation_code = user.activation.code
+        assert activation_code
 
-    activation_link = "{}/activate/{}".format(web_server, user.activation.code)
+    activation_link = "{}/activate/{}".format(web_server, activation_code)
 
     b.visit(activation_link)
 

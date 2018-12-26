@@ -186,7 +186,7 @@ def create_mysql_db(request, dbname, dsn=''):
     with closing(pymysql.connect(**conn_dict)) as conn:
         conn.autocommit = True
         with closing(conn.cursor()) as cursor:
-            cursor.execute("SHOW DATABASES LIKE {dbname}'".format(dbname=dbname))
+            cursor.execute("SHOW DATABASES LIKE '{dbname}'".format(dbname=dbname))
 
             if cursor.fetchone()[0] == 1:
                 # Prior interrupted test run
@@ -202,7 +202,7 @@ def create_mysql_db(request, dbname, dsn=''):
                 # http://blog.gahooa.com/2010/11/03/how-to-force-drop-a-postgresql-database-by-killing-off-connection-processes/
                 cursor.execute("SELECT pg_terminate_backend(pid) from pg_stat_activity where datname='{dbname}'".format(dbname=dbname))
                 conn.commit()
-                cursor.execute("SHOW DATABASES LIKE {dbname}'".format(dbname=dbname))
+                cursor.execute("SHOW DATABASES LIKE '{dbname}'".format(dbname=dbname))
                 if cursor.fetchone()[0] == 1:
                     cursor.execute('DROP DATABASE ' + dbname)
 

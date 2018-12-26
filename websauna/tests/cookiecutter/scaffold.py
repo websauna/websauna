@@ -187,8 +187,8 @@ def create_mysql_db(request, dbname, dsn=''):
         conn.autocommit = True
         with closing(conn.cursor()) as cursor:
             cursor.execute("SHOW DATABASES LIKE '{dbname}'".format(dbname=dbname))
-
-            if cursor.fetchone()[0] == 1:
+            results = cursor.fetchone()
+            if results:
                 # Prior interrupted test run
                 cursor.execute('DROP DATABASE ' + dbname)
 
@@ -203,7 +203,8 @@ def create_mysql_db(request, dbname, dsn=''):
                 cursor.execute("SELECT pg_terminate_backend(pid) from pg_stat_activity where datname='{dbname}'".format(dbname=dbname))
                 conn.commit()
                 cursor.execute("SHOW DATABASES LIKE '{dbname}'".format(dbname=dbname))
-                if cursor.fetchone()[0] == 1:
+                results = cursor.fetchone()
+                if results:
                     cursor.execute('DROP DATABASE ' + dbname)
 
     request.addfinalizer(teardown)

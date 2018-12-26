@@ -180,6 +180,8 @@ def create_mysql_db(request, dbname, dsn=''):
     from sqlalchemy.engine.url import make_url
 
     conn_dict = make_url(dsn).translate_connect_args()
+    conn_dict['user'] = conn_dict["username"]
+    del (conn_dict["username"])
 
     with closing(pymysql.connect(**conn_dict)) as conn:
         conn.autocommit = True

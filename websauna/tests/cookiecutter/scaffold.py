@@ -99,6 +99,24 @@ def execute_venv_command(cmdline, cwd, timeout=15.0, wait_and_see=None, assert_e
     return (worker.returncode, worker.stdout.read().decode('utf-8'), worker.stderr.read().decode('utf-8'))
 
 
+def fix_sqlalchemy_url(config_file: str):
+    """Fix sqlalchemy.url setting on the configuration file.
+
+    :param config_file: Path to generated configuration file.
+    """
+    database_url = os.environ.get('DATABASE_URL', '')
+    if database_url:
+        orig_config = open(config_file, 'r').read()
+        # This is set on cookiecutter travis.conf file
+        old_prefix = "postgresql://postgres:postgres@localhost:5432"
+        # We will use the env var DATABASE_URL
+        new_prefix = "/".join(database_url.split("/")[:-1])
+        new_config = orig_config.replace(old_prefix, new_prefix)
+        # Save file with updated content
+        with open(config_file, 'w') as fout:
+            fout.write(new_config)
+
+
 def preload_wheelhouse(folder: str):
     """Speed up tests by loading Python packages from primed cache.
 
@@ -159,10 +177,11 @@ def create_psq_db(request, dbname, dsn=''):
 def create_mysql_db(request, dbname, dsn=''):
     """py.test fixture to createdb and destroy postgresql database on demand."""
     import pymysql
+    from sqlalchemy.engine.url import make_url
 
-    if not dsn:
-        dsn = 'dbname=mysql'
-    with closing(pymysql.connect(dsn)) as conn:
+    conn_dict = make_url(dsn).translate_connect_args()
+
+    with closing(pymysql.connect(conn_dict)) as conn:
         conn.autocommit = True
         with closing(conn.cursor()) as cursor:
             cursor.execute("SHOW DATABASES LIKE {dbname}'".format(dbname=dbname))
@@ -174,7 +193,7 @@ def create_mysql_db(request, dbname, dsn=''):
             cursor.execute('CREATE DATABASE ' + dbname)
 
     def teardown():
-        with closing(pymysql.connect(dsn)) as conn:
+        with closing(pymysql.connect(conn_dict)) as conn:
             conn.autocommit = True
             with closing(conn.cursor()) as cursor:
 
@@ -294,6 +313,8 @@ def app_scaffold(request, cookiecutter_config) -> str:
     # Install the package created by cookiecutter template
     content_folder = os.path.join(folder, extra_context['repo_name'])
     execute_venv_command('pip install -e {0}'.format(content_folder), folder, timeout=5 * 60)
+    config_file = os.path.join(content_folder, "my", "app", "conf", "travis.ini")
+    fix_sqlalchemy_url(config_file)
 
     def teardown():
         # Clean any processes who still think they want to stick around. Namely: ws-shell doesn't die

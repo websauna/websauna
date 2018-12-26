@@ -34,6 +34,7 @@ def gen_test_model():
 
         #: Running counter used in foreign key references
         id = Column(Integer, primary_key=True)
+        another = Column(Integer)
 
     return Base, SaneTestModel
 

@@ -181,7 +181,7 @@ def create_mysql_db(request, dbname, dsn=''):
 
     conn_dict = make_url(dsn).translate_connect_args()
 
-    with closing(pymysql.connect(conn_dict)) as conn:
+    with closing(pymysql.connect(**conn_dict)) as conn:
         conn.autocommit = True
         with closing(conn.cursor()) as cursor:
             cursor.execute("SHOW DATABASES LIKE {dbname}'".format(dbname=dbname))
@@ -193,7 +193,7 @@ def create_mysql_db(request, dbname, dsn=''):
             cursor.execute('CREATE DATABASE ' + dbname)
 
     def teardown():
-        with closing(pymysql.connect(conn_dict)) as conn:
+        with closing(pymysql.connect(**conn_dict)) as conn:
             conn.autocommit = True
             with closing(conn.cursor()) as cursor:
 

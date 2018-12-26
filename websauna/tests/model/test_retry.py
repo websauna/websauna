@@ -54,20 +54,14 @@ class ConflictThread(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
-
         txn = None
-
         try:
-
             dbsession = self.session_factory()
-
             txn = dbsession.transaction_manager.begin()
             TestModel = get_test_model()
-
             # Both threads modify the same wallet simultaneously
             w = dbsession.query(TestModel).get(1)
             w.balance += 1
-
             # Let the other session to start its own transaction
             time.sleep(1)
             dbsession.transaction_manager.commit()

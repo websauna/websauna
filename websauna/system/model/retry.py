@@ -10,6 +10,17 @@ from functools import wraps
 import transaction
 from transaction import ThreadTransactionManager
 from transaction import TransactionManager
+from zope.sqlalchemy.datamanager import _retryable_errors
+
+
+# TODO: Implement this check on zope.sqlalchemy
+# 1213: Deadlock found when trying to get lock; try restarting transaction
+try:
+    import pymysql
+except ImportError:
+    pass
+else:
+    _retryable_errors.append((pymysql.err.OperationalError, lambda e: e.args[0] == 1213))
 
 
 logger = logging.getLogger(__name__)
@@ -62,13 +73,11 @@ def is_retryable(txn, error):
     These transactions should not be caught in catch all exception expressions.
 
 
-
     :param txn:
     :param error:
     :return:
     """
     # Emulate TransactionManager.is_retryable
-
     if txn is None:
         return False
 

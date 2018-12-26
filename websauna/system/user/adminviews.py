@@ -98,7 +98,7 @@ class UserListing(admin_views.Listing):
         :param query: Base query.
         :return: Query ordered by created_at.
         """
-        return query.order_by(self.get_model().created_at.desc())
+        return query.order_by(self.get_model().id.desc())
 
     @view_config(context=UserAdmin, route_name="admin", name="listing", renderer="crud/listing.html", permission='view')
     def listing(self) -> dict:

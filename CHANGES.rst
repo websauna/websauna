@@ -6,6 +6,7 @@ Changelog for Websauna
 -------------------
 
 - Closes `Issue #212`_: Pin to Redis version 2.10.6.
+- Closes `Issue #213`_: Remove unused FormView.customize_schema().
 
 
 1.0a12 (2018-11-01)

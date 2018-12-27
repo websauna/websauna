@@ -28,7 +28,7 @@ Assume ``models.py``:
 
         id = Column(UUID(as_uuid=True),
                     primary_key=True,
-                    server_default=sqlalchemy.text("uuid_generate_v4()"),)
+                    server_default=sqlalchemy.text("gen_random_uuid()"),)
 
         name = Column(String(256))
         phone_number = Column(String(256))
@@ -114,11 +114,12 @@ Below is an example how to create a relation picker in admin interface.
     import typing as t
     import sqlalchemy as sa
     from sqlalchemy import orm
-    import sqlalchemy.dialects.postgresql as psql
     from sqlalchemy.orm import Session
     from pyramid_sms.utils import normalize_us_phone_number
 
     from websauna.system.model.json import NestedMutationDict
+    from websauna.system.model.columns import JSONB
+    from websauna.system.model.columns import UUID
     from websauna.system.model.columns import UTCDateTime
     from websauna.system.model.meta import Base
     from websauna.utils.time import now
@@ -133,13 +134,13 @@ Below is an example how to create a relation picker in admin interface.
         __tablename__ = "branding"
 
         #: Internal id
-        id = sa.Column(psql.UUID(as_uuid=True), primary_key=True, server_default=sa.text("uuid_generate_v4()"))
+        id = sa.Column(UUID(as_uuid=True), primary_key=True, server_default=sa.text("gen_random_uuid()"))
 
         #: Human readable name of the organization. Used in footer, such.
         name = sa.Column(sa.String(256))
 
         #: Misc. bag of branding variables
-        branding_data = sa.Column(NestedMutationDict.as_mutable(psql.JSONB), default=dict)
+        branding_data = sa.Column(NestedMutationDict.as_mutable(JSONB), default=dict)
 
         def __str__(self):
             return self.name or "-"
@@ -151,7 +152,7 @@ Below is an example how to create a relation picker in admin interface.
         __tablename__ = "organization"
 
         #: Internal id
-        id = sa.Column(psql.UUID(as_uuid=True), primary_key=True, server_default=sa.text("uuid_generate_v4()"))
+        id = sa.Column(UUID(as_uuid=True), primary_key=True, server_default=sa.text("gen_random_uuid()"))
 
         #: Human readable name
         name = sa.Column(sa.String(256))
@@ -271,7 +272,6 @@ Websauna comes with a group vocabulary you can use to refer to groups.
 
     import sqlalchemy as sa
     from sqlalchemy import orm
-    import sqlalchemy.dialects.postgresql as psql
 
     from websauna.system.user.models import Group
 
@@ -285,11 +285,15 @@ Websauna comes with a group vocabulary you can use to refer to groups.
 
         #: Management group of this organization
         group_id = sa.Column(sa.ForeignKey("group.id"), nullable=True)
-        group = orm.relationship(Group,
-                                        uselist=False,
-                                        backref=orm.backref("organizations",
-                                            lazy="dynamic",
-                                            single_parent=False,),)
+        group = orm.relationship(
+            Group,
+            uselist=False,
+            backref=orm.backref(
+                "organizations",
+                 lazy="dynamic",
+                 single_parent=False,
+            ),
+        )
 
 ``adminviews.py``:
 

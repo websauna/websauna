@@ -502,7 +502,7 @@ Here is another example:
         """Show invoice model in admin."""
 
         includes = [
-            "id",  # psql.UUID
+            "id",  # UUID
             "label",  # sa.String
 
             # get_billable_amount() is a function on model instance
@@ -519,10 +519,10 @@ Here is another example:
             "external_id",  # sa.String
             "opened_at",  # sa.DateTime
             "due_date_at",  # sa.DateTime
-            "invoice_data",  # psql.JSONB
+            "invoice_data",  # JSONB
             "settlement",  # sa.Enum
             "settled_at",  # sa.DateTime
-            "settlement_data"  # psql.JSONB
+            "settlement_data"  # JSONB
         ]
         form_generator = SQLAlchemyFormGenerator(includes=includes)
 

@@ -90,12 +90,23 @@ class UUID(UUIDType):
             return dialect.type_descriptor(kind)
 
 
-class JSON(types.JSON):
+class JSON(types.TypeDecorator):
     """Generic JSON type."""
 
+    impl = types.JSON()
 
-class JSONB(JSON):
+
+class JSONB(types.TypeDecorator):
     """Generic JSONB type."""
+
+    impl = types.JSON()
+
+    def load_dialect_impl(self, dialect):
+        """Return JSONB when using Postgres"""
+        if dialect.name == 'postgresql':
+            return postgresql.JSONB()
+        else:
+            return types.JSON()
 
 
 # Don't expose sqlalchemy_utils internals as they may go away

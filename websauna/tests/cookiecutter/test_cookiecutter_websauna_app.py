@@ -8,8 +8,7 @@ from flaky import flaky
 # Websauna
 from websauna.tests.cookiecutter.scaffold import app_scaffold  # noQA
 from websauna.tests.cookiecutter.scaffold import cookiecutter_config  # noQA
-from websauna.tests.cookiecutter.scaffold import create_mysql_db
-from websauna.tests.cookiecutter.scaffold import create_psq_db
+from websauna.tests.cookiecutter.scaffold import create_database
 from websauna.tests.cookiecutter.scaffold import execute_venv_command
 from websauna.tests.cookiecutter.scaffold import replace_file
 from websauna.tests.cookiecutter.scaffold import start_ws_pserve
@@ -51,10 +50,7 @@ def start_pserve(scaffold):
 def dev_db(request, ini_settings):
     """Create database app_dev and return its connection information."""
     dsn = ini_settings['sqlalchemy.url']
-    func = create_psq_db
-    if 'mysql' in dsn:
-        func = create_mysql_db
-    return func(request, 'app_dev', dsn)
+    return create_database(request, 'app_dev', dsn)
 
 
 def test_pserve(app_scaffold, dev_db, browser):  # noQA

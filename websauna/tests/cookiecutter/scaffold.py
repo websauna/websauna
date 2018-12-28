@@ -5,9 +5,11 @@ import subprocess
 import sys
 import time
 import typing as t
-from contextlib import closing
 from contextlib import contextmanager
 from tempfile import mkdtemp
+
+# SQLAlchemy
+from sqlalchemy_utils import functions
 
 import pytest
 from cookiecutter.main import cookiecutter
@@ -142,66 +144,31 @@ def preload_wheelhouse(folder: str):
         print('No preloaded Python package cache found')
 
 
-def create_psq_db(request, dbname, dsn=''):
-    """py.test fixture to createdb and destroy postgresql database on demand."""
-    import psycopg2
+def _app_dsn(dsn: str, db_name: str) -> str:
+    """Generate a dsn for a given db_name.
 
-    if not dsn:
-        dsn = 'dbname=postgres'
-    with closing(psycopg2.connect(dsn)) as conn:
-        conn.autocommit = True
-        with closing(conn.cursor()) as cursor:
-            cursor.execute("SELECT COUNT(*) FROM pg_database WHERE datname='{dbname}'".format(dbname=dbname))
-
-            if cursor.fetchone()[0] == 1:
-                # Prior interrupted test run
-                cursor.execute('DROP DATABASE ' + dbname)
-
-            cursor.execute('CREATE DATABASE ' + dbname)
-
-    def teardown():
-        with closing(psycopg2.connect(dsn)) as conn:
-            conn.autocommit = True
-            with closing(conn.cursor()) as cursor:
-
-                # http://blog.gahooa.com/2010/11/03/how-to-force-drop-a-postgresql-database-by-killing-off-connection-processes/
-                cursor.execute("SELECT pg_terminate_backend(pid) from pg_stat_activity where datname='{dbname}'".format(dbname=dbname))
-                conn.commit()
-                cursor.execute("SELECT COUNT(*) FROM pg_database WHERE datname='{dbname}'".format(dbname=dbname))
-                if cursor.fetchone()[0] == 1:
-                    cursor.execute('DROP DATABASE ' + dbname)
-
-    request.addfinalizer(teardown)
+    :param dsn: Base DSN (the one used on all tests).
+    :param db_name: Application database name.
+    :return: A DSN to the application database.
+    """
+    pieces = dsn.split("/")
+    pieces[-1] = db_name
+    return "/".join(pieces)
 
 
-def create_mysql_db(request, dbname, dsn=''):
-    """py.test fixture to createdb and destroy postgresql database on demand."""
-    import pymysql
-    from sqlalchemy.engine.url import make_url
+def create_database(request, db_name, dsn):
+    """py.test fixture to create a database and destroy it after usage."""
+    app_dsn = _app_dsn(dsn, db_name)
+    if functions.database_exists(app_dsn):
+        # Delete existing database
+        functions.drop_database(app_dsn)
 
-    conn_dict = make_url(dsn).translate_connect_args()
-    conn_dict['user'] = conn_dict["username"]
-    del (conn_dict["username"])
-
-    with closing(pymysql.connect(**conn_dict)) as conn:
-        conn.autocommit = True
-        with closing(conn.cursor()) as cursor:
-            cursor.execute("SHOW DATABASES LIKE '{dbname}'".format(dbname=dbname))
-            results = cursor.fetchone()
-            if results:
-                # Prior interrupted test run
-                cursor.execute('DROP DATABASE ' + dbname)
-
-            cursor.execute('CREATE DATABASE ' + dbname)
+    # Create a new database
+    functions.create_database(app_dsn)
 
     def teardown():
-        with closing(pymysql.connect(**conn_dict)) as conn:
-            conn.autocommit = True
-            with closing(conn.cursor()) as cursor:
-                cursor.execute("SHOW DATABASES LIKE '{dbname}'".format(dbname=dbname))
-                results = cursor.fetchone()
-                if results:
-                    cursor.execute('DROP DATABASE ' + dbname)
+        # Delete existing database
+        functions.drop_database(app_dsn)
 
     request.addfinalizer(teardown)
 

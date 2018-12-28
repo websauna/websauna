@@ -112,7 +112,7 @@ def _get_mysql_engine(settings: dict, prefix: str) -> Engine:
     :param prefix: Configuration prefixes
     :return: SQLAlchemy Engine
     """
-    engine = engine_from_config(settings, prefix, connect_args={"binary_prefix": True}, isolation_level='SERIALIZABLE', json_serializer=json_serializer)
+    engine = engine_from_config(settings, prefix, connect_args={"binary_prefix": True, "charset": "utf8mb4"}, isolation_level='SERIALIZABLE', json_serializer=json_serializer)
     return engine
 
 

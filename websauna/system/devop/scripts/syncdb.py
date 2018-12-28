@@ -31,8 +31,9 @@ def main(argv: t.List[str] = sys.argv):
 
     with transaction.manager:
         engine = request.dbsession.get_bind()
-        # Enable pgcrypto and implement a uuid_generate_v4 function
-        engine.execute(UUID_SUPPORT_STMT)
+        if engine.dialect.name == "postgresql":
+            # Enable pgcrypto and implement a uuid_generate_v4 function
+            engine.execute(UUID_SUPPORT_STMT)
 
         Base.metadata.create_all(engine)
 

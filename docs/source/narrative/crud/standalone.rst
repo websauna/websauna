@@ -35,10 +35,10 @@ Below is the model code our CRUD allows to edit. In ``models.py``:
 
     import sqlalchemy as sa
     import sqlalchemy.orm as orm
-    import sqlalchemy.dialects.postgresql as psql
     from sqlalchemy.orm import Session
 
     from websauna.system.model.columns import UTCDateTime
+    from websauna.system.model.columns import UUID
     from websauna.system.model.meta import Base
     from websauna.system.user.models import User
     from websauna.utils.time import now
@@ -50,7 +50,7 @@ Below is the model code our CRUD allows to edit. In ``models.py``:
 
         __tablename__ = "token_contract"
 
-        id = sa.Column(psql.UUID(as_uuid=True), primary_key=True, server_default=sa.text("uuid_generate_v4()"),)
+        id = sa.Column(UUID(as_uuid=True), primary_key=True, server_default=sa.text("gen_random_uuid()"),)
 
         #: Legal name
         name = sa.Column(sa.String(256))

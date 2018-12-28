@@ -16,7 +16,7 @@ Open ``models.py`` and add::
     from uuid import uuid4
 
     from sqlalchemy import Column, String, Integer, ForeignKey
-    from sqlalchemy.dialects.postgresql import UUID
+    from websauna.system.model.columns import UUID
     from sqlalchemy.orm import relationship
 
     from websauna.system.model.meta import Base

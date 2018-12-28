@@ -125,11 +125,11 @@ Note these are normal Python methods. Let’s add a custom method, just for demo
     from uuid import uuid4
 
     from sqlalchemy import Column, String, Integer, ForeignKey
-    from sqlalchemy.dialects.postgresql import UUID
     from sqlalchemy.orm import relationship
 
     from websauna.system.model.meta import Base
     from websauna.system.model.columns import UTCDateTime
+    from websauna.system.model.columns import UUID
     from websauna.utils.time import now
 
 

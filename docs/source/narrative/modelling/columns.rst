@@ -92,7 +92,7 @@ Use ``unique`` attribute in the column declaration. Example:
 
         __tablename__ = "boxy"
 
-        id = Column(UUID(as_uuid=True), primary_key=True, server_default=sqlalchemy.text("uuid_generate_v4()"))
+        id = Column(UUID(as_uuid=True), primary_key=True, server_default=sqlalchemy.text("gen_random_uuid()"))
 
         #: Box's serial number as in the device
         serial_number = Column(LargeBinary(length=16), unique=True, nullable=True)
@@ -110,7 +110,7 @@ Uniqueness across multiple columns
         __tablename__ = "box_event"
 
         #: Id must be externally set, it is not generated
-        id = Column(UUID(as_uuid=True), primary_key=True, server_default=sqlalchemy.text("uuid_generate_v4()"))
+        id = Column(UUID(as_uuid=True), primary_key=True, server_default=sqlalchemy.text("gen_random_uuid()"))
 
         #: When this event originally happened
         happened_at = Column(UTCDateTime, nullable=False)

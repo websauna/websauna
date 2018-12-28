@@ -28,12 +28,12 @@ The basic model creation pattern is the same as in SQLAlchemy (`SQLAlchemy decla
     from uuid import uuid4
 
     from sqlalchemy import Column, String, Integer, ForeignKey
-    from sqlalchemy.dialects.postgresql import UUID
     from sqlalchemy.orm import relationship
     from websauna.system import Initializer
 
     from websauna.system.model.meta import Base
     from websauna.system.model.columns import UTCDateTime
+    from websauna.system.model.columns import UUID
 
     from websauna.utils.time import now
 
@@ -88,30 +88,19 @@ Websauna has extensive support for :term:`UUID` as primary key ids. It uses UUID
 UUID column support in databases
 ++++++++++++++++++++++++++++++++
 
-PostgreSQL and SQLAlchemy have a a native :py:class:`sqlalchemy.dialects.postgresql.UUID` column. For other databases you might want to try a backend agnostic GUID (`see sqlalchemy_utils.types.uuid.UUIDType <https://sqlalchemy-utils.readthedocs.org/en/latest/data_types.html#sqlalchemy_utils.types.uuid.UUIDType>`_).
+Websauna provides a :py:class:`websauna.system.model.columns.UUID` column type that uses either the PostgreSQL native :py:class:`sqlalchemy.dialects.postgresql.UUID` column or a backend agnostic GUID (`see sqlalchemy_utils.types.uuid.UUIDType <https://sqlalchemy-utils.readthedocs.org/en/latest/data_types.html#sqlalchemy_utils.types.uuid.UUIDType>`_).
 
 For complete UUID support it's better to let the database, not your application, generate primary key UUIDs. This way UUIDs are generated correctly even if other non-Python applications use the same database.
 
-PostgreSQL has a `uuid-ossp <http://www.postgresql.org/docs/devel/static/uuid-ossp.html>`_ extension for generating UUIDs.
+PostgreSQL has a `pgcrypto <https://www.postgresql.org/docs/current/pgcrypto.html>`_ extension that can generate UUIDs on the database.
 
-To enable this extension you must run the following command in :ref:`ws-db-shell` after creating a database:
+Websauna enables this extension when you run the :ref:`ws-sync-db` command.
 
-.. code-block:: sql
-
-    create EXTENSION if not EXISTS "uuid-ossp";
-
-Or just from the command line:
-
-.. code-block:: console
-
-    echo 'create EXTENSION if not EXISTS "uuid-ossp";' | ws-db-shell conf/development.ini
-
-After this, the following works in a column definition:
+For PostgreSQL databases the following server_default could then be added to a column definition:
 
 .. code-block:: python
 
-    uuid = Column(UUID(as_uuid=True),
-                server_default=sqlalchemy.text("uuid_generate_v4()"),)
+    uuid = Column(UUID(as_uuid=True), server_default=sqlalchemy.text("gen_random_uuid()"),)
 
 Read blog post `UUID Primary Keys in PostgreSQL <https://blog.starkandwayne.com/2015/05/23/uuid-primary-keys-in-postgresql/>`_.
 
@@ -123,8 +112,8 @@ Security-wise, the best practice is to use a random UUID ``id`` as a primary key
 .. code-block:: python
 
     import sqlalchemy
-    from sqlalchemy.dialects.postgresql import UUID
     from sqlalchemy import Column
+    from websauna.system.model.columns import UUID
 
 
     class Asset(Base):
@@ -133,7 +122,7 @@ Security-wise, the best practice is to use a random UUID ``id`` as a primary key
 
         id = Column(UUID(as_uuid=True),
             primary_key=True,
-            server_default=sqlalchemy.text("uuid_generate_v4()"),)
+            server_default=sqlalchemy.text("gen_random_uuid()"),)
 
 As UUIDs are random, one cannot accidentally leak information about item URLs or counts.
 
@@ -185,7 +174,7 @@ This approach is a combination of both traditional running counter ids (human re
 .. code-block:: python
 
     from sqlalchemy import Column, String, Integer, ForeignKey
-    from sqlalchemy.dialects.postgresql import UUID
+    from websauna.system.model.columns import UUID
 
 
     class Question(Base):
@@ -282,7 +271,7 @@ Use :py:meth:`sqlalchemy.orm.Query.get`. Example model:
 
         id = Column(UUID(as_uuid=True),
             primary_key=True,
-            server_default=sqlalchemy.text("uuid_generate_v4()"),)
+            server_default=sqlalchemy.text("gen_random_uuid()"),)
 
 You can get an object using a base64 UUID:
 
@@ -513,7 +502,6 @@ Example:
 
     import sqlalchemy as sa
     from sqlalchemy import orm
-    import sqlalchemy.dialects.postgresql as psql
 
     from websauna.system.model.meta import Base
 
@@ -543,7 +531,7 @@ Example:
         __tablename__ = "customer"
 
         #: Our id
-        id = sa.Column(psql.UUID(as_uuid=True), primary_key=True, server_default=sa.text("uuid_generate_v4()"))
+        id = sa.Column(UUID(as_uuid=True), primary_key=True, server_default=sa.text("gen_random_uuid()"))
 
         #: Map customers to users and vice versa. One user phone number can address multiple customer records (across different organizations). One customer can have multiple users (corporate shared access).
         users = orm.relationship(User,

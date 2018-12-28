@@ -6,6 +6,9 @@ Changelog for Websauna
 -------------------
 
 - Closes `Issue #212`_: Pin to Redis version 2.10.6.
+- Closes `Issue #213`_: Remove unused FormView.customize_schema().
+- Closes `Issue #209`_: Use pgcrypto instead of uuid-ossp (Postgres).
+- Closes `Issue #215`_: UUIDModelSet now supports a label_column parameter on its constructor.
 
 
 1.0a12 (2018-11-01)
@@ -160,4 +163,7 @@ Changelog for Websauna
 .. _`Issue #193`: https://github.com/websauna/websauna/issues/193
 .. _`Issue #195`: https://github.com/websauna/websauna/issues/195
 .. _`Issue #206`: https://github.com/websauna/websauna/issues/206
+.. _`Issue #209`: https://github.com/websauna/websauna/issues/209
 .. _`Issue #212`: https://github.com/websauna/websauna/issues/212
+.. _`Issue #213`: https://github.com/websauna/websauna/issues/213
+.. _`Issue #215`: https://github.com/websauna/websauna/issues/215

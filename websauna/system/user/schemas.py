@@ -96,7 +96,10 @@ def email_exists(node: c.SchemaNode, value: str):
 class GroupSet(UUIDModelSet):
     """A set of Group objects referred by their uuid."""
 
-    label_column = "name"
+    def __init__(self, model: t.Optional[type] = None, match_column: t.Optional[str] = None, label_column: t.Optional[str] = None):
+        # We use *name* as default label_column for GroupSet
+        label_column = label_column if label_column else "name"
+        super().__init__(model, match_column, label_column)
 
     def get_model(self, node: c.SchemaNode) -> t.Type[IGroupModel]:
         """Return Group class.

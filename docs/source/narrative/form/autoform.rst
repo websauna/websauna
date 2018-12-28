@@ -79,8 +79,8 @@ Example:
                     ]
 
 
-Subclass CRUD view and override customize_schema
-------------------------------------------------
+Subclass CRUD view and override form_generator
+----------------------------------------------
 
 This applies for automatic :term:`CRUD`.
 
@@ -92,25 +92,34 @@ Subclass your form from
 
 * :py:class:`websauna.system.crud.views.Show`
 
-Override :py:meth:`websauna.system.crud.views.FormView.customize_schema` to edit generated :py:class:`colander.SchemaNode` in place.
+Override :py:meth:`websauna.system.crud.views.FormView.form_generator` and pass a callable to edit generated :py:class:`colander.SchemaNode` in place.
 
 Example:
 
 .. code-block:: python
 
-    from websauna.system.crud.views import Add
     from websauna.system.core.viewconfig import view_overrides
+    from websauna.system.crud.formgenerator import SQLAlchemyFormGenerator
+    from websauna.system.crud import views
+
+
+    def customizer(**kwargs):
+        request = kwargs["request"]
+        schema = kwargs["schema"]
+        if request.user:
+            # Do nothing, we know the name of the logged in user already
+            pass
+        else:
+            schema.add(colander.SchemaNode(colander.String(), label="Leave your name for feedback", name="anonymous_visitor_name", missing="", widget=deform.widget.TextInputWidget()))
+
 
     # This view applies to imaginary CommentCRUD which manages SQLAlchemy Comment model
     @view_overrides(context=CommentCRUD)
-    class MyView(Add):
+    class CommentAddView(views.Add):
 
-        def customize_schema(self, schema):
-            if request.user:
-                # Do nothing, we know the name of the logged in user already
-                pass
-            else:
-                rating.add(colander.SchemaNode(colander.String(), label="Leave your name for feedback", name="anonymous_visitor_name", missing="", widget=deform.widget.TextInputWidget()))
+        # Pass a callable to SQLAlchemyFormGenerator
+        form_generator = SQLAlchemyFormGenerator(customize_schema=customizer)
+
 
 Rolling out your own view with field mapper
 -------------------------------------------
@@ -190,4 +199,3 @@ Override field_mapper attribute
 -------------------------------
 
 Inherit from a crud view and override :py:attr:`websauna.system.crud.views.FormView.field_mapper` with your own instance of :py:class:`websauna.system.form.fieldmapper.ColumnToFieldMapper`.
-

@@ -188,8 +188,8 @@ Here is an example how to have a custom show page for one of our models.
 
     import sqlalchemy
     from sqlalchemy import Column
-    from sqlalchemy.dialects.postgresql import UUID
 
+    from websauna.system.model.columns import UUID
     from websauna.system.model.meta import Base
 
 
@@ -198,7 +198,7 @@ Here is an example how to have a custom show page for one of our models.
 
         __tablename__ = "box"
 
-        id = Column(UUID(as_uuid=True), primary_key=True, server_default=sqlalchemy.text("uuid_generate_v4()"))
+        id = Column(UUID(as_uuid=True), primary_key=True, server_default=sqlalchemy.text("gen_random_uuid()"))
 
         #: Human friendly for the box as it is now
         name = Column(String(256), nullable=False, default="")
@@ -326,7 +326,7 @@ Here is an example how we customize the model admin add view to include just a s
 
         __tablename__ = "verification_contract"
 
-        id = sa.Column(psql.UUID(as_uuid=True), primary_key=True, server_default=sa.text("uuid_generate_v4()"),)
+        id = sa.Column(UUID(as_uuid=True), primary_key=True, server_default=sa.text("gen_random_uuid()"),)
 
         #: Legal name
         name = sa.Column(sa.String(256))
@@ -418,8 +418,9 @@ Below is an example of an admin edit which has been enhanced to edit JSON field.
 
     import sqlalchemy as sa
     from sqlalchemy import orm
-    import sqlalchemy.dialects.postgresql as psql
 
+    from websauna.system.model.columns import JSONB
+    from websauna.system.model.columns import UUID
     from websauna.system.model.meta import Base
     from websauna.system.model.json import NestedMutationDict
 
@@ -430,13 +431,13 @@ Below is an example of an admin edit which has been enhanced to edit JSON field.
         __tablename__ = "branding"
 
         #: Internal id
-        id = sa.Column(psql.UUID(as_uuid=True), primary_key=True, server_default=sa.text("uuid_generate_v4()"))
+        id = sa.Column(UUID(as_uuid=True), primary_key=True, server_default=sa.text("gen_random_uuid()"))
 
         #: Human readable name of the organization. Used in footer, such.
         name = sa.Column(sa.String(256))
 
         #: Misc. bag of branding variables
-        branding_data = sa.Column(NestedMutationDict.as_mutable(psql.JSONB), default=dict)
+        branding_data = sa.Column(NestedMutationDict.as_mutable(JSONB), default=dict)
 
         def __str__(self):
             return self.name or "-"
@@ -1100,7 +1101,7 @@ The following model code is used in this example.
         __tablename__ = "organization"
 
         #: Internal id
-        id = sa.Column(psql.UUID(as_uuid=True), primary_key=True, server_default=sa.text("uuid_generate_v4()"))
+        id = sa.Column(UUID(as_uuid=True), primary_key=True, server_default=sa.text("gen_random_uuid()"))
 
         #: Human readable name
         name = sa.Column(sa.String(256))
@@ -1118,7 +1119,7 @@ The following model code is used in this example.
         __tablename__ = "customer"
 
         #: Our id
-        id = sa.Column(psql.UUID(as_uuid=True), primary_key=True, server_default=sa.text("uuid_generate_v4()"))
+        id = sa.Column(UUID(as_uuid=True), primary_key=True, server_default=sa.text("gen_random_uuid()"))
 
         #: ID in the customer system
         external_id = sa.Column(sa.String(64), nullable=False)

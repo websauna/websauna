@@ -373,13 +373,6 @@ class FormView(CRUDView):
         """Get human-readable title for for template page title."""
         return "#{}".format(self.get_object().id)
 
-    def customize_schema(self, schema: colander.Schema):
-        """After Colander schema is automatically generated from the SQLAlchemy model, edit it in-place for fine-tuning.
-
-        Override this in your view subclass for schema customizations.
-        """
-        pass
-
     def pull_in_widget_resources(self, form: deform.Form):
         """Include widget JS and CSS on the page.
 

@@ -14,6 +14,7 @@ from websauna.system.devop.cmdline import init_websauna
 from websauna.system.devop.scripts import get_config_uri
 from websauna.system.devop.scripts import usage_message
 from websauna.system.model.meta import Base
+from websauna.utils.psql import UUID_SUPPORT_STMT
 
 
 def main(argv: t.List[str] = sys.argv):
@@ -30,10 +31,8 @@ def main(argv: t.List[str] = sys.argv):
 
     with transaction.manager:
         engine = request.dbsession.get_bind()
-        if engine.dialect.name == "postgresql":
-            # Always enable UUID extension for PSQL
-            # TODO: Convenience for now, because we assume UUIDs, but make this somehow configurable
-            engine.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"')
+        # Enable pgcrypto and implement a uuid_generate_v4 function
+        engine.execute(UUID_SUPPORT_STMT)
 
         Base.metadata.create_all(engine)
 

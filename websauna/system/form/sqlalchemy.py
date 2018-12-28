@@ -28,17 +28,10 @@ def convert_query_to_tuples(query: Query, first_column: t.Union[str, t.Callable]
     :param second_column: Column name used to populate value in the second tuple
     :oaram default_choice: If given use this as "Select here" or when the value is None
     """
-    if type(first_column) == str:
-        first_column_getter = lambda item: getattr(item, first_column)
-    else:
-        first_column_getter = first_column
-
-    if type(second_column) == str:
-        second_column_getter = lambda item: getattr(item, second_column)
-    else:
-        second_column_getter = second_column
-
     result = []
+
+    first_column_getter = (lambda item: getattr(item, first_column)) if type(first_column) == str else first_column
+    second_column_getter = (lambda item: getattr(item, second_column)) if type(second_column) == str else second_column
 
     if default_choice:
         result.append(('', default_choice))
@@ -74,7 +67,7 @@ class ModelSchemaType:
     #: Name of the column which provides label or such for items in sequence. If not present item __str__ is used.
     label_column = None
 
-    def __init__(self, model: type = None):
+    def __init__(self, model: t.Optional[type] = None):
         if model:
             self.model = model
 
@@ -103,12 +96,7 @@ class ForeignKeyValue(ModelSchemaType, colander.String):
     """
 
     def serialize(self, node, appstruct):
-
-        if appstruct is colander.null:
-            return colander.null
-
-        value = self.preprocess_appstruct_value(node, appstruct)
-        return value
+        return colander.null if appstruct is colander.null else self.preprocess_appstruct_value(node, appstruct)
 
     def preprocess_cstruct_value(self, node: colander.SchemaNode, cstruct: set) -> t.Union[set, t.List]:
         """Parse incoming form values to Python objects if needed.
@@ -122,23 +110,18 @@ class ForeignKeyValue(ModelSchemaType, colander.String):
 
     def query_item(self, node: colander.SchemaNode, dbsession: Session, model: type, match_column: Column, value: set) -> t.List[object]:
         """Query the actual model to get the concrete SQLAlchemy objects."""
-
-        if not value:
-            # Empty IN queries are not allowed
-            return value
-
-        return dbsession.query(model).filter(match_column == value).first()
+        # Empty IN queries are not allowed
+        return dbsession.query(model).filter(match_column == value).first() if value else value
 
     def deserialize(self, node, cstruct: str):
         """Convert incoming form value - string id - back to a SQLAlchemy object."""
-        if cstruct is colander.null:
-            return colander.null
-
-        dbsession = self.get_dbsession(node)
-        model = self.get_model(node)
-        match_column = self.get_match_column(node, model)
-        value = self.preprocess_cstruct_value(node, cstruct)
-        value = self.query_item(node, dbsession, model, match_column, value)
+        value = colander.null
+        if cstruct is not colander.null:
+            dbsession = self.get_dbsession(node)
+            model = self.get_model(node)
+            match_column = self.get_match_column(node, model)
+            value = self.preprocess_cstruct_value(node, cstruct)
+            value = self.query_item(node, dbsession, model, match_column, value)
 
         return value
 
@@ -207,13 +190,10 @@ class UUIDForeignKeyValue(ForeignKeyValue):
     See :ref:`Widgets <deform:widget>` for more information.
     """
 
-    #: The name of the column from where we extract UUID value. Defauts to ``uuid``.
-    match_column = "uuid"
-
-    def __init__(self, model, match_column=None):
+    def __init__(self, model: type, match_column: t.Optional[str] = None):
+        #: The name of the column from where we extract UUID value. Defaults to ``uuid``.
+        self.match_column = match_column if match_column else "uuid"
         super().__init__(model)
-        if match_column:
-            self.match_column = match_column
 
     def preprocess_cstruct_value(self, node, cstruct):
         """Parse incoming form values to Python objects if needed.
@@ -232,14 +212,13 @@ class UUIDModelSet(ModelSet):
     See :ref:`Widgets <deform:widget>` for more information.
     """
 
-    match_column = "uuid"
+    def __init__(self, model: t.Optional[type] = None, match_column: t.Optional[str] = None, label_column: t.Optional[str] = None):
+        self.match_column = match_column if match_column else "uuid"
 
-    def __init__(self, model: type = None, match_column: str = None):
-        if model:
-            self.model = model
+        if label_column:
+            self.label_column = label_column
 
-        if match_column:
-            self.match_column = match_column
+        super().__init__(model)
 
     def preprocess_cstruct_values(self, node, cstruct):
         """Parse incoming form values to Python objects if needed.

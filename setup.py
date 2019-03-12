@@ -112,9 +112,9 @@ setup(
             'isort',
             'pytest-cov',
             'pytest-runner',
-            'pytest-splinter',
+            'pytest-splinter>=2.0.1',
             'pytest-timeout',
-            'pytest<4.0',
+            'pytest',
             'webtest',
         ],
         "notebook": [

@@ -123,7 +123,10 @@ setup(
         # Command line utilities and like that are needed to make development / production environment friendly
         'utils': ['pgcli>=2'],
         # Using celery based async tasks
-        'celery': ['celery[redis]>=4.2.0,<5.0.0']
+        'celery': [
+            'kombu==4.2.0',
+            'celery[redis]>=4.2.0,<5.0.0'
+        ]
     },
 
     # To provide executable scripts, use entry points in preference to the

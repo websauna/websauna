@@ -89,7 +89,7 @@ def _check(redis, key, window=60, limit=50):
 
     # Add a hit on the very moment
     now = time.time()
-    redis.zadd(key, now, now)
+    redis.zadd(key, {str(now): now})
 
     # If we currently have more keys than limit,
     # then limit the action

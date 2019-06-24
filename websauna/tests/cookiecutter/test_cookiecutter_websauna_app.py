@@ -70,7 +70,7 @@ def test_pserve(app_scaffold, dev_db, browser):  # noQA
 
 # On Travis there might be abnormal delays in this test
 @flaky  # noQA
-def test_pyramid_debugtoolbar(app_scaffold, dev_db, browser):
+def test_pyramid_debugtoolbar(app_scaffold, dev_db, browser):  # noQA: F811
     """Pyramid debug toolbar should be effective with the default development pserve."""
     # User models are needed to start the web server
     execute_ws_command('ws-sync-db', app_scaffold)
@@ -137,7 +137,7 @@ def test_app_sanity_check_fail(app_scaffold, dev_db):  # noQA
 
 # DB dump on Travis might hung?
 @flaky  # noQA
-def test_dump_db(app_scaffold, dev_db):
+def test_dump_db(app_scaffold, dev_db):  # noQA: F811
     """Test database dump."""
     execute_ws_command('ws-sync-db', app_scaffold)
     execute_ws_command('ws-dump-db', app_scaffold)
@@ -145,7 +145,7 @@ def test_dump_db(app_scaffold, dev_db):
 
 # Browser doesn't come up timely on Travis
 @flaky  # noQA
-def test_create_user(app_scaffold, dev_db, browser):
+def test_create_user(app_scaffold, dev_db, browser):  # noQA: F811
     """Test creating user from command line and logging in as this user."""
     execute_ws_command('ws-sync-db', app_scaffold)
     cmdline = 'ws-create-user {config} mikko@example.com secret'.format(config=CONFIG)

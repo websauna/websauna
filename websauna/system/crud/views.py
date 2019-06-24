@@ -33,6 +33,9 @@ from . import CRUD
 from . import Resource
 from . import paginator
 
+if t.TYPE_CHECKING:
+    from .listing import Table
+
 
 class ResourceButton:
     """Present a button on the top right corner of CRUD views.
@@ -643,7 +646,7 @@ class Add(FormView):
         self.add_object(obj)
         return obj
 
-    def get_buttons(self)-> t.List[deform.form.Button]:
+    def get_buttons(self) -> t.List[deform.form.Button]:
         buttons = (
             deform.form.Button("add"),
             deform.form.Button("cancel"),

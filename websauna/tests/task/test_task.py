@@ -1,7 +1,6 @@
 """Celery async task tests."""
 # Standard Library
 import os
-import subprocess
 import time
 
 # Pyramid
@@ -15,11 +14,6 @@ from websauna.system.devop.cmdline import init_websauna
 from websauna.system.task.celery import get_celery
 from websauna.system.user.models import User
 from websauna.tests.task import demotasks
-
-
-@pytest.fixture(scope='module')
-def task_ini_file():
-    return os.path.join(os.path.dirname(__file__), 'task-test.ini')
 
 
 @pytest.fixture(scope='module')
@@ -38,34 +32,21 @@ def demo_user(request, dbsession):
 
 
 @pytest.fixture(scope='module')
-def celery_worker(request, task_ini_file):
+def celery_worker(request, task_ini_file, watcher_getter):
     """py.test fixture to shoot up Celery worker process to process our test tasks when scheduled."""
-
     # Uncomment this and run ws-celery from command line for debug
-    # ws-celery ws://websauna/tests/task-test.ini -- worker --loglevel=debug
+    # ws-celery ws://websauna/tests/task/task-test.ini -- worker --loglevel=debug
     # return
-    cmdline = "ws-celery ws://{ini_file} -- worker".format(ini_file=task_ini_file)
-
+    ini_file = "ws://{}".format(task_ini_file)
+    pid_file = "/tmp/celery.pid"
     # logger.info("Running celery worker: %s", cmdline)
 
-    worker = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    time.sleep(4.0)
-
-    worker.poll()
-    if worker.returncode is not None:
-        print(worker.stdout.read().decode("utf-8"))
-        print(worker.stderr.read().decode("utf-8"))
-        raise AssertionError("Celery worker process did not start up: {}".format(cmdline))
-
-    def teardown():
-        worker.terminate()
-        # XXX: Hard to capture this only on failure for now
-        # print(worker.stdout.read().decode("utf-8"))
-        # print(worker.stderr.read().decode("utf-8"))
-
-    request.addfinalizer(teardown)
-
-    return worker.pid
+    return watcher_getter(
+        name='ws-celery',
+        arguments=[ini_file, '--', 'worker', '--pidfile={}'.format(pid_file)],
+        checker=lambda: os.path.exists(pid_file),
+        request=request,
+    )
 
 
 @flaky

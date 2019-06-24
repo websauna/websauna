@@ -211,8 +211,6 @@ class DefaultSQLAlchemyFieldMapper(ColumnToFieldMapper):
         """
 
         def _map_column(node, name, column, column_type):
-            # if name == 'email':
-            #     import pdb; pdb.set_trace()
             return self.map_column(mode, request, node, model, name, column, column_type)
 
         def _map_relationship(node: colander.SchemaNode, name: str, prop: RelationshipProperty, mapper: Mapper):

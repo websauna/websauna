@@ -48,9 +48,6 @@ setup(
     zip_safe=False,
     python_requires='>=3.5.2',
     install_requires=[
-        # Pinned versions. It seems that these need to be here on top
-        "psycopg2>=2.7.4,<2.8",  # pgcli wants <2.8
-
         # Pyramid dependencies
         'pyramid>=1.10',
         'transaction>=2.4.0',
@@ -117,9 +114,9 @@ setup(
             'pytest-runner',
             'pytest-splinter',
             'pytest-timeout',
-            'pytest<4.0',
+            'pytest-services',
+            'pytest',
             'webtest',
-            'urllib3>=1.21.1,<1.25',  # Pinned version to avoid breaking tests
         ],
         "notebook": [
             "pyramid_notebook>=0.3.0",

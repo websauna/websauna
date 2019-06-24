@@ -40,7 +40,6 @@ def web_server(request, app: Router) -> str:
 _customized_web_server_port = 8523
 
 
-@pytest.fixture()
 def customized_web_server(request, app: Router, customized_port: int = None) -> t.Callable:
     '''py.test fixture to create a WSGI web server for functional tests with custom INI options set.
 

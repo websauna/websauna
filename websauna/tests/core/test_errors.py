@@ -1,4 +1,5 @@
 import requests
+from websauna.tests.webserver import customized_web_server
 
 
 SPOOF_CSRF_JS = """
@@ -10,13 +11,14 @@ console.log("Finished geospoofing");
 """
 
 
-def test_internal_server_error(customized_web_server, browser):
+def test_internal_server_error(browser, request, app):
     """When things go KABOOM show a friendly error page."""
 
-    web_server = customized_web_server({"websauna.log_internal_server_error": False})
+    web_server_factory = customized_web_server(request, app)
+    _web_server = web_server_factory({"websauna.log_internal_server_error": False})
 
     b = browser
-    b.visit("{}/error-trigger".format(web_server))
+    b.visit("{}/error-trigger".format(_web_server))
 
     # After login we see a profile link to our profile
     assert b.is_element_visible_by_css("#it-is-broken")

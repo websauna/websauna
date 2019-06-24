@@ -31,7 +31,6 @@ from websauna.system.http.utils import make_routable_request
 from websauna.system.model.meta import create_dbsession
 from websauna.tests.test_utils import make_dummy_request  # noQA
 #: Make sure py.test picks this up
-from websauna.tests.webserver import customized_web_server  # noQA
 from websauna.tests.webserver import web_server  # noQA
 from websauna.utils.psql import UUID_SUPPORT_STMT
 from websauna.utils.qualname import get_qual_name

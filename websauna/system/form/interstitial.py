@@ -26,6 +26,7 @@ class Choice:
         self.callback = callback
         self.id = id or self.callback.__name__
         self.css_class = css_class
+        self.icon_class = icon_class
 
 
 def process_interstitial(request: Request, choices: t.List[Choice], *args, **kwargs):

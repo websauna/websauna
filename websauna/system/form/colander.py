@@ -344,8 +344,6 @@ class PropertyAwareSQLAlchemySchemaNode(SQLAlchemySchemaNode):
             elif type_overrides_type == TypeOverridesHandling.unknown:
                 # type overrides callback doesn't know about this column
                 type_overrides_type = None
-                type_overrides_kwargs = {}
-
         else:
             type_overrides_type = None
             type_overrides_kwargs = {}

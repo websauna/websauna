@@ -11,6 +11,7 @@ import deform  # noQA
 #: Backwards compatibility
 from .csrf import CSRFSchema  # noQA
 from .csrf import add_csrf  # noQA
+from .editmode import EditMode
 
 
 def validate_json(node, value, **kwargs):
@@ -20,6 +21,39 @@ def validate_json(node, value, **kwargs):
         json.loads(value)
     except json.JSONDecodeError:
         raise colander.Invalid(node, "Not valid JSON")
+
+
+class ValidateUnique:
+    """Check unique constraint."""
+
+    def __init__(self, model, mode):
+        assert mode in (EditMode.add, EditMode.edit)
+
+        self.mode = mode
+        self.model = model
+
+    def __call__(self, node, value):
+        request = node.bindings["request"]
+        dbsession = request.dbsession
+
+        # Add
+        if self.mode == EditMode.add:
+            query = dbsession.query(self.model).filter_by(
+                **{node.name: value}
+            )
+        else:
+            # Edit
+            obj = node.bindings["context"].get_object()
+            query = dbsession.query(self.model).filter_by(**{node.name: value}).filter(
+                getattr(self.model, "id") != obj.id)
+
+        if dbsession.query(query.exists()).scalar():
+            raise colander.Invalid(
+                node, "{model_name} with this `{field}` already exists.".format(
+                    model_name=self.model.__name__,
+                    field=node.name,
+                ),
+            )
 
 
 def enum_values(source: enum.Enum, default: t.Optional[t.Tuple] = ("", "Please choose"), name_transform=str.title) -> t.Iterable[t.Tuple]:

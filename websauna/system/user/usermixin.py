@@ -172,7 +172,7 @@ class GroupMixin:
     uuid = Column(UUID(as_uuid=True), default=uuid4)
 
     #: Human readable / machine referrable name of the group
-    name = Column(String(64), unique=True)
+    name = Column(String(64), nullable=False, unique=True)
 
     #: Human readable description of the group
     description = Column(String(256))

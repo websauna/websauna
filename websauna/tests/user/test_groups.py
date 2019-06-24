@@ -4,7 +4,7 @@ import transaction
 from flaky import flaky
 
 # Websauna
-from websauna.system.user.models import User
+from websauna.system.user.models import User, Group
 from websauna.tests.test_utils import create_logged_in_user
 from websauna.utils.slug import uuid_to_slug
 
@@ -31,11 +31,59 @@ def test_add_group(web_server, browser, dbsession, init):
 
     assert b.is_text_present("Item added")
 
+    # Check name uniqueness
+    b.visit("{}/admin/models/group/add".format(web_server))
+    b.fill("name", GROUP_NAME)
+    b.fill("description", "Foobar")
+    b.find_by_name("add").click()
+    assert b.is_text_present("There was a problem")
+    assert b.is_text_present("Group with this `name` already exists")
+
     # Check we appear in the list
     b.visit("{}/admin/models/group/listing".format(web_server))
 
     # The description appears in the listing
     assert b.is_text_present("Foobar")
+
+
+def test_edit_group(web_server, browser, dbsession, init):
+    """Edit existen group through admin interface."""
+
+    b = browser
+    create_logged_in_user(dbsession, init.config.registry, web_server, browser, admin=True)
+
+    GROUP_NAME2 = GROUP_NAME + "2"
+    GROUP_NAME3 = GROUP_NAME + "3"
+
+    # Create two groups with difference names
+    with transaction.manager:
+        for gname in (GROUP_NAME, GROUP_NAME2):
+            g = Group(name=gname)
+            dbsession.add(g)
+
+    # Check name uniqueness: trying change GROUP_NAME2 to GROUP_NAME
+    b.find_by_css("#nav-admin").click()
+    b.find_by_css("#btn-panel-list-group").click()
+    b.find_by_css(".crud-row-3 .btn-crud-listing-edit").click()
+    b.fill("name", GROUP_NAME)
+    b.find_by_name("save").click()
+    assert b.is_text_present("There was a problem")
+    assert b.is_text_present("Group with this `name` already exists")
+
+    # Check empty Group name
+    b.fill("name", "")
+    b.find_by_name("save").click()
+    assert b.is_text_present("There was a problem")
+
+    # Set new name
+    b.fill("name", GROUP_NAME3)
+    b.find_by_name("save").click()
+    assert b.is_text_present("Changes saved")
+    # Check we appear in the list
+    b.visit("{}/admin/models/group/listing".format(web_server))
+
+    # The new name appears in the listing
+    assert b.is_text_present(GROUP_NAME3)
 
 
 def test_put_user_to_group(web_server, browser, dbsession, init):

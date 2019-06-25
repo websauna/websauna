@@ -4,6 +4,9 @@ dist: trusty
 addons:
   postgresql: "9.4"
   chrome: stable
+  apt:
+    packages:
+      - libzmq-dev  # needed by pyzmq on Python 3.8
 
 services:
   - postgresql

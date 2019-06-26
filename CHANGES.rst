@@ -2,7 +2,7 @@ Changelog for Websauna
 ======================
 
 
-1.0a13 (unreleased)
+1.0a13 (2019-06-26)
 -------------------
 
 - Closes `Issue #212`_: Pin to Redis version 2.10.6.

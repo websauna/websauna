@@ -6,9 +6,24 @@ Changelog for Websauna
 -------------------
 
 - Closes `Issue #212`_: Pin to Redis version 2.10.6.
+
 - Closes `Issue #213`_: Remove unused FormView.customize_schema().
+
 - Closes `Issue #209`_: Use pgcrypto instead of uuid-ossp (Postgres).
+
 - Closes `Issue #215`_: UUIDModelSet now supports a label_column parameter on its constructor.
+
+- Add Missing icon_class Property
+
+- Upgrades Celery to version 4.3.
+
+- Upgrades redis-py to version 3.2.
+
+- Upgrades pytz to version 2019.1.
+
+- Support pytest 4.x.
+
+- Refactor validator for unique values.
 
 
 1.0a12 (2018-11-01)

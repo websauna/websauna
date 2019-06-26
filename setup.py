@@ -49,7 +49,7 @@ setup(
     python_requires='>=3.5.2',
     install_requires=[
         # Pyramid dependencies
-        'pyramid>=1.10',
+        'pyramid>=1.10,<2.0.0',
         'transaction>=2.4.0',
         'waitress',
         'pyramid_redis_sessions',
@@ -60,7 +60,7 @@ setup(
 
         # Time handling
         "arrow",
-        "pytz",
+        "pytz>=2019.1",
 
         # SQLAlchemy and database support
         "alembic",

@@ -67,6 +67,21 @@ def site_title(request, registry, settings):
     return settings.get("websauna.site_title", "")
 
 
+@var("site_description")
+def site_description(request, registry, settings):
+    """Expose website description from ``websauna.site_description`` config variable to templates.
+    This is the default ``<meta name="description" content="{{ site_description }}">`` tag.
+    Example:
+    .. code-block:: html+jinja
+    
+        <head>
+            <meta name="description" content="{{ site_description }}">
+        <head>
+    """
+    # Use .get() for BBB
+    return settings.get("websauna.site_description", "")
+
+
 @var("site_url")
 def site_url(request, registry, settings):
     """Expose website URL from ``websauna.site_url`` config variable to templates.

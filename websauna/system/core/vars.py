@@ -134,7 +134,7 @@ def site_time_zone(request, registry, settings):
 
     See `timezone abbreviation list <https://en.wikipedia.org/wiki/List_of_time_zone_abbreviations>`_.
     """
-    return settings.get("websauna.site_timezone", "UTC")
+    return settings.get("websauna.site_time_zone", "UTC")
 
 
 @var("js_in_head")

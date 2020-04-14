@@ -16,7 +16,7 @@ Run:
 
 .. code-block:: console
 
-    createdb myapp_dev
+    createdb myapp_test
 
 Create test database on Ubuntu
 ------------------------------
@@ -25,7 +25,7 @@ Run:
 
 .. code-block:: console
 
-    sudo -u postgres createdb myapp_dev
+    sudo -u postgres createdb myapp_test
 
 Running tests
 =============
